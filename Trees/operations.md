@@ -6,24 +6,24 @@
 
 # 📚 Table of Contents
 
-1. Introduction
-2. TreeNode Structure
-3. Creating a Tree
-4. Searching in a Binary Tree
-5. Inserting into a Binary Tree
-6. Deleting a Node in a Binary Tree
-7. Calculating Height
-8. Counting Nodes
-9. Counting Leaf Nodes
-10. Counting Internal Nodes
-11. Finding Maximum Value
-12. Finding Minimum Value
-13. Mirroring (Invert Tree)
-14. Copying a Tree
-15. Comparing Two Trees
-16. Time Complexity
-17. Common Interview Questions
-18. Summary
+1. [Introduction](#1-introduction)
+2. [TreeNode Structure](#2-treenode-structure)
+3. [Creating a Tree](#3-creating-a-tree)
+4. [Searching in a Binary Tree](#4-searching-in-a-binary-tree)
+5. [Inserting into a Binary Tree](#5-inserting-into-a-binary-tree)
+6. [Deleting a Node in a Binary Tree](#6-deleting-a-node)
+7. [Calculating Height](#7-finding-height)
+8. [Counting Nodes](#8-counting-total-nodes)
+9. [Counting Leaf Nodes](#9-counting-leaf-nodes)
+10. [Counting Internal Nodes](#10-counting-internal-nodes)
+11. [Finding Maximum Value](#11-finding-maximum-value)
+12. [Finding Minimum Value](#12-finding-minimum-value)
+13. [Mirroring (Invert Tree)](#13-mirror-invert-tree)
+14. [Copying a Tree](#14-copying-a-tree)
+15. [Comparing Two Trees](#15-comparing-two-trees)
+16. [Time Complexity](#16-time-complexity)
+17. [Common Interview Questions](#17-common-interview-questions)
+18. [Summary](#18-summary)
 
 ---
 

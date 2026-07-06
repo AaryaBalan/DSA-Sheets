@@ -8,20 +8,20 @@ Traversals are the foundation of almost every Binary Tree problem. Before solvin
 
 # 📚 Table of Contents
 
-1. What is Tree Traversal?
-2. Types of Traversals
-3. Depth First Search (DFS)
-4. Breadth First Search (BFS)
-5. Preorder Traversal
-6. Inorder Traversal
-7. Postorder Traversal
-8. Level Order Traversal
-9. DFS vs BFS
-10. Recursive vs Iterative Traversal
-11. Which Traversal Should I Use?
-12. Time & Space Complexity
-13. Interview Tips
-14. Practice Problems
+1. [What is Tree Traversal?](#1-what-is-tree-traversal)
+2. [Types of Traversals](#2-types-of-traversals)
+3. [Depth First Search (DFS)](#3-depth-first-search-dfs)
+4. [Breadth First Search (BFS)](#7-breadth-first-search-bfs)
+5. [Preorder Traversal](#4-preorder-traversal)
+6. [Inorder Traversal](#5-inorder-traversal)
+7. [Postorder Traversal](#6-postorder-traversal)
+8. [Level Order Traversal](#7-breadth-first-search-bfs)
+9. [DFS vs BFS](#8-dfs-vs-bfs)
+10. [Recursive vs Iterative Traversal](#9-recursive-vs-iterative)
+11. [Which Traversal Should I Use?](#11-which-traversal-should-i-use)
+12. [Time & Space Complexity](#10-time-complexity)
+13. [Interview Tips](#12-interview-pattern)
+14. [Practice Problems](#13-common-leetcode-problems)
 
 ---
 

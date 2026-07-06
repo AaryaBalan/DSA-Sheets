@@ -6,16 +6,16 @@
 
 # 📚 Table of Contents
 
-1. Introduction
-2. Why Trees?
-3. Basic Structure of a Tree
-4. Tree Terminology
-5. Types of Trees
-6. Binary Tree
-7. Binary Search Tree (BST)
-8. Properties of Trees
-9. Binary Tree Representation
-10. Summary
+1. [Introduction](#1-introduction)
+2. [Why Trees?](#2-why-trees)
+3. [Basic Structure of a Tree](#3-basic-structure-of-a-tree)
+4. [Tree Terminology](#4-tree-terminology)
+5. [Types of Trees](#5-types-of-trees)
+6. [Binary Tree](#52-binary-tree)
+7. [Binary Search Tree (BST)](#59-binary-search-tree-bst)
+8. [Properties of Trees](#6-properties-of-trees)
+9. [Binary Tree Representation](#7-binary-tree-representation)
+10. [Summary](#8-summary)
 
 ---
 
