@@ -421,8 +421,6 @@ This is the most efficient solution commonly expected in interviews for LeetCode
 
 </details>
 
-<br><br><br><br><br>
-
 ---
 
 <details>
@@ -925,7 +923,6 @@ Queue
 
 </details>
 
-<br><br><br><br><br>
 
 ---
 
@@ -1526,8 +1523,6 @@ Ask yourself:
 For this problem, the current node's average depends on the **sum** and **count** of its children, so the solution naturally becomes a **Postorder DFS** that returns `(sum, count)` from each subtree.
 
 </details>
-
-<br><br><br><br><br>
 
 ---
 
@@ -2211,8 +2206,6 @@ Instead of storing the complete path, store only the information needed to compu
 - This reduces the time complexity to **O(n)** while using only **O(h)** recursion stack space.
 
 </details>
-
-<br/><br/><br/><br/><br/>
 
 ---
 
@@ -3010,8 +3003,6 @@ instead of repeatedly looking upward or manually searching descendants.
 - The parent/grandparent approach is cleaner, avoids repeated pointer checks, and demonstrates a reusable DFS pattern for many tree problems.
 
 </details>
-
-<br/><br/><br/><br/><br/><br/>
 
 ---
 
@@ -3984,8 +3975,6 @@ Once you identify the correct value to return from DFS, the entire solution natu
 
 </details>
 
-<br/><br/><br/><br/><br/>
-
 ---
 
 <details>
@@ -4882,5 +4871,3 @@ current = current * 2 + node.val
 - This is a classic **Parent → Child DFS** problem where information flows downward through recursion.
 
 </details>
-
-<br><br><br><br><br>
