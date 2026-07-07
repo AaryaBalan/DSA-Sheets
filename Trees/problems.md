@@ -11,6 +11,11 @@ Welcome to the tree problems section! Here you will find various data structure 
 - [1315. Sum of Nodes with Even-Valued Grandparent](#1315-sum-of-nodes-with-even-valued-grandparent)
 - [979. Distribute Coins in Binary Tree](#979-distribute-coins-in-binary-tree)
 - [1022. Sum of Root To Leaf Binary Numbers](#1022-sum-of-root-to-leaf-binary-numbers)
+- [2641. Cousins in Binary Tree II](#2641-cousins-in-binary-tree-ii)
+- [1448. Count Good Nodes in Binary Tree](#1448-count-good-nodes-in-binary-tree)
+- [513. Find Bottom Left Tree Value](#513-find-bottom-left-tree-value)
+- [1110. Delete Nodes And Return Forest](#1110-delete-nodes-and-return-forest)
+- [114. Flatten Binary Tree to Linked List](#114-flatten-binary-tree-to-linked-list)
 
 <br><br><br><br><br>
 
@@ -4856,3 +4861,3692 @@ current = current * 2 + node.val
 - This is a classic **Parent → Child DFS** problem where information flows downward through recursion.
 
 <br><br><br><br><br>
+
+---
+
+# <span style="color: limegreen;">2641. Cousins in Binary Tree II</span>
+
+- **Difficulty:** Medium
+- **Topics:** Binary Tree, DFS, BFS, Level-wise Processing
+
+---
+
+# 📖 Problem Statement
+
+You are given the root of a binary tree.
+
+Replace the value of every node with the **sum of all its cousins' values**.
+
+Two nodes are cousins if:
+
+- They are at the **same depth**
+- They have **different parents**
+
+Return the modified tree.
+
+---
+
+## Example 1
+
+### Input
+
+```text
+          5
+        /   \
+       4     9
+      / \     \
+     1  10     7
+```
+
+### Output
+
+```text
+          0
+        /   \
+       0     0
+      / \     \
+     7   7    11
+```
+
+---
+
+## Example 2
+
+### Input
+
+```text
+      3
+     / \
+    1   2
+```
+
+### Output
+
+```text
+      0
+     / \
+    0   0
+```
+
+---
+
+# 🤔 Why Is This Problem Difficult?
+
+Most people read
+
+```text
+Find cousins
+```
+
+and immediately think
+
+```text
+For every node,
+
+↓
+
+Find all cousins
+
+↓
+
+Add them
+```
+
+This becomes
+
+```text
+O(n²)
+```
+
+and is extremely complicated.
+
+The trick is to **change the way you think**.
+
+---
+
+# Step 1: Understand What Cousins Are
+
+Tree
+
+```text
+          5
+        /   \
+       4     9
+      / \     \
+     1  10     7
+```
+
+Depths
+
+```text
+Depth 0
+
+5
+```
+
+```text
+Depth 1
+
+4
+
+9
+```
+
+```text
+Depth 2
+
+1
+
+10
+
+7
+```
+
+At depth 2
+
+```text
+1 and 10
+```
+
+share the same parent
+
+```text
+4
+```
+
+So they are
+
+```text
+Siblings
+```
+
+NOT cousins.
+
+---
+
+Node
+
+```text
+1
+```
+
+Cousins
+
+```text
+7
+```
+
+because
+
+```text
+Same depth
+
+Different parent
+```
+
+Therefore
+
+```text
+New Value of 1
+
+=
+
+7
+```
+
+---
+
+Node
+
+```text
+10
+```
+
+Cousins
+
+```text
+7
+```
+
+New value
+
+```text
+7
+```
+
+---
+
+Node
+
+```text
+7
+```
+
+Cousins
+
+```text
+1 + 10
+
+=
+
+11
+```
+
+---
+
+# Step 2: Stop Thinking About Cousins
+
+This is the most important step.
+
+Instead of asking
+
+```text
+How do I find cousins?
+```
+
+ask
+
+```text
+What information does this node actually need?
+```
+
+Take node
+
+```text
+1
+```
+
+It needs
+
+```text
+All nodes at the same level
+
+minus
+
+Nodes having the same parent
+```
+
+Interesting...
+
+---
+
+# Step 3: Discover the Formula
+
+Look at depth 2
+
+```text
+1
+
+10
+
+7
+```
+
+Total Level Sum
+
+```text
+1 + 10 + 7
+
+=
+
+18
+```
+
+Sibling group of node 1
+
+```text
+1 + 10
+
+=
+
+11
+```
+
+Therefore
+
+```text
+Cousin Sum
+
+=
+
+18 - 11
+
+=
+
+7
+```
+
+Exactly the answer.
+
+---
+
+Node
+
+```text
+7
+```
+
+Level Sum
+
+```text
+18
+```
+
+Sibling Sum
+
+```text
+7
+```
+
+Answer
+
+```text
+18 - 7
+
+=
+
+11
+```
+
+Again correct.
+
+---
+
+# ⭐ The Big Observation
+
+We never actually need to find cousins.
+
+We only need
+
+```text
+Level Sum
+
+-
+
+Sibling Sum
+```
+
+This is the key insight.
+
+---
+
+# Step 4: What Information Should We Precompute?
+
+For every depth,
+
+store
+
+```text
+Depth
+
+↓
+
+Sum of all nodes at that depth
+```
+
+Example
+
+```text
+Depth 0
+
+5
+```
+
+```text
+Depth 1
+
+4 + 9
+
+=
+
+13
+```
+
+```text
+Depth 2
+
+1 + 10 + 7
+
+=
+
+18
+```
+
+Store
+
+```python
+levelSum = {
+
+0 : 5,
+
+1 : 13,
+
+2 : 18
+
+}
+```
+
+---
+
+# Step 5: First DFS
+
+Purpose
+
+```text
+Compute
+
+Depth
+
+↓
+
+Level Sum
+```
+
+DFS
+
+```python
+dfs(node, depth)
+```
+
+---
+
+Visit
+
+```text
+5
+```
+
+```python
+levelSum[0] += 5
+```
+
+---
+
+Visit
+
+```text
+4
+```
+
+```python
+levelSum[1] += 4
+```
+
+---
+
+Visit
+
+```text
+9
+```
+
+```python
+levelSum[1] += 9
+```
+
+Continue...
+
+Finally
+
+```python
+{
+
+0 : 5,
+
+1 : 13,
+
+2 : 18
+
+}
+```
+
+---
+
+# Step 6: Second DFS
+
+Now we already know
+
+```text
+Every level's total sum.
+```
+
+For each parent,
+
+compute
+
+```text
+Sum of its children
+```
+
+Example
+
+```text
+      4
+     / \
+    1  10
+```
+
+Children Sum
+
+```text
+11
+```
+
+Level Sum
+
+```text
+18
+```
+
+New values
+
+```text
+1
+
+↓
+
+18 - 11
+
+=
+
+7
+```
+
+```text
+10
+
+↓
+
+18 - 11
+
+=
+
+7
+```
+
+---
+
+Another parent
+
+```text
+9
+ \
+ 7
+```
+
+Children Sum
+
+```text
+7
+```
+
+Level Sum
+
+```text
+18
+```
+
+New value
+
+```text
+18 - 7
+
+=
+
+11
+```
+
+Done.
+
+---
+
+# Complete Dry Run
+
+Original Tree
+
+```text
+          5
+        /   \
+       4     9
+      / \     \
+     1  10     7
+```
+
+---
+
+## First DFS
+
+Compute
+
+```python
+{
+
+0 : 5,
+
+1 : 13,
+
+2 : 18
+
+}
+```
+
+---
+
+## Root
+
+Root has no cousins.
+
+Set
+
+```text
+0
+```
+
+Tree
+
+```text
+          0
+        /   \
+       4     9
+      / \     \
+     1  10     7
+```
+
+---
+
+## Children of Root
+
+Children Sum
+
+```text
+4 + 9
+
+=
+
+13
+```
+
+Level Sum
+
+```text
+13
+```
+
+New values
+
+```text
+4
+
+↓
+
+13 - 13
+
+=
+
+0
+```
+
+```text
+9
+
+↓
+
+13 - 13
+
+=
+
+0
+```
+
+Tree
+
+```text
+          0
+        /   \
+       0     0
+      / \     \
+     1  10     7
+```
+
+---
+
+## Children of Node 4
+
+Children Sum
+
+```text
+1 + 10
+
+=
+
+11
+```
+
+Level Sum
+
+```text
+18
+```
+
+New values
+
+```text
+1
+
+↓
+
+18 - 11
+
+=
+
+7
+```
+
+```text
+10
+
+↓
+
+18 - 11
+
+=
+
+7
+```
+
+---
+
+## Children of Node 9
+
+Children Sum
+
+```text
+7
+```
+
+Level Sum
+
+```text
+18
+```
+
+New value
+
+```text
+18 - 7
+
+=
+
+11
+```
+
+Final Tree
+
+```text
+          0
+        /   \
+       0     0
+      / \     \
+     7   7    11
+```
+
+Correct.
+
+---
+
+# Python Code
+
+```python
+from collections import defaultdict
+
+class Solution:
+
+    def replaceValueInTree(self, root):
+
+        levelSum = defaultdict(int)
+
+        # First DFS
+        # Compute sum of every level
+        def dfs1(node, depth):
+
+            if not node:
+                return
+
+            levelSum[depth] += node.val
+
+            dfs1(node.left, depth + 1)
+            dfs1(node.right, depth + 1)
+
+        dfs1(root, 0)
+
+        # Root has no cousins
+        root.val = 0
+
+        # Second DFS
+        def dfs2(node, depth):
+
+            if not node:
+                return
+
+            childSum = 0
+
+            if node.left:
+                childSum += node.left.val
+
+            if node.right:
+                childSum += node.right.val
+
+            nextLevelSum = levelSum[depth + 1]
+
+            if node.left:
+                node.left.val = nextLevelSum - childSum
+
+            if node.right:
+                node.right.val = nextLevelSum - childSum
+
+            dfs2(node.left, depth + 1)
+            dfs2(node.right, depth + 1)
+
+        dfs2(root, 0)
+
+        return root
+```
+
+---
+
+# Code Explanation
+
+## First DFS
+
+Collect
+
+```text
+Depth
+
+↓
+
+Sum of nodes at that depth
+```
+
+Store in
+
+```python
+levelSum
+```
+
+---
+
+## Second DFS
+
+For every parent
+
+Compute
+
+```text
+Children Sum
+```
+
+Then
+
+```python
+New Child Value
+
+=
+
+Level Sum
+
+-
+
+Children Sum
+```
+
+This removes siblings
+
+and keeps only cousins.
+
+---
+
+# Why Does This Work?
+
+Suppose
+
+```text
+Depth 2
+
+↓
+
+1
+
+10
+
+7
+```
+
+Total
+
+```text
+18
+```
+
+Node
+
+```text
+1
+```
+
+cannot count
+
+```text
+1
+
+10
+```
+
+because they have the same parent.
+
+Subtract
+
+```text
+11
+```
+
+Remaining
+
+```text
+7
+```
+
+Exactly the cousin sum.
+
+---
+
+# Complexity Analysis
+
+## Time Complexity
+
+First DFS
+
+```text
+O(n)
+```
+
+Second DFS
+
+```text
+O(n)
+```
+
+Total
+
+```text
+O(n)
+```
+
+---
+
+## Space Complexity
+
+HashMap
+
+```text
+O(h)
+```
+
+Recursion Stack
+
+```text
+O(h)
+```
+
+Overall
+
+```text
+O(n)
+```
+
+in the worst case.
+
+---
+
+# 🧠 How to Think Like This
+
+Whenever a tree problem mentions
+
+- Same Level
+- Same Depth
+- Cousins
+- Nodes in the same row
+
+Ask yourself
+
+```text
+Can I precompute something level-wise?
+```
+
+Usually
+
+```text
+YES
+```
+
+Instead of searching for cousins,
+
+search for
+
+```text
+Level Total
+```
+
+Then remove
+
+```text
+Nodes that should not be counted.
+```
+
+---
+
+# General Mental Model
+
+Instead of
+
+```text
+Find cousins
+```
+
+Transform it into
+
+```text
+All nodes at my level
+
+↓
+
+Remove my sibling group
+
+↓
+
+Remaining nodes are cousins.
+```
+
+This simple mathematical transformation turns a difficult graph-like problem into an easy DFS problem.
+
+---
+
+# ⭐ Interview Trick
+
+Whenever you see
+
+```text
+Same Depth
+```
+
+think
+
+```text
+Level Sum
+```
+
+Whenever you see
+
+```text
+Exclude siblings
+```
+
+think
+
+```text
+Subtract Children Sum
+```
+
+So the final formula becomes
+
+```text
+Cousin Sum
+
+=
+
+Level Sum
+
+-
+
+Sibling Sum
+```
+
+Once you discover this equation, the entire solution naturally becomes a **two-pass DFS**.
+
+---
+
+# 📝 Key Takeaways
+
+- Never try to explicitly find cousins.
+- First compute the **sum of every level**.
+- For each parent, compute the **sum of its children**.
+- Each child's new value is:
+
+```text
+New Value
+
+=
+
+Level Sum
+
+-
+
+Sibling Sum
+```
+
+- The solution requires **two DFS traversals**:
+  1. Compute `levelSum`.
+  2. Update node values using `levelSum - childSum`.
+- The hardest part of the problem is recognizing the formula:
+
+```text
+Cousin Sum = Level Sum - Sibling Sum
+```
+
+Once you identify this relationship, the implementation becomes straightforward.
+
+<br><br><br><br><br>
+
+---
+
+# <span style="color: limegreen;">1448. Count Good Nodes in Binary Tree</span>
+
+- **Difficulty:** Medium
+- **Topics:** Binary Tree, DFS, Recursion
+
+---
+
+# 📖 Problem Statement
+
+Given the `root` of a binary tree, a node **X** is called **good** if, in the path from the root to **X**, there is **no node with a value greater than X**.
+
+Return the total number of **good nodes** in the tree.
+
+---
+
+## Example 1
+
+### Input
+
+```text
+        3
+       / \
+      1   4
+     /   / \
+    3   1   5
+```
+
+### Output
+
+```text
+4
+```
+
+### Explanation
+
+Good nodes are:
+
+```text
+3 (Root)
+
+4
+
+5
+
+3 (Left Leaf)
+```
+
+---
+
+## Example 2
+
+### Input
+
+```text
+        3
+       /
+      3
+     / \
+    4   2
+```
+
+### Output
+
+```text
+3
+```
+
+---
+
+## Example 3
+
+### Input
+
+```text
+1
+```
+
+### Output
+
+```text
+1
+```
+
+---
+
+# 💡 Key Observation
+
+For every node, we only need to know:
+
+```text
+What is the maximum value seen from the root to this node?
+```
+
+If the current node's value is
+
+```text
+Greater than or equal to
+
+Maximum seen so far
+```
+
+then the node is **good**.
+
+---
+
+# Parent → Child Information Flow
+
+This is a **Parent → Child** DFS problem.
+
+The parent passes one piece of information to its children:
+
+```text
+Maximum value seen so far
+```
+
+Each child updates it if necessary and passes it further.
+
+---
+
+# My Initial Solution
+
+## Idea
+
+Carry the maximum value (`maxi`) from the root to the current node.
+
+If the current node's value is greater than or equal to `maxi`:
+
+- Count it as a good node.
+- Update `maxi`.
+
+Then continue DFS.
+
+---
+
+## Code
+
+```python
+class Solution:
+    def goodNodes(self, root: TreeNode) -> int:
+
+        maxi = root.val
+        ans = 0
+
+        def dfs(root, maxi):
+            nonlocal ans
+
+            if not root:
+                return
+
+            if maxi <= root.val:
+                maxi = root.val
+                ans += 1
+
+            dfs(root.left, maxi)
+            dfs(root.right, maxi)
+
+        dfs(root, maxi)
+
+        return ans
+```
+
+---
+
+# Dry Run
+
+Tree
+
+```text
+        3
+       / \
+      1   4
+     /   / \
+    3   1   5
+```
+
+---
+
+## Start
+
+```python
+dfs(3,3)
+```
+
+Current Maximum
+
+```text
+3
+```
+
+Current Node
+
+```text
+3
+```
+
+Since
+
+```text
+3 >= 3
+```
+
+Good Node ✅
+
+Answer
+
+```text
+1
+```
+
+Pass
+
+```text
+max = 3
+```
+
+to children.
+
+---
+
+## Visit Node 1
+
+Maximum
+
+```text
+3
+```
+
+Current
+
+```text
+1
+```
+
+```text
+1 < 3
+```
+
+Not Good.
+
+Pass
+
+```text
+3
+```
+
+---
+
+## Visit Node 3
+
+Maximum
+
+```text
+3
+```
+
+Current
+
+```text
+3
+```
+
+```text
+3 >= 3
+```
+
+Good Node ✅
+
+Answer
+
+```text
+2
+```
+
+---
+
+## Visit Node 4
+
+Maximum
+
+```text
+3
+```
+
+Current
+
+```text
+4
+```
+
+```text
+4 >= 3
+```
+
+Good Node ✅
+
+Update Maximum
+
+```text
+4
+```
+
+Answer
+
+```text
+3
+```
+
+---
+
+## Visit Node 1
+
+Maximum
+
+```text
+4
+```
+
+Current
+
+```text
+1
+```
+
+Not Good.
+
+---
+
+## Visit Node 5
+
+Maximum
+
+```text
+4
+```
+
+Current
+
+```text
+5
+```
+
+```text
+5 >= 4
+```
+
+Good Node ✅
+
+Answer
+
+```text
+4
+```
+
+---
+
+Final Answer
+
+```text
+4
+```
+
+---
+
+# Optimized Version
+
+The previous solution is already optimal in terms of time and space complexity.
+
+A slightly cleaner implementation is to update the maximum using Python's `max()` function and start DFS directly with `root.val`.
+
+## Code
+
+```python
+class Solution:
+    def goodNodes(self, root: TreeNode) -> int:
+
+        ans = 0
+
+        def dfs(node, maxi):
+            nonlocal ans
+
+            if not node:
+                return
+
+            if node.val >= maxi:
+                ans += 1
+
+            maxi = max(maxi, node.val)
+
+            dfs(node.left, maxi)
+            dfs(node.right, maxi)
+
+        dfs(root, root.val)
+
+        return ans
+```
+
+---
+
+# Why Does This Work?
+
+At every node, we only need one piece of information:
+
+```text
+Largest value seen from the root to the current node.
+```
+
+We do **not** need:
+
+- The complete path
+- An array of ancestors
+- Any extra data structure
+
+The current node simply compares itself with the maximum value received from its parent.
+
+If it is greater than or equal to that maximum:
+
+```text
+Current Node is Good
+```
+
+Then update the maximum and continue DFS.
+
+---
+
+# Complexity Analysis
+
+## Time Complexity
+
+Every node is visited exactly once.
+
+```text
+O(n)
+```
+
+---
+
+## Space Complexity
+
+The recursion stack stores one root-to-leaf path.
+
+```text
+O(h)
+```
+
+where
+
+- `n` = number of nodes
+- `h` = height of the tree
+
+Worst case
+
+```text
+O(n)
+```
+
+for a skewed tree.
+
+---
+
+# Pattern Recognition
+
+This problem belongs to the **Parent → Child Information Flow** category.
+
+The parent passes:
+
+```text
+Maximum value seen so far
+```
+
+The child:
+
+1. Compares itself with that maximum.
+2. Updates the maximum if needed.
+3. Passes the updated value to its children.
+
+Examples of similar problems:
+
+| Problem | Information Passed Down |
+|----------|-------------------------|
+| Path Sum | Current Sum |
+| Root to Leaf Binary Numbers | Current Binary Number |
+| Maximum Difference Between Node and Ancestor | Minimum & Maximum Values |
+| Count Good Nodes | Maximum Value |
+| Sum of Nodes with Even-Valued Grandparent | Parent & Grandparent |
+
+---
+
+# 📝 Key Takeaways
+
+- We only need to keep track of the **maximum value** along the current root-to-node path.
+- If the current node's value is greater than or equal to this maximum, it is a **good node**.
+- This is a classic **Parent → Child DFS** problem where the state (`maxi`) is passed downward.
+- No additional arrays or ancestor lists are required.
+- The solution runs in **O(n)** time with **O(h)** recursion stack space.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# <span style="color: limegreen;">513. Find Bottom Left Tree Value</span>
+
+- **Difficulty:** Medium
+- **Topics:** Binary Tree, DFS, BFS
+
+---
+
+# 📖 Problem Statement
+
+Given the `root` of a binary tree, return the **leftmost value in the last row** of the tree.
+
+---
+
+## Example 1
+
+### Input
+
+```text
+    2
+   / \
+  1   3
+```
+
+### Output
+
+```text
+1
+```
+
+---
+
+## Example 2
+
+### Input
+
+```text
+          1
+        /   \
+       2     3
+      /     / \
+     4     5   6
+          /
+         7
+```
+
+### Output
+
+```text
+7
+```
+
+---
+
+# 💡 Key Observation
+
+We need to find
+
+1. The **deepest level** in the tree.
+2. The **leftmost node** at that deepest level.
+
+Since DFS visits the **left subtree before the right subtree**, the **first node** encountered at a new maximum depth will always be the leftmost node at that depth.
+
+---
+
+# My Initial Solution
+
+## Idea
+
+Instead of processing actual nodes, update the answer when recursion reaches a `None` child.
+
+When recursion reaches beyond a leaf, use the parent node to determine the deepest leaf encountered.
+
+---
+
+## Code
+
+```python
+class Solution:
+    def findBottomLeftValue(self, root: Optional[TreeNode]) -> int:
+
+        maxi = 0
+        ans = root.val
+
+        def dfs(root, parent, level):
+            nonlocal maxi, ans
+
+            if not root:
+
+                if maxi < level - 1:
+                    maxi = level - 1
+                    ans = parent.val
+
+                return
+
+            dfs(root.left, root, level + 1)
+            dfs(root.right, root, level + 1)
+
+        dfs(root, 0, 0)
+
+        return ans
+```
+
+---
+
+# How This Solution Works
+
+Tree
+
+```text
+        1
+       / \
+      2   3
+     /
+    4
+```
+
+DFS Order
+
+```text
+1
+
+↓
+
+2
+
+↓
+
+4
+
+↓
+
+None
+```
+
+When recursion reaches
+
+```text
+None
+```
+
+its parent is
+
+```text
+4
+```
+
+Since
+
+```text
+Depth = 2
+```
+
+is the deepest seen so far,
+
+update
+
+```text
+Answer = 4
+```
+
+Because DFS always explores the left subtree first, the first deepest node encountered is automatically the leftmost one.
+
+---
+
+# Dry Run
+
+Tree
+
+```text
+        1
+       / \
+      2   3
+     /
+    4
+```
+
+---
+
+Visit
+
+```text
+1
+```
+
+Continue left.
+
+---
+
+Visit
+
+```text
+2
+```
+
+Continue left.
+
+---
+
+Visit
+
+```text
+4
+```
+
+Continue left.
+
+---
+
+Reach
+
+```text
+None
+```
+
+Parent
+
+```text
+4
+```
+
+Depth
+
+```text
+2
+```
+
+Update
+
+```text
+Answer = 4
+```
+
+Backtrack.
+
+The remaining nodes are not deeper, so the answer remains
+
+```text
+4
+```
+
+---
+
+# Optimized DFS Solution
+
+A cleaner approach is to process the **current node itself** instead of waiting until reaching `None`.
+
+Whenever we visit a node,
+
+check if it is the deepest node seen so far.
+
+If yes,
+
+update the answer immediately.
+
+---
+
+## Code
+
+```python
+class Solution:
+    def findBottomLeftValue(self, root: Optional[TreeNode]) -> int:
+
+        ans = root.val
+        maxDepth = -1
+
+        def dfs(node, depth):
+            nonlocal ans, maxDepth
+
+            if not node:
+                return
+
+            # First node visited at a new depth
+            if depth > maxDepth:
+                maxDepth = depth
+                ans = node.val
+
+            dfs(node.left, depth + 1)
+            dfs(node.right, depth + 1)
+
+        dfs(root, 0)
+
+        return ans
+```
+
+---
+
+# Why Does This Work?
+
+Since DFS always visits
+
+```text
+Left
+
+↓
+
+Right
+```
+
+the first node encountered at every new depth is always the **leftmost node** of that level.
+
+Example
+
+```text
+        1
+       / \
+      2   3
+     /     \
+    4       5
+```
+
+DFS visits
+
+```text
+1
+
+↓
+
+2
+
+↓
+
+4
+
+↓
+
+3
+
+↓
+
+5
+```
+
+When depth `2` is reached for the first time,
+
+the node is
+
+```text
+4
+```
+
+Later,
+
+node `5` is also at depth `2`, but
+
+```python
+depth == maxDepth
+```
+
+not
+
+```python
+depth > maxDepth
+```
+
+so the answer is not updated.
+
+---
+
+# BFS Solution
+
+This problem can also be solved using **Level Order Traversal (BFS)**.
+
+At every level,
+
+the **first node** in the queue is the leftmost node of that level.
+
+The first node of the **last level** is the required answer.
+
+---
+
+## Code
+
+```python
+from collections import deque
+
+class Solution:
+    def findBottomLeftValue(self, root):
+
+        q = deque([root])
+
+        while q:
+
+            size = len(q)
+
+            # First node of current level
+            ans = q[0].val
+
+            for _ in range(size):
+
+                node = q.popleft()
+
+                if node.left:
+                    q.append(node.left)
+
+                if node.right:
+                    q.append(node.right)
+
+        return ans
+```
+
+---
+
+# Comparing the Approaches
+
+| Approach | Idea |
+|----------|------|
+| Initial DFS | Update answer when recursion reaches `None` using the parent node |
+| Optimized DFS | Update answer immediately when visiting a deeper node |
+| BFS | Track the first node of every level and return the first node of the last level |
+
+---
+
+# Complexity Analysis
+
+## DFS
+
+### Time Complexity
+
+```text
+O(n)
+```
+
+Every node is visited once.
+
+### Space Complexity
+
+```text
+O(h)
+```
+
+where `h` is the height of the tree.
+
+---
+
+## BFS
+
+### Time Complexity
+
+```text
+O(n)
+```
+
+### Space Complexity
+
+```text
+O(w)
+```
+
+where `w` is the maximum width of the tree.
+
+---
+
+# Pattern Recognition
+
+This problem is based on **Depth Tracking**.
+
+The DFS state carries
+
+```text
+Current Depth
+```
+
+At every node,
+
+compare the current depth with the maximum depth seen so far.
+
+If a deeper level is found,
+
+update the answer.
+
+The BFS solution is based on **Level Order Traversal**, where the first node of the final level is the required answer.
+
+---
+
+# 📝 Key Takeaways
+
+- The goal is to find the **leftmost node at the deepest level**.
+- DFS naturally works because it explores the **left subtree before the right subtree**.
+- The initial solution updates the answer after reaching a `None` child using the parent node.
+- The optimized DFS updates the answer directly while visiting nodes, making the recursion cleaner.
+- BFS provides another intuitive solution by processing the tree level by level and recording the first node of each level.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# <span style="color: limegreen;">1110. Delete Nodes And Return Forest</span>
+
+- **Difficulty:** Medium
+- **Topics:** Binary Tree, DFS, Postorder Traversal, Tree Modification
+
+---
+
+# 📖 Problem Statement
+
+You are given the root of a binary tree and an array `to_delete`.
+
+Delete every node whose value appears in `to_delete`.
+
+After deleting those nodes, the remaining disconnected trees form a **forest**.
+
+Return the **roots** of all trees in the forest.
+
+---
+
+## Example 1
+
+### Input
+
+```text
+Tree
+
+          1
+        /   \
+       2     3
+      / \   / \
+     4   5 6   7
+
+to_delete = [3,5]
+```
+
+### Output
+
+```text
+        1
+       /
+      2
+     /
+    4
+
+6
+
+7
+```
+
+Forest
+
+```text
+Tree 1
+
+    1
+   /
+  2
+ /
+4
+
+Tree 2
+
+6
+
+Tree 3
+
+7
+```
+
+---
+
+## Example 2
+
+### Input
+
+```text
+      1
+     / \
+    2   4
+     \
+      3
+```
+
+```text
+to_delete = [3]
+```
+
+### Output
+
+```text
+      1
+     / \
+    2   4
+```
+
+---
+
+# 🤔 The Wrong Way to Think
+
+Most people immediately think
+
+```text
+Delete node
+
+Reconnect children
+
+Maintain tree
+```
+
+This quickly becomes confusing.
+
+Instead,
+
+change the question.
+
+---
+
+# 💡 The Right Question
+
+Instead of asking
+
+> **"How do I delete this node?"**
+
+ask
+
+> **"After processing my children, what subtree should I return to my parent?"**
+
+This small change makes the problem much easier.
+
+---
+
+# Step 1: What Should DFS Return?
+
+Suppose you're at
+
+```text
+      2
+     / \
+    4   5
+```
+
+After processing both children,
+
+what should be returned to the parent?
+
+Only two possibilities exist.
+
+Return
+
+```text
+Current Node
+```
+
+or
+
+Return
+
+```text
+None
+```
+
+Nothing else.
+
+---
+
+# Step 2: Why Postorder DFS?
+
+Consider
+
+```text
+      3
+     / \
+    6   7
+```
+
+Suppose
+
+```text
+3
+```
+
+must be deleted.
+
+Before deleting it,
+
+we need to know
+
+- What happened to `6`
+- What happened to `7`
+
+Therefore,
+
+children must be processed first.
+
+Traversal order becomes
+
+```text
+Left
+
+↓
+
+Right
+
+↓
+
+Current Node
+```
+
+which is exactly
+
+```text
+Postorder DFS
+```
+
+---
+
+# Step 3: The Important Decision
+
+Suppose DFS has already processed
+
+```text
+6
+
+7
+```
+
+Now we are standing at
+
+```text
+3
+```
+
+Question
+
+```text
+Should I delete node 3?
+```
+
+---
+
+### Case 1
+
+Delete
+
+```text
+3
+```
+
+Then
+
+```text
+6
+
+7
+```
+
+become new tree roots.
+
+Store them.
+
+Return
+
+```python
+None
+```
+
+because the parent should disconnect node `3`.
+
+---
+
+### Case 2
+
+Do not delete
+
+```text
+3
+```
+
+Simply return
+
+```python
+node
+```
+
+so the parent keeps the connection.
+
+---
+
+# Step 4: Dry Run
+
+Tree
+
+```text
+          1
+        /   \
+       2     3
+      / \   / \
+     4   5 6   7
+```
+
+Delete
+
+```text
+3
+
+5
+```
+
+---
+
+## Visit Node 4
+
+Leaf
+
+Not deleted.
+
+Return
+
+```text
+4
+```
+
+---
+
+## Visit Node 5
+
+Leaf
+
+Delete.
+
+Return
+
+```text
+None
+```
+
+Node `2` now becomes
+
+```text
+      2
+     /
+    4
+```
+
+---
+
+## Visit Node 6
+
+Leaf
+
+Return
+
+```text
+6
+```
+
+---
+
+## Visit Node 7
+
+Leaf
+
+Return
+
+```text
+7
+```
+
+---
+
+## Visit Node 3
+
+Children
+
+```text
+6
+
+7
+```
+
+Need to delete?
+
+Yes.
+
+Add
+
+```text
+6
+
+7
+```
+
+to the answer.
+
+Return
+
+```python
+None
+```
+
+Parent disconnects node `3`.
+
+---
+
+## Visit Root 1
+
+Tree becomes
+
+```text
+      1
+     /
+    2
+   /
+  4
+```
+
+Root survives.
+
+Return
+
+```text
+1
+```
+
+Since the root is not deleted,
+
+add it to the answer.
+
+---
+
+Final Forest
+
+```text
+Tree 1
+
+    1
+   /
+  2
+ /
+4
+
+Tree 2
+
+6
+
+Tree 3
+
+7
+```
+
+---
+
+# The Core Logic
+
+The recursion performs exactly **two jobs**.
+
+---
+
+## Job 1
+
+Process the children.
+
+```python
+node.left = dfs(node.left)
+
+node.right = dfs(node.right)
+```
+
+Notice this pattern.
+
+The child may return
+
+- A modified subtree
+- Or `None`
+
+The parent reconnects accordingly.
+
+---
+
+## Job 2
+
+Decide whether the current node survives.
+
+If the node must be deleted
+
+```python
+return None
+```
+
+Otherwise
+
+```python
+return node
+```
+
+---
+
+# Python Code
+
+```python
+class Solution:
+
+    def delNodes(self, root, to_delete):
+
+        delete = set(to_delete)
+        ans = []
+
+        def dfs(node):
+
+            if not node:
+                return None
+
+            # Process children first
+            node.left = dfs(node.left)
+            node.right = dfs(node.right)
+
+            # Delete current node
+            if node.val in delete:
+
+                if node.left:
+                    ans.append(node.left)
+
+                if node.right:
+                    ans.append(node.right)
+
+                return None
+
+            return node
+
+        root = dfs(root)
+
+        # Root survives
+        if root:
+            ans.append(root)
+
+        return ans
+```
+
+---
+
+# Code Explanation
+
+## Step 1
+
+Convert
+
+```python
+to_delete
+```
+
+into a set.
+
+```python
+delete = set(to_delete)
+```
+
+This allows
+
+```python
+node.val in delete
+```
+
+to run in
+
+```text
+O(1)
+```
+
+---
+
+## Step 2
+
+Recursively process both children.
+
+```python
+node.left = dfs(node.left)
+
+node.right = dfs(node.right)
+```
+
+Each child returns
+
+- Updated subtree
+- Or `None`
+
+---
+
+## Step 3
+
+Check whether the current node must be deleted.
+
+If yes,
+
+its surviving children become new roots.
+
+```python
+if node.left:
+    ans.append(node.left)
+
+if node.right:
+    ans.append(node.right)
+```
+
+Return
+
+```python
+None
+```
+
+to disconnect this node.
+
+---
+
+## Step 4
+
+If the node is not deleted,
+
+simply return
+
+```python
+node
+```
+
+---
+
+## Step 5
+
+After DFS,
+
+if the original root still exists,
+
+add it to the forest.
+
+```python
+if root:
+    ans.append(root)
+```
+
+---
+
+# Why Does This Work?
+
+Imagine every node asks itself
+
+```text
+Should I stay?
+
+OR
+
+Should I disappear?
+```
+
+If it disappears,
+
+its surviving children become independent trees.
+
+If it stays,
+
+it simply returns itself to its parent.
+
+The parent reconnects using
+
+```python
+node.left = dfs(node.left)
+
+node.right = dfs(node.right)
+```
+
+---
+
+# Complexity Analysis
+
+## Time Complexity
+
+Every node is visited exactly once.
+
+```text
+O(n)
+```
+
+---
+
+## Space Complexity
+
+HashSet
+
+```text
+O(k)
+```
+
+where
+
+```text
+k = len(to_delete)
+```
+
+Recursion Stack
+
+```text
+O(h)
+```
+
+Overall
+
+```text
+O(n)
+```
+
+in the worst case.
+
+---
+
+# Pattern Recognition
+
+This problem belongs to the **Tree Modification** category.
+
+Whenever a problem asks to
+
+- Delete Nodes
+- Remove Subtrees
+- Trim Trees
+- Prune Trees
+- Filter Trees
+
+think
+
+```python
+node.left = dfs(node.left)
+
+node.right = dfs(node.right)
+```
+
+The DFS returns
+
+```text
+The new subtree root
+```
+
+which allows the parent to reconnect the tree correctly.
+
+---
+
+# General Tree Modification Pattern
+
+```python
+def dfs(node):
+
+    if not node:
+        return None
+
+    node.left = dfs(node.left)
+    node.right = dfs(node.right)
+
+    if current node should be removed:
+        return None
+
+    return node
+```
+
+This pattern appears in many tree problems such as
+
+- Delete Node in BST
+- Trim a Binary Search Tree
+- Binary Tree Pruning
+- Remove Leaf Nodes
+- Delete Nodes and Return Forest
+
+---
+
+# 📝 Key Takeaways
+
+- Don't think about **deleting nodes** directly.
+- Think about **what subtree should be returned to the parent**.
+- Every DFS call returns either:
+  - The current node (keep it)
+  - `None` (remove it)
+- Always process children first using **Postorder DFS**.
+- The parent reconnects its children using:
+
+```python
+node.left = dfs(node.left)
+
+node.right = dfs(node.right)
+```
+
+- If a deleted node has surviving children, they become **new roots** in the resulting forest.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# <span style="color: limegreen;">114. Flatten Binary Tree to Linked List</span>
+
+- **Difficulty:** Medium
+- **Topics:** Binary Tree, DFS, Tree Modification, Morris Traversal
+
+---
+
+# 📖 Problem Statement
+
+Given the root of a binary tree, flatten the tree into a **linked list**.
+
+The linked list should satisfy:
+
+- Use the **right pointer** as the next pointer.
+- Every **left pointer must be `None`**.
+- The order of nodes must be the same as the **Preorder Traversal**.
+
+Preorder Traversal means:
+
+```text
+Root
+
+↓
+
+Left
+
+↓
+
+Right
+```
+
+---
+
+## Example 1
+
+### Input
+
+```text
+        1
+       / \
+      2   5
+     / \   \
+    3   4   6
+```
+
+### Output
+
+```text
+1
+ \
+  2
+   \
+    3
+     \
+      4
+       \
+        5
+         \
+          6
+```
+
+---
+
+## Example 2
+
+Input
+
+```text
+[]
+```
+
+Output
+
+```text
+[]
+```
+
+---
+
+## Example 3
+
+Input
+
+```text
+0
+```
+
+Output
+
+```text
+0
+```
+
+---
+
+# 🤔 Step 1: Understand What "Flatten" Means
+
+The tree
+
+```text
+        1
+       / \
+      2   5
+     / \   \
+    3   4   6
+```
+
+has the preorder traversal
+
+```text
+1
+
+↓
+
+2
+
+↓
+
+3
+
+↓
+
+4
+
+↓
+
+5
+
+↓
+
+6
+```
+
+The final tree should simply connect the nodes in this order.
+
+```text
+1
+ \
+  2
+   \
+    3
+     \
+      4
+       \
+        5
+         \
+          6
+```
+
+Notice
+
+```text
+Every left pointer becomes NULL.
+```
+
+---
+
+# Approach 1: Store the Preorder Traversal
+
+The easiest solution is:
+
+1. Perform preorder traversal.
+2. Store all nodes in a list.
+3. Reconnect them.
+
+---
+
+## Step 1
+
+Preorder Traversal
+
+```text
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+```
+
+Store
+
+```python
+[1,2,3,4,5,6]
+```
+
+---
+
+## Step 2
+
+Reconnect
+
+```text
+1 → 2
+
+2 → 3
+
+3 → 4
+
+4 → 5
+
+5 → 6
+```
+
+Every
+
+```text
+left = None
+```
+
+---
+
+## Code
+
+```python
+class Solution:
+
+    def flatten(self, root):
+
+        preorder = []
+
+        def dfs(node):
+
+            if not node:
+                return
+
+            preorder.append(node)
+
+            dfs(node.left)
+            dfs(node.right)
+
+        dfs(root)
+
+        for i in range(len(preorder)-1):
+
+            preorder[i].left = None
+            preorder[i].right = preorder[i+1]
+
+        if preorder:
+            preorder[-1].left = None
+            preorder[-1].right = None
+```
+
+---
+
+## Complexity
+
+Time
+
+```text
+O(n)
+```
+
+Space
+
+```text
+O(n)
+```
+
+because of the preorder list.
+
+---
+
+# Approach 2: Recursive In-Place Solution
+
+The follow-up asks
+
+```text
+O(1) Extra Space
+```
+
+So we cannot store the preorder list.
+
+Instead,
+
+we modify the tree while traversing.
+
+---
+
+# Step 1: Focus on One Node
+
+Forget the whole tree.
+
+Stand only at
+
+```text
+        1
+       / \
+      2   5
+```
+
+Eventually
+
+```text
+1
+ \
+ 2
+```
+
+because preorder visits
+
+```text
+1
+
+↓
+
+2
+
+↓
+
+5
+```
+
+So
+
+```text
+Left subtree must become the right subtree.
+```
+
+---
+
+# Step 2: The Main Observation
+
+Original
+
+```text
+        1
+       / \
+      2   5
+     / \
+    3   4
+```
+
+Move the left subtree to the right.
+
+```text
+1
+ \
+ 2
+```
+
+But now,
+
+what happens to the old right subtree?
+
+It must be attached after the **end of the left subtree**.
+
+---
+
+# Step 3: Find the Tail
+
+Flatten the left subtree.
+
+It becomes
+
+```text
+2
+ \
+ 3
+  \
+   4
+```
+
+Tail
+
+```text
+4
+```
+
+Attach
+
+```text
+4.right = 5
+```
+
+Now move
+
+```text
+1.right = 2
+
+1.left = None
+```
+
+Tree becomes
+
+```text
+1
+ \
+ 2
+  \
+   3
+    \
+     4
+      \
+       5
+```
+
+Exactly what we need.
+
+---
+
+# Why Postorder?
+
+The parent cannot rearrange its children until both subtrees are already flattened.
+
+Therefore
+
+```text
+Left
+
+↓
+
+Right
+
+↓
+
+Current
+```
+
+This is
+
+```text
+Postorder DFS
+```
+
+---
+
+# What Should DFS Return?
+
+The parent needs to know
+
+```text
+Where does my flattened subtree end?
+```
+
+Return
+
+```text
+Tail Node
+```
+
+of the flattened subtree.
+
+Example
+
+```text
+    2
+   / \
+  3   4
+```
+
+After flattening
+
+```text
+2
+ \
+ 3
+  \
+   4
+```
+
+Return
+
+```text
+4
+```
+
+because the parent needs to attach its old right subtree after node `4`.
+
+---
+
+# Recursive Code
+
+```python
+class Solution:
+
+    def flatten(self, root):
+
+        def dfs(node):
+
+            if not node:
+                return None
+
+            leftTail = dfs(node.left)
+            rightTail = dfs(node.right)
+
+            if leftTail:
+
+                leftTail.right = node.right
+                node.right = node.left
+                node.left = None
+
+            if rightTail:
+                return rightTail
+
+            if leftTail:
+                return leftTail
+
+            return node
+
+        dfs(root)
+```
+
+---
+
+# Dry Run
+
+Tree
+
+```text
+        1
+       / \
+      2   5
+     / \   \
+    3   4   6
+```
+
+---
+
+### Visit 3
+
+Already flat.
+
+Tail
+
+```text
+3
+```
+
+---
+
+### Visit 4
+
+Tail
+
+```text
+4
+```
+
+---
+
+### Visit 2
+
+Left Tail
+
+```text
+3
+```
+
+Right Tail
+
+```text
+4
+```
+
+Connect
+
+```text
+3.right = 4
+```
+
+Move
+
+```text
+2.right = 3
+
+2.left = None
+```
+
+Flattened
+
+```text
+2
+ \
+ 3
+  \
+   4
+```
+
+Tail
+
+```text
+4
+```
+
+---
+
+### Visit 6
+
+Tail
+
+```text
+6
+```
+
+---
+
+### Visit 5
+
+Tail
+
+```text
+6
+```
+
+---
+
+### Visit 1
+
+Left Tail
+
+```text
+4
+```
+
+Right Tail
+
+```text
+6
+```
+
+Attach
+
+```text
+4.right = 5
+```
+
+Move
+
+```text
+1.right = 2
+
+1.left = None
+```
+
+Final
+
+```text
+1
+ \
+ 2
+  \
+   3
+    \
+     4
+      \
+       5
+        \
+         6
+```
+
+---
+
+# Approach 3: Morris Traversal (O(1) Extra Space)
+
+Instead of recursion,
+
+modify pointers iteratively.
+
+For every node
+
+If a left child exists
+
+1. Find the **rightmost node** of the left subtree.
+2. Attach the original right subtree.
+3. Move the left subtree to the right.
+4. Set the left pointer to `None`.
+
+Repeat until the tree is flattened.
+
+---
+
+## Code
+
+```python
+class Solution:
+
+    def flatten(self, root):
+
+        curr = root
+
+        while curr:
+
+            if curr.left:
+
+                prev = curr.left
+
+                while prev.right:
+                    prev = prev.right
+
+                prev.right = curr.right
+                curr.right = curr.left
+                curr.left = None
+
+            curr = curr.right
+```
+
+---
+
+# Complexity Comparison
+
+| Approach | Time | Extra Space |
+|----------|------|-------------|
+| Store Preorder List | O(n) | O(n) |
+| Recursive (Tail Returned) | O(n) | O(h) |
+| Morris Traversal | O(n) | O(1) |
+
+---
+
+# Pattern Recognition
+
+This is a **Tree Modification** problem.
+
+Ask yourself
+
+> **What does my parent need after I'm done?**
+
+The answer is
+
+```text
+The Tail of the Flattened Subtree
+```
+
+The parent uses that tail to attach its original right subtree.
+
+---
+
+# General Tree Modification Pattern
+
+Whenever a problem asks you to
+
+- Modify a Tree
+- Flatten a Tree
+- Rearrange Nodes
+- Convert Tree Structure
+
+think
+
+```text
+Process Children First
+
+↓
+
+Modify Current Node
+
+↓
+
+Return Information Needed by Parent
+```
+
+---
+
+# 📝 Key Takeaways
+
+- The final linked list follows the **Preorder Traversal**.
+- Every node's **left pointer becomes `None`**.
+- The recursive solution returns the **tail node** of the flattened subtree.
+- The parent uses this tail to reconnect its original right subtree.
+- The most optimized solution is **Morris Traversal**, which performs the flattening in **O(1)** extra space.
+- This problem is a classic example of **modifying a tree while returning useful information (the tail) to the parent**.
