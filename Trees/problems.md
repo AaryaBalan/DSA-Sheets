@@ -16,7 +16,9 @@ Welcome to the tree problems section! Here you will find various data structure 
 
 ---
 
-# 1008. Construct Binary Search Tree from Preorder Traversal
+<details>
+<summary><b>1008. Construct Binary Search Tree from Preorder Traversal</b></summary>
+
 
 - **Difficulty:** Medium
 - **Topics:** Binary Search Tree, Tree, Array
@@ -417,11 +419,15 @@ Space = O(log n)
 
 This is the most efficient solution commonly expected in interviews for LeetCode 1008.
 
+</details>
+
 <br><br><br><br><br>
 
 ---
 
-# 102. Binary Tree Level Order Traversal
+<details>
+<summary><b>102. Binary Tree Level Order Traversal</b></summary>
+
 
 - **Difficulty:** Medium
 - **Topics:** Binary Tree, Breadth-First Search (BFS), Queue
@@ -917,11 +923,15 @@ Queue
 - `level_size` ensures that each iteration processes exactly one level.
 - Every node is visited only once, giving an **O(n)** time complexity.
 
+</details>
+
 <br><br><br><br><br>
 
 ---
 
-# 2265. Count Nodes Equal to Average of Subtree
+<details>
+<summary><b>2265. Count Nodes Equal to Average of Subtree</b></summary>
+
 
 - **Difficulty:** Medium
 - **Topics:** Binary Tree, DFS, Postorder Traversal
@@ -1515,11 +1525,15 @@ Ask yourself:
 
 For this problem, the current node's average depends on the **sum** and **count** of its children, so the solution naturally becomes a **Postorder DFS** that returns `(sum, count)` from each subtree.
 
+</details>
+
 <br><br><br><br><br>
 
 ---
 
-# 1026. Maximum Difference Between Node and Ancestor
+<details>
+<summary><b>1026. Maximum Difference Between Node and Ancestor</b></summary>
+
 
 - **Difficulty:** Medium
 - **Topics:** Binary Tree, DFS, Recursion
@@ -2196,11 +2210,15 @@ Instead of storing the complete path, store only the information needed to compu
 - By carrying `(minVal, maxVal)` during DFS, each node is processed exactly once.
 - This reduces the time complexity to **O(n)** while using only **O(h)** recursion stack space.
 
+</details>
+
 <br/><br/><br/><br/><br/>
 
 ---
 
-# 1315. Sum of Nodes with Even-Valued Grandparent
+<details>
+<summary><b>1315. Sum of Nodes with Even-Valued Grandparent</b></summary>
+
 
 - **Difficulty:** Medium
 - **Topics:** Binary Tree, DFS, Recursion
@@ -2991,11 +3009,15 @@ instead of repeatedly looking upward or manually searching descendants.
 - Both solutions have **O(n)** time complexity and **O(h)** recursion stack space.
 - The parent/grandparent approach is cleaner, avoids repeated pointer checks, and demonstrates a reusable DFS pattern for many tree problems.
 
+</details>
+
 <br/><br/><br/><br/><br/><br/>
 
 ---
 
-# 979. Distribute Coins in Binary Tree
+<details>
+<summary><b>979. Distribute Coins in Binary Tree</b></summary>
+
 
 - **Difficulty:** Medium
 - **Topics:** Binary Tree, DFS, Postorder Traversal
@@ -3960,11 +3982,15 @@ Once you identify the correct value to return from DFS, the entire solution natu
 - The number of moves across an edge is always `abs(balance)`.
 - The solution uses **Postorder DFS** because a parent must first know the balances of its children.
 
+</details>
+
 <br/><br/><br/><br/><br/>
 
 ---
 
-# 1022. Sum of Root To Leaf Binary Numbers
+<details>
+<summary><b>1022. Sum of Root To Leaf Binary Numbers</b></summary>
+
 
 - **Difficulty:** Easy
 - **Topics:** Binary Tree, DFS, Recursion
@@ -4854,5 +4880,7 @@ current = current * 2 + node.val
 
 - Only leaf nodes produce complete binary numbers.
 - This is a classic **Parent → Child DFS** problem where information flows downward through recursion.
+
+</details>
 
 <br><br><br><br><br>
