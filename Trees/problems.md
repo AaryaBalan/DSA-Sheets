@@ -16,7 +16,7 @@ Welcome to the tree problems section! Here you will find various data structure 
 
 ---
 
-# 1008. Construct Binary Search Tree from Preorder Traversal
+# <span style="color: limegreen;">1008. Construct Binary Search Tree from Preorder Traversal</span>
 
 - **Difficulty:** Medium
 - **Topics:** Binary Search Tree, Tree, Array
@@ -421,7 +421,7 @@ This is the most efficient solution commonly expected in interviews for LeetCode
 
 ---
 
-# 102. Binary Tree Level Order Traversal
+# <span style="color: limegreen;">102. Binary Tree Level Order Traversal</span>
 
 - **Difficulty:** Medium
 - **Topics:** Binary Tree, Breadth-First Search (BFS), Queue
@@ -921,7 +921,7 @@ Queue
 
 ---
 
-# 2265. Count Nodes Equal to Average of Subtree
+# <span style="color: limegreen;">2265. Count Nodes Equal to Average of Subtree</span>
 
 - **Difficulty:** Medium
 - **Topics:** Binary Tree, DFS, Postorder Traversal
@@ -1519,7 +1519,7 @@ For this problem, the current node's average depends on the **sum** and **count*
 
 ---
 
-# 1026. Maximum Difference Between Node and Ancestor
+# <span style="color: limegreen;">1026. Maximum Difference Between Node and Ancestor</span>
 
 - **Difficulty:** Medium
 - **Topics:** Binary Tree, DFS, Recursion
@@ -2200,7 +2200,7 @@ Instead of storing the complete path, store only the information needed to compu
 
 ---
 
-# 1315. Sum of Nodes with Even-Valued Grandparent
+# <span style="color: limegreen;">1315. Sum of Nodes with Even-Valued Grandparent</span>
 
 - **Difficulty:** Medium
 - **Topics:** Binary Tree, DFS, Recursion
@@ -2995,7 +2995,7 @@ instead of repeatedly looking upward or manually searching descendants.
 
 ---
 
-# 979. Distribute Coins in Binary Tree
+# <span style="color: limegreen;">979. Distribute Coins in Binary Tree</span>
 
 - **Difficulty:** Medium
 - **Topics:** Binary Tree, DFS, Postorder Traversal
@@ -3964,7 +3964,7 @@ Once you identify the correct value to return from DFS, the entire solution natu
 
 ---
 
-# 1022. Sum of Root To Leaf Binary Numbers
+# <span style="color: limegreen;">1022. Sum of Root To Leaf Binary Numbers</span>
 
 - **Difficulty:** Easy
 - **Topics:** Binary Tree, DFS, Recursion
