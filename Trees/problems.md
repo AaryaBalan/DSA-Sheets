@@ -17,7 +17,7 @@ Welcome to the tree problems section! Here you will find various data structure 
 ---
 
 <details>
-<summary><b>1008. Construct Binary Search Tree from Preorder Traversal</b></summary>
+<summary><h1 id="1008-construct-binary-search-tree-from-preorder-traversal">1008. Construct Binary Search Tree from Preorder Traversal</h1></summary>
 
 
 - **Difficulty:** Medium
@@ -426,7 +426,7 @@ This is the most efficient solution commonly expected in interviews for LeetCode
 ---
 
 <details>
-<summary><b>102. Binary Tree Level Order Traversal</b></summary>
+<summary><h1 id="102-binary-tree-level-order-traversal">102. Binary Tree Level Order Traversal</h1></summary>
 
 
 - **Difficulty:** Medium
@@ -930,7 +930,7 @@ Queue
 ---
 
 <details>
-<summary><b>2265. Count Nodes Equal to Average of Subtree</b></summary>
+<summary><h1 id="2265-count-nodes-equal-to-average-of-subtree">2265. Count Nodes Equal to Average of Subtree</h1></summary>
 
 
 - **Difficulty:** Medium
@@ -1532,7 +1532,7 @@ For this problem, the current node's average depends on the **sum** and **count*
 ---
 
 <details>
-<summary><b>1026. Maximum Difference Between Node and Ancestor</b></summary>
+<summary><h1 id="1026-maximum-difference-between-node-and-ancestor">1026. Maximum Difference Between Node and Ancestor</h1></summary>
 
 
 - **Difficulty:** Medium
@@ -2217,7 +2217,7 @@ Instead of storing the complete path, store only the information needed to compu
 ---
 
 <details>
-<summary><b>1315. Sum of Nodes with Even-Valued Grandparent</b></summary>
+<summary><h1 id="1315-sum-of-nodes-with-even-valued-grandparent">1315. Sum of Nodes with Even-Valued Grandparent</h1></summary>
 
 
 - **Difficulty:** Medium
@@ -3016,7 +3016,7 @@ instead of repeatedly looking upward or manually searching descendants.
 ---
 
 <details>
-<summary><b>979. Distribute Coins in Binary Tree</b></summary>
+<summary><h1 id="979-distribute-coins-in-binary-tree">979. Distribute Coins in Binary Tree</h1></summary>
 
 
 - **Difficulty:** Medium
@@ -3989,7 +3989,7 @@ Once you identify the correct value to return from DFS, the entire solution natu
 ---
 
 <details>
-<summary><b>1022. Sum of Root To Leaf Binary Numbers</b></summary>
+<summary><h1 id="1022-sum-of-root-to-leaf-binary-numbers">1022. Sum of Root To Leaf Binary Numbers</h1></summary>
 
 
 - **Difficulty:** Easy
