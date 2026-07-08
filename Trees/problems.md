@@ -2996,7 +2996,7 @@ instead of repeatedly looking upward or manually searching descendants.
 - Both solutions have **O(n)** time complexity and **O(h)** recursion stack space.
 - The parent/grandparent approach is cleaner, avoids repeated pointer checks, and demonstrates a reusable DFS pattern for many tree problems.
 
-<br/><br/><br/><br/><br/><br/>
+<br/><br/><br/><br/><br/>
 
 ---
 
@@ -8550,3 +8550,1152 @@ Return Information Needed by Parent
 - The parent uses this tail to reconnect its original right subtree.
 - The most optimized solution is **Morris Traversal**, which performs the flattening in **O(1)** extra space.
 - This problem is a classic example of **modifying a tree while returning useful information (the tail) to the parent**.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 872. Leaf-Similar Trees
+
+- **Difficulty:** Easy
+- **Topics:** Binary Tree, DFS
+
+---
+
+# 📖 Problem Statement
+
+For every binary tree, consider all its **leaf nodes** from **left to right**.
+
+The values of these leaves form the **leaf value sequence**.
+
+Two trees are **leaf-similar** if their leaf sequences are exactly the same.
+
+Return
+
+```text
+True
+```
+
+if both trees have identical leaf sequences,
+
+otherwise return
+
+```text
+False
+```
+
+---
+
+## Example 1
+
+### Tree 1
+
+```text
+        3
+       / \
+      5   1
+     / \ / \
+    6  2 9  8
+      / \
+     7   4
+```
+
+Leaf sequence
+
+```text
+[6, 7, 4, 9, 8]
+```
+
+---
+
+### Tree 2
+
+```text
+        3
+       / \
+      5   1
+     / \ / \
+    6  7 4  2
+            / \
+           9   8
+```
+
+Leaf sequence
+
+```text
+[6, 7, 4, 9, 8]
+```
+
+Output
+
+```text
+True
+```
+
+---
+
+## Example 2
+
+Tree 1
+
+```text
+    1
+   / \
+  2   3
+```
+
+Leaf sequence
+
+```text
+[2,3]
+```
+
+Tree 2
+
+```text
+    1
+   / \
+  3   2
+```
+
+Leaf sequence
+
+```text
+[3,2]
+```
+
+Output
+
+```text
+False
+```
+
+---
+
+# 💡 Key Observation
+
+We don't need to compare the trees themselves.
+
+We only need to compare
+
+```text
+Leaf Sequence of Tree 1
+
+AND
+
+Leaf Sequence of Tree 2
+```
+
+If both sequences are identical,
+
+the trees are leaf-similar.
+
+---
+
+# My Initial Solution
+
+```python
+class Solution:
+    def leafSimilar(self, root1: Optional[TreeNode], root2: Optional[TreeNode]) -> bool:
+
+        ans = []
+
+        def getLeaves(root):
+            nonlocal ans
+
+            if not root:
+                return None
+
+            left = getLeaves(root.left)
+            right = getLeaves(root.right)
+
+            if not left and not right:
+                ans.append(root.val)
+
+            return ans
+
+        l1 = getLeaves(root1)
+        l2 = getLeaves(root2)
+
+        print(l1, l2)
+
+        return l1 == l2
+```
+
+---
+
+# Why This Solution Does Not Work
+
+The problem is that
+
+```python
+ans
+```
+
+is shared between **both trees**.
+
+Execution
+
+```python
+l1 = getLeaves(root1)
+```
+
+Suppose Tree 1 has
+
+```text
+[6,7,4,9,8]
+```
+
+Now
+
+```python
+ans
+```
+
+contains
+
+```python
+[6,7,4,9,8]
+```
+
+---
+
+Next
+
+```python
+l2 = getLeaves(root2)
+```
+
+Instead of creating a new list,
+
+the same list is used again.
+
+Now
+
+```python
+ans
+```
+
+becomes
+
+```python
+[6,7,4,9,8,6,7,4,9,8]
+```
+
+Both
+
+```python
+l1
+```
+
+and
+
+```python
+l2
+```
+
+refer to the **same list object**.
+
+So comparing
+
+```python
+l1 == l2
+```
+
+does not compare two independent leaf sequences.
+
+---
+
+# Memory Visualization
+
+Initially
+
+```text
+ans
+ │
+ ▼
+[]
+```
+
+After processing Tree 1
+
+```text
+ans
+ │
+ ▼
+[6,7,4,9,8]
+ ▲
+ │
+l1
+```
+
+After processing Tree 2
+
+```text
+ans
+ │
+ ▼
+[6,7,4,9,8,6,7,4,9,8]
+ ▲              ▲
+ │              │
+l1             l2
+```
+
+Both variables point to the **same list**.
+
+Appending values changes the same object.
+
+---
+
+# Optimized Approach
+
+Instead of using one shared list,
+
+create a separate list for each tree.
+
+Then compare the two lists.
+
+---
+
+## Code
+
+```python
+class Solution:
+
+    def leafSimilar(self, root1, root2):
+
+        def getLeaves(root, leaves):
+
+            if not root:
+                return
+
+            if not root.left and not root.right:
+                leaves.append(root.val)
+                return
+
+            getLeaves(root.left, leaves)
+            getLeaves(root.right, leaves)
+
+        l1 = []
+        l2 = []
+
+        getLeaves(root1, l1)
+        getLeaves(root2, l2)
+
+        return l1 == l2
+```
+
+---
+
+# Dry Run
+
+Tree
+
+```text
+        3
+       / \
+      5   1
+     / \ / \
+    6  2 9  8
+      / \
+     7   4
+```
+
+---
+
+Visit
+
+```text
+6
+```
+
+Leaf
+
+Append
+
+```text
+[6]
+```
+
+---
+
+Visit
+
+```text
+7
+```
+
+Append
+
+```text
+[6,7]
+```
+
+---
+
+Visit
+
+```text
+4
+```
+
+Append
+
+```text
+[6,7,4]
+```
+
+---
+
+Visit
+
+```text
+9
+```
+
+Append
+
+```text
+[6,7,4,9]
+```
+
+---
+
+Visit
+
+```text
+8
+```
+
+Append
+
+```text
+[6,7,4,9,8]
+```
+
+The same process is repeated for the second tree.
+
+Finally compare
+
+```python
+l1 == l2
+```
+
+If equal
+
+```text
+Return True
+```
+
+Otherwise
+
+```text
+Return False
+```
+
+---
+
+# Why Does This Work?
+
+DFS naturally visits leaves from
+
+```text
+Left
+
+↓
+
+Right
+```
+
+which is exactly the order required by the problem.
+
+Each tree independently builds its own leaf sequence.
+
+The final comparison becomes a simple list comparison.
+
+---
+
+# Complexity Analysis
+
+Let
+
+```text
+n = Number of Nodes
+```
+
+## Time Complexity
+
+Each node is visited once.
+
+```text
+O(n)
+```
+
+---
+
+## Space Complexity
+
+Leaf sequences
+
+```text
+O(L)
+```
+
+where
+
+```text
+L = Number of Leaf Nodes
+```
+
+Recursion stack
+
+```text
+O(h)
+```
+
+where
+
+```text
+h = Height of Tree
+```
+
+Overall
+
+```text
+O(n)
+```
+
+---
+
+# Pattern Recognition
+
+This is a **Tree Traversal + Collection** problem.
+
+The goal is not to modify the tree.
+
+Instead,
+
+DFS is used to **collect information**.
+
+General pattern
+
+```text
+Traverse Tree
+
+↓
+
+Collect Required Nodes
+
+↓
+
+Compare the Collected Result
+```
+
+---
+
+# 📝 Key Takeaways
+
+- The problem only requires comparing the **leaf sequences**, not the tree structures.
+- DFS naturally visits leaves from **left to right**, matching the required order.
+- Using one shared list for both trees causes both variables to reference the **same list object**.
+- Create **separate lists** for each tree to collect leaf values independently.
+- Finally, compare the two leaf sequences using
+
+```python
+l1 == l2
+```
+
+to determine whether the trees are leaf-similar.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 129. Sum Root to Leaf Numbers
+
+- **Difficulty:** Medium
+- **Topics:** Binary Tree, DFS
+
+---
+
+# 📖 Problem Statement
+
+You are given the root of a binary tree where every node contains a digit from **0 to 9**.
+
+Each **root-to-leaf path** forms a number.
+
+Example
+
+```text
+1 → 2 → 3
+```
+
+represents
+
+```text
+123
+```
+
+Return the **sum of all root-to-leaf numbers**.
+
+---
+
+## Example 1
+
+### Input
+
+```text
+    1
+   / \
+  2   3
+```
+
+Root-to-leaf numbers
+
+```text
+1 → 2 = 12
+
+1 → 3 = 13
+```
+
+Output
+
+```text
+12 + 13 = 25
+```
+
+---
+
+## Example 2
+
+### Input
+
+```text
+        4
+       / \
+      9   0
+     / \
+    5   1
+```
+
+Root-to-leaf numbers
+
+```text
+4 → 9 → 5 = 495
+
+4 → 9 → 1 = 491
+
+4 → 0 = 40
+```
+
+Output
+
+```text
+495 + 491 + 40 = 1026
+```
+
+---
+
+# 💡 Key Observation
+
+Every root-to-leaf path forms one number.
+
+While moving from parent to child,
+
+we should keep building the current number.
+
+This is a **Parent → Child Information Flow** problem.
+
+The parent passes
+
+```text
+Current Number Built So Far
+```
+
+to its children.
+
+---
+
+# My Initial Solution
+
+## Idea
+
+Carry the current number as a **string**.
+
+Whenever a leaf is reached,
+
+convert the string into an integer and add it to the answer.
+
+---
+
+## Code
+
+```python
+class Solution:
+    def sumNumbers(self, root: Optional[TreeNode]) -> int:
+
+        ans = 0
+
+        def dfs(node, val):
+            nonlocal ans
+
+            if not node:
+                return
+
+            if node.left is None and node.right is None:
+                ans += int(val + str(node.val))
+                return
+
+            dfs(node.left, val + str(node.val))
+            dfs(node.right, val + str(node.val))
+
+        dfs(root, "")
+
+        return ans
+```
+
+---
+
+# How This Solution Works
+
+Tree
+
+```text
+      4
+     / \
+    9   0
+   / \
+  5   1
+```
+
+Start
+
+```text
+""
+```
+
+Visit
+
+```text
+4
+```
+
+Current String
+
+```text
+"4"
+```
+
+---
+
+Visit
+
+```text
+9
+```
+
+Current String
+
+```text
+"49"
+```
+
+---
+
+Visit
+
+```text
+5
+```
+
+Leaf
+
+Current String
+
+```text
+"495"
+```
+
+Convert
+
+```python
+int("495")
+```
+
+Answer
+
+```text
+495
+```
+
+---
+
+Visit
+
+```text
+1
+```
+
+Current String
+
+```text
+"491"
+```
+
+Answer
+
+```text
+495 + 491
+```
+
+---
+
+Visit
+
+```text
+0
+```
+
+Current String
+
+```text
+"40"
+```
+
+Answer
+
+```text
+495 + 491 + 40 = 1026
+```
+
+---
+
+# Drawback of This Approach
+
+The solution is correct,
+
+but every recursive call
+
+- Creates a new string
+- Copies the previous string
+- Converts the final string into an integer
+
+Since the problem is actually building a **number**, using strings is unnecessary.
+
+---
+
+# Optimized Approach
+
+Instead of carrying a string,
+
+carry the current number as an integer.
+
+Suppose
+
+```text
+Current Number = 49
+```
+
+Visit
+
+```text
+5
+```
+
+New Number
+
+```text
+49 × 10 + 5
+
+=
+
+495
+```
+
+General Formula
+
+```python
+curr = curr * 10 + node.val
+```
+
+No string conversion is needed.
+
+---
+
+# Optimized Code
+
+```python
+class Solution:
+
+    def sumNumbers(self, root: Optional[TreeNode]) -> int:
+
+        def dfs(node, curr):
+
+            if not node:
+                return 0
+
+            curr = curr * 10 + node.val
+
+            if not node.left and not node.right:
+                return curr
+
+            return dfs(node.left, curr) + dfs(node.right, curr)
+
+        return dfs(root, 0)
+```
+
+---
+
+# Dry Run
+
+Tree
+
+```text
+        4
+       / \
+      9   0
+     / \
+    5   1
+```
+
+---
+
+### Start
+
+Current Number
+
+```text
+0
+```
+
+---
+
+### Visit 4
+
+```text
+0 × 10 + 4
+
+=
+
+4
+```
+
+---
+
+### Visit 9
+
+```text
+4 × 10 + 9
+
+=
+
+49
+```
+
+---
+
+### Visit 5
+
+```text
+49 × 10 + 5
+
+=
+
+495
+```
+
+Leaf
+
+Return
+
+```text
+495
+```
+
+---
+
+### Visit 1
+
+```text
+49 × 10 + 1
+
+=
+
+491
+```
+
+Leaf
+
+Return
+
+```text
+491
+```
+
+---
+
+### Visit 0
+
+```text
+4 × 10 + 0
+
+=
+
+40
+```
+
+Leaf
+
+Return
+
+```text
+40
+```
+
+---
+
+Final Answer
+
+```text
+495 + 491 + 40
+
+=
+
+1026
+```
+
+---
+
+# Why Does This Work?
+
+At every node,
+
+the parent has already built part of the number.
+
+The child simply extends it by adding one more digit.
+
+Example
+
+Current Number
+
+```text
+49
+```
+
+Visit
+
+```text
+5
+```
+
+New Number
+
+```text
+49 × 10 + 5
+
+=
+
+495
+```
+
+Every root-to-leaf path independently builds its own number.
+
+When a leaf is reached,
+
+that complete number is returned.
+
+---
+
+# Complexity Analysis
+
+## Initial Solution
+
+### Time Complexity
+
+```text
+O(n)
+```
+
+Additional string creation and conversion occur at every path.
+
+---
+
+### Space Complexity
+
+```text
+O(h)
+```
+
+where
+
+```text
+h = Height of Tree
+```
+
+---
+
+## Optimized Solution
+
+### Time Complexity
+
+```text
+O(n)
+```
+
+Every node is visited exactly once.
+
+---
+
+### Space Complexity
+
+```text
+O(h)
+```
+
+Only the recursion stack is used.
+
+---
+
+# Pattern Recognition
+
+This problem belongs to the **Parent → Child Information Flow** category.
+
+The parent passes
+
+```text
+Current Number Built So Far
+```
+
+Each child updates it using
+
+```python
+curr = curr * 10 + node.val
+```
+
+and passes the updated value to its children.
+
+Similar problems include
+
+- Sum of Root to Leaf Binary Numbers
+- Path Sum
+- Count Good Nodes
+- Maximum Difference Between Node and Ancestor
+
+---
+
+# 📝 Key Takeaways
+
+- Every root-to-leaf path represents one number.
+- The current number is passed from parent to child.
+- The initial solution builds the number using **strings** and converts it to an integer at the leaf.
+- The optimized solution builds the number mathematically using
+
+```python
+curr = curr * 10 + node.val
+```
+
+- Returning the sum directly from DFS avoids shared state (`nonlocal`) and results in cleaner recursion.
+
+<br/><br/><br/><br/><br/>
+
+---
