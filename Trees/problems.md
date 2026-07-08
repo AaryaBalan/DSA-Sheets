@@ -16,6 +16,10 @@ Welcome to the tree problems section! Here you will find various data structure 
 - [513. Find Bottom Left Tree Value](#513-find-bottom-left-tree-value)
 - [1110. Delete Nodes And Return Forest](#1110-delete-nodes-and-return-forest)
 - [114. Flatten Binary Tree to Linked List](#114-flatten-binary-tree-to-linked-list)
+- [872. Leaf-Similar Trees](#872-leaf-similar-trees)
+- [129. Sum Root to Leaf Numbers](#129-sum-root-to-leaf-numbers)
+- [257. Binary Tree Paths](#257-binary-tree-paths)
+- [107. Binary Tree Level Order Traversal II](#107-binary-tree-level-order-traversal-ii)
 
 <br><br><br><br><br>
 
@@ -8555,7 +8559,7 @@ Return Information Needed by Parent
 
 ---
 
-# 872. Leaf-Similar Trees
+# <span style="color: limegreen;">872. Leaf-Similar Trees</span>
 
 - **Difficulty:** Easy
 - **Topics:** Binary Tree, DFS
@@ -9111,7 +9115,7 @@ to determine whether the trees are leaf-similar.
 
 ---
 
-# 129. Sum Root to Leaf Numbers
+# <span style="color: limegreen;">129. Sum Root to Leaf Numbers</span>
 
 - **Difficulty:** Medium
 - **Topics:** Binary Tree, DFS
@@ -9699,3 +9703,1012 @@ curr = curr * 10 + node.val
 <br/><br/><br/><br/><br/>
 
 ---
+
+# <span style="color: limegreen;">257. Binary Tree Paths</span>
+
+- **Difficulty:** Easy
+- **Topics:** Binary Tree, DFS, Backtracking
+
+---
+
+# 📖 Problem Statement
+
+Given the root of a binary tree, return **all root-to-leaf paths**.
+
+A **leaf node** is a node that has **no left child and no right child**.
+
+Each path should be represented as
+
+```text
+"1->2->5"
+```
+
+---
+
+## Example 1
+
+### Input
+
+```text
+        1
+       / \
+      2   3
+       \
+        5
+```
+
+### Output
+
+```python
+["1->2->5", "1->3"]
+```
+
+---
+
+## Example 2
+
+### Input
+
+```text
+1
+```
+
+### Output
+
+```python
+["1"]
+```
+
+---
+
+# 🤔 Step 1: Understand the Problem
+
+We need every path that starts from the **root** and ends at a **leaf**.
+
+Example
+
+```text
+        1
+       / \
+      2   3
+       \
+        5
+```
+
+Possible paths
+
+```text
+1 → 2 → 5
+
+1 → 3
+```
+
+Convert them into strings
+
+```text
+"1->2->5"
+
+"1->3"
+```
+
+Store them in a list.
+
+---
+
+# 💡 Step 2: How to Think
+
+Whenever you see
+
+```text
+Root → Leaf
+```
+
+your first thought should be
+
+```text
+Carry the current path from parent to child.
+```
+
+This is a **Parent → Child Information Flow** problem.
+
+The DFS state becomes
+
+```python
+dfs(node, path)
+```
+
+where
+
+```text
+path = Current Root-to-Current-Node Path
+```
+
+---
+
+# Step 3: What Should `path` Contain?
+
+Suppose we are here
+
+```text
+        1
+       /
+      2
+```
+
+Current path
+
+```text
+1->2
+```
+
+Move to
+
+```text
+5
+```
+
+New path
+
+```text
+1->2->5
+```
+
+If this is a leaf,
+
+store it.
+
+---
+
+# Dry Run
+
+Tree
+
+```text
+        1
+       / \
+      2   3
+       \
+        5
+```
+
+---
+
+### Start
+
+```python
+dfs(1, "")
+```
+
+---
+
+### Visit 1
+
+Current Path
+
+```text
+1
+```
+
+Go left.
+
+---
+
+### Visit 2
+
+Current Path
+
+```text
+1->2
+```
+
+Go right.
+
+---
+
+### Visit 5
+
+Current Path
+
+```text
+1->2->5
+```
+
+Leaf reached.
+
+Store
+
+```python
+["1->2->5"]
+```
+
+Return.
+
+---
+
+Backtrack.
+
+Visit right child.
+
+---
+
+### Visit 3
+
+Current Path
+
+```text
+1->3
+```
+
+Leaf reached.
+
+Store
+
+```python
+["1->2->5", "1->3"]
+```
+
+Done.
+
+---
+
+# Solution 1 (Easy to Understand)
+
+```python
+class Solution:
+    def binaryTreePaths(self, root: Optional[TreeNode]) -> List[str]:
+
+        ans = []
+
+        def dfs(node, path):
+
+            if not node:
+                return
+
+            if path == "":
+                path = str(node.val)
+            else:
+                path = path + "->" + str(node.val)
+
+            if not node.left and not node.right:
+                ans.append(path)
+                return
+
+            dfs(node.left, path)
+            dfs(node.right, path)
+
+        dfs(root, "")
+
+        return ans
+```
+
+---
+
+# Code Explanation
+
+Every recursive call receives
+
+```text
+Current Path
+```
+
+The current node is added to that path.
+
+If the node is a leaf,
+
+store the completed path.
+
+Otherwise,
+
+continue exploring the children.
+
+---
+
+# Solution 2 (Cleaner)
+
+Instead of checking whether the path is empty,
+
+start DFS with the root value.
+
+```python
+class Solution:
+    def binaryTreePaths(self, root: Optional[TreeNode]) -> List[str]:
+
+        ans = []
+
+        def dfs(node, path):
+
+            if not node.left and not node.right:
+                ans.append(path)
+                return
+
+            if node.left:
+                dfs(node.left, path + "->" + str(node.left.val))
+
+            if node.right:
+                dfs(node.right, path + "->" + str(node.right.val))
+
+        dfs(root, str(root.val))
+
+        return ans
+```
+
+This version avoids handling the empty string separately.
+
+---
+
+# Solution 3 (Backtracking)
+
+Instead of creating a new string at every recursive call,
+
+carry the current path as a list.
+
+Only convert it into a string when a leaf is reached.
+
+```python
+class Solution:
+    def binaryTreePaths(self, root: Optional[TreeNode]) -> List[str]:
+
+        ans = []
+
+        def dfs(node, path):
+
+            if not node:
+                return
+
+            path.append(str(node.val))
+
+            if not node.left and not node.right:
+                ans.append("->".join(path))
+            else:
+                dfs(node.left, path)
+                dfs(node.right, path)
+
+            path.pop()
+
+        dfs(root, [])
+
+        return ans
+```
+
+---
+
+# Why Backtracking Works
+
+Suppose
+
+```text
+        1
+       / \
+      2   3
+```
+
+Visit
+
+```text
+1
+```
+
+Path
+
+```text
+["1"]
+```
+
+Visit
+
+```text
+2
+```
+
+Path
+
+```text
+["1","2"]
+```
+
+Leaf
+
+Store
+
+```text
+"1->2"
+```
+
+Backtrack
+
+```python
+path.pop()
+```
+
+Path becomes
+
+```text
+["1"]
+```
+
+Now visit
+
+```text
+3
+```
+
+Path
+
+```text
+["1","3"]
+```
+
+Leaf
+
+Store
+
+```text
+"1->3"
+```
+
+Backtracking ensures the same list can be reused for every path.
+
+---
+
+# Complexity Analysis
+
+Let
+
+- `N` = Number of Nodes
+- `L` = Total Length of All Output Strings
+
+## Time Complexity
+
+```text
+O(N + L)
+```
+
+Every node is visited once,
+
+and every character in the output must be created.
+
+---
+
+## Space Complexity
+
+Recursion Stack
+
+```text
+O(H)
+```
+
+where
+
+```text
+H = Height of Tree
+```
+
+Ignoring the output list,
+
+the DFS uses only the recursion stack.
+
+---
+
+# Pattern Recognition
+
+This problem belongs to the **Parent → Child Information Flow** category.
+
+The parent passes
+
+```text
+Current Path
+```
+
+to its children.
+
+Each child extends the path.
+
+When a leaf is reached,
+
+the path is stored.
+
+Similar problems include
+
+- Path Sum
+- Sum Root to Leaf Numbers
+- Sum Root to Leaf Binary Numbers
+- Good Nodes
+- Maximum Difference Between Node and Ancestor
+
+---
+
+# 📝 Key Takeaways
+
+- Root-to-leaf problems usually require carrying information **downward**.
+- Here, the DFS state is the **current path**.
+- When a leaf is reached, store the completed path.
+- The simplest solution builds the path as a string.
+- A backtracking solution uses a list and converts it into a string only at the leaf, avoiding repeated string creation.
+- The general DFS template is
+
+```python
+dfs(node, state)
+```
+
+where `state` represents information accumulated from the root to the current node.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# <span style="color: limegreen;">107. Binary Tree Level Order Traversal II</span>
+
+- **Difficulty:** Medium
+- **Topics:** Binary Tree, Breadth-First Search (BFS), Queue
+
+---
+
+# 📖 Problem Statement
+
+Given the root of a binary tree, return the **bottom-up level order traversal** of its nodes' values.
+
+Unlike the normal level order traversal, the result should start from the **last level** and end at the **root**.
+
+Traversal inside each level is still
+
+```text
+Left → Right
+```
+
+---
+
+## Example 1
+
+### Input
+
+```text
+        3
+       / \
+      9   20
+         /  \
+        15   7
+```
+
+### Output
+
+```python
+[[15,7],[9,20],[3]]
+```
+
+---
+
+## Example 2
+
+### Input
+
+```text
+1
+```
+
+### Output
+
+```python
+[[1]]
+```
+
+---
+
+## Example 3
+
+### Input
+
+```text
+[]
+```
+
+### Output
+
+```python
+[]
+```
+
+---
+
+# 💡 Key Observation
+
+The problem says
+
+```text
+Level Order Traversal
+```
+
+which immediately suggests
+
+```text
+BFS + Queue
+```
+
+The only difference from **LeetCode 102** is that the final answer should be
+
+```text
+Bottom → Top
+```
+
+instead of
+
+```text
+Top → Bottom
+```
+
+---
+
+# My Solution
+
+## Idea
+
+Perform a normal BFS.
+
+Instead of appending each level at the end,
+
+insert it at the **front** of the answer using
+
+```python
+appendleft()
+```
+
+This automatically builds the answer in bottom-up order.
+
+---
+
+## Code
+
+```python
+from collections import deque
+
+class Solution:
+    def levelOrderBottom(self, root: Optional[TreeNode]) -> List[List[int]]:
+
+        if not root:
+            return []
+
+        q = deque([root])
+        ans = deque([])
+
+        while q:
+
+            qSize = len(q)
+            level = []
+
+            for i in range(qSize):
+
+                node = q.popleft()
+
+                level.append(node.val)
+
+                if node.left:
+                    q.append(node.left)
+
+                if node.right:
+                    q.append(node.right)
+
+            ans.appendleft(level)
+
+        return list(ans)
+```
+
+---
+
+# Dry Run
+
+Tree
+
+```text
+        3
+       / \
+      9   20
+         /  \
+        15   7
+```
+
+---
+
+### Initial
+
+Queue
+
+```text
+[3]
+```
+
+Answer
+
+```text
+[]
+```
+
+---
+
+### Level 0
+
+Process
+
+```text
+3
+```
+
+Level
+
+```text
+[3]
+```
+
+Insert at front
+
+```text
+[[3]]
+```
+
+Queue
+
+```text
+[9,20]
+```
+
+---
+
+### Level 1
+
+Process
+
+```text
+9
+
+20
+```
+
+Level
+
+```text
+[9,20]
+```
+
+Insert at front
+
+```text
+[[9,20],[3]]
+```
+
+Queue
+
+```text
+[15,7]
+```
+
+---
+
+### Level 2
+
+Process
+
+```text
+15
+
+7
+```
+
+Level
+
+```text
+[15,7]
+```
+
+Insert at front
+
+```text
+[[15,7],[9,20],[3]]
+```
+
+Queue
+
+```text
+[]
+```
+
+Traversal completed.
+
+---
+
+# Why Does `appendleft()` Work?
+
+Normally,
+
+Level Order Traversal produces
+
+```text
+[
+ [3],
+ [9,20],
+ [15,7]
+]
+```
+
+Instead of reversing the answer later,
+
+every completed level is inserted at the front.
+
+After processing
+
+Level 0
+
+```text
+[[3]]
+```
+
+After processing
+
+Level 1
+
+```text
+[[9,20],[3]]
+```
+
+After processing
+
+Level 2
+
+```text
+[[15,7],[9,20],[3]]
+```
+
+The answer is already in the required order.
+
+---
+
+# Optimized Version
+
+A small improvement is simply initializing the deque without passing an empty list.
+
+```python
+from collections import deque
+
+class Solution:
+    def levelOrderBottom(self, root: Optional[TreeNode]) -> List[List[int]]:
+
+        if not root:
+            return []
+
+        q = deque([root])
+        ans = deque()
+
+        while q:
+
+            level = []
+
+            for _ in range(len(q)):
+
+                node = q.popleft()
+
+                level.append(node.val)
+
+                if node.left:
+                    q.append(node.left)
+
+                if node.right:
+                    q.append(node.right)
+
+            ans.appendleft(level)
+
+        return list(ans)
+```
+
+The logic remains exactly the same.
+
+---
+
+# Alternative Solution
+
+Another common approach is
+
+1. Perform normal level order traversal.
+2. Reverse the final answer.
+
+```python
+from collections import deque
+
+class Solution:
+    def levelOrderBottom(self, root: Optional[TreeNode]) -> List[List[int]]:
+
+        if not root:
+            return []
+
+        q = deque([root])
+        ans = []
+
+        while q:
+
+            level = []
+
+            for _ in range(len(q)):
+
+                node = q.popleft()
+
+                level.append(node.val)
+
+                if node.left:
+                    q.append(node.left)
+
+                if node.right:
+                    q.append(node.right)
+
+            ans.append(level)
+
+        return ans[::-1]
+```
+
+Both approaches have the same time complexity.
+
+---
+
+# Complexity Analysis
+
+## Time Complexity
+
+Every node is visited exactly once.
+
+```text
+O(n)
+```
+
+---
+
+## Space Complexity
+
+The queue stores at most one level of the tree.
+
+```text
+O(n)
+```
+
+in the worst case.
+
+---
+
+# Pattern Recognition
+
+Whenever a tree problem contains words like
+
+- Level Order
+- Level by Level
+- Bottom-Up Level
+- Zigzag Level
+- Average of Levels
+
+immediately think
+
+```text
+Queue
+
+↓
+
+BFS
+```
+
+The only difference between these problems is
+
+**what you do after processing each level.**
+
+---
+
+# 📝 Key Takeaways
+
+- The phrase **"Level Order Traversal"** immediately indicates **BFS using a Queue**.
+- Process one complete level at a time using the queue size.
+- Instead of reversing the answer at the end, use
+
+```python
+appendleft(level)
+```
+
+to build the result directly in bottom-up order.
+- Both the `appendleft()` approach and the `reverse()` approach have the same overall time complexity.
+- This problem is a simple variation of the standard **Level Order Traversal** with only the output order changed.
+
+<br/><br/><br/><br/><br/>
+
+---
+
