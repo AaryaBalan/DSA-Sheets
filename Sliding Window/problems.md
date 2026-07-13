@@ -8,6 +8,11 @@ Welcome to the sliding window problems section! Here you will find various data 
 - [424. Longest Repeating Character Replacement](#424-longest-repeating-character-replacement)
 - [930. Binary Subarrays With Sum](#930-binary-subarrays-with-sum)
 - [1423. Maximum Points You Can Obtain from Cards](#1423-maximum-points-you-can-obtain-from-cards)
+- [992. Subarrays with K Different Integers](#992-subarrays-with-k-different-integers)
+- [76. Minimum Window Substring](#76-minimum-window-substring)
+- [1861. Rotating the Box](#1861-rotating-the-box)
+- [647. Palindromic Substrings](#647-palindromic-substrings)
+- [1850. Minimum Adjacent Swaps to Reach the Kth Smallest Number](#1850-minimum-adjacent-swaps-to-reach-the-kth-smallest-number)
 
 <br><br><br><br><br>
 
@@ -2996,3 +3001,2223 @@ AtMost(k-1)
 - Always shrink the window **before** counting.
 - Remove keys from the frequency map when their count becomes zero.
 - After the shrinking loop, the window is guaranteed to be valid, so no extra `if` condition is needed before counting.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 76. Minimum Window Substring
+
+- **Difficulty:** Hard
+- **Topics:** Sliding Window, Hash Map
+
+---
+
+# 📖 Problem Statement
+
+Given two strings `s` and `t`, return the **smallest substring** of `s` that contains **every character of `t`**, including duplicates.
+
+If no such substring exists, return an empty string.
+
+---
+
+## Example 1
+
+### Input
+
+```python
+s = "ADOBECODEBANC"
+t = "ABC"
+```
+
+### Output
+
+```python
+"BANC"
+```
+
+---
+
+## Example 2
+
+### Input
+
+```python
+s = "a"
+t = "a"
+```
+
+### Output
+
+```python
+"a"
+```
+
+---
+
+## Example 3
+
+### Input
+
+```python
+s = "a"
+t = "aa"
+```
+
+### Output
+
+```python
+""
+```
+
+---
+
+# Intuition
+
+This problem is one of the most important Sliding Window problems.
+
+The first thing to identify is **what the question is asking**.
+
+We are **not** looking for:
+
+- Longest substring
+- Maximum length
+- Exactly `k`
+
+Instead, we are looking for:
+
+```text
+The smallest window that satisfies a requirement.
+```
+
+This immediately suggests a different sliding window pattern.
+
+---
+
+# Step 1: Understand the Requirement
+
+Suppose
+
+```text
+t = "AABC"
+```
+
+The window must contain:
+
+```text
+A → 2
+B → 1
+C → 1
+```
+
+Notice:
+
+- Order does **not** matter.
+- Frequency **does** matter.
+
+So we need to track frequencies.
+
+---
+
+# Step 2: Store Required Frequencies
+
+Create a frequency map for `t`.
+
+Example:
+
+```text
+t = "AABC"
+```
+
+Frequency map:
+
+```python
+{
+    'A': 2,
+    'B': 1,
+    'C': 1
+}
+```
+
+This tells us exactly what every valid window must contain.
+
+---
+
+# Step 3: Maintain the Current Window
+
+As we move through `s`, maintain another frequency map.
+
+Example:
+
+Current window:
+
+```text
+"AADBC"
+```
+
+Window frequencies:
+
+```python
+{
+    'A': 2,
+    'D': 1,
+    'B': 1,
+    'C': 1
+}
+```
+
+---
+
+# Step 4: How Do We Know the Window is Valid?
+
+Simply comparing two maps every time would be expensive.
+
+Instead, introduce two variables.
+
+## required
+
+Number of unique characters in `t`.
+
+Example:
+
+```text
+t = "AABC"
+```
+
+Unique characters:
+
+```text
+A
+B
+C
+```
+
+So
+
+```python
+required = 3
+```
+
+---
+
+## formed
+
+Tracks how many required characters currently satisfy their required frequency.
+
+Example:
+
+Need:
+
+```text
+A → 2
+B → 1
+C → 1
+```
+
+Window:
+
+```text
+A → 2
+B → 1
+C → 0
+```
+
+Then
+
+```text
+formed = 2
+```
+
+because:
+
+- A is satisfied
+- B is satisfied
+- C is not
+
+---
+
+# Step 5: When is the Window Valid?
+
+The window becomes valid only when
+
+```text
+formed == required
+```
+
+At this point,
+
+every required character is present with the correct frequency.
+
+---
+
+# Step 6: Sliding Window Strategy
+
+Expand the window by moving `right`.
+
+Every time:
+
+- Add the new character.
+- Update the frequency.
+- If a character's required frequency is satisfied, increase `formed`.
+
+Once
+
+```text
+formed == required
+```
+
+the window is valid.
+
+Now,
+
+instead of expanding,
+
+start shrinking from the left.
+
+---
+
+# Step 7: Why Shrink?
+
+The current window is valid.
+
+But we want the **minimum** valid window.
+
+So while the window remains valid:
+
+- Update the best answer.
+- Remove characters from the left.
+- Stop only when the window becomes invalid.
+
+---
+
+# Dry Run
+
+```
+s = ADOBECODEBANC
+t = ABC
+```
+
+Need:
+
+```text
+A
+B
+C
+```
+
+---
+
+Expand:
+
+```text
+ADOBEC
+```
+
+Window contains:
+
+```text
+A
+B
+C
+```
+
+Valid.
+
+Now shrink.
+
+Remove
+
+```text
+A
+```
+
+Window becomes invalid.
+
+Continue expanding.
+
+Eventually reach:
+
+```text
+BANC
+```
+
+Contains:
+
+```text
+A
+B
+C
+```
+
+Valid again.
+
+Shrink further?
+
+No.
+
+Removing anything breaks validity.
+
+Answer:
+
+```text
+BANC
+```
+
+---
+
+# Sliding Window Flow
+
+```text
+Expand Right
+
+↓
+
+Window becomes valid
+
+↓
+
+Shrink Left
+
+↓
+
+Update minimum answer
+
+↓
+
+Window becomes invalid
+
+↓
+
+Expand again
+```
+
+---
+
+# Optimized Solution
+
+```python
+from collections import Counter
+
+class Solution:
+    def minWindow(self, s: str, t: str) -> str:
+
+        if not s or not t:
+            return ""
+
+        need = Counter(t)
+        window = {}
+
+        required = len(need)
+        formed = 0
+
+        left = 0
+
+        min_len = float("inf")
+        answer = (0, 0)
+
+        for right in range(len(s)):
+
+            char = s[right]
+
+            window[char] = window.get(char, 0) + 1
+
+            if char in need and window[char] == need[char]:
+                formed += 1
+
+            while left <= right and formed == required:
+
+                if right - left + 1 < min_len:
+                    min_len = right - left + 1
+                    answer = (left, right)
+
+                left_char = s[left]
+                window[left_char] -= 1
+
+                if left_char in need and window[left_char] < need[left_char]:
+                    formed -= 1
+
+                left += 1
+
+        if min_len == float("inf"):
+            return ""
+
+        l, r = answer
+        return s[l:r+1]
+```
+
+---
+
+# Complexity Analysis
+
+## Time Complexity
+
+Each character enters and leaves the window at most once.
+
+```text
+O(m + n)
+```
+
+where
+
+- `m = len(s)`
+- `n = len(t)`
+
+---
+
+## Space Complexity
+
+Frequency maps store character counts.
+
+```text
+O(Alphabet Size)
+```
+
+For English letters, this is effectively constant.
+
+---
+
+# Pattern Recognition
+
+Whenever a problem asks for
+
+- Smallest substring
+- Minimum window
+- Cover all characters
+- Contains every required element
+
+immediately think:
+
+```text
+Frequency Map
+
++
+
+Sliding Window
+
++
+
+Shrink While Valid
+```
+
+---
+
+# Universal Template for Minimum Window Problems
+
+```python
+for right:
+
+    Add current element
+
+    while window is valid:
+
+        Update answer
+
+        Remove left element
+
+        left += 1
+```
+
+Notice the difference from longest-window problems.
+
+### Longest Window
+
+```text
+Expand
+
+↓
+
+Window becomes invalid
+
+↓
+
+Shrink
+```
+
+---
+
+### Minimum Window
+
+```text
+Expand
+
+↓
+
+Window becomes valid
+
+↓
+
+Shrink as much as possible
+```
+
+This inversion is the key idea behind minimum window problems.
+
+---
+
+# Connection to Other Sliding Window Problems
+
+| Problem | Pattern |
+|----------|---------|
+| 1004. Max Consecutive Ones III | Longest valid window |
+| 424. Longest Repeating Character Replacement | Longest valid window with frequency |
+| 930. Binary Subarrays With Sum | Count exact using AtMost |
+| 992. Subarrays with K Different Integers | Count exact using AtMost |
+| 76. Minimum Window Substring | Minimum valid window |
+
+---
+
+# 📝 Key Takeaways
+
+- This is a **minimum valid window** problem.
+- Track required frequencies using a hash map.
+- Use another map to maintain the current window.
+- `formed` tells whether the window satisfies all requirements.
+- Expand until the window becomes valid.
+- Shrink while it remains valid to obtain the smallest answer.
+- Remember the core pattern:
+
+```text
+Expand
+
+↓
+
+Valid
+
+↓
+
+Shrink
+
+↓
+
+Update Minimum
+```
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 1861. Rotating the Box
+
+- **Difficulty:** Medium
+- **Topics:** Matrix, Simulation
+
+---
+
+# 📖 Problem Statement
+
+You are given an `m × n` matrix representing a side view of a box.
+
+Each cell contains one of:
+
+- `'#'` → Stone
+- `'*'` → Obstacle
+- `'.'` → Empty space
+
+The box is rotated **90° clockwise**, after which gravity causes every stone to fall downward until it reaches:
+
+- Another stone
+- An obstacle
+- The bottom of the box
+
+Return the final rotated box.
+
+---
+
+## Example 1
+
+### Input
+
+```python
+boxGrid = [["#",".","#"]]
+```
+
+### Output
+
+```text
+[
+ [ "." ],
+ [ "#" ],
+ [ "#" ]
+]
+```
+
+---
+
+## Example 2
+
+### Input
+
+```python
+boxGrid = [
+    ["#",".","*","."],
+    ["#","#","*","."]
+]
+```
+
+### Output
+
+```text
+[
+ ["#","."],
+ ["#","#"],
+ ["*","*"],
+ [".","."]
+]
+```
+
+---
+
+# Intuition
+
+At first glance, this problem looks complicated.
+
+You might think:
+
+```text
+Rotate the matrix
+
+↓
+
+Simulate gravity downward
+```
+
+Although this works, simulating vertical gravity after rotation is more complicated.
+
+Instead, use a simpler observation.
+
+---
+
+# Key Observation
+
+After a **90° clockwise rotation**,
+
+```text
+Right
+
+↓
+
+Down
+```
+
+That means,
+
+instead of rotating first,
+
+we can:
+
+```text
+Simulate gravity toward the RIGHT
+
+↓
+
+Rotate the matrix
+```
+
+The final result will be exactly the same.
+
+This simplifies the implementation significantly.
+
+---
+
+# Step 1: Simulate Gravity Horizontally
+
+Consider one row.
+
+Example:
+
+```text
+# . # * . #
+```
+
+The obstacle divides the row into independent segments.
+
+Each segment behaves separately.
+
+Within each segment,
+
+stones slide as far right as possible.
+
+---
+
+# Step 2: Process One Row
+
+Use an `empty` pointer.
+
+Initially,
+
+```text
+empty = last column
+```
+
+Traverse the row from
+
+```text
+Right → Left
+```
+
+---
+
+## Case 1: Obstacle
+
+If the current cell is
+
+```text
+*
+```
+
+gravity cannot cross it.
+
+So reset the pointer.
+
+```python
+empty = current_column - 1
+```
+
+---
+
+## Case 2: Stone
+
+If the current cell is
+
+```text
+#
+```
+
+move it to the current `empty` position.
+
+Then move the pointer one step left.
+
+---
+
+## Case 3: Empty Cell
+
+Simply continue.
+
+---
+
+# Example
+
+Initial row
+
+```text
+# . # . *
+```
+
+Process from right to left.
+
+Obstacle:
+
+```text
+*
+```
+
+Everything before it forms one segment.
+
+After gravity:
+
+```text
+. # # . *
+```
+
+All stones move to the right.
+
+---
+
+# Step 3: Rotate the Matrix
+
+After gravity simulation,
+
+rotate the matrix.
+
+For an original matrix of size
+
+```text
+m × n
+```
+
+the rotated matrix has size
+
+```text
+n × m
+```
+
+Position mapping:
+
+```text
+new[j][m - 1 - i] = boxGrid[i][j]
+```
+
+This is the standard 90° clockwise rotation formula.
+
+---
+
+# Dry Run
+
+Original
+
+```text
+# . #
+```
+
+---
+
+### Gravity
+
+Row becomes
+
+```text
+. # #
+```
+
+---
+
+### Rotation
+
+Original:
+
+```text
+. # #
+```
+
+After rotation:
+
+```text
+.
+#
+#
+```
+
+Exactly as expected.
+
+---
+
+# Optimized Solution
+
+```python
+class Solution:
+    def rotateTheBox(self, boxGrid: List[List[str]]) -> List[List[str]]:
+
+        m = len(boxGrid)
+        n = len(boxGrid[0])
+
+        # Step 1: Simulate gravity towards the right
+        for row in range(m):
+
+            empty = n - 1
+
+            for col in range(n - 1, -1, -1):
+
+                if boxGrid[row][col] == '*':
+                    empty = col - 1
+
+                elif boxGrid[row][col] == '#':
+                    boxGrid[row][col] = '.'
+                    boxGrid[row][empty] = '#'
+                    empty -= 1
+
+        # Step 2: Rotate the matrix
+        rotated = [[None] * m for _ in range(n)]
+
+        for i in range(m):
+            for j in range(n):
+                rotated[j][m - 1 - i] = boxGrid[i][j]
+
+        return rotated
+```
+
+---
+
+# Why This Works
+
+Before rotation,
+
+gravity is simulated toward the
+
+```text
+Right
+```
+
+After rotating the matrix,
+
+that direction naturally becomes
+
+```text
+Down
+```
+
+which matches the required behavior.
+
+---
+
+# Complexity Analysis
+
+## Time Complexity
+
+Gravity Simulation
+
+```text
+O(m × n)
+```
+
+Rotation
+
+```text
+O(m × n)
+```
+
+Total
+
+```text
+O(m × n)
+```
+
+---
+
+## Space Complexity
+
+The rotated matrix requires
+
+```text
+O(m × n)
+```
+
+extra space.
+
+---
+
+# Pattern Recognition
+
+Whenever a problem contains
+
+- Matrix rotation
+- Gravity
+- Falling objects
+- Obstacles
+
+ask yourself:
+
+```text
+Can I simulate gravity BEFORE rotating?
+```
+
+Sometimes changing the order of operations makes the implementation much simpler.
+
+---
+
+# Rotation Formula
+
+For a matrix of size
+
+```text
+m × n
+```
+
+rotated clockwise,
+
+every element moves as follows:
+
+```text
+Original:
+
+(i, j)
+
+↓
+
+Rotated:
+
+(j, m - 1 - i)
+```
+
+Remember this mapping for all 90° clockwise rotation problems.
+
+---
+
+# Mental Model
+
+Think of this problem as two completely separate operations.
+
+```text
+Compress every row to the right
+        +
+Rotate the matrix
+```
+
+Instead of thinking about falling stones after rotation, simplify the problem into:
+
+```text
+Row Compression
+        +
+Matrix Rotation
+```
+
+This makes the solution much easier to derive and implement.
+
+---
+
+# 📝 Key Takeaways
+
+- Gravity after a clockwise rotation is equivalent to moving stones **right before rotation**.
+- Process each row independently.
+- Obstacles split the row into separate segments.
+- Use an `empty` pointer to place stones efficiently.
+- Rotate using the standard mapping:
+
+```text
+new[j][m - 1 - i] = old[i][j]
+```
+
+- Overall complexity:
+
+```text
+Time  : O(m × n)
+
+Space : O(m × n)
+```
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 647. Palindromic Substrings
+
+- **Difficulty:** Medium
+- **Topics:** String, Two Pointers, Expand Around Center
+
+---
+
+# 📖 Problem Statement
+
+Given a string `s`, return the number of **palindromic substrings**.
+
+A palindrome is a string that reads the same forward and backward.
+
+A substring is a contiguous sequence of characters.
+
+---
+
+## Example 1
+
+### Input
+
+```python
+s = "abc"
+```
+
+### Output
+
+```python
+3
+```
+
+### Explanation
+
+The palindromic substrings are:
+
+```text
+"a"
+"b"
+"c"
+```
+
+---
+
+## Example 2
+
+### Input
+
+```python
+s = "aaa"
+```
+
+### Output
+
+```python
+6
+```
+
+### Explanation
+
+The palindromic substrings are:
+
+```text
+"a"
+"a"
+"a"
+"aa"
+"aa"
+"aaa"
+```
+
+---
+
+# Intuition
+
+The brute-force idea is straightforward.
+
+Generate every possible substring.
+
+Then check whether each substring is a palindrome.
+
+---
+
+# Brute Force
+
+There are
+
+```text
+O(n²)
+```
+
+possible substrings.
+
+Checking each substring takes
+
+```text
+O(n)
+```
+
+Therefore,
+
+```text
+Time = O(n³)
+```
+
+This is too slow.
+
+---
+
+# Key Observation
+
+Instead of checking every substring,
+
+think in the opposite direction.
+
+Ask:
+
+```text
+How is a palindrome formed?
+```
+
+Every palindrome grows outward from a center.
+
+This is the key idea.
+
+---
+
+# Two Types of Palindromes
+
+## 1. Odd-Length Palindrome
+
+The center is a character.
+
+Example:
+
+```text
+aba
+ ^
+```
+
+Expand outward.
+
+---
+
+## 2. Even-Length Palindrome
+
+The center lies between two characters.
+
+Example:
+
+```text
+abba
+ ^^
+```
+
+Expand outward.
+
+---
+
+Therefore,
+
+for every position in the string,
+
+we must check both possibilities.
+
+---
+
+# Number of Centers
+
+For a string of length
+
+```text
+n
+```
+
+there are
+
+```text
+n odd centers
+
++
+
+n-1 even centers
+```
+
+Total:
+
+```text
+2n-1 centers
+```
+
+---
+
+# Expand Around Center
+
+For every center:
+
+1. Start with left and right pointers.
+2. Expand while:
+
+```text
+left >= 0
+
+right < n
+
+s[left] == s[right]
+```
+
+3. Every successful expansion gives one palindrome.
+
+---
+
+# Example
+
+```
+s = "aaa"
+```
+
+---
+
+## Odd Centers
+
+Center at index 0
+
+```text
+a
+```
+
+Count = 1
+
+---
+
+Center at index 1
+
+```text
+a
+
+↓
+
+aaa
+```
+
+Count = 2
+
+---
+
+Center at index 2
+
+```text
+a
+```
+
+Count = 1
+
+---
+
+Odd total
+
+```text
+4
+```
+
+---
+
+## Even Centers
+
+Between
+
+```text
+0 and 1
+```
+
+Palindrome
+
+```text
+aa
+```
+
+Count = 1
+
+---
+
+Between
+
+```text
+1 and 2
+```
+
+Palindrome
+
+```text
+aa
+```
+
+Count = 1
+
+---
+
+Total
+
+```text
+4 + 2 = 6
+```
+
+---
+
+# Dry Run
+
+```
+s = "aba"
+```
+
+Center at
+
+```text
+b
+```
+
+Expand:
+
+```text
+b
+
+↓
+
+aba
+```
+
+Both are palindromes.
+
+---
+
+Center between
+
+```text
+a | b
+```
+
+Characters differ.
+
+Stop.
+
+---
+
+# Optimized Solution
+
+```python
+class Solution:
+    def countSubstrings(self, s: str) -> int:
+
+        n = len(s)
+        count = 0
+
+        def expand(left, right):
+
+            nonlocal count
+
+            while (
+                left >= 0
+                and right < n
+                and s[left] == s[right]
+            ):
+                count += 1
+                left -= 1
+                right += 1
+
+        for i in range(n):
+
+            # Odd-length palindrome
+            expand(i, i)
+
+            # Even-length palindrome
+            expand(i, i + 1)
+
+        return count
+```
+
+---
+
+# Cleaner Version
+
+Instead of using `nonlocal`, return the number of palindromes found from each center.
+
+```python
+class Solution:
+    def countSubstrings(self, s: str) -> int:
+
+        n = len(s)
+        count = 0
+
+        def expand(left, right):
+
+            total = 0
+
+            while (
+                left >= 0
+                and right < n
+                and s[left] == s[right]
+            ):
+                total += 1
+                left -= 1
+                right += 1
+
+            return total
+
+        for i in range(n):
+
+            count += expand(i, i)
+
+            count += expand(i, i + 1)
+
+        return count
+```
+
+---
+
+# Why This Works
+
+Every palindrome has exactly one center.
+
+Instead of generating every substring,
+
+we generate every possible center.
+
+Each successful expansion corresponds to one valid palindrome.
+
+---
+
+# Complexity Analysis
+
+## Time Complexity
+
+There are
+
+```text
+2n-1
+```
+
+centers.
+
+Each expansion may take
+
+```text
+O(n)
+```
+
+Therefore,
+
+```text
+O(n²)
+```
+
+---
+
+## Space Complexity
+
+Only two pointers are used.
+
+```text
+O(1)
+```
+
+---
+
+# Alternative Approach
+
+Dynamic Programming.
+
+Define
+
+```text
+dp[i][j]
+```
+
+as
+
+```text
+True
+
+if s[i...j] is a palindrome
+```
+
+This also runs in
+
+```text
+O(n²)
+```
+
+time,
+
+but requires
+
+```text
+O(n²)
+```
+
+space.
+
+The expand-around-center solution is cleaner and uses constant extra space.
+
+---
+
+# Pattern Recognition
+
+Whenever a problem asks about
+
+- Counting palindromic substrings
+- Longest palindromic substring
+- Expanding palindromes
+
+immediately think:
+
+```text
+Expand Around Center
+```
+
+---
+
+# Related Problems
+
+| Problem | Technique |
+|----------|-----------|
+| 5. Longest Palindromic Substring | Expand Around Center |
+| 647. Palindromic Substrings | Expand Around Center |
+| 131. Palindrome Partitioning | Expand / DP |
+
+---
+
+# Mental Model
+
+Instead of thinking
+
+```text
+Generate all substrings
+
+↓
+
+Check palindrome
+```
+
+think
+
+```text
+Choose a center
+
+↓
+
+Expand outward
+
+↓
+
+Every successful expansion is one palindrome
+```
+
+This change in perspective reduces the complexity from
+
+```text
+O(n³)
+
+↓
+
+O(n²)
+```
+
+and is the standard approach for palindrome substring problems.
+
+---
+
+# 📝 Key Takeaways
+
+- Every palindrome grows from a center.
+- There are two kinds of centers:
+  - Odd-length (`i, i`)
+  - Even-length (`i, i+1`)
+- Expand while characters match.
+- Every successful expansion contributes one palindrome.
+- Time Complexity:
+
+```text
+O(n²)
+```
+
+- Space Complexity:
+
+```text
+O(1)
+```
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 1850. Minimum Adjacent Swaps to Reach the Kth Smallest Number
+
+- **Difficulty:** Medium
+- **Topics:** Greedy, String, Next Permutation
+
+---
+
+# 📖 Problem Statement
+
+Given a string `num` representing a large integer and an integer `k`:
+
+1. Find the **k-th smallest wonderful number**, where a wonderful number is the next lexicographically larger permutation of `num`.
+2. Return the **minimum number of adjacent swaps** required to transform the original `num` into that k-th permutation.
+
+---
+
+## Example
+
+### Input
+
+```python
+num = "5489355142"
+k = 4
+```
+
+### Output
+
+```python
+2
+```
+
+### Explanation
+
+The 4th next permutation is:
+
+```text
+5489355421
+```
+
+Transform:
+
+```text
+5489355142
+↓
+
+5489355412
+
+↓
+
+5489355421
+```
+
+Total adjacent swaps:
+
+```text
+2
+```
+
+---
+
+# Problem Breakdown
+
+The problem consists of **two completely independent phases**.
+
+## Phase 1
+
+Generate the **k-th next permutation**.
+
+## Phase 2
+
+Find the **minimum adjacent swaps** to convert the original number into that target permutation.
+
+---
+
+# Phase 1: Finding the k-th Smallest Wonderful Number
+
+If you already know the **Next Permutation** algorithm, this part becomes simple.
+
+Instead of finding only the next permutation once,
+
+repeat it exactly `k` times.
+
+```text
+target = num
+
+Repeat k times:
+
+target = next_permutation(target)
+```
+
+---
+
+## Why This Works
+
+Constraints:
+
+```text
+n ≤ 1000
+k ≤ 1000
+```
+
+Each next permutation costs
+
+```text
+O(n)
+```
+
+Therefore,
+
+```text
+Total = O(k × n)
+```
+
+Maximum operations:
+
+```text
+1000 × 1000 = 10⁶
+```
+
+This easily fits within the limits.
+
+No combinatorics or factorial mathematics are needed.
+
+---
+
+# Next Permutation Reminder
+
+For an array:
+
+```text
+a
+```
+
+### Step 1
+
+Find the **dip** from the right.
+
+Find the first index
+
+```text
+a[i] < a[i+1]
+```
+
+---
+
+### Step 2
+
+Find the smallest element greater than `a[i]` on its right.
+
+---
+
+### Step 3
+
+Swap them.
+
+---
+
+### Step 4
+
+Reverse the suffix.
+
+---
+
+# Phase 2: Minimum Adjacent Swaps
+
+Now suppose we have:
+
+```text
+Original
+
+5489355142
+```
+
+Target
+
+```text
+5489355421
+```
+
+We need the minimum adjacent swaps to convert one into the other.
+
+---
+
+# Key Observation
+
+Adjacent swaps behave exactly like bubble sort.
+
+Whenever the current digit isn't correct,
+
+bring the required digit left one position at a time.
+
+---
+
+# Greedy Strategy
+
+Treat the original number as a mutable list.
+
+For every position `i`:
+
+If
+
+```text
+original[i] == target[i]
+```
+
+move to the next index.
+
+Otherwise:
+
+1. Search to the right for the required digit.
+2. Bubble that digit left until it reaches position `i`.
+3. Count every adjacent swap.
+
+This guarantees the minimum number of adjacent swaps.
+
+---
+
+# Example
+
+Original:
+
+```text
+1 1 1 1 2
+```
+
+Target:
+
+```text
+2 1 1 1 1
+```
+
+At index
+
+```text
+0
+```
+
+Need:
+
+```text
+2
+```
+
+Found at:
+
+```text
+index = 4
+```
+
+Bubble left:
+
+```text
+11112
+
+↓
+
+11121
+
+↓
+
+11211
+
+↓
+
+12111
+
+↓
+
+21111
+```
+
+Total swaps:
+
+```text
+4
+```
+
+---
+
+# Complete Algorithm
+
+### Step 1
+
+Convert the string into a list.
+
+---
+
+### Step 2
+
+Generate the k-th permutation.
+
+```text
+Repeat next permutation k times.
+```
+
+---
+
+### Step 3
+
+Compare the original list with the target.
+
+Whenever characters differ:
+
+- Find the matching character.
+- Bubble it left.
+- Count swaps.
+
+---
+
+# Optimized Solution
+
+```python
+class Solution:
+    def getMinSwaps(self, num: str, k: int) -> int:
+
+        # ---------- Step 1: Generate kth permutation ----------
+
+        def next_permutation(arr):
+
+            n = len(arr)
+
+            # Find dip
+            i = n - 2
+            while i >= 0 and arr[i] >= arr[i + 1]:
+                i -= 1
+
+            # Find just larger element
+            j = n - 1
+            while arr[j] <= arr[i]:
+                j -= 1
+
+            arr[i], arr[j] = arr[j], arr[i]
+
+            # Reverse suffix
+            arr[i + 1:] = reversed(arr[i + 1:])
+
+        target = list(num)
+
+        for _ in range(k):
+            next_permutation(target)
+
+        # ---------- Step 2: Count adjacent swaps ----------
+
+        original = list(num)
+        swaps = 0
+
+        for i in range(len(original)):
+
+            if original[i] == target[i]:
+                continue
+
+            j = i
+
+            while original[j] != target[i]:
+                j += 1
+
+            while j > i:
+                original[j], original[j - 1] = original[j - 1], original[j]
+                swaps += 1
+                j -= 1
+
+        return swaps
+```
+
+---
+
+# Why the Greedy Swap Works
+
+Suppose we need
+
+```text
+target[i]
+```
+
+at position `i`.
+
+The nearest occurrence of that digit on the right is exactly the one we should move.
+
+Each adjacent swap decreases its distance by one.
+
+No extra swaps are introduced.
+
+Therefore, this greedy approach always gives the minimum number of adjacent swaps.
+
+---
+
+# Dry Run
+
+Original:
+
+```text
+11112
+```
+
+Target:
+
+```text
+21111
+```
+
+Need `2` at index `0`.
+
+Find it at index `4`.
+
+Bubble left:
+
+```text
+11112
+
+↓
+
+11121
+
+↓
+
+11211
+
+↓
+
+12111
+
+↓
+
+21111
+```
+
+Swaps:
+
+```text
+4
+```
+
+---
+
+# Complexity Analysis
+
+## Next Permutation
+
+Repeated `k` times.
+
+```text
+O(k × n)
+```
+
+---
+
+## Adjacent Swap Counting
+
+Worst case:
+
+```text
+O(n²)
+```
+
+---
+
+## Total
+
+```text
+O(k × n + n²)
+```
+
+With
+
+```text
+n ≤ 1000
+```
+
+this is acceptable.
+
+---
+
+# Pattern Recognition
+
+This problem combines two well-known algorithms.
+
+## Pattern 1
+
+Generate a target state.
+
+```text
+Next Permutation
+```
+
+---
+
+## Pattern 2
+
+Transform one state into another.
+
+```text
+Greedy Adjacent Bubble Swaps
+```
+
+Many interview problems follow this structure:
+
+```text
+Generate Target
+
+↓
+
+Compute Minimum Operations
+```
+
+---
+
+# Mental Model
+
+Instead of thinking:
+
+```text
+Find kth permutation
+
+and
+
+Find swaps
+
+at the same time
+```
+
+split the problem into two separate tasks:
+
+```text
+1. Generate the target permutation.
+
+↓
+
+2. Transform the original into the target using the minimum adjacent swaps.
+```
+
+Treat them independently, then combine the answers.
+
+---
+
+# 📝 Key Takeaways
+
+- The problem has **two independent phases**:
+  1. Generate the **k-th next permutation**.
+  2. Compute the **minimum adjacent swaps**.
+- Generate the target by applying **Next Permutation** exactly `k` times.
+- Use a greedy bubble strategy to move each required digit into its correct position.
+- Every adjacent swap reduces the distance by one, ensuring the minimum number of swaps.
+- Time Complexity:
+
+```text
+O(k × n + n²)
+```
+
+- Space Complexity:
+
+```text
+O(n)
+```
