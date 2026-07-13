@@ -13,6 +13,13 @@ Welcome to the sliding window problems section! Here you will find various data 
 - [1861. Rotating the Box](#1861-rotating-the-box)
 - [647. Palindromic Substrings](#647-palindromic-substrings)
 - [1850. Minimum Adjacent Swaps to Reach the Kth Smallest Number](#1850-minimum-adjacent-swaps-to-reach-the-kth-smallest-number)
+- [1237. Find Positive Integer Solution for a Given Equation](#1237-find-positive-integer-solution-for-a-given-equation)
+- [1248. Count Number of Nice Subarrays](#1248-count-number-of-nice-subarrays)
+- [1358. Number of Substrings Containing All Three Characters](#1358-number-of-substrings-containing-all-three-characters)
+- [395. Longest Substring with At Least K Repeating Characters](#395-longest-substring-with-at-least-k-repeating-characters)
+- [1343. Number of Sub-arrays of Size K and Average Greater than or Equal to Threshold](#1343-number-of-sub-arrays-of-size-k-and-average-greater-than-or-equal-to-threshold)
+- [2024. Maximize the Confusion of an Exam](#2024-maximize-the-confusion-of-an-exam)
+- [2134. Minimum Swaps to Group All 1's Together II](#2134-minimum-swaps-to-group-all-1s-together-ii)
 
 <br><br><br><br><br>
 
@@ -5221,3 +5228,3375 @@ O(k × n + n²)
 ```text
 O(n)
 ```
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 1237. Find Positive Integer Solution for a Given Equation
+
+- **Difficulty:** Medium
+- **Topics:** Two Pointers, Binary Search, Monotonic Function
+
+---
+
+# 📖 Problem Statement
+
+You are given a hidden function:
+
+```python
+f(x, y)
+```
+
+The implementation is unknown, but it is guaranteed that:
+
+```text
+f(x, y) < f(x + 1, y)
+f(x, y) < f(x, y + 1)
+```
+
+This means the function is **strictly increasing** in both `x` and `y`.
+
+Given a target value `z`, return every positive integer pair:
+
+```text
+(x, y)
+```
+
+such that
+
+```text
+f(x, y) == z
+```
+
+where
+
+```text
+1 ≤ x, y ≤ 1000
+```
+
+---
+
+# Key Observation
+
+The actual formula is hidden.
+
+You should **not** try to guess it.
+
+Instead, use the only important property provided:
+
+```text
+The function is strictly increasing in both directions.
+```
+
+This single property is enough to solve the problem efficiently.
+
+---
+
+# Step 1: Understand the Monotonic Property
+
+We know:
+
+```text
+Increasing x
+↓
+
+f(x, y) increases
+```
+
+and
+
+```text
+Increasing y
+↓
+
+f(x, y) increases
+```
+
+Imagine the values as a matrix.
+
+```
+        x →
+      ---------------->
+y |
+↓ |
+  |
+```
+
+Every row is increasing.
+
+Every column is increasing.
+
+So the matrix behaves exactly like a **sorted 2D matrix**.
+
+---
+
+# Step 2: Brute Force Idea
+
+Try every pair:
+
+```python
+for x in range(1,1001):
+    for y in range(1,1001):
+```
+
+Check
+
+```python
+f(x,y)
+```
+
+Complexity:
+
+```text
+1000 × 1000
+
+=
+
+1,000,000 function calls
+```
+
+This works but ignores the monotonic property.
+
+---
+
+# Step 3: Better Observation
+
+Since values only increase:
+
+If
+
+```text
+f(x,y) > z
+```
+
+then increasing either variable will only make it larger.
+
+We should decrease the value.
+
+Similarly,
+
+if
+
+```text
+f(x,y) < z
+```
+
+we must increase the value.
+
+This naturally suggests a **two-pointer (staircase search)**.
+
+---
+
+# Step 4: Staircase Search
+
+Start from the **top-right corner**.
+
+```text
+x = 1
+y = 1000
+```
+
+Now evaluate
+
+```python
+value = f(x, y)
+```
+
+There are only three possibilities.
+
+---
+
+### Case 1
+
+```text
+value == z
+```
+
+Found a valid pair.
+
+Store it.
+
+Then move diagonally:
+
+```text
+x += 1
+y -= 1
+```
+
+---
+
+### Case 2
+
+```text
+value < z
+```
+
+Need a larger value.
+
+Increase
+
+```text
+x
+```
+
+```text
+x += 1
+```
+
+---
+
+### Case 3
+
+```text
+value > z
+```
+
+Need a smaller value.
+
+Decrease
+
+```text
+y
+```
+
+```text
+y -= 1
+```
+
+---
+
+# Why This Works
+
+Because the function is strictly increasing.
+
+If
+
+```text
+value < z
+```
+
+then
+
+```text
+Increasing x
+
+↓
+
+Increases value
+```
+
+If
+
+```text
+value > z
+```
+
+then
+
+```text
+Decreasing y
+
+↓
+
+Decreases value
+```
+
+Every move removes one entire row or one entire column from consideration.
+
+---
+
+# Visual Intuition
+
+Imagine the matrix:
+
+```text
+Small ----------------> Large
+
+↓
+
+Large
+```
+
+Start here:
+
+```text
+Top Right
+```
+
+If value is:
+
+Too large
+
+← Move left
+
+Too small
+
+↓ Move down
+
+Exactly the same idea as **Search in a Sorted 2D Matrix**.
+
+---
+
+# Why Move Both When Equal?
+
+Suppose
+
+```text
+f(x,y) == z
+```
+
+Since the function is strictly increasing,
+
+moving only right or only up can never produce the same value again.
+
+So after recording the answer:
+
+```text
+x += 1
+y -= 1
+```
+
+This skips the current row and column efficiently.
+
+---
+
+# Optimized Solution
+
+```python
+class Solution:
+    def findSolution(self, customfunction: 'CustomFunction', z: int) -> List[List[int]]:
+        result = []
+
+        x = 1
+        y = 1000
+
+        while x <= 1000 and y >= 1:
+
+            value = customfunction.f(x, y)
+
+            if value == z:
+                result.append([x, y])
+                x += 1
+                y -= 1
+
+            elif value < z:
+                x += 1
+
+            else:
+                y -= 1
+
+        return result
+```
+
+---
+
+# Complexity Analysis
+
+Each iteration:
+
+- Either `x` increases.
+- Or `y` decreases.
+
+Maximum movements:
+
+```text
+x : 1000
+
+y : 1000
+```
+
+Total:
+
+```text
+O(1000)
+```
+
+Space:
+
+```text
+O(1)
+```
+
+(excluding the output list)
+
+---
+
+# Alternative Approach
+
+For every `x`:
+
+Perform binary search on `y`.
+
+Complexity:
+
+```text
+1000 × log(1000)
+```
+
+which is
+
+```text
+O(1000 log 1000)
+```
+
+This also works, but the two-pointer solution is simpler and faster.
+
+---
+
+# Pattern Recognition
+
+Whenever a problem states:
+
+- Function increases with `x`
+- Function increases with `y`
+- Need to find a target value
+
+Think immediately:
+
+```text
+Monotonic 2D Grid
+
+↓
+
+Sorted Matrix Search
+
+↓
+
+Two Pointers (Staircase Search)
+```
+
+---
+
+# Mental Model
+
+Do **not** think:
+
+```text
+Reverse engineer the formula.
+```
+
+Instead think:
+
+```text
+The function behaves like a sorted matrix.
+```
+
+Then use staircase search:
+
+```text
+Start at one corner.
+
+↓
+
+If value is too small
+
+Increase x.
+
+↓
+
+If value is too large
+
+Decrease y.
+
+↓
+
+If equal
+
+Store answer and move diagonally.
+```
+
+---
+
+# 📝 Key Takeaways
+
+- The hidden formula is irrelevant.
+- Use the monotonic property instead.
+- Model the function values as a sorted 2D matrix.
+- Apply staircase search using two pointers.
+- Move:
+  - **Down (`x += 1`)** if the value is too small.
+  - **Left (`y -= 1`)** if the value is too large.
+  - **Diagonally** after finding a valid pair.
+- Time Complexity:
+
+```text
+O(1000)
+```
+
+- Space Complexity:
+
+```text
+O(1)
+```
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 1248. Count Number of Nice Subarrays
+
+- **Difficulty:** Medium
+- **Topics:** Sliding Window, Prefix Sum
+
+---
+
+# 📖 Problem Statement
+
+Given an integer array `nums` and an integer `k`, return the number of continuous subarrays that contain **exactly `k` odd numbers**.
+
+A subarray is called **nice** if it contains exactly `k` odd numbers.
+
+---
+
+## Example
+
+### Input
+
+```python
+nums = [1,1,2,1,1]
+k = 3
+```
+
+### Output
+
+```text
+2
+```
+
+### Explanation
+
+The nice subarrays are:
+
+```text
+[1,1,2,1]
+
+[1,2,1,1]
+```
+
+---
+
+# Intuition
+
+Instead of thinking about the actual values, focus only on whether a number is **odd or even**.
+
+Convert the array mentally into:
+
+```text
+Odd  → 1
+
+Even → 0
+```
+
+Example:
+
+```text
+[1,1,2,1,1]
+
+↓
+
+[1,1,0,1,1]
+```
+
+Now the problem becomes:
+
+> Count subarrays whose sum is exactly `k`.
+
+This is the same pattern as:
+
+- Binary Subarrays With Sum (930)
+- Subarrays With K Different Integers (992)
+
+---
+
+# Key Observation
+
+Sliding window naturally counts:
+
+```text
+Subarrays with at most K
+```
+
+It does **not** directly count:
+
+```text
+Subarrays with exactly K
+```
+
+So we use the transformation:
+
+```text
+Exactly(k)
+
+=
+
+AtMost(k)
+
+-
+
+AtMost(k-1)
+```
+
+This converts an "exactly" problem into two easier "at most" problems.
+
+---
+
+# Sliding Window Idea
+
+Maintain a window containing **at most `k` odd numbers**.
+
+For every position:
+
+1. Expand the window.
+2. Count odd numbers.
+3. If odd count exceeds `k`, shrink the window.
+4. After the window becomes valid, every subarray ending at `right` is valid.
+
+Number of valid subarrays ending at `right`:
+
+```text
+right - left + 1
+```
+
+---
+
+# Why `right - left + 1`?
+
+Suppose after shrinking:
+
+```text
+left          right
+
+↓
+
+[ ... valid window ... ]
+```
+
+Every starting index between
+
+```text
+left
+
+↓
+
+right
+```
+
+creates a valid subarray ending at `right`.
+
+Therefore:
+
+```text
+Count
+
+=
+
+Window Length
+
+=
+
+right - left + 1
+```
+
+---
+
+# Optimized Solution
+
+```python
+class Solution:
+    def numberOfSubarrays(self, nums: List[int], k: int) -> int:
+
+        def atMost(k):
+
+            left = 0
+            odd_count = 0
+            ans = 0
+
+            for right in range(len(nums)):
+
+                if nums[right] % 2 == 1:
+                    odd_count += 1
+
+                while odd_count > k:
+                    if nums[left] % 2 == 1:
+                        odd_count -= 1
+                    left += 1
+
+                ans += right - left + 1
+
+            return ans
+
+        return atMost(k) - atMost(k - 1)
+```
+
+---
+
+# Why Your Approach Was Correct
+
+The overall idea was correct.
+
+You recognized this as an:
+
+```text
+Exactly K
+
+↓
+
+AtMost(K) - AtMost(K-1)
+```
+
+problem.
+
+That is the correct transformation.
+
+---
+
+# Issues in the Original Implementation
+
+## Issue 1
+
+The variable `count` was used for two different purposes.
+
+You used it as:
+
+- Number of odd elements.
+- Number of valid subarrays.
+
+These should be separate variables.
+
+---
+
+## Issue 2
+
+While shrinking the window:
+
+```python
+count -= 1
+```
+
+This is incorrect.
+
+The odd counter should decrease **only if the element leaving the window is odd**.
+
+Correct logic:
+
+```python
+if nums[left] % 2 == 1:
+    odd_count -= 1
+```
+
+---
+
+## Issue 3
+
+Maintain two independent variables:
+
+```text
+odd_count
+
+↓
+
+Current odd numbers in the window
+
+ans
+
+↓
+
+Total valid subarrays
+```
+
+Separating these makes the logic much clearer.
+
+---
+
+# Alternative O(n) Approach
+
+Another elegant solution is based on the **positions of odd numbers**.
+
+Example:
+
+```text
+nums = [1,1,2,1,1]
+```
+
+Odd positions:
+
+```text
+[0,1,3,4]
+```
+
+For every group of `k` consecutive odd numbers,
+
+count:
+
+```text
+Left Choices
+
+×
+
+Right Choices
+```
+
+where:
+
+- Left choices = number of possible starting positions.
+- Right choices = number of possible ending positions.
+
+This also runs in:
+
+```text
+O(n)
+```
+
+---
+
+# Pattern Recognition
+
+Whenever a problem asks:
+
+- Exactly `k` odd numbers
+- Exactly `k` distinct values
+- Exactly `k` ones
+- Exactly `k` occurrences
+
+Think immediately:
+
+```text
+Exactly(k)
+
+=
+
+AtMost(k)
+
+-
+
+AtMost(k-1)
+```
+
+This is one of the most important sliding window transformations.
+
+---
+
+# Complexity Analysis
+
+### Time
+
+```text
+O(n)
+```
+
+Each pointer moves at most once.
+
+---
+
+### Space
+
+```text
+O(1)
+```
+
+Only a few variables are maintained.
+
+---
+
+# Mental Model
+
+Instead of asking:
+
+```text
+How do I count exactly k odd numbers?
+```
+
+Think:
+
+```text
+Count all windows with at most k odds.
+
+↓
+
+Count all windows with at most (k-1) odds.
+
+↓
+
+Subtract them.
+```
+
+This transformation simplifies many "exactly k" sliding window problems.
+
+---
+
+# 📝 Key Takeaways
+
+- Convert the problem into counting **odd numbers** only.
+- Use the transformation:
+
+```text
+Exactly(k)
+
+=
+
+AtMost(k)
+
+-
+
+AtMost(k-1)
+```
+
+- Maintain:
+  - `odd_count` → current odd numbers in the window.
+  - `ans` → total valid subarrays.
+- Every valid window contributes:
+
+```text
+right - left + 1
+```
+
+subarrays ending at the current index.
+
+- Time Complexity:
+
+```text
+O(n)
+```
+
+- Space Complexity:
+
+```text
+O(1)
+```
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 1358. Number of Substrings Containing All Three Characters
+
+- **Difficulty:** Medium
+- **Topics:** Sliding Window, Two Pointers
+
+---
+
+# 📖 Problem Statement
+
+Given a string `s` consisting only of the characters:
+
+```text
+'a', 'b', 'c'
+```
+
+Return the number of substrings that contain **at least one occurrence of all three characters**.
+
+---
+
+## Example
+
+### Input
+
+```python
+s = "abcabc"
+```
+
+### Output
+
+```text
+10
+```
+
+### Explanation
+
+Valid substrings include:
+
+```text
+"abc"
+"abca"
+"abcab"
+"abcabc"
+"bca"
+"bcab"
+"bcabc"
+"cab"
+"cabc"
+"abc"
+```
+
+---
+
+# First Observation
+
+The string contains **only three possible characters**:
+
+```text
+a
+
+b
+
+c
+```
+
+A valid substring must contain **all three**.
+
+Since there are only three unique characters available,
+
+a valid substring is simply a substring with:
+
+```text
+Exactly 3 distinct characters.
+```
+
+---
+
+# Initial Approach
+
+A natural idea is to use the well-known transformation:
+
+```text
+Exactly(k)
+
+=
+
+AtMost(k)
+
+-
+
+AtMost(k-1)
+```
+
+For this problem:
+
+```text
+Exactly 3 distinct
+
+=
+
+AtMost(3)
+
+-
+
+AtMost(2)
+```
+
+This idea is mathematically correct.
+
+---
+
+# Issue in the Original Implementation
+
+Inside the `atMost()` function:
+
+```python
+count = right - left + 1
+```
+
+This overwrites the answer every iteration.
+
+Instead, we must accumulate all valid subarrays.
+
+Correct statement:
+
+```python
+count += right - left + 1
+```
+
+Reason:
+
+For every `right`, all substrings starting from
+
+```text
+left
+
+↓
+
+right
+```
+
+are valid.
+
+So they must all be added to the total answer.
+
+---
+
+# Is the atMost Approach Correct?
+
+Yes.
+
+The transformation
+
+```text
+AtMost(3)
+
+-
+
+AtMost(2)
+```
+
+correctly counts substrings having exactly three distinct characters.
+
+However, there is an even cleaner solution for this specific problem.
+
+---
+
+# Better Sliding Window Observation
+
+Instead of counting distinct characters,
+
+directly maintain whether the window contains:
+
+```text
+'a'
+
+'b'
+
+'c'
+```
+
+Whenever the current window becomes valid,
+
+every extension of that window will also remain valid.
+
+---
+
+# Sliding Window Idea
+
+Maintain:
+
+- Left pointer
+- Right pointer
+- Frequency of:
+
+```text
+a
+
+b
+
+c
+```
+
+Expand the window.
+
+Whenever all three frequencies become positive,
+
+the current window is valid.
+
+Now shrink from the left while the window remains valid.
+
+---
+
+# Why `count += n - right`?
+
+Suppose the current valid window is:
+
+```text
+[left ........ right]
+```
+
+Since it already contains all three characters,
+
+every longer substring ending later is also valid.
+
+Valid substrings are:
+
+```text
+[left, right]
+
+[left, right+1]
+
+[left, right+2]
+
+...
+
+[left, n-1]
+```
+
+Number of such substrings:
+
+```text
+n - right
+```
+
+Therefore,
+
+every time the window is valid:
+
+```python
+count += len(s) - right
+```
+
+Then continue shrinking.
+
+---
+
+# Optimized Solution
+
+```python
+class Solution:
+    def numberOfSubstrings(self, s: str) -> int:
+
+        left = 0
+        count = 0
+
+        freq = {
+            'a': 0,
+            'b': 0,
+            'c': 0
+        }
+
+        for right in range(len(s)):
+
+            freq[s[right]] += 1
+
+            while (
+                freq['a'] > 0 and
+                freq['b'] > 0 and
+                freq['c'] > 0
+            ):
+
+                count += len(s) - right
+
+                freq[s[left]] -= 1
+                left += 1
+
+        return count
+```
+
+---
+
+# Why This Works
+
+Once a window satisfies the condition:
+
+```text
+Contains
+
+a
+
+b
+
+c
+```
+
+Adding more characters to its right can never invalidate it.
+
+Therefore,
+
+every extension remains valid,
+
+allowing us to count all of them at once.
+
+---
+
+# Complexity Analysis
+
+### Time
+
+```text
+O(n)
+```
+
+Each pointer moves at most once.
+
+---
+
+### Space
+
+```text
+O(1)
+```
+
+Only three character frequencies are maintained.
+
+---
+
+# Comparison of Approaches
+
+| Approach | Works | Notes |
+|----------|-------|-------|
+| `AtMost(3) - AtMost(2)` | ✅ | Correct after fixing the counting bug |
+| Shrink While Valid | ✅ | Simpler and more natural for this problem |
+
+---
+
+# Pattern Recognition
+
+This problem belongs to a different sliding window category.
+
+Instead of:
+
+```text
+Exactly K
+```
+
+it asks for:
+
+```text
+Window satisfies a required condition.
+```
+
+General template:
+
+```text
+Expand window.
+
+↓
+
+When condition becomes valid,
+
+↓
+
+Count all valid substrings.
+
+↓
+
+Shrink while still valid.
+```
+
+---
+
+# Mental Model
+
+Instead of thinking:
+
+```text
+Exactly three distinct characters.
+```
+
+Think:
+
+```text
+Find the smallest valid window.
+
+↓
+
+Once valid,
+
+every larger window is automatically valid.
+
+↓
+
+Count all of them together.
+
+↓
+
+Shrink to discover new valid windows.
+```
+
+This is the standard sliding window pattern for **minimum valid window counting** problems.
+
+---
+
+# 📝 Key Takeaways
+
+- Since the string contains only `'a'`, `'b'`, and `'c'`, having all three means **exactly three distinct characters**.
+- The transformation:
+
+```text
+Exactly(3)
+
+=
+
+AtMost(3)
+
+-
+
+AtMost(2)
+```
+
+is mathematically correct.
+
+- In the original implementation:
+
+```python
+count = right - left + 1
+```
+
+should be
+
+```python
+count += right - left + 1
+```
+
+- A cleaner solution maintains frequencies of `'a'`, `'b'`, and `'c'` directly.
+- Once a window becomes valid, add:
+
+```text
+n - right
+```
+
+because every extension is also valid.
+
+- Time Complexity:
+
+```text
+O(n)
+```
+
+- Space Complexity:
+
+```text
+O(1)
+```
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 395. Longest Substring with At Least K Repeating Characters
+
+- **Difficulty:** Medium
+- **Topics:** Divide & Conquer, Sliding Window
+
+---
+
+# 📖 Problem Statement
+
+Given a string `s` and an integer `k`, return the length of the **longest substring** such that **every character** in that substring appears **at least `k` times**.
+
+If no such substring exists, return `0`.
+
+---
+
+## Example 1
+
+### Input
+
+```python
+s = "aaabb"
+k = 3
+```
+
+### Output
+
+```text
+3
+```
+
+### Explanation
+
+```text
+"aaa"
+```
+
+is the longest valid substring because:
+
+```text
+'a' appears 3 times.
+```
+
+---
+
+## Example 2
+
+### Input
+
+```python
+s = "ababbc"
+k = 2
+```
+
+### Output
+
+```text
+5
+```
+
+### Explanation
+
+```text
+"ababb"
+```
+
+contains:
+
+```text
+a → 2
+
+b → 3
+```
+
+Both satisfy the condition.
+
+---
+
+# First Observation
+
+Unlike many sliding window problems, the condition is:
+
+```text
+Every character
+
+↓
+
+Frequency ≥ k
+```
+
+This condition depends on **all character frequencies inside the window**.
+
+That makes it difficult to apply the normal sliding window template.
+
+---
+
+# Approach 1: Divide and Conquer
+
+## Key Observation
+
+If a character appears **less than `k` times** in a substring,
+
+that character can **never** belong to a valid answer inside that substring.
+
+Therefore,
+
+it naturally becomes a **splitting point**.
+
+---
+
+## Example
+
+```text
+s = "ababbc"
+
+k = 2
+```
+
+Frequency:
+
+```text
+a → 2
+
+b → 3
+
+c → 1
+```
+
+Character:
+
+```text
+c
+```
+
+appears fewer than `k` times.
+
+Therefore,
+
+no valid substring can contain `'c'`.
+
+Split around `'c'`:
+
+```text
+"ababb"
+
+""
+```
+
+Now solve each part recursively.
+
+---
+
+## Algorithm
+
+For every substring:
+
+1. If its length is smaller than `k`, return `0`.
+2. Count frequencies.
+3. Find any character whose frequency is less than `k`.
+4. Split around that character.
+5. Recursively solve both parts.
+6. Return the maximum.
+7. If every character satisfies the condition, return the entire substring length.
+
+---
+
+## Recursive Solution
+
+```python
+class Solution:
+    def longestSubstring(self, s: str, k: int) -> int:
+
+        if len(s) < k:
+            return 0
+
+        freq = {}
+
+        for ch in s:
+            freq[ch] = freq.get(ch, 0) + 1
+
+        for i in range(len(s)):
+            if freq[s[i]] < k:
+                left = self.longestSubstring(s[:i], k)
+                right = self.longestSubstring(s[i + 1:], k)
+                return max(left, right)
+
+        return len(s)
+```
+
+---
+
+## Why This Works
+
+Any character whose frequency is less than `k` cannot belong to a valid substring.
+
+So it acts as a separator,
+
+allowing the problem to be divided into independent subproblems.
+
+---
+
+## Complexity
+
+Since there are only 26 lowercase letters,
+
+the practical complexity is approximately:
+
+```text
+O(26 × n)
+```
+
+which behaves close to:
+
+```text
+O(n)
+```
+
+---
+
+# Why Normal Sliding Window Doesn't Work
+
+Typical sliding window problems rely on a monotonic property.
+
+For example:
+
+```text
+Too many distinct characters
+
+↓
+
+Shrink window.
+```
+
+Here,
+
+adding one character may change the validity of many others.
+
+There is no simple "invalid → shrink" condition.
+
+So the standard sliding window template does not apply directly.
+
+---
+
+# Approach 2: Sliding Window with Fixed Unique Characters
+
+There is another elegant iterative solution.
+
+Instead of recursion,
+
+we fix the number of distinct characters.
+
+---
+
+## Key Idea
+
+There are only:
+
+```text
+26 lowercase letters.
+```
+
+The longest valid substring must contain
+
+some number of distinct characters.
+
+Suppose it contains:
+
+```text
+d distinct characters.
+```
+
+We simply try:
+
+```text
+1 distinct
+
+2 distinct
+
+...
+
+26 distinct
+```
+
+For each possibility,
+
+run a sliding window.
+
+---
+
+## Window State
+
+Maintain:
+
+- Frequency array.
+- Number of distinct characters.
+- Number of characters whose frequency is at least `k`.
+
+---
+
+## Valid Window
+
+The window is valid when:
+
+```text
+Distinct Characters
+
+=
+
+Target Distinct Characters
+
+=
+
+Characters Appearing At Least k Times
+```
+
+In other words:
+
+```text
+unique_count == unique_target
+
+AND
+
+unique_count == count_at_least_k
+```
+
+---
+
+## Sliding Window Algorithm
+
+For every:
+
+```text
+unique_target = 1 → 26
+```
+
+Maintain:
+
+- `unique_count`
+- `count_at_least_k`
+- Character frequencies
+
+Expand and shrink the window.
+
+Whenever both conditions hold,
+
+update the answer.
+
+---
+
+## Iterative Solution
+
+```python
+class Solution:
+    def longestSubstring(self, s: str, k: int) -> int:
+
+        n = len(s)
+        ans = 0
+
+        for unique_target in range(1, 27):
+
+            freq = [0] * 26
+
+            left = 0
+            right = 0
+
+            unique_count = 0
+            count_at_least_k = 0
+
+            while right < n:
+
+                if unique_count <= unique_target:
+
+                    idx = ord(s[right]) - ord('a')
+
+                    if freq[idx] == 0:
+                        unique_count += 1
+
+                    freq[idx] += 1
+
+                    if freq[idx] == k:
+                        count_at_least_k += 1
+
+                    right += 1
+
+                else:
+
+                    idx = ord(s[left]) - ord('a')
+
+                    if freq[idx] == k:
+                        count_at_least_k -= 1
+
+                    freq[idx] -= 1
+
+                    if freq[idx] == 0:
+                        unique_count -= 1
+
+                    left += 1
+
+                if (
+                    unique_count == unique_target
+                    and
+                    unique_count == count_at_least_k
+                ):
+                    ans = max(ans, right - left)
+
+        return ans
+```
+
+---
+
+# Why This Works
+
+Suppose the optimal answer contains:
+
+```text
+d distinct characters.
+```
+
+When
+
+```text
+unique_target = d
+```
+
+the sliding window will eventually discover it.
+
+Trying all possible distinct counts guarantees correctness.
+
+Since there are only 26 possibilities,
+
+the solution remains efficient.
+
+---
+
+# Complexity
+
+Outer loop:
+
+```text
+26
+```
+
+Sliding window:
+
+```text
+O(n)
+```
+
+Overall:
+
+```text
+O(26 × n)
+```
+
+Space:
+
+```text
+O(26)
+```
+
+---
+
+# Comparison of Both Approaches
+
+| Approach | Idea | Notes |
+|----------|------|-------|
+| Divide & Conquer | Split around invalid characters | Conceptually elegant |
+| Sliding Window | Fix the number of distinct characters | Iterative and interview-friendly |
+
+Both approaches achieve approximately:
+
+```text
+O(26 × n)
+```
+
+---
+
+# Pattern Recognition
+
+If a problem states:
+
+```text
+Every character must satisfy a frequency condition.
+```
+
+Think of two possibilities.
+
+### Option 1
+
+Invalid characters become separators.
+
+```text
+↓
+
+Divide & Conquer
+```
+
+---
+
+### Option 2
+
+The alphabet size is small.
+
+```text
+↓
+
+Try every possible number of distinct characters.
+
+↓
+
+Sliding Window
+```
+
+---
+
+# Mental Model
+
+## Divide & Conquer
+
+Think:
+
+```text
+Invalid characters split the string.
+
+↓
+
+Solve each piece independently.
+```
+
+---
+
+## Sliding Window
+
+Think:
+
+```text
+Fix the number of distinct characters.
+
+↓
+
+Maintain frequencies.
+
+↓
+
+Check whether every distinct character has frequency ≥ k.
+```
+
+Both viewpoints solve the same problem from different angles.
+
+---
+
+# 📝 Key Takeaways
+
+- The condition depends on **every character's frequency**, so the standard sliding window template does not directly apply.
+- **Divide & Conquer**:
+  - Characters with frequency `< k` act as separators.
+  - Split the string and solve recursively.
+- **Sliding Window**:
+  - Iterate over every possible number of distinct characters (1–26).
+  - Track:
+    - Number of distinct characters.
+    - Number of characters whose frequency is at least `k`.
+- A window is valid when:
+
+```text
+unique_count == unique_target
+
+AND
+
+unique_count == count_at_least_k
+```
+
+- Time Complexity:
+
+```text
+O(26 × n)
+```
+
+- Space Complexity:
+
+```text
+O(26)
+```
+
+<br/><br/><br/><br/><br/>
+
+----
+
+# 1343. Number of Sub-arrays of Size K and Average Greater than or Equal to Threshold
+
+- **Difficulty:** Medium
+- **Topics:** Array, Sliding Window
+
+---
+
+# 📖 Problem Statement
+
+Given an integer array `arr`, and two integers `k` and `threshold`, return the number of subarrays of size `k` whose **average** is greater than or equal to `threshold`.
+
+---
+
+## Example 1
+
+### Input
+
+```python
+arr = [2,2,2,2,5,5,5,8]
+k = 3
+threshold = 4
+```
+
+### Output
+
+```text
+3
+```
+
+### Explanation
+
+Subarrays of size `3`:
+
+```text
+[2,2,2] → average = 2 ❌
+
+[2,2,2] → average = 2 ❌
+
+[2,2,5] → average = 3 ❌
+
+[2,5,5] → average = 4 ✅
+
+[5,5,5] → average = 5 ✅
+
+[5,5,8] → average = 6 ✅
+```
+
+Answer:
+
+```text
+3
+```
+
+---
+
+# Step 1: Rewrite the Condition
+
+The problem asks:
+
+```text
+Average ≥ threshold
+```
+
+Average of a window of size `k` is:
+
+```text
+sum / k
+```
+
+So,
+
+```text
+sum / k ≥ threshold
+```
+
+Multiply both sides by `k`:
+
+```text
+sum ≥ k × threshold
+```
+
+Now we no longer need to compute averages.
+
+Instead, we only compare sums.
+
+---
+
+# Key Observation
+
+Instead of checking:
+
+```text
+Average
+```
+
+we check:
+
+```text
+Window Sum ≥ k × threshold
+```
+
+This avoids unnecessary division.
+
+---
+
+# Step 2: Recognize the Pattern
+
+Notice the important phrase:
+
+```text
+Subarrays of size k
+```
+
+The window size never changes.
+
+This immediately indicates:
+
+```text
+Fixed Size Sliding Window
+```
+
+Unlike variable-size sliding window problems:
+
+- No shrinking.
+- No expanding based on conditions.
+- Just move the window one position at a time.
+
+---
+
+# Step 3: Sliding Window Strategy
+
+1. Compute the sum of the first `k` elements.
+2. Check whether it satisfies the condition.
+3. Slide the window:
+   - Remove the leftmost element.
+   - Add the next element.
+4. Repeat until the end of the array.
+
+Each slide updates the sum in **O(1)** time.
+
+---
+
+# Example Walkthrough
+
+```text
+arr = [2,2,2,2,5,5,5,8]
+
+k = 3
+
+threshold = 4
+```
+
+Required sum:
+
+```text
+3 × 4 = 12
+```
+
+First window:
+
+```text
+[2,2,2]
+
+sum = 6
+
+6 < 12
+```
+
+Slide:
+
+```text
+Remove 2
+
+Add 2
+
+Window = [2,2,2]
+
+sum = 6
+```
+
+Slide:
+
+```text
+Remove 2
+
+Add 5
+
+Window = [2,2,5]
+
+sum = 9
+```
+
+Slide:
+
+```text
+Remove 2
+
+Add 5
+
+Window = [2,5,5]
+
+sum = 12
+
+Valid
+```
+
+Continue similarly:
+
+```text
+[5,5,5] → 15 ✅
+
+[5,5,8] → 18 ✅
+```
+
+Answer:
+
+```text
+3
+```
+
+---
+
+# Algorithm
+
+1. Compute:
+
+```text
+target = k × threshold
+```
+
+2. Compute the sum of the first window.
+
+3. If:
+
+```text
+window_sum ≥ target
+```
+
+increase the answer.
+
+4. Slide the window:
+
+```text
+window_sum += incoming_element
+
+window_sum -= outgoing_element
+```
+
+5. Repeat.
+
+---
+
+# Optimal Solution
+
+```python
+class Solution:
+    def numOfSubarrays(self, arr: List[int], k: int, threshold: int) -> int:
+
+        target = k * threshold
+
+        window_sum = sum(arr[:k])
+
+        count = 0
+
+        if window_sum >= target:
+            count += 1
+
+        for i in range(k, len(arr)):
+            window_sum += arr[i]
+            window_sum -= arr[i - k]
+
+            if window_sum >= target:
+                count += 1
+
+        return count
+```
+
+---
+
+# Why This Works
+
+Each new window differs from the previous window by exactly:
+
+- One element entering.
+- One element leaving.
+
+Instead of recalculating the sum every time:
+
+```text
+O(k)
+```
+
+we update it in:
+
+```text
+O(1)
+```
+
+This makes the entire algorithm linear.
+
+---
+
+# Complexity Analysis
+
+### Time
+
+```text
+O(n)
+```
+
+Each element enters and leaves the window exactly once.
+
+---
+
+### Space
+
+```text
+O(1)
+```
+
+Only a few variables are used.
+
+---
+
+# Pattern Recognition
+
+Whenever you see:
+
+```text
+Subarrays of fixed size k
+```
+
+Immediately think:
+
+```text
+Fixed Size Sliding Window
+```
+
+No shrinking logic is required.
+
+---
+
+# Sliding Window Categories
+
+| Problem Type | Pattern |
+|-------------|---------|
+| Fixed size `k` | Fixed Size Sliding Window |
+| Longest valid window | Expand and shrink when invalid |
+| Exactly `k` condition | `atMost(k) - atMost(k-1)` |
+| Minimum valid window | Expand until valid, then shrink |
+| Frequency constraints | Sliding Window / Divide & Conquer (depending on the problem) |
+
+---
+
+# Mental Model
+
+Think:
+
+```text
+Fixed-size window
+
+↓
+
+Compute first window
+
+↓
+
+Slide one step
+
+↓
+
+Remove one element
+
++
+
+Add one element
+
+↓
+
+Check condition
+
+↓
+
+Repeat
+```
+
+---
+
+# 📝 Key Takeaways
+
+- Convert the average condition into a sum condition:
+
+```text
+sum ≥ k × threshold
+```
+
+- Since the window size is fixed:
+
+```text
+Fixed Size Sliding Window
+```
+
+is the ideal approach.
+
+- Update the window sum in **O(1)** by:
+
+```text
+window_sum += new_element
+
+window_sum -= old_element
+```
+
+- Overall Complexity:
+
+```text
+Time  : O(n)
+
+Space : O(1)
+```
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 2024. Maximize the Confusion of an Exam
+
+- **Difficulty:** Medium
+- **Topics:** String, Sliding Window
+
+---
+
+# 📖 Problem Statement
+
+A teacher is preparing a True/False exam.
+
+You are given:
+
+- A string `answerKey` consisting of only `'T'` and `'F'`.
+- An integer `k`, representing the maximum number of answers you can change.
+
+Your goal is to maximize the length of consecutive identical answers after changing at most `k` characters.
+
+Return the maximum possible length.
+
+---
+
+## Example 1
+
+### Input
+
+```python
+answerKey = "TTFF"
+k = 2
+```
+
+### Output
+
+```text
+4
+```
+
+### Explanation
+
+Flip both `'F'` to `'T'`.
+
+```text
+TTTT
+```
+
+Longest consecutive answers = **4**
+
+---
+
+## Example 2
+
+### Input
+
+```python
+answerKey = "TFFT"
+k = 1
+```
+
+### Output
+
+```text
+3
+```
+
+### Explanation
+
+Option 1:
+
+```text
+TFFT
+↓
+
+FFFT
+```
+
+Longest consecutive `'F'` = **3**
+
+Option 2:
+
+```text
+TFFT
+↓
+
+TFFF
+```
+
+Longest consecutive `'F'` = **3**
+
+---
+
+# Step 1: Understand the Problem
+
+We need the **longest consecutive identical characters**.
+
+There are only two possible characters:
+
+```text
+'T'
+'F'
+```
+
+Since we can flip at most `k` characters, we can think in two ways:
+
+- Make the entire window all `'T'`
+- Make the entire window all `'F'`
+
+Take the larger answer.
+
+---
+
+# Step 2: Reformulate the Problem
+
+Suppose we want every character in the window to become `'T'`.
+
+Then:
+
+Every `'F'` inside the window must be flipped.
+
+So the window is valid if:
+
+```text
+Number of 'F' ≤ k
+```
+
+Similarly, if we want every character to become `'F'`:
+
+```text
+Number of 'T' ≤ k
+```
+
+So the problem becomes:
+
+```text
+Find the longest substring containing
+at most k "bad" characters.
+```
+
+---
+
+# Step 3: Recognize the Pattern
+
+This is exactly the same pattern as:
+
+- 1004. Max Consecutive Ones III
+- 424. Longest Repeating Character Replacement
+
+Sliding window template:
+
+```text
+Expand window
+
+↓
+
+If bad characters > k
+
+↓
+
+Shrink window
+
+↓
+
+Update maximum length
+```
+
+---
+
+# Step 4: Sliding Window Strategy
+
+For a chosen target character (`'T'`):
+
+- Move the right pointer.
+- If current character is not `'T'`, increase `bad_count`.
+- If `bad_count > k`, move the left pointer until the window becomes valid.
+- Update the maximum window size.
+
+Repeat the same for `'F'`.
+
+Answer:
+
+```text
+max(result_for_T, result_for_F)
+```
+
+---
+
+# Example Walkthrough
+
+```text
+answerKey = "TFFT"
+
+k = 1
+```
+
+### Make everything `'T'`
+
+Window:
+
+```text
+T F F T
+```
+
+Bad characters:
+
+```text
+F
+```
+
+When bad characters become:
+
+```text
+2
+```
+
+Shrink the window.
+
+Maximum window obtained:
+
+```text
+2
+```
+
+---
+
+### Make everything `'F'`
+
+Window:
+
+```text
+T F F
+```
+
+Flip one `'T'`:
+
+```text
+F F F
+```
+
+Length:
+
+```text
+3
+```
+
+Answer:
+
+```text
+max(2,3) = 3
+```
+
+---
+
+# Algorithm
+
+For each target (`'T'` and `'F'`):
+
+1. Initialize:
+   - `left = 0`
+   - `bad_count = 0`
+   - `max_length = 0`
+
+2. Expand the window using `right`.
+
+3. If current character is not the target:
+
+```text
+bad_count += 1
+```
+
+4. While:
+
+```text
+bad_count > k
+```
+
+Shrink the window.
+
+5. Update:
+
+```text
+max_length = max(max_length, window_size)
+```
+
+6. Return the maximum result of both targets.
+
+---
+
+# Optimal Solution
+
+```python
+class Solution:
+    def maxConsecutiveAnswers(self, answerKey: str, k: int) -> int:
+
+        def longestWithTarget(target):
+            left = 0
+            bad_count = 0
+            max_len = 0
+
+            for right in range(len(answerKey)):
+
+                if answerKey[right] != target:
+                    bad_count += 1
+
+                while bad_count > k:
+                    if answerKey[left] != target:
+                        bad_count -= 1
+                    left += 1
+
+                max_len = max(max_len, right - left + 1)
+
+            return max_len
+
+        return max(
+            longestWithTarget('T'),
+            longestWithTarget('F')
+        )
+```
+
+---
+
+# Alternative One-Pass Solution
+
+Instead of checking `'T'` and `'F'` separately, we can keep track of both counts.
+
+Observation:
+
+To make the window uniform, we only need to flip the **smaller group**.
+
+So the window is valid if:
+
+```text
+min(count_T, count_F) ≤ k
+```
+
+---
+
+## Code
+
+```python
+class Solution:
+    def maxConsecutiveAnswers(self, answerKey: str, k: int) -> int:
+        left = 0
+        count = {'T': 0, 'F': 0}
+        max_len = 0
+
+        for right in range(len(answerKey)):
+            count[answerKey[right]] += 1
+
+            while min(count['T'], count['F']) > k:
+                count[answerKey[left]] -= 1
+                left += 1
+
+            max_len = max(max_len, right - left + 1)
+
+        return max_len
+```
+
+---
+
+# Why This Works
+
+To make every character in the window identical:
+
+- Keep the majority character.
+- Flip the minority character.
+
+The number of flips required is:
+
+```text
+min(count_T, count_F)
+```
+
+If it exceeds `k`, shrink the window.
+
+---
+
+# Complexity Analysis
+
+### Two-Pass Solution
+
+**Time**
+
+```text
+O(n)
+```
+
+Two linear scans.
+
+**Space**
+
+```text
+O(1)
+```
+
+---
+
+### One-Pass Solution
+
+**Time**
+
+```text
+O(n)
+```
+
+**Space**
+
+```text
+O(1)
+```
+
+---
+
+# Pattern Recognition
+
+Whenever a problem says:
+
+- Longest consecutive
+- Flip at most `k`
+- Replace at most `k` characters
+
+Think:
+
+```text
+Sliding Window
+
+↓
+
+Expand
+
+↓
+
+If bad characters > k
+
+↓
+
+Shrink
+
+↓
+
+Update maximum
+```
+
+---
+
+# Similar Problems
+
+| Problem | Pattern |
+|---------|---------|
+| 1004. Max Consecutive Ones III | Longest window with at most `k` bad elements |
+| 424. Longest Repeating Character Replacement | Longest window after replacing at most `k` characters |
+| 2024. Maximize the Confusion of an Exam | Longest window after flipping at most `k` answers |
+
+---
+
+# Mental Model
+
+```text
+Choose a target character
+
+↓
+
+Treat all other characters as "bad"
+
+↓
+
+Keep at most k bad characters
+
+↓
+
+Sliding Window
+
+↓
+
+Longest valid window
+```
+
+---
+
+# 📝 Key Takeaways
+
+- Solve the problem twice:
+  - Make everything `'T'`
+  - Make everything `'F'`
+- Use a sliding window with at most `k` bad characters.
+- Alternative one-pass solution tracks counts of both `'T'` and `'F'`.
+- Complexity:
+
+```text
+Time  : O(n)
+
+Space : O(1)
+```
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 2134. Minimum Swaps to Group All 1's Together II
+
+- **Difficulty:** Medium
+- **Topics:** Array, Sliding Window
+
+---
+
+# 📖 Problem Statement
+
+You are given a **binary circular array** `nums`.
+
+You may swap **any two elements**.
+
+Your goal is to group **all the 1's together** using the minimum number of swaps.
+
+Return the minimum number of swaps required.
+
+---
+
+## Example 1
+
+### Input
+
+```python
+nums = [0,1,0,1,1,0,0]
+```
+
+### Output
+
+```text
+1
+```
+
+### Explanation
+
+There are three `1`s in the array.
+
+One optimal arrangement is:
+
+```text
+[0,0,1,1,1,0,0]
+```
+
+Only one swap is required.
+
+---
+
+## Example 2
+
+### Input
+
+```python
+nums = [1,1,0,0,1]
+```
+
+### Output
+
+```text
+0
+```
+
+### Explanation
+
+Because the array is circular,
+
+```text
+1 1 0 0 1
+↑         ↑
+```
+
+the three `1`s are already consecutive.
+
+---
+
+# Step 1: Understand the Problem
+
+The problem mentions:
+
+```text
+Minimum swaps
+```
+
+Many people immediately think:
+
+```text
+Simulate swaps
+```
+
+That is **not** the correct approach.
+
+Instead, think:
+
+> Where should the final block of all `1`s be?
+
+---
+
+# Step 2: Important Observation
+
+Suppose the array contains:
+
+```text
+total_ones = number of 1's
+```
+
+If all `1`s are grouped together,
+
+the final group must have length:
+
+```text
+total_ones
+```
+
+For example:
+
+```text
+nums = [0,1,0,1,1,0]
+
+total_ones = 3
+```
+
+The final grouped block must occupy exactly **3 consecutive positions**.
+
+---
+
+# Step 3: Reformulate the Problem
+
+Instead of asking:
+
+```text
+How do I swap?
+```
+
+Ask:
+
+```text
+Which window of size total_ones is the best place
+to keep all the 1's?
+```
+
+Suppose a window of length `total_ones` already contains:
+
+```text
+X ones
+```
+
+Then it also contains:
+
+```text
+total_ones - X zeros
+```
+
+Those zeros must be replaced by the missing ones outside the window.
+
+Therefore:
+
+```text
+Minimum swaps
+=
+Number of zeros inside the chosen window
+```
+
+Since:
+
+```text
+zeros = total_ones - ones
+```
+
+we get:
+
+```text
+minimum_swaps = total_ones - maximum_ones_in_any_window
+```
+
+This is the key insight.
+
+---
+
+# Step 4: Handle the Circular Array
+
+Because the array is circular,
+
+windows may wrap around the end.
+
+Example:
+
+```text
+1 1 0 0 1
+```
+
+The last and first elements are adjacent.
+
+A simple trick is:
+
+```python
+nums = nums + nums
+```
+
+Now every circular window becomes a normal window.
+
+We only need to consider the first `n` possible starting positions.
+
+---
+
+# Step 5: Sliding Window Strategy
+
+1. Count the total number of `1`s.
+2. Window size = `total_ones`.
+3. Duplicate the array.
+4. Find the maximum number of `1`s inside any window of size `total_ones`.
+5. Compute:
+
+```text
+answer = total_ones - max_ones
+```
+
+---
+
+# Example Walkthrough
+
+```text
+nums = [0,1,0,1,1,0,0]
+```
+
+Count ones:
+
+```text
+total_ones = 3
+```
+
+Window size:
+
+```text
+3
+```
+
+Possible windows:
+
+```text
+[0,1,0] → 1 one
+
+[1,0,1] → 2 ones
+
+[0,1,1] → 2 ones
+
+[1,1,0] → 2 ones
+
+...
+```
+
+Maximum ones inside any window:
+
+```text
+2
+```
+
+Therefore:
+
+```text
+minimum_swaps = 3 - 2 = 1
+```
+
+---
+
+# Algorithm
+
+1. Count total number of `1`s.
+
+2. If:
+
+```text
+total_ones ≤ 1
+```
+
+return:
+
+```text
+0
+```
+
+3. Duplicate the array.
+
+4. Compute the number of `1`s in the first window.
+
+5. Slide the window across all circular starting positions.
+
+6. Track the maximum number of `1`s.
+
+7. Return:
+
+```text
+total_ones - max_ones
+```
+
+---
+
+# Optimal Solution
+
+```python
+class Solution:
+    def minSwaps(self, nums: List[int]) -> int:
+
+        total_ones = sum(nums)
+
+        if total_ones <= 1:
+            return 0
+
+        nums_extended = nums + nums
+        n = len(nums)
+
+        window_ones = sum(nums_extended[:total_ones])
+        max_ones = window_ones
+
+        for i in range(total_ones, total_ones + n):
+            window_ones += nums_extended[i]
+            window_ones -= nums_extended[i - total_ones]
+
+            max_ones = max(max_ones, window_ones)
+
+        return total_ones - max_ones
+```
+
+---
+
+# Why This Works
+
+The final block must contain exactly all the `1`s.
+
+Every zero inside that block must be swapped with a `1` outside.
+
+So minimizing swaps is equivalent to minimizing zeros inside the block.
+
+Since:
+
+```text
+zeros = window_size - ones
+```
+
+we simply maximize the number of ones already present.
+
+---
+
+# Complexity Analysis
+
+### Time
+
+```text
+O(n)
+```
+
+One pass to count ones and one sliding window pass.
+
+---
+
+### Space
+
+```text
+O(n)
+```
+
+Because of the duplicated array.
+
+> **Note:** It can also be implemented in **O(1)** extra space using modulo indexing instead of duplicating the array.
+
+---
+
+# Pattern Recognition
+
+Whenever you see:
+
+- Group all `1`s together
+- Minimum swaps
+- Binary array
+
+Think:
+
+```text
+Window Size = Total Number of 1's
+```
+
+Then:
+
+```text
+Find window with maximum number of 1's
+```
+
+Finally:
+
+```text
+Answer = Total Ones - Maximum Ones in Window
+```
+
+---
+
+# Similar Problems
+
+| Problem | Pattern |
+|---------|---------|
+| 1151. Minimum Swaps to Group All 1's Together | Fixed-size sliding window |
+| 2134. Minimum Swaps to Group All 1's Together II | Fixed-size sliding window + Circular array |
+| Fixed-size window problems | Maintain window statistics while sliding |
+
+---
+
+# Mental Model
+
+```text
+Count total number of 1's
+
+↓
+
+That becomes the window size
+
+↓
+
+Find the window containing the most 1's
+
+↓
+
+Zeros inside that window
+=
+Swaps needed
+
+↓
+
+Answer = Total Ones - Max Ones
+```
+
+---
+
+# 📝 Key Takeaways
+
+- Do **not** simulate swaps.
+- Think about the **final grouped block**.
+- Window size is always:
+
+```text
+Number of 1's
+```
+
+- Maximize the number of `1`s already inside that window.
+- Use a fixed-size sliding window.
+- Handle circular arrays by duplicating the array (or using modulo).
+
+**Complexity**
+
+```text
+Time  : O(n)
+
+Space : O(n)
+```
+
+<br/><br/><br/><br/><br/>
+
+---
