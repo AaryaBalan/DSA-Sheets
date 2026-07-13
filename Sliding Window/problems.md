@@ -2413,3 +2413,586 @@ Minimum (or Maximum) Fixed-Size Window
 - Maximize the taken score by minimizing the remaining window sum.
 - Use a **fixed-size sliding window** to find the minimum window efficiently.
 - An alternative solution is to try every split between taking cards from the left and right.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 992. Subarrays with K Different Integers
+
+- **Difficulty:** Hard
+- **Topics:** Sliding Window, Hash Map
+
+---
+
+# 📖 Problem Statement
+
+Given an integer array `nums` and an integer `k`, return the number of subarrays that contain **exactly `k` distinct integers**.
+
+A subarray is a contiguous part of the array.
+
+---
+
+## Example 1
+
+### Input
+
+```python
+nums = [1,2,1,2,3]
+k = 2
+```
+
+### Output
+
+```python
+7
+```
+
+### Explanation
+
+The valid subarrays are:
+
+```text
+[1,2]
+
+[2,1]
+
+[1,2]
+
+[2,3]
+
+[1,2,1]
+
+[2,1,2]
+
+[1,2,1,2]
+```
+
+---
+
+## Example 2
+
+### Input
+
+```python
+nums = [1,2,1,3,4]
+k = 3
+```
+
+### Output
+
+```python
+3
+```
+
+---
+
+# Intuition
+
+The problem asks for
+
+```text
+Exactly k distinct integers.
+```
+
+Counting "exactly" is difficult using a normal sliding window.
+
+Instead, convert it into an easier problem.
+
+---
+
+# The Key Observation
+
+Count
+
+```text
+Subarrays with at most k distinct integers.
+```
+
+and
+
+```text
+Subarrays with at most (k-1) distinct integers.
+```
+
+Their difference gives
+
+```text
+Subarrays with exactly k distinct integers.
+```
+
+Formula:
+
+```text
+Exactly(k)
+
+=
+
+AtMost(k)
+
+-
+
+AtMost(k-1)
+```
+
+This is the same idea used in problems like:
+
+- Binary Subarrays With Sum
+- Count Number of Nice Subarrays
+
+---
+
+# Sliding Window for At Most K Distinct
+
+Maintain:
+
+- Left pointer
+- Right pointer
+- Frequency map
+
+Expand the window.
+
+If the number of distinct integers becomes greater than `k`,
+
+shrink the window until it becomes valid again.
+
+After the window becomes valid,
+
+all subarrays ending at `right` are valid.
+
+Count them using
+
+```text
+right - left + 1
+```
+
+---
+
+# My Initial Approach
+
+```python
+class Solution:
+    def subarraysWithKDistinct(self, nums: List[int], k: int):
+
+        n = len(nums)
+
+        def countLessThen(k):
+
+            if k < 0:
+                return 0
+
+            left = 0
+            right = 0
+            count = 0
+            diff_int = {}
+
+            for right in range(n):
+
+                if nums[right] not in diff_int:
+                    diff_int[nums[right]] = 0
+                else:
+                    diff_int[nums[right]] += 1
+
+                if len(diff_int.keys()) <= k:
+                    count += right - left + 1
+
+                while len(diff_int.keys()) > k:
+                    diff_int[nums[left]] -= 1
+                    left += 1
+
+                return count
+
+        return countLessThen(k) - countLessThen(k - 1)
+```
+
+---
+
+# Problems in My Approach
+
+## 1. Returning Inside the Loop
+
+The statement
+
+```python
+return count
+```
+
+is inside the `for` loop.
+
+So the function returns after processing only the first element.
+
+It should be outside the loop.
+
+---
+
+## 2. Incorrect Frequency Counting
+
+I wrote
+
+```python
+if nums[right] not in diff_int:
+    diff_int[nums[right]] = 0
+else:
+    diff_int[nums[right]] += 1
+```
+
+For the first occurrence,
+
+frequency becomes
+
+```text
+0
+```
+
+instead of
+
+```text
+1
+```
+
+Correct way:
+
+```python
+freq[nums[right]] = freq.get(nums[right], 0) + 1
+```
+
+---
+
+## 3. Counting Before Shrinking
+
+I counted the window before making it valid.
+
+```python
+if len(diff_int) <= k:
+    count += right - left + 1
+```
+
+then
+
+```python
+while len(diff_int) > k:
+```
+
+This counts invalid windows.
+
+Correct order:
+
+```text
+Expand
+
+↓
+
+Shrink until valid
+
+↓
+
+Count
+```
+
+---
+
+## 4. Keys Were Never Removed
+
+While shrinking,
+
+I decreased the frequency.
+
+```python
+diff_int[nums[left]] -= 1
+```
+
+But when frequency becomes
+
+```text
+0
+```
+
+the key must be removed.
+
+Otherwise,
+
+```python
+len(diff_int)
+```
+
+still counts it as a distinct element.
+
+Correct:
+
+```python
+if freq[nums[left]] == 0:
+    del freq[nums[left]]
+```
+
+---
+
+# Optimized Solution
+
+```python
+class Solution:
+    def subarraysWithKDistinct(self, nums: List[int], k: int):
+
+        def atMost(limit):
+
+            if limit < 0:
+                return 0
+
+            left = 0
+            count = 0
+            freq = {}
+
+            for right in range(len(nums)):
+
+                freq[nums[right]] = freq.get(nums[right], 0) + 1
+
+                while len(freq) > limit:
+
+                    freq[nums[left]] -= 1
+
+                    if freq[nums[left]] == 0:
+                        del freq[nums[left]]
+
+                    left += 1
+
+                count += right - left + 1
+
+            return count
+
+        return atMost(k) - atMost(k - 1)
+```
+
+---
+
+# Why Don't We Need
+
+```python
+if len(freq) <= k
+```
+
+After the shrinking loop,
+
+```python
+while len(freq) > limit:
+```
+
+finishes,
+
+the window is **guaranteed** to satisfy
+
+```text
+len(freq) <= limit
+```
+
+Therefore,
+
+this condition is always true.
+
+Instead of checking
+
+```python
+if len(freq) <= limit:
+```
+
+we directly count
+
+```python
+count += right - left + 1
+```
+
+The validity is enforced by the sliding window itself.
+
+---
+
+# Dry Run
+
+Input
+
+```python
+nums = [1,2,1]
+k = 2
+```
+
+Compute
+
+```text
+atMost(2)
+```
+
+---
+
+### Right = 0
+
+Window
+
+```text
+[1]
+```
+
+Distinct
+
+```text
+1
+```
+
+Valid.
+
+Count
+
+```text
+1
+```
+
+---
+
+### Right = 1
+
+Window
+
+```text
+[1,2]
+```
+
+Distinct
+
+```text
+2
+```
+
+Valid.
+
+New subarrays ending at index 1
+
+```text
+[2]
+
+[1,2]
+```
+
+Count increases by
+
+```text
+2
+```
+
+---
+
+### Right = 2
+
+Window
+
+```text
+[1,2,1]
+```
+
+Distinct
+
+```text
+2
+```
+
+Still valid.
+
+New subarrays ending at index 2
+
+```text
+[1]
+
+[2,1]
+
+[1,2,1]
+```
+
+Count increases by
+
+```text
+3
+```
+
+Continue similarly for
+
+```text
+atMost(k-1)
+```
+
+Then subtract.
+
+---
+
+# Complexity Analysis
+
+## Time Complexity
+
+Each element enters and leaves the window at most once.
+
+```text
+O(n)
+```
+
+---
+
+## Space Complexity
+
+The frequency map stores at most `k` distinct elements.
+
+Worst case:
+
+```text
+O(n)
+```
+
+---
+
+# Pattern Recognition
+
+Whenever the problem asks
+
+- Exactly `k` distinct elements
+- Exactly `k` odd numbers
+- Exactly `k` occurrences
+- Exact count
+
+think
+
+```text
+Exactly(k)
+
+=
+
+AtMost(k)
+
+-
+
+AtMost(k-1)
+```
+
+General sliding window template:
+
+```python
+Expand right
+
+Update frequency
+
+While window is invalid:
+    Shrink from left
+
+Count += right - left + 1
+```
+
+---
+
+# 📝 Key Takeaways
+
+- Counting **exactly** is often difficult directly.
+- Convert it into
+
+```text
+AtMost(k)
+
+-
+
+AtMost(k-1)
+```
+
+- Always shrink the window **before** counting.
+- Remove keys from the frequency map when their count becomes zero.
+- After the shrinking loop, the window is guaranteed to be valid, so no extra `if` condition is needed before counting.
