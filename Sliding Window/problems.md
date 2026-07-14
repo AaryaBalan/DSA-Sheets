@@ -20,6 +20,7 @@ Welcome to the sliding window problems section! Here you will find various data 
 - [1343. Number of Sub-arrays of Size K and Average Greater than or Equal to Threshold](#1343-number-of-sub-arrays-of-size-k-and-average-greater-than-or-equal-to-threshold)
 - [2024. Maximize the Confusion of an Exam](#2024-maximize-the-confusion-of-an-exam)
 - [2134. Minimum Swaps to Group All 1's Together II](#2134-minimum-swaps-to-group-all-1s-together-ii)
+- [2537. Count the Number of Good Subarrays](#2537-count-the-number-of-good-subarrays)
 
 <br><br><br><br><br>
 
@@ -8600,3 +8601,581 @@ Space : O(n)
 <br/><br/><br/><br/><br/>
 
 ---
+
+# 2537. Count the Number of Good Subarrays
+
+- **Difficulty:** Medium
+- **Topics:** Array, Hash Table, Sliding Window
+
+---
+
+# 📖 Problem Statement
+
+Given an integer array `nums` and an integer `k`, return the number of **good subarrays**.
+
+A subarray is considered **good** if it contains **at least `k` equal pairs**.
+
+A pair is defined as:
+
+```text
+(i, j)
+
+where
+
+i < j
+and
+nums[i] == nums[j]
+```
+
+---
+
+## Example 1
+
+### Input
+
+```python
+nums = [1,1,1,1,1]
+k = 10
+```
+
+### Output
+
+```text
+1
+```
+
+### Explanation
+
+Frequency of `1`:
+
+```text
+5
+```
+
+Number of equal pairs:
+
+```text
+5C2 = 10
+```
+
+Only the entire array has 10 pairs.
+
+---
+
+## Example 2
+
+### Input
+
+```python
+nums = [3,1,4,3,2,2,4]
+k = 2
+```
+
+### Output
+
+```text
+4
+```
+
+---
+
+# Step 1: Understand the Question
+
+A subarray is **good** if it contains at least `k` equal pairs.
+
+Example:
+
+```text
+[1,1]
+```
+
+Pairs:
+
+```text
+1
+```
+
+---
+
+```text
+[1,1,1]
+```
+
+Frequency:
+
+```text
+3
+```
+
+Pairs:
+
+```text
+3C2 = 3
+```
+
+---
+
+```text
+[1,1,1,1]
+```
+
+Pairs:
+
+```text
+4C2 = 6
+```
+
+The more duplicates we have, the more equal pairs are formed.
+
+---
+
+# Step 2: Why Brute Force Doesn't Work
+
+Generate every subarray:
+
+```text
+O(n²)
+```
+
+For every subarray, compute frequencies:
+
+```text
+O(n)
+```
+
+Overall:
+
+```text
+O(n³)
+```
+
+Too slow.
+
+---
+
+# Step 3: Key Observation
+
+Instead of recomputing combinations every time,
+
+maintain the number of pairs dynamically.
+
+Suppose we already have:
+
+```text
+Frequency of x = f
+```
+
+When adding another `x`:
+
+```text
+New pairs formed = f
+```
+
+Why?
+
+Because the new element pairs with each existing occurrence.
+
+Example:
+
+Current:
+
+```text
+1 1 1
+```
+
+Frequency:
+
+```text
+3
+```
+
+Add another `1`:
+
+```text
+1 1 1 1
+```
+
+New pairs:
+
+```text
+(4th with 1st)
+
+(4th with 2nd)
+
+(4th with 3rd)
+
+= 3 new pairs
+```
+
+So while expanding:
+
+```text
+pairs += frequency[x]
+
+frequency[x] += 1
+```
+
+This is the most important idea.
+
+---
+
+# Step 4: Sliding Window Reformulation
+
+We need:
+
+```text
+Subarrays with pairs ≥ k
+```
+
+This is an **"at least"** condition.
+
+Notice an important property:
+
+If a window already has:
+
+```text
+pairs ≥ k
+```
+
+then making the window larger can only increase or maintain the number of pairs.
+
+This monotonic property makes sliding window possible.
+
+---
+
+# Step 5: Sliding Window Strategy
+
+Maintain:
+
+- Frequency map
+- Current number of equal pairs
+- Left pointer
+- Right pointer
+
+Expand the window by moving `right`.
+
+Whenever:
+
+```text
+pairs ≥ k
+```
+
+the current window is valid.
+
+---
+
+# Step 6: Counting Trick
+
+Suppose:
+
+```text
+[left, right]
+```
+
+already satisfies:
+
+```text
+pairs ≥ k
+```
+
+Then every larger window:
+
+```text
+[left, right]
+
+[left, right+1]
+
+[left, right+2]
+
+...
+
+[left, n-1]
+```
+
+will also satisfy the condition.
+
+So instead of counting one by one:
+
+```text
+Answer += n - right
+```
+
+Then shrink the window.
+
+---
+
+# Example
+
+```text
+nums = [1,1,1,1,1]
+
+k = 10
+```
+
+Expand:
+
+```text
+1
+
+1 1
+
+1 1 1
+
+1 1 1 1
+
+1 1 1 1 1
+```
+
+Only after the full array:
+
+```text
+pairs = 10
+```
+
+Window becomes valid.
+
+Count:
+
+```text
+n - right
+
+=
+
+5 - 4
+
+=
+
+1
+```
+
+Answer:
+
+```text
+1
+```
+
+---
+
+# Algorithm
+
+For every `right`:
+
+### Add current element
+
+```text
+pairs += frequency[element]
+
+frequency[element] += 1
+```
+
+---
+
+### While window is valid
+
+```text
+pairs ≥ k
+```
+
+Count:
+
+```text
+answer += n - right
+```
+
+Remove left element.
+
+Continue shrinking.
+
+---
+
+# Optimal Solution
+
+```python
+from collections import defaultdict
+
+class Solution:
+    def countGood(self, nums: List[int], k: int) -> int:
+
+        freq = defaultdict(int)
+
+        left = 0
+        pairs = 0
+        ans = 0
+        n = len(nums)
+
+        for right in range(n):
+
+            pairs += freq[nums[right]]
+            freq[nums[right]] += 1
+
+            while pairs >= k:
+
+                ans += n - right
+
+                freq[nums[left]] -= 1
+                pairs -= freq[nums[left]]
+
+                left += 1
+
+        return ans
+```
+
+---
+
+# Why Removing Works
+
+Suppose frequency before removal:
+
+```text
+f
+```
+
+After removing one occurrence:
+
+```text
+frequency = f - 1
+```
+
+The removed element contributed exactly:
+
+```text
+f - 1
+```
+
+pairs.
+
+After decrement:
+
+```python
+freq[x] -= 1
+pairs -= freq[x]
+```
+
+Since `freq[x]` now equals `f-1`, we subtract exactly the lost pairs.
+
+---
+
+# Complexity Analysis
+
+### Time
+
+```text
+O(n)
+```
+
+Each element enters and leaves the window once.
+
+---
+
+### Space
+
+```text
+O(n)
+```
+
+For the frequency map.
+
+---
+
+# Pattern Recognition
+
+Whenever you see:
+
+- Count subarrays
+- At least `k`
+- Condition based on duplicate frequencies
+
+Think:
+
+```text
+Sliding Window
+
++
+
+Frequency Map
+
++
+
+Running Pair Count
+```
+
+---
+
+# Similar Problems
+
+| Problem | Pattern |
+|---------|---------|
+| 2537. Count the Number of Good Subarrays | Sliding window + running pair count |
+| 1358. Number of Substrings Containing All Three Characters | Shrink while valid |
+| Minimum Window Substring | Shrink while valid |
+| Count subarrays with at least K | Sliding window counting |
+
+---
+
+# Mental Model
+
+```text
+Expand window
+
+↓
+
+Update frequency
+
+↓
+
+Update pair count
+
+↓
+
+If pairs ≥ k
+
+↓
+
+All larger windows are also valid
+
+↓
+
+Answer += n - right
+
+↓
+
+Shrink window
+```
+
+---
+
+# 📝 Key Takeaways
+
+- Never recompute combinations for every window.
+- Maintain pair count dynamically.
+- Adding a duplicate creates:
+
+```text
+frequency[x]
+```
+
+new pairs.
+
+- Removing an element removes:
+
+```text
+new_frequency[x]
+```
+
+pairs.
+
+- Use the monotonic property:
+
+```text
+pairs ≥ k
+```
+
+to count all larger windows efficiently.
+
+**Complexity**
+
+```text
+Time  : O(n)
+
+Space : O(n)
+```
