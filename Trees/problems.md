@@ -20,6 +20,7 @@ Welcome to the tree problems section! Here you will find various data structure 
 - [129. Sum Root to Leaf Numbers](#129-sum-root-to-leaf-numbers)
 - [257. Binary Tree Paths](#257-binary-tree-paths)
 - [107. Binary Tree Level Order Traversal II](#107-binary-tree-level-order-traversal-ii)
+- [437. Path Sum III](#437-path-sum-iii)
 
 <br><br><br><br><br>
 
@@ -10711,4 +10712,1088 @@ to build the result directly in bottom-up order.
 <br/><br/><br/><br/><br/>
 
 ---
+
+# <span style="color: limegreen;">437. Path Sum III</span>
+
+**Difficulty:** Medium
+
+**Topics**
+- Binary Tree
+- DFS
+- Prefix Sum
+- HashMap
+- Backtracking
+
+---
+
+# Problem Statement
+
+Given the root of a binary tree and an integer `targetSum`, return the number of paths whose sum of node values equals `targetSum`.
+
+### Rules
+
+- The path **does NOT have to start from the root.**
+- The path **does NOT have to end at a leaf.**
+- The path **must always move downward** (parent → child).
+
+---
+
+# Understanding the Problem
+
+Most tree problems ask:
+
+- Root → Leaf
+- Root → Any Node
+- Leaf → Leaf
+
+This problem is different.
+
+It asks:
+
+> Count every downward path whose sum equals `targetSum`.
+
+Example:
+
+```
+        10
+      /    \
+     5     -3
+    / \      \
+   3   2      11
+  / \   \
+ 3  -2   1
+```
+
+Target = **8**
+
+Valid Paths
+
+```
+5 → 3
+
+5 → 2 → 1
+
+-3 → 11
+```
+
+Notice:
+
+- Doesn't start from root.
+- Doesn't necessarily end at a leaf.
+- Only moves downward.
+
+---
+
+# First Observation
+
+Suppose we try every node as a starting point.
+
+```
+Node 10
+
+Check every path
+
+Node 5
+
+Check every path
+
+Node 3
+
+Check every path
+
+...
+```
+
+This works.
+
+But many paths are repeated.
+
+Time Complexity becomes
+
+```
+O(N²)
+```
+
+We need something better.
+
+---
+
+# Thinking Like an Interviewer
+
+Instead of asking
+
+> "Where does this path start?"
+
+Ask
+
+> "Where does this path end?"
+
+Suppose we are currently standing at a node.
+
+Can we determine how many valid paths end here?
+
+If yes,
+
+then every node contributes independently.
+
+---
+
+# Prefix Sum Idea
+
+Suppose current root-to-node path is
+
+```
+10 → 5 → 3
+```
+
+Running Sum
+
+```
+10
+
+15
+
+18
+```
+
+Suppose target is
+
+```
+8
+```
+
+Question:
+
+Can some earlier prefix be removed so that the remaining path equals 8?
+
+Current Prefix
+
+```
+18
+```
+
+Need
+
+```
+18 - X = 8
+```
+
+Therefore
+
+```
+X = 10
+```
+
+Did we previously see prefix sum
+
+```
+10
+```
+
+Yes.
+
+Then
+
+```
+18 - 10 = 8
+```
+
+Meaning
+
+```
+5 → 3
+```
+
+is a valid path.
+
+---
+
+# Mathematical Formula
+
+Suppose
+
+```
+Current Prefix = P
+
+Earlier Prefix = X
+```
+
+Path Sum
+
+```
+P - X
+```
+
+Need
+
+```
+P - X = target
+```
+
+Rearrange
+
+```
+X = P - target
+```
+
+So at every node we ask
+
+> Have we already seen a prefix sum equal to
+
+```
+runningSum - target
+```
+
+If yes,
+
+then every occurrence represents one valid path.
+
+---
+
+# Why a HashMap?
+
+Suppose
+
+```
+Prefix Sums
+
+10
+
+15
+
+10
+
+18
+```
+
+Current Prefix
+
+```
+18
+```
+
+Target
+
+```
+8
+```
+
+Need
+
+```
+10
+```
+
+But
+
+```
+10
+```
+
+appears twice.
+
+That means
+
+```
+Two different paths
+```
+
+So we need
+
+```
+Prefix Sum → Frequency
+```
+
+Example
+
+```
+{
+0 : 1,
+10 : 2,
+15 : 1
+}
+```
+
+If
+
+```
+running-target = 10
+```
+
+Answer increases by
+
+```
+2
+```
+
+not
+
+```
+1
+```
+
+This is why a HashMap is necessary.
+
+---
+
+# Why Your Code Fails
+
+Your code
+
+```python
+track = [0]
+
+...
+
+if pathSum-targetSum in track:
+    ans += 1
+```
+
+Problems:
+
+### Problem 1
+
+You only check
+
+```
+Exists?
+```
+
+But don't count
+
+```
+How many times?
+```
+
+Suppose
+
+```
+track
+
+[0,5,5]
+```
+
+Need
+
+```
+5
+```
+
+Correct Answer
+
+```
+2 paths
+```
+
+Your code counts
+
+```
+1
+```
+
+---
+
+### Problem 2
+
+No Backtracking
+
+Suppose tree
+
+```
+      1
+     / \
+   -2  -3
+```
+
+Target
+
+```
+-1
+```
+
+Your DFS
+
+After visiting left
+
+```
+track
+
+[0,1,-1]
+```
+
+Then DFS goes right.
+
+But
+
+```
+-1
+```
+
+belongs only to the left subtree.
+
+Right subtree should never see it.
+
+Your list keeps growing forever.
+
+This mixes prefix sums from different branches.
+
+---
+
+# Why Backtracking Is Needed
+
+The prefix sums should represent
+
+ONLY
+
+```
+Root
+
+↓
+
+Current Node
+```
+
+Nothing else.
+
+Correct DFS
+
+```
+Root
+
+track
+
+[0]
+
+↓
+
+Left
+
+track
+
+[0,1]
+
+↓
+
+Return
+
+track
+
+[0]
+
+↓
+
+Right
+
+track
+
+[0,1]
+```
+
+Wrong DFS
+
+```
+Root
+
+↓
+
+Left
+
+[0,1,-1]
+
+↓
+
+Return
+
+[0,1,-1]
+
+↓
+
+Right
+
+Still contains -1
+
+Wrong!
+```
+
+Always remove the current prefix before returning.
+
+---
+
+# Correct Algorithm
+
+For every node
+
+Step 1
+
+Update running sum
+
+```
+running += node.val
+```
+
+Step 2
+
+Need
+
+```
+running-target
+```
+
+Step 3
+
+If found
+
+```
+answer += frequency
+```
+
+Step 4
+
+Insert current prefix
+
+```
+prefix[running] += 1
+```
+
+Step 5
+
+DFS Left
+
+Step 6
+
+DFS Right
+
+Step 7
+
+Backtrack
+
+```
+prefix[running] -= 1
+```
+
+---
+
+# Dry Run
+
+Example
+
+```
+        10
+       /
+      5
+     /
+    3
+
+Target = 8
+```
+
+Initially
+
+```
+Prefix Map
+
+{
+0 : 1
+}
+```
+
+Answer
+
+```
+0
+```
+
+---
+
+## Visit 10
+
+Running
+
+```
+10
+```
+
+Need
+
+```
+2
+```
+
+Not found
+
+Insert
+
+```
+{
+0:1,
+10:1
+}
+```
+
+---
+
+## Visit 5
+
+Running
+
+```
+15
+```
+
+Need
+
+```
+7
+```
+
+Not found
+
+Insert
+
+```
+{
+0:1,
+10:1,
+15:1
+}
+```
+
+---
+
+## Visit 3
+
+Running
+
+```
+18
+```
+
+Need
+
+```
+10
+```
+
+Found
+
+```
+Frequency = 1
+```
+
+Answer
+
+```
+1
+```
+
+The valid path is
+
+```
+5 → 3
+```
+
+---
+
+Backtrack
+
+Remove
+
+```
+18
+```
+
+Return
+
+Backtrack
+
+Remove
+
+```
+15
+```
+
+Return
+
+Backtrack
+
+Remove
+
+```
+10
+```
+
+Finished.
+
+---
+
+# Visualization
+
+Current Path
+
+```
+10
+
+↓
+
+5
+
+↓
+
+3
+```
+
+Running Sum
+
+```
+18
+```
+
+Need
+
+```
+18-8
+
+=
+
+10
+```
+
+Since
+
+```
+10
+```
+
+exists
+
+Everything after
+
+```
+10
+```
+
+forms
+
+```
+8
+```
+
+Exactly
+
+```
+5 → 3
+```
+
+---
+
+# Brute Force Solution
+
+Idea
+
+Start DFS from every node.
+
+For each node
+
+Explore every downward path.
+
+Count sums.
+
+Time Complexity
+
+```
+O(N²)
+```
+
+Space
+
+```
+O(H)
+```
+
+where
+
+```
+H
+```
+
+is tree height.
+
+---
+
+# Optimized Solution
+
+Use
+
+- DFS
+- Prefix Sum
+- HashMap
+- Backtracking
+
+Time Complexity
+
+```
+O(N)
+```
+
+Every node visited once.
+
+Space Complexity
+
+```
+O(H)
+```
+
+Average
+
+Worst Case
+
+```
+O(N)
+```
+
+for skewed tree.
+
+---
+
+# Correct Python Solution
+
+```python
+from collections import defaultdict
+
+class Solution:
+    def pathSum(self, root, targetSum):
+
+        prefix = defaultdict(int)
+        prefix[0] = 1
+
+        ans = 0
+
+        def dfs(node, running):
+
+            nonlocal ans
+
+            if not node:
+                return
+
+            running += node.val
+
+            ans += prefix[running - targetSum]
+
+            prefix[running] += 1
+
+            dfs(node.left, running)
+            dfs(node.right, running)
+
+            # Backtracking
+            prefix[running] -= 1
+
+        dfs(root, 0)
+
+        return ans
+```
+
+---
+
+# Why Does This Work?
+
+At every node
+
+```
+Current Prefix = P
+```
+
+Need
+
+```
+Earlier Prefix = P - target
+```
+
+If it exists
+
+Then
+
+```
+Current Prefix
+
+-
+
+Earlier Prefix
+
+=
+
+Target
+```
+
+Every occurrence corresponds to a different valid path ending at the current node.
+
+---
+
+# Pattern Recognition
+
+Whenever a problem contains
+
+- Path Sum
+- Continuous Sum
+- Subarray Sum
+- Root to Current Path
+- Running Total
+
+Think
+
+```
+Prefix Sum
+```
+
+If the problem asks
+
+```
+How many?
+```
+
+Think
+
+```
+Prefix Sum + HashMap
+```
+
+If it involves DFS
+
+Think
+
+```
+Backtracking
+```
+
+---
+
+# Interview Thinking Process
+
+Instead of memorizing
+
+```
+Use Prefix Sum
+```
+
+Ask yourself
+
+### Question 1
+
+Am I dealing with sums?
+
+↓
+
+Yes
+
+Running Sum
+
+---
+
+### Question 2
+
+Can the path start anywhere?
+
+↓
+
+Yes
+
+Need to subtract an earlier prefix.
+
+---
+
+### Question 3
+
+What should I subtract?
+
+```
+Current Prefix - Target
+```
+
+---
+
+### Question 4
+
+How do I know if that prefix existed?
+
+↓
+
+HashMap
+
+---
+
+### Question 5
+
+Can sibling branches share prefix sums?
+
+↓
+
+No
+
+Need Backtracking
+
+---
+
+Final Thought Process
+
+```
+Tree
+
+↓
+
+Need Path Sum
+
+↓
+
+Running Prefix Sum
+
+↓
+
+Need Earlier Prefix
+
+↓
+
+HashMap
+
+↓
+
+DFS
+
+↓
+
+Backtracking
+
+↓
+
+O(N)
+```
+
+---
+
+# Common Mistakes
+
+❌ Using a list instead of a HashMap
+
+❌ Forgetting duplicate prefix sums
+
+❌ Forgetting backtracking
+
+❌ Sharing prefix sums between sibling subtrees
+
+❌ Thinking every path must start from the root
+
+---
+
+# Key Takeaways
+
+✅ Prefix Sum converts path-sum problems into subtraction problems.
+
+✅ A HashMap stores the frequency of prefix sums.
+
+✅ Every node asks:
+```
+Have I already seen (runningSum - target)?
+```
+
+✅ Backtracking ensures the prefix map only contains the current root-to-node path.
+
+✅ This reduces the time complexity from **O(N²)** to **O(N)**.
 

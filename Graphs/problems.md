@@ -7,9 +7,12 @@ Welcome to the graph problems section! Here you will find various data structure
 - [1791. Find Center of Star Graph](#1791-find-center-of-star-graph)
 - [797. All Paths From Source to Target](#797-all-paths-from-source-to-target)
 - [1557. Minimum Number of Vertices to Reach All Nodes](#1557-minimum-number-of-vertices-to-reach-all-nodes)
+- [841. Keys and Rooms](#841-keys-and-rooms)
+- [1334. Find the City With the Smallest Number of Neighbors at a Threshold Distance](#1334-find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance)
 - [994. Rotting Oranges](#994-rotting-oranges)
 - [547. Number of Provinces](#547-number-of-provinces)
 - [207. Course Schedule](#207-course-schedule)
+- [1584. Min Cost to Connect All Points](#1584-min-cost-to-connect-all-points)
 
 <br><br><br><br><br>
 
@@ -2268,6 +2271,1647 @@ What is the problem asking me to find?
 ```
 
 Once you answer that question, the right algorithm—or sometimes no traversal at all—often becomes much clearer.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 841. Keys and Rooms
+
+## Difficulty
+Medium
+
+---
+
+# Problem Statement
+
+There are **n rooms** numbered from
+
+```
+0 → n-1
+```
+
+Initially,
+
+- Room **0** is already unlocked.
+- Every other room is locked.
+
+Inside every room, there may be some **keys**.
+
+Each key opens another room.
+
+Your goal is to determine whether it is possible to visit **every room**.
+
+Return
+
+```
+True
+```
+
+if all rooms can be visited.
+
+Otherwise return
+
+```
+False
+```
+
+---
+
+# Understanding the Question
+
+Imagine there are four rooms.
+
+```
+Room 0
+
+Room 1
+
+Room 2
+
+Room 3
+```
+
+Initially
+
+```
+Only Room 0 is open.
+```
+
+Inside Room 0 you find
+
+```
+Key 1
+```
+
+Now you can open
+
+```
+Room 1
+```
+
+Inside Room 1
+
+```
+Key 2
+```
+
+Now you can open
+
+```
+Room 2
+```
+
+Inside Room 2
+
+```
+Key 3
+```
+
+Now you can open
+
+```
+Room 3
+```
+
+All rooms visited.
+
+Answer
+
+```
+True
+```
+
+---
+
+# Understanding the Input
+
+Input
+
+```python
+rooms = [[1],[2],[3],[]]
+```
+
+This means
+
+Room 0 contains
+
+```
+Key 1
+```
+
+Room 1 contains
+
+```
+Key 2
+```
+
+Room 2 contains
+
+```
+Key 3
+```
+
+Room 3 contains
+
+```
+No keys
+```
+
+Let's draw it.
+
+```
+Room 0
+
+↓
+
+Room 1
+
+↓
+
+Room 2
+
+↓
+
+Room 3
+```
+
+Can we visit every room?
+
+Yes.
+
+Answer
+
+```
+True
+```
+
+---
+
+# Example 2
+
+Input
+
+```python
+rooms =
+
+[
+ [1,3],
+ [3,0,1],
+ [2],
+ [0]
+]
+```
+
+Let's draw it.
+
+Room 0
+
+contains
+
+```
+1
+
+3
+```
+
+So
+
+```
+0
+
+↓
+
+1
+
+↓
+
+3
+```
+
+Room 1 contains
+
+```
+3
+
+0
+
+1
+```
+
+Still
+
+```
+0
+
+1
+
+3
+```
+
+Room 3
+
+contains
+
+```
+0
+```
+
+Nothing new.
+
+Now ask
+
+Can we enter
+
+```
+Room 2
+```
+
+No.
+
+Because
+
+The only key to Room 2 is inside
+
+```
+Room 2
+```
+
+Impossible.
+
+Answer
+
+```
+False
+```
+
+---
+
+# Biggest Observation
+
+Think about the rooms as graph nodes.
+
+```
+Room
+
+↓
+
+Node
+```
+
+Keys become
+
+```
+Edges
+```
+
+Example
+
+```
+Room 0 contains key 1
+
+↓
+
+0 → 1
+```
+
+Room 1 contains
+
+```
+Key 2
+
+↓
+
+1 → 2
+```
+
+Graph
+
+```
+0
+
+↓
+
+1
+
+↓
+
+2
+
+↓
+
+3
+```
+
+Now the problem becomes
+
+> Starting from node **0**, can we visit every node?
+
+---
+
+# Which Algorithm?
+
+We need to
+
+- Start from one node.
+- Visit every reachable node.
+
+This is exactly
+
+```
+Graph Traversal
+```
+
+We can use
+
+- DFS
+- BFS
+
+Both work perfectly.
+
+---
+
+# How Should We Think?
+
+Suppose you're inside a building.
+
+Initially
+
+```
+Only Room 0 is open.
+```
+
+You collect every key.
+
+Whenever you find a new key,
+
+you immediately visit that room.
+
+Repeat until
+
+there are no new rooms left.
+
+Finally ask
+
+```
+Did I visit every room?
+```
+
+If yes
+
+```
+True
+```
+
+Otherwise
+
+```
+False
+```
+
+---
+
+# Dry Run
+
+Input
+
+```python
+rooms =
+
+[
+ [1],
+ [2],
+ [3],
+ []
+]
+```
+
+Initially
+
+Queue
+
+```
+0
+```
+
+Visited
+
+```
+{0}
+```
+
+---
+
+Pop
+
+```
+0
+```
+
+Keys
+
+```
+1
+```
+
+Visit
+
+```
+1
+```
+
+Queue
+
+```
+1
+```
+
+Visited
+
+```
+0
+
+1
+```
+
+---
+
+Pop
+
+```
+1
+```
+
+Keys
+
+```
+2
+```
+
+Visit
+
+```
+2
+```
+
+Queue
+
+```
+2
+```
+
+Visited
+
+```
+0
+
+1
+
+2
+```
+
+---
+
+Pop
+
+```
+2
+```
+
+Keys
+
+```
+3
+```
+
+Visit
+
+```
+3
+```
+
+Queue
+
+```
+3
+```
+
+Visited
+
+```
+0
+
+1
+
+2
+
+3
+```
+
+---
+
+Pop
+
+```
+3
+```
+
+No keys.
+
+Queue
+
+Empty.
+
+Visited
+
+```
+4 rooms
+```
+
+Total rooms
+
+```
+4
+```
+
+Answer
+
+```
+True
+```
+
+---
+
+# Your Solution
+
+```python
+class Solution:
+    def canVisitAllRooms(self, rooms):
+
+        q = deque([rooms[0]])
+
+        seen = set()
+
+        seen.add(0)
+
+        while q:
+
+            node = q.popleft()
+
+            for room in node:
+
+                if room not in seen:
+
+                    seen.add(room)
+
+                    q.append(rooms[room])
+
+        return len(seen) == len(rooms)
+```
+
+---
+
+# Is Your Code Correct?
+
+Yes.
+
+It works correctly.
+
+Instead of storing
+
+```
+Room Number
+```
+
+inside the queue,
+
+you store
+
+```
+Keys inside the room.
+```
+
+For example
+
+Queue
+
+```
+[[1]]
+```
+
+instead of
+
+```
+[0]
+```
+
+Both work.
+
+---
+
+# Cleaner BFS Solution
+
+Most interviewers write
+
+```python
+from collections import deque
+
+class Solution:
+    def canVisitAllRooms(self, rooms):
+
+        queue = deque([0])
+
+        visited = {0}
+
+        while queue:
+
+            room = queue.popleft()
+
+            for key in rooms[room]:
+
+                if key not in visited:
+
+                    visited.add(key)
+
+                    queue.append(key)
+
+        return len(visited) == len(rooms)
+```
+
+Notice
+
+Queue stores
+
+```
+Room Numbers
+```
+
+instead of
+
+```
+Key Lists
+```
+
+This is easier to read and debug.
+
+---
+
+# Time Complexity
+
+Suppose
+
+```
+V = Rooms
+
+E = Total Keys
+```
+
+Every room is visited once.
+
+Every key is processed once.
+
+```
+Time = O(V + E)
+```
+
+---
+
+# Space Complexity
+
+Visited
+
+```
+O(V)
+```
+
+Queue
+
+```
+O(V)
+```
+
+Overall
+
+```
+O(V)
+```
+
+---
+
+# Pattern Recognition
+
+Whenever you read
+
+- Start from one node
+- Can reach all nodes?
+- Visit every room
+- Explore all reachable nodes
+
+Immediately think
+
+```
+Graph Traversal
+
+↓
+
+DFS
+
+or
+
+BFS
+```
+
+---
+
+# Key Takeaways
+
+- Treat every room as a **graph node**.
+- Treat every key as a **directed edge**.
+- The question becomes:
+  > "Starting from node 0, can I reach every node?"
+- This is a **graph traversal** problem.
+- Both **DFS** and **BFS** solve it.
+- Your solution is correct, but storing room numbers in the queue is a cleaner and more standard approach.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 1334. Find the City With the Smallest Number of Neighbors at a Threshold Distance
+
+---
+
+# Step 1: Understand the Question
+
+You are given:
+
+- `n` cities numbered from `0` to `n-1`
+- Roads connecting some cities
+- Every road has a **distance (weight)**
+- A `distanceThreshold`
+
+Your task is:
+
+For **every city**, find **how many other cities can be reached** whose **shortest distance** is **less than or equal to** `distanceThreshold`.
+
+Finally,
+
+- Choose the city with the **smallest number of reachable cities**.
+- If multiple cities have the same count, return the **largest city number**.
+
+---
+
+## Important Keyword
+
+The most important sentence is:
+
+> reachable through **some path**
+
+Notice it does **NOT** say direct road.
+
+It means you are allowed to travel through intermediate cities.
+
+Example:
+
+```
+0 ----3---- 1 ----2---- 2
+```
+
+Distance from 0 to 2 is
+
+```
+3 + 2 = 5
+```
+
+Even though there is no direct road.
+
+So this immediately tells us:
+
+> We need the **shortest distance** between every pair of cities.
+
+---
+
+# Example 1
+
+```
+n = 4
+
+Edges
+
+0 ---3--- 1
+           | \
+          1|  \4
+           |   \
+           2---1---3
+```
+
+Threshold = 4
+
+Let's calculate.
+
+---
+
+## City 0
+
+Reachable cities:
+
+```
+0 → 1 = 3
+
+0 → 2
+
+0→1→2
+
+3+1=4
+```
+
+Cannot reach city 3 because
+
+```
+0→1→2→3
+
+3+1+1=5
+```
+
+Greater than threshold.
+
+Reachable
+
+```
+1
+2
+```
+
+Count = 2
+
+---
+
+## City 1
+
+```
+1→0 = 3
+
+1→2 = 1
+
+1→3
+
+1→2→3
+
+1+1=2
+```
+
+Reachable
+
+```
+0
+2
+3
+```
+
+Count = 3
+
+---
+
+## City 2
+
+Reachable
+
+```
+0
+1
+3
+```
+
+Count = 3
+
+---
+
+## City 3
+
+Reachable
+
+```
+1
+2
+```
+
+Count = 2
+
+---
+
+Smallest count
+
+```
+City 0 -> 2
+
+City 3 -> 2
+```
+
+Tie.
+
+Question says
+
+> Return largest city number.
+
+Answer
+
+```
+3
+```
+
+---
+
+# Step 2: Identify the Topic
+
+Ask yourself
+
+What is this?
+
+```
+Cities
+
+Roads
+
+Weights
+```
+
+This is a **weighted graph**.
+
+---
+
+Now ask
+
+What do I need?
+
+```
+Shortest distance
+```
+
+So this becomes a **Shortest Path Problem**.
+
+---
+
+# Step 3: Which Algorithm?
+
+Whenever you see
+
+```
+Shortest Path
+```
+
+Think of
+
+- Dijkstra
+- Bellman Ford
+- Floyd Warshall
+
+Now check constraints.
+
+```
+n <= 100
+```
+
+Very small.
+
+That means
+
+```
+100³
+
+=
+
+1,000,000
+```
+
+Only one million operations.
+
+Perfect for Floyd-Warshall.
+
+---
+
+# Why Floyd-Warshall?
+
+Suppose
+
+```
+0 -----10-----1
+
+0---4---2---3---1
+```
+
+Current distance
+
+```
+0→1 = 10
+```
+
+Going through city 2
+
+```
+4+3=7
+```
+
+Smaller.
+
+So update
+
+```
+dist[0][1]=7
+```
+
+Floyd-Warshall keeps asking
+
+```
+Can going through city k make this path shorter?
+```
+
+Formula
+
+```
+dist[i][j]
+
+=
+
+min(
+
+dist[i][j],
+
+dist[i][k]+dist[k][j]
+
+)
+```
+
+---
+
+# Step 4: Algorithm
+
+## Initialize matrix
+
+Initially
+
+```
+      0    1    2    3
+
+0     0   inf  inf  inf
+
+1    inf   0   inf  inf
+
+2    inf inf    0   inf
+
+3    inf inf  inf    0
+```
+
+---
+
+## Fill direct roads
+
+Suppose
+
+```
+0-1 = 3
+
+1-2 = 1
+```
+
+Matrix
+
+```
+0   3  inf inf
+
+3   0   1  inf
+
+inf 1   0  inf
+
+inf inf inf 0
+```
+
+---
+
+## Floyd-Warshall
+
+```
+for k
+
+    for i
+
+        for j
+
+            if dist[i][k]+dist[k][j] < dist[i][j]:
+
+                update
+```
+
+Now every shortest distance is known.
+
+---
+
+## Count reachable cities
+
+For every city
+
+```
+count=0
+
+for every city
+
+    if distance<=threshold
+
+        count++
+```
+
+Ignore itself.
+
+---
+
+## Keep answer
+
+Need
+
+```
+Minimum count
+```
+
+Tie
+
+```
+Largest city
+```
+
+Easy trick
+
+```
+if count<=minimum:
+
+    answer=i
+```
+
+Notice
+
+```
+<=
+```
+
+Not
+
+```
+<
+```
+
+Later city automatically replaces earlier one.
+
+---
+
+# Python Code
+
+```python
+from typing import List
+
+class Solution:
+    def findTheCity(self, n: int, edges: List[List[int]], distanceThreshold: int) -> int:
+
+        INF = float('inf')
+
+        # Step 1: Create distance matrix
+        dist = [[INF] * n for _ in range(n)]
+
+        # Distance from a city to itself is 0
+        for i in range(n):
+            dist[i][i] = 0
+
+        # Step 2: Fill direct roads
+        for u, v, w in edges:
+            dist[u][v] = w
+            dist[v][u] = w
+
+        # Step 3: Floyd-Warshall
+        for k in range(n):
+            for i in range(n):
+                for j in range(n):
+
+                    if dist[i][k] + dist[k][j] < dist[i][j]:
+
+                        dist[i][j] = dist[i][k] + dist[k][j]
+
+        # Step 4: Find answer
+        min_count = float('inf')
+        answer = -1
+
+        for i in range(n):
+
+            count = 0
+
+            for j in range(n):
+
+                if i != j and dist[i][j] <= distanceThreshold:
+                    count += 1
+
+            if count <= min_count:
+                min_count = count
+                answer = i
+
+        return answer
+```
+
+---
+
+# Dry Run
+
+Suppose
+
+```
+n = 4
+
+Threshold = 4
+```
+
+After Floyd matrix becomes
+
+```
+      0 1 2 3
+
+0     0 3 4 5
+
+1     3 0 1 2
+
+2     4 1 0 1
+
+3     5 2 1 0
+```
+
+Now count.
+
+City 0
+
+```
+3
+4
+5
+```
+
+Reachable
+
+```
+3
+
+4
+```
+
+Count
+
+```
+2
+```
+
+---
+
+City 1
+
+```
+3
+
+1
+
+2
+```
+
+Count
+
+```
+3
+```
+
+---
+
+City 2
+
+Count
+
+```
+3
+```
+
+---
+
+City 3
+
+Reachable
+
+```
+2
+
+1
+```
+
+Count
+
+```
+2
+```
+
+Minimum
+
+```
+2
+```
+
+Cities
+
+```
+0
+
+3
+```
+
+Largest
+
+```
+3
+```
+
+Answer
+
+```
+3
+```
+
+---
+
+# Time Complexity
+
+Creating matrix
+
+```
+O(n²)
+```
+
+Floyd
+
+```
+O(n³)
+```
+
+Counting
+
+```
+O(n²)
+```
+
+Overall
+
+```
+O(n³)
+```
+
+Since
+
+```
+n<=100
+```
+
+This is perfectly acceptable.
+
+---
+
+# How to Think During an Interview
+
+Most people get stuck because they try to code immediately.
+
+Instead, follow these questions.
+
+---
+
+## Question 1
+
+What is the input?
+
+```
+Cities
+
+Roads
+
+Weights
+```
+
+Immediately think
+
+> Weighted Graph
+
+---
+
+## Question 2
+
+What is being asked?
+
+```
+Reachable cities
+```
+
+Reachable using
+
+```
+some path
+```
+
+So we need
+
+```
+Shortest Path
+```
+
+---
+
+## Question 3
+
+Do I need shortest path from one city or every city?
+
+Here,
+
+We must check every city.
+
+So we need
+
+```
+All-Pairs Shortest Path
+```
+
+---
+
+## Question 4
+
+Which algorithm?
+
+Small constraints
+
+```
+n<=100
+```
+
+means
+
+```
+Floyd-Warshall
+```
+
+Large constraints
+
+```
+n=100000
+```
+
+would mean
+
+```
+Run Dijkstra from every city
+```
+
+---
+
+# General Thinking Pattern for Graph Problems
+
+Whenever you see a graph question, ask these in order.
+
+### Step 1
+
+Is it a graph?
+
+Look for words like
+
+```
+Cities
+
+Roads
+
+Flights
+
+Nodes
+
+Edges
+```
+
+---
+
+### Step 2
+
+What is being asked?
+
+- Connectivity?
+- Shortest Path?
+- Cycle?
+- Minimum Cost?
+- Topological Order?
+
+---
+
+### Step 3
+
+If it is Shortest Path
+
+Ask
+
+```
+One source?
+
+or
+
+Every source?
+```
+
+One source
+
+```
+Dijkstra
+```
+
+Every source
+
+```
+Floyd-Warshall
+
+or
+
+Run Dijkstra from every node
+```
+
+---
+
+### Step 4
+
+Always check constraints.
+
+Small `n`
+
+```
+100
+```
+
+Usually allows
+
+```
+O(n³)
+```
+
+Large `n`
+
+```
+100000
+```
+
+Needs
+
+```
+O(E log V)
+```
+
+---
+
+# Interview Summary
+
+Think in this exact order:
+
+```
+Input
+↓
+
+Graph?
+
+↓
+
+Weighted?
+
+↓
+
+Need shortest path?
+
+↓
+
+One source or all sources?
+
+↓
+
+Check constraints
+
+↓
+
+Choose algorithm
+
+↓
+
+Compute shortest paths
+
+↓
+
+Count reachable cities
+
+↓
+
+Return minimum count
+
+↓
+
+If tie → largest index
+```
+
+If you practice following this flow on every graph problem, you'll quickly identify the right algorithm instead of getting stuck on where to begin.
 
 <br/><br/><br/><br/><br/>
 
@@ -5083,3 +6727,903 @@ Possible
 - Use **DFS with three states** (Unvisited, Visiting, Finished) or **Topological Sort (Kahn's Algorithm)** to detect cycles.
 - **Cycle → False (cannot finish all courses).**
 - **No Cycle → True (all courses can be completed).**
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 1584. Min Cost to Connect All Points
+
+**Difficulty:** Medium
+
+**Topics**
+- Graph
+- Minimum Spanning Tree (MST)
+- Greedy
+- Prim's Algorithm
+- Kruskal's Algorithm
+- Heap (Priority Queue)
+
+---
+
+# Problem Statement
+
+You are given `n` points on a 2D plane.
+
+```
+points[i] = [x, y]
+```
+
+Connecting two points costs:
+
+```
+|x1-x2| + |y1-y2|
+```
+
+(Manhattan Distance)
+
+Return the **minimum cost** required to connect all points.
+
+There should be exactly **one path** between every pair of points.
+
+---
+
+# First Step (Don't Think About Algorithms Yet)
+
+Forget MST.
+
+Read the question carefully.
+
+The problem is simply saying:
+
+"I have several cities."
+
+Connecting two cities has some cost.
+
+I want every city connected.
+
+Spend the least money.
+
+Example:
+
+```
+A ----- B
+ \      |
+  \     |
+   C ---D
+```
+
+Many possible connections exist.
+
+Question:
+
+Which roads should I build?
+
+---
+
+# Important Observation
+
+It NEVER asks:
+
+> Find shortest path.
+
+It NEVER asks:
+
+> Visit every node.
+
+It NEVER asks:
+
+> Reach destination.
+
+Instead it asks:
+
+> Connect everything with minimum total cost.
+
+That sentence should immediately remind you of
+
+# Minimum Spanning Tree (MST)
+
+---
+
+# What is a Minimum Spanning Tree?
+
+Suppose we have
+
+```
+A
+B
+C
+D
+```
+
+Possible roads:
+
+```
+A-B = 4
+A-C = 2
+A-D = 8
+
+B-C = 5
+B-D = 3
+
+C-D = 6
+```
+
+We DON'T need every road.
+
+We only need enough roads so every city is reachable.
+
+For 4 cities,
+
+Minimum roads needed
+
+```
+4-1 = 3
+```
+
+because a tree with N nodes always has N-1 edges.
+
+Now choose cheapest roads.
+
+Example:
+
+```
+A-C =2
+B-D =3
+A-B =4
+
+Total =9
+```
+
+That's an MST.
+
+---
+
+# Pattern Recognition
+
+Whenever you see
+
+```
+Connect all nodes
+Minimum total cost
+No cycles
+```
+
+Think immediately
+
+```
+Minimum Spanning Tree
+```
+
+There are only two famous algorithms.
+
+1. Prim's Algorithm
+2. Kruskal's Algorithm
+
+---
+
+# Which One Should I Use?
+
+For this problem
+
+Use
+
+# Prim's Algorithm
+
+Because
+
+We don't need to build every edge explicitly.
+
+Kruskal would require
+
+```
+n² edges
+```
+
+which is unnecessary.
+
+---
+
+# Before Thinking About Heap
+
+Imagine this.
+
+Cities
+
+```
+A
+
+B
+
+C
+
+D
+```
+
+Suppose you're standing at A.
+
+Question:
+
+Which city should you connect next?
+
+Obviously,
+
+the cheapest one.
+
+Then again,
+
+after adding that city,
+
+again choose
+
+the cheapest possible connection.
+
+Notice something?
+
+We repeatedly need
+
+```
+minimum cost edge
+```
+
+Whenever we repeatedly need the minimum,
+
+think
+
+```
+Min Heap
+```
+
+---
+
+# Prim's Algorithm Intuition
+
+Start from any point.
+
+Suppose
+
+```
+A
+```
+
+Visited
+
+```
+A
+```
+
+Now calculate costs
+
+```
+A→B =4
+A→C =2
+A→D =8
+```
+
+Heap
+
+```
+2,C
+
+4,B
+
+8,D
+```
+
+Pop smallest.
+
+```
+C
+```
+
+Visit C.
+
+Now add
+
+```
+C→B
+
+C→D
+```
+
+Heap becomes
+
+```
+4,B
+5,B
+6,D
+8,D
+```
+
+Pop smallest.
+
+If already visited,
+
+ignore.
+
+Continue until all nodes visited.
+
+That's Prim.
+
+---
+
+# Why Does It Work?
+
+Every time,
+
+we connect
+
+one new point
+
+using
+
+the cheapest possible edge.
+
+Greedy choice.
+
+Mathematically,
+
+this always produces an MST.
+
+---
+
+# Dry Run
+
+Input
+
+```
+[[0,0],
+ [2,2],
+ [3,10],
+ [5,2],
+ [7,0]]
+```
+
+Let's name them
+
+```
+0
+1
+2
+3
+4
+```
+
+---
+
+## Step 1
+
+Visit
+
+```
+0
+```
+
+Cost
+
+```
+0
+```
+
+Heap
+
+```
+4 ->1
+
+13->2
+
+7 ->3
+
+7 ->4
+```
+
+---
+
+## Step 2
+
+Pop
+
+```
+4
+```
+
+Visit node
+
+```
+1
+```
+
+Total
+
+```
+4
+```
+
+Now insert
+
+```
+1→2 =9
+
+1→3 =3
+
+1→4 =7
+```
+
+Heap
+
+```
+3->3
+
+7->3
+
+7->4
+
+9->2
+
+13->2
+```
+
+---
+
+## Step 3
+
+Pop
+
+```
+3->3
+```
+
+Visit node 3.
+
+Total
+
+```
+7
+```
+
+Insert
+
+```
+3→2 =10
+
+3→4 =4
+```
+
+Heap
+
+```
+4->4
+
+7->3
+
+7->4
+
+9->2
+
+10->2
+
+13->2
+```
+
+---
+
+## Step 4
+
+Pop
+
+```
+4->4
+```
+
+Visit node 4.
+
+Total
+
+```
+11
+```
+
+Insert
+
+```
+4→2 =14
+```
+
+---
+
+## Step 5
+
+Smallest remaining
+
+```
+9->2
+```
+
+Visit node 2.
+
+Total
+
+```
+20
+```
+
+Visited all nodes.
+
+Answer
+
+```
+20
+```
+
+---
+
+# Thinking Process (Interview)
+
+Instead of memorizing Prim,
+
+train your brain to ask
+
+### Question 1
+
+Do I need all nodes connected?
+
+YES
+
+↓
+
+Graph
+
+---
+
+### Question 2
+
+Need minimum total cost?
+
+YES
+
+↓
+
+Greedy
+
+---
+
+### Question 3
+
+Need exactly one path?
+
+YES
+
+↓
+
+Tree
+
+---
+
+### Question 4
+
+Minimum Tree?
+
+↓
+
+Minimum Spanning Tree
+
+---
+
+### Question 5
+
+How do I repeatedly choose smallest edge?
+
+↓
+
+Heap
+
+---
+
+Entire thinking chain
+
+```
+Graph
+
+↓
+
+Tree
+
+↓
+
+Minimum Tree
+
+↓
+
+MST
+
+↓
+
+Prim
+
+↓
+
+Heap
+```
+
+---
+
+# Brute Force
+
+Idea
+
+Try every possible combination of edges.
+
+Check
+
+- Connected?
+- Minimum?
+
+Complexity
+
+```
+Exponential
+```
+
+Impossible.
+
+---
+
+# Better Brute Force
+
+Construct every edge.
+
+```
+n² edges
+```
+
+Sort.
+
+Apply Kruskal.
+
+Complexity
+
+```
+Edges = n²
+
+Sorting
+
+O(n² log n)
+```
+
+Works.
+
+But not optimal here.
+
+---
+
+# Optimized Approach (Prim)
+
+Maintain
+
+Visited Set
+
+Min Heap
+
+Current Cost
+
+Each iteration
+
+Take cheapest edge
+
+Visit new node
+
+Push new edges
+
+Done.
+
+---
+
+# Time Complexity
+
+For every node
+
+we compute distance to all other nodes.
+
+```
+O(n²)
+```
+
+Heap operations
+
+```
+O(log n)
+```
+
+Overall
+
+```
+O(n² log n)
+```
+
+With optimization,
+
+Prim can also run in
+
+```
+O(n²)
+```
+
+which is the standard interview solution.
+
+---
+
+# Python (Heap Version)
+
+```python
+from heapq import heappush, heappop
+
+class Solution:
+    def minCostConnectPoints(self, points):
+
+        n = len(points)
+
+        visited = set()
+
+        heap = [(0, 0)]   # (cost, node)
+
+        answer = 0
+
+        while len(visited) < n:
+
+            cost, node = heappop(heap)
+
+            if node in visited:
+                continue
+
+            visited.add(node)
+            answer += cost
+
+            x1, y1 = points[node]
+
+            for nxt in range(n):
+
+                if nxt not in visited:
+
+                    x2, y2 = points[nxt]
+
+                    dist = abs(x1 - x2) + abs(y1 - y2)
+
+                    heappush(heap, (dist, nxt))
+
+        return answer
+```
+
+---
+
+# Optimized Prim (No Heap)
+
+Observation
+
+We don't actually need a heap.
+
+Keep
+
+```
+minDist[i]
+```
+
+which stores the minimum cost to connect node `i` to the current MST.
+
+At every step:
+
+- Pick the unvisited node with the smallest `minDist`
+- Mark it visited
+- Update distances for the remaining nodes
+
+This avoids pushing duplicate edges into a heap.
+
+### Time Complexity
+
+```
+O(n²)
+```
+
+### Space Complexity
+
+```
+O(n)
+```
+
+### Python Code
+
+```python
+class Solution:
+    def minCostConnectPoints(self, points):
+        n = len(points)
+
+        minDist = [float("inf")] * n
+        visited = [False] * n
+
+        minDist[0] = 0
+        answer = 0
+
+        for _ in range(n):
+
+            node = -1
+
+            for i in range(n):
+                if not visited[i] and (node == -1 or minDist[i] < minDist[node]):
+                    node = i
+
+            visited[node] = True
+            answer += minDist[node]
+
+            x1, y1 = points[node]
+
+            for j in range(n):
+
+                if not visited[j]:
+
+                    x2, y2 = points[j]
+
+                    dist = abs(x1 - x2) + abs(y1 - y2)
+
+                    if dist < minDist[j]:
+                        minDist[j] = dist
+
+        return answer
+```
+
+---
+
+# Pattern Recognition Cheat Sheet
+
+If a problem says:
+
+✅ Connect all cities
+
+✅ Connect all computers
+
+✅ Connect all islands
+
+✅ Minimum wiring cost
+
+✅ Build roads with minimum cost
+
+✅ Connect every node
+
+Immediately think
+
+```
+Minimum Spanning Tree (MST)
+```
+
+Then decide:
+
+- Sparse graph (few edges) → **Prim (Heap)** or **Kruskal**
+- Dense graph (many edges, like every point connected to every other point) → **Prim O(n²)** is often the best choice
+
+---
+
+# Interview Mindset
+
+Don't memorize:
+
+```
+"Use Prim."
+```
+
+Instead build this reasoning:
+
+```
+Need to connect all nodes
+        ↓
+Need minimum total cost
+        ↓
+Need a tree (N-1 edges, no cycles)
+        ↓
+Minimum Spanning Tree
+        ↓
+Grow the tree greedily
+        ↓
+Repeatedly choose the cheapest edge
+        ↓
+Use Prim's Algorithm
+```
+
+If you can explain this chain during an interview, you're demonstrating understanding rather than memorization.
