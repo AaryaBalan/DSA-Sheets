@@ -13,6 +13,8 @@ Welcome to the graph problems section! Here you will find various data structure
 - [547. Number of Provinces](#547-number-of-provinces)
 - [207. Course Schedule](#207-course-schedule)
 - [1584. Min Cost to Connect All Points](#1584-min-cost-to-connect-all-points)
+- [130. Surrounded Regions](#130-surrounded-regions)
+- [1020. Number of Enclaves](#1020-number-of-enclaves)
 
 <br><br><br><br><br>
 
@@ -7627,3 +7629,1699 @@ Use Prim's Algorithm
 ```
 
 If you can explain this chain during an interview, you're demonstrating understanding rather than memorization.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 130. Surrounded Regions
+
+**Difficulty:** Medium
+
+**Topics**
+- Graph
+- DFS
+- BFS
+- Matrix
+- Flood Fill
+
+---
+
+# Problem Statement
+
+You are given an `m × n` board containing only
+
+```
+'X'
+'O'
+```
+
+A region is formed by connecting adjacent `'O'` cells.
+
+Two cells are connected only
+
+- Up
+- Down
+- Left
+- Right
+
+(not diagonally)
+
+A region is **surrounded** if **none of its cells touches the boundary** of the board.
+
+Your task is to convert every surrounded `'O'` into `'X'`.
+
+The modification must be done **in-place**.
+
+---
+
+# Example
+
+Input
+
+```
+X X X X
+X O O X
+X X O X
+X O X X
+```
+
+Output
+
+```
+X X X X
+X X X X
+X X X X
+X O X X
+```
+
+Notice
+
+The bottom `'O'`
+
+```
+X O X X
+```
+
+touches the boundary.
+
+Therefore it can never be surrounded.
+
+So it remains unchanged.
+
+---
+
+# Understanding the Problem
+
+The first mistake many beginners make is asking
+
+> Which regions are surrounded?
+
+Instead ask
+
+> Which regions are definitely NOT surrounded?
+
+This completely changes the way you solve the problem.
+
+---
+
+# Key Observation
+
+An `'O'` can never be captured if
+
+- It is on the boundary.
+- It is connected to a boundary `'O'`.
+
+Example
+
+```
+O O X
+
+X O X
+
+X X X
+```
+
+The middle `'O'`
+
+```
+X O X
+```
+
+looks surrounded.
+
+But it is connected to
+
+```
+O
+```
+
+on the boundary.
+
+Therefore
+
+it is also safe.
+
+---
+
+# The Reverse Thinking Trick
+
+Instead of finding
+
+```
+Surrounded Regions
+```
+
+find
+
+```
+Safe Regions
+```
+
+Once safe regions are marked,
+
+everything else becomes surrounded automatically.
+
+This is a very common interview trick.
+
+---
+
+# Visual Intuition
+
+Board
+
+```
+X X X X
+
+X O O X
+
+X X O X
+
+X O X X
+```
+
+Boundary
+
+```
+X X X X
+
+X       X
+
+X       X
+
+X O X X
+```
+
+There is only one boundary `'O'`
+
+```
+(3,1)
+```
+
+Start DFS from here.
+
+Visited
+
+```
+X X X X
+
+X O O X
+
+X X O X
+
+X # X X
+```
+
+(`#` means safe.)
+
+Notice
+
+The three middle `'O'`
+
+```
+O O
+  O
+```
+
+were never visited.
+
+Therefore
+
+they are surrounded.
+
+Convert them into
+
+```
+X
+```
+
+Finally
+
+```
+X X X X
+
+X X X X
+
+X X X X
+
+X O X X
+```
+
+Done.
+
+---
+
+# Pattern Recognition
+
+Whenever a problem says
+
+```
+Capture Region
+
+Boundary
+
+Connected Cells
+
+Grid
+
+DFS
+
+BFS
+```
+
+Think
+
+```
+Flood Fill
+```
+
+But instead of starting from the region,
+
+start from the boundary.
+
+---
+
+# How to Think (Interview Mindset)
+
+Suppose interviewer gives
+
+```
+X X X
+
+X O X
+
+X X X
+```
+
+Question
+
+Should we flip it?
+
+Obviously
+
+Yes.
+
+Now suppose
+
+```
+O X X
+
+O O X
+
+X X X
+```
+
+Should we flip?
+
+No.
+
+Why?
+
+Because
+
+```
+O
+```
+
+touches boundary.
+
+Everything connected to it is safe.
+
+Now ask
+
+> Can I find all safe cells first?
+
+YES.
+
+That is the entire solution.
+
+---
+
+# Algorithm
+
+Step 1
+
+Visit every boundary cell.
+
+If it is
+
+```
+'O'
+```
+
+start DFS.
+
+---
+
+Step 2
+
+DFS visits every connected
+
+```
+'O'
+```
+
+Mark them as
+
+```
+Safe
+```
+
+(using either
+
+```
+visited[][]
+
+or
+
+'#'
+```
+
+)
+
+---
+
+Step 3
+
+Traverse the board again.
+
+Every
+
+```
+'O'
+```
+
+that wasn't visited
+
+↓
+
+must be surrounded.
+
+Convert
+
+```
+O → X
+```
+
+---
+
+Step 4
+
+Restore
+
+```
+#
+```
+
+back to
+
+```
+O
+```
+
+(if using in-place marking)
+
+---
+
+# Why Does This Work?
+
+Suppose a region
+
+is NOT connected to boundary.
+
+Can DFS starting from boundary ever reach it?
+
+No.
+
+Therefore
+
+it remains unvisited.
+
+Hence
+
+it must be surrounded.
+
+This is why the algorithm is correct.
+
+---
+
+# Dry Run
+
+Input
+
+```
+X X X X
+
+X O O X
+
+X X O X
+
+X O X X
+```
+
+---
+
+## Step 1
+
+Boundary
+
+```
+X X X X
+
+X       X
+
+X       X
+
+X O X X
+```
+
+Boundary O
+
+```
+(3,1)
+```
+
+---
+
+## Step 2
+
+Run DFS
+
+Visited
+
+```
+0 0 0 0
+
+0 0 0 0
+
+0 0 0 0
+
+0 1 0 0
+```
+
+Only
+
+```
+(3,1)
+```
+
+is reachable.
+
+---
+
+## Step 3
+
+Traverse entire board
+
+Cell
+
+```
+(1,1)
+```
+
+Not visited
+
+↓
+
+Convert
+
+```
+O → X
+```
+
+Cell
+
+```
+(1,2)
+```
+
+Not visited
+
+↓
+
+Convert
+
+Cell
+
+```
+(2,2)
+```
+
+Not visited
+
+↓
+
+Convert
+
+Cell
+
+```
+(3,1)
+```
+
+Visited
+
+↓
+
+Leave unchanged.
+
+---
+
+Final Board
+
+```
+X X X X
+
+X X X X
+
+X X X X
+
+X O X X
+```
+
+Correct.
+
+---
+
+# DFS Solution (Using Visited Matrix)
+
+## Intuition
+
+We maintain a
+
+```
+visited
+```
+
+matrix.
+
+Every boundary-connected `'O'`
+
+is marked
+
+```
+visited = True
+```
+
+Later
+
+only unvisited `'O'`
+
+are converted into `'X'`.
+
+---
+
+## Python Code
+
+```python
+class Solution:
+    def solve(self, board):
+
+        if not board:
+            return
+
+        rows = len(board)
+        cols = len(board[0])
+
+        visited = [[False] * cols for _ in range(rows)]
+
+        directions = [
+            (-1,0),
+            (1,0),
+            (0,-1),
+            (0,1)
+        ]
+
+        def dfs(r, c):
+
+            visited[r][c] = True
+
+            for dr, dc in directions:
+
+                nr = r + dr
+                nc = c + dc
+
+                if (
+                    0 <= nr < rows and
+                    0 <= nc < cols and
+                    board[nr][nc] == "O" and
+                    not visited[nr][nc]
+                ):
+                    dfs(nr, nc)
+
+        for i in range(rows):
+
+            if board[i][0] == "O":
+                dfs(i, 0)
+
+            if board[i][cols-1] == "O":
+                dfs(i, cols-1)
+
+        for j in range(cols):
+
+            if board[0][j] == "O":
+                dfs(0, j)
+
+            if board[rows-1][j] == "O":
+                dfs(rows-1, j)
+
+        for i in range(rows):
+            for j in range(cols):
+
+                if board[i][j] == "O" and not visited[i][j]:
+                    board[i][j] = "X"
+```
+
+---
+
+# Optimized Solution (Interview Preferred)
+
+Instead of using
+
+```
+visited
+```
+
+use the board itself.
+
+Whenever DFS visits a safe `'O'`
+
+change it into
+
+```
+#
+```
+
+After DFS
+
+Board
+
+```
+X X X X
+
+X O O X
+
+X X O X
+
+X # X X
+```
+
+Now
+
+convert
+
+```
+O → X
+```
+
+Then
+
+```
+# → O
+```
+
+Done.
+
+No extra matrix needed.
+
+---
+
+# Optimized Code
+
+```python
+class Solution:
+    def solve(self, board):
+
+        if not board:
+            return
+
+        rows = len(board)
+        cols = len(board[0])
+
+        directions = [
+            (-1,0),
+            (1,0),
+            (0,-1),
+            (0,1)
+        ]
+
+        def dfs(r, c):
+
+            board[r][c] = "#"
+
+            for dr, dc in directions:
+
+                nr = r + dr
+                nc = c + dc
+
+                if (
+                    0 <= nr < rows and
+                    0 <= nc < cols and
+                    board[nr][nc] == "O"
+                ):
+                    dfs(nr, nc)
+
+        for i in range(rows):
+
+            if board[i][0] == "O":
+                dfs(i, 0)
+
+            if board[i][cols-1] == "O":
+                dfs(i, cols-1)
+
+        for j in range(cols):
+
+            if board[0][j] == "O":
+                dfs(0, j)
+
+            if board[rows-1][j] == "O":
+                dfs(rows-1, j)
+
+        for i in range(rows):
+            for j in range(cols):
+
+                if board[i][j] == "O":
+                    board[i][j] = "X"
+
+                elif board[i][j] == "#":
+                    board[i][j] = "O"
+```
+
+---
+
+# Complexity Analysis
+
+### DFS
+
+```
+Every cell is visited at most once.
+```
+
+Time
+
+```
+O(m × n)
+```
+
+Space
+
+Visited Matrix Version
+
+```
+O(m × n)
+```
+
+Optimized Version
+
+```
+O(1)
+```
+
+Extra space
+
+(ignoring recursion stack)
+
+Recursion Stack
+
+Worst Case
+
+```
+O(m × n)
+```
+
+---
+
+# Common Mistakes
+
+❌ Searching every `'O'` separately.
+
+❌ Trying to determine if each region is surrounded individually.
+
+❌ Forgetting that boundary-connected `'O'` cells are always safe.
+
+❌ Forgetting the visited check, causing infinite recursion.
+
+❌ Wrong visited matrix dimensions (`rows × cols`).
+
+❌ Forgetting to restore temporary markers (`#` → `O`) in the optimized solution.
+
+---
+
+# Pattern Recognition
+
+When you see
+
+- Grid
+- Connected Components
+- Boundary
+- Capture Regions
+- Islands
+- Flood Fill
+
+Think
+
+```
+DFS / BFS
+```
+
+Then ask
+
+> Can I solve it by starting from the boundary instead of from every region?
+
+If the answer is yes,
+
+that is usually the optimal solution.
+
+---
+
+# Interview Thinking Process
+
+```
+Need to capture surrounded regions
+                │
+                ▼
+What regions are definitely safe?
+                │
+                ▼
+Boundary 'O' cells
+                │
+                ▼
+DFS/BFS from every boundary 'O'
+                │
+                ▼
+Mark all reachable 'O' cells as safe
+                │
+                ▼
+Any remaining 'O' must be surrounded
+                │
+                ▼
+Convert remaining 'O' → 'X'
+                │
+                ▼
+Restore temporary marks (if using in-place marking)
+```
+
+---
+
+# Key Takeaways
+
+✅ Think **reverse**: find safe regions instead of surrounded regions.
+
+✅ Boundary-connected `'O'` cells can never be captured.
+
+✅ DFS/BFS from the boundary naturally marks all safe cells.
+
+✅ Remaining `'O'` cells are guaranteed to be surrounded.
+
+✅ This is a classic **Flood Fill / Boundary DFS** interview pattern.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 1020. Number of Enclaves
+
+**Difficulty:** Medium
+
+**Topics**
+- Graph
+- DFS
+- BFS
+- Matrix
+- Flood Fill
+- Connected Components
+
+---
+
+# Problem Statement
+
+You are given an `m × n` grid.
+
+```
+0 → Sea
+1 → Land
+```
+
+You can move
+
+- Up
+- Down
+- Left
+- Right
+
+only through land (`1`).
+
+Your task is to count **how many land cells can NEVER reach the boundary**.
+
+These land cells are called **Enclaves**.
+
+---
+
+# Example
+
+Input
+
+```
+0 0 0 0
+1 0 1 0
+0 1 1 0
+0 0 0 0
+```
+
+Output
+
+```
+3
+```
+
+Why?
+
+The left land
+
+```
+1
+```
+
+touches the boundary.
+
+So it can escape.
+
+The remaining three land cells
+
+```
+1 1
+  1
+```
+
+are trapped.
+
+They cannot reach any boundary.
+
+Answer
+
+```
+3
+```
+
+---
+
+# First Intuition
+
+When beginners read this problem, they usually think
+
+> For every land cell,
+>
+> Can it reach the boundary?
+
+That certainly works.
+
+Suppose there are
+
+```
+1000
+```
+
+land cells.
+
+You start DFS from every land.
+
+That becomes
+
+```
+O((m×n)²)
+```
+
+Very slow.
+
+So let's think differently.
+
+---
+
+# Reverse Thinking
+
+Instead of asking
+
+> Which land is trapped?
+
+Ask
+
+> Which land is definitely NOT trapped?
+
+This is the key idea.
+
+---
+
+# Important Observation
+
+A land cell is **NOT** an enclave if
+
+- it is on the boundary
+- OR it can reach a boundary land
+
+Example
+
+```
+1 1 0
+
+0 1 0
+
+0 0 0
+```
+
+The middle land
+
+```
+1
+```
+
+looks trapped.
+
+But
+
+```
+1
+↑
+1
+```
+
+It can reach the boundary.
+
+Therefore
+
+it is NOT an enclave.
+
+---
+
+# Reverse Strategy
+
+Instead of finding trapped land,
+
+remove all land that can escape.
+
+Whatever remains
+
+↓
+
+must be trapped.
+
+This is the easiest way to solve the problem.
+
+---
+
+# Visual Intuition
+
+Grid
+
+```
+0 0 0 0
+
+1 0 1 0
+
+0 1 1 0
+
+0 0 0 0
+```
+
+Boundary
+
+```
+0 0 0 0
+
+1       0
+
+0       0
+
+0 0 0 0
+```
+
+Start DFS from
+
+```
+(1,0)
+```
+
+Mark it visited
+
+```
+0 0 0 0
+
+-1 0 1 0
+
+0 1 1 0
+
+0 0 0 0
+```
+
+Nothing else is connected.
+
+Now
+
+count remaining
+
+```
+1
+```
+
+There are
+
+```
+3
+```
+
+Answer
+
+```
+3
+```
+
+---
+
+# Pattern Recognition
+
+Whenever a problem says
+
+- Boundary
+- Connected Cells
+- Grid
+- Escape
+- Reach Boundary
+
+Think
+
+```
+Boundary DFS
+```
+
+This is exactly the same pattern as
+
+- Surrounded Regions
+- Pacific Atlantic Water Flow
+- Number of Islands (reverse thinking)
+
+---
+
+# How To Think (Interview)
+
+Suppose interviewer gives
+
+```
+0 0 0
+
+0 1 0
+
+0 0 0
+```
+
+Question
+
+Can this land escape?
+
+No.
+
+Now suppose
+
+```
+1 1 0
+
+0 1 0
+
+0 0 0
+```
+
+Can middle land escape?
+
+Yes.
+
+Because
+
+```
+Middle
+
+↓
+
+Left
+
+↓
+
+Boundary
+```
+
+Instead of checking every land,
+
+ask
+
+> Can I remove every land that escapes?
+
+YES.
+
+Everything left
+
+must be trapped.
+
+---
+
+# Mathematical Logic
+
+Let's divide all land into two groups.
+
+Group A
+
+```
+Can reach boundary
+```
+
+Group B
+
+```
+Cannot reach boundary
+```
+
+DFS from every boundary land
+
+will visit
+
+ONLY
+
+Group A.
+
+Group B
+
+can never be reached.
+
+Therefore
+
+Remaining land
+
+=
+
+Enclave.
+
+This is why the algorithm is correct.
+
+---
+
+# Algorithm
+
+Step 1
+
+Visit every boundary cell.
+
+If it is
+
+```
+1
+```
+
+Run DFS.
+
+---
+
+Step 2
+
+DFS visits every connected land.
+
+Mark them
+
+```
+-1
+```
+
+meaning
+
+```
+Safe
+```
+
+---
+
+Step 3
+
+Traverse entire grid.
+
+Count remaining
+
+```
+1
+```
+
+Those are enclaves.
+
+---
+
+# Dry Run
+
+Input
+
+```
+0 0 0 0
+
+1 0 1 0
+
+0 1 1 0
+
+0 0 0 0
+```
+
+---
+
+## Step 1
+
+Boundary land
+
+```
+(1,0)
+```
+
+---
+
+## Step 2
+
+DFS
+
+```
+0 0 0 0
+
+-1 0 1 0
+
+0 1 1 0
+
+0 0 0 0
+```
+
+No neighbours.
+
+Stop.
+
+---
+
+## Step 3
+
+Traverse grid
+
+Remaining
+
+```
+1
+
+1
+
+1
+```
+
+Count
+
+```
+3
+```
+
+Answer
+
+```
+3
+```
+
+---
+
+# Dry Run (Example 2)
+
+Input
+
+```
+0 1 1 0
+
+0 0 1 0
+
+0 0 1 0
+
+0 0 0 0
+```
+
+Boundary land
+
+```
+(0,1)
+
+(0,2)
+```
+
+Run DFS
+
+```
+0 -1 -1 0
+
+0  0 -1 0
+
+0  0 -1 0
+
+0  0  0 0
+```
+
+Remaining land
+
+```
+None
+```
+
+Answer
+
+```
+0
+```
+
+---
+
+# Your Code
+
+Your overall approach is **correct**.
+
+You correctly identified the reverse DFS strategy.
+
+However, there is **one bug**.
+
+You wrote
+
+```python
+0 < nj < c
+```
+
+This is incorrect.
+
+It should be
+
+```python
+0 <= nj < c
+```
+
+Otherwise,
+
+column
+
+```
+0
+```
+
+is never visited.
+
+Suppose
+
+```
+1 1
+```
+
+From
+
+```
+(0,1)
+```
+
+DFS can never move back to
+
+```
+(0,0)
+```
+
+because
+
+```
+nj = 0
+```
+
+fails the condition.
+
+This causes incorrect answers.
+
+---
+
+# Correct Python Solution
+
+```python
+class Solution:
+    def numEnclaves(self, grid):
+
+        rows = len(grid)
+        cols = len(grid[0])
+
+        directions = [
+            (-1,0),
+            (1,0),
+            (0,-1),
+            (0,1)
+        ]
+
+        def dfs(r, c):
+
+            grid[r][c] = -1
+
+            for dr, dc in directions:
+
+                nr = r + dr
+                nc = c + dc
+
+                if (
+                    0 <= nr < rows and
+                    0 <= nc < cols and
+                    grid[nr][nc] == 1
+                ):
+                    dfs(nr, nc)
+
+        for i in range(rows):
+
+            if grid[i][0] == 1:
+                dfs(i, 0)
+
+            if grid[i][cols-1] == 1:
+                dfs(i, cols-1)
+
+        for j in range(cols):
+
+            if grid[0][j] == 1:
+                dfs(0, j)
+
+            if grid[rows-1][j] == 1:
+                dfs(rows-1, j)
+
+        answer = 0
+
+        for i in range(rows):
+            for j in range(cols):
+
+                if grid[i][j] == 1:
+                    answer += 1
+
+        return answer
+```
+
+---
+
+# Complexity Analysis
+
+### Time
+
+Every cell is visited at most once.
+
+```
+O(m × n)
+```
+
+---
+
+### Space
+
+Recursion stack
+
+Worst case
+
+```
+O(m × n)
+```
+
+No extra visited matrix is used.
+
+---
+
+# Similar Problems
+
+This exact thinking appears in many interview questions.
+
+| Problem | Idea |
+|----------|------|
+| Number of Islands | DFS on connected components |
+| Surrounded Regions | Boundary DFS |
+| Number of Enclaves | Boundary DFS |
+| Pacific Atlantic Water Flow | Reverse DFS from boundaries |
+| Flood Fill | DFS/BFS |
+| Max Area of Island | DFS |
+
+---
+
+# Pattern Recognition
+
+Whenever you see
+
+- Grid
+- Connected Cells
+- Boundary
+- Escape
+- Reach Edge
+
+Think
+
+```
+Boundary DFS
+```
+
+Then ask
+
+> Instead of checking every cell,
+>
+> can I start from the boundary?
+
+If yes,
+
+that is usually the optimal solution.
+
+---
+
+# Interview Thinking Process
+
+```
+Need trapped land
+        │
+        ▼
+What land is definitely NOT trapped?
+        │
+        ▼
+Boundary land
+        │
+        ▼
+DFS from every boundary land
+        │
+        ▼
+Mark every reachable land
+        │
+        ▼
+Remaining land cannot reach boundary
+        │
+        ▼
+Count remaining land
+```
+
+---
+
+# Key Takeaways
+
+✅ Don't search from every land cell.
+
+✅ Think in reverse: remove all land that can escape.
+
+✅ Boundary-connected land is always safe.
+
+✅ DFS/BFS from the boundary naturally marks all safe land.
+
+✅ Remaining land cells are exactly the enclaves.
+
+This **reverse-thinking + boundary DFS** pattern is one of the most common graph techniques in coding interviews and appears in multiple LeetCode problems.
+
+<br/><br/><br/><br/><br/>
+
+---
