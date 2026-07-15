@@ -15,6 +15,9 @@ Welcome to the graph problems section! Here you will find various data structure
 - [1584. Min Cost to Connect All Points](#1584-min-cost-to-connect-all-points)
 - [130. Surrounded Regions](#130-surrounded-regions)
 - [1020. Number of Enclaves](#1020-number-of-enclaves)
+- [3249. Count the Number of Good Nodes](#3249-count-the-number-of-good-nodes)
+- [200. Number of Islands](#200-number-of-islands)
+- [210. Course Schedule II](#210-course-schedule-ii)
 
 <br><br><br><br><br>
 
@@ -9321,6 +9324,3225 @@ Count remaining land
 ✅ Remaining land cells are exactly the enclaves.
 
 This **reverse-thinking + boundary DFS** pattern is one of the most common graph techniques in coding interviews and appears in multiple LeetCode problems.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 3249. Count the Number of Good Nodes
+
+**Difficulty:** Medium
+
+**Topics**
+- Tree
+- DFS
+- Postorder Traversal
+- Recursion
+- Subtree Size
+
+---
+
+# Problem Statement
+
+You are given an **undirected tree** with `n` nodes numbered from `0` to `n-1`.
+
+The tree is rooted at node `0`.
+
+A node is called **Good** if
+
+> **Every child subtree of that node has exactly the same size.**
+
+Return the total number of good nodes.
+
+---
+
+# Understanding the Problem
+
+The statement
+
+> "All child subtrees have the same size"
+
+confuses many people.
+
+Let's first understand
+
+## What is a subtree?
+
+Suppose we have
+
+```
+        0
+      /   \
+     1     2
+    / \
+   3   4
+```
+
+The subtree rooted at
+
+```
+1
+```
+
+contains
+
+```
+    1
+   / \
+  3   4
+```
+
+Size = **3**
+
+The subtree rooted at
+
+```
+2
+```
+
+contains
+
+```
+2
+```
+
+Size = **1**
+
+---
+
+# What Makes a Node Good?
+
+Take this tree
+
+```
+        0
+      /   \
+     1     2
+    / \   / \
+   3  4  5  6
+```
+
+Subtree sizes
+
+```
+Node 1 = 3
+
+Node 2 = 3
+```
+
+Node
+
+```
+0
+```
+
+has children
+
+```
+1
+2
+```
+
+Both subtree sizes are
+
+```
+3
+```
+
+Therefore
+
+```
+Node 0 is GOOD.
+```
+
+---
+
+Now consider
+
+```
+        0
+      /   \
+     1     2
+    /
+   3
+```
+
+Subtree sizes
+
+```
+Node 1 = 2
+
+Node 2 = 1
+```
+
+Different.
+
+Therefore
+
+```
+Node 0 is NOT GOOD.
+```
+
+---
+
+# Important Observation
+
+Leaves have
+
+```
+No children
+```
+
+Question
+
+Do they satisfy
+
+> "All child subtrees have equal size"?
+
+Yes.
+
+Because there are
+
+```
+No child subtrees.
+```
+
+Nothing violates the condition.
+
+Therefore
+
+Every leaf is automatically GOOD.
+
+---
+
+# First Thought (Brute Force)
+
+Suppose we check every node.
+
+For every node
+
+calculate every child subtree size.
+
+Problem
+
+Subtree sizes are recalculated again and again.
+
+Example
+
+```
+0
+
+↓
+
+1
+
+↓
+
+2
+
+↓
+
+3
+```
+
+Subtree of
+
+```
+3
+```
+
+gets computed
+
+many times.
+
+Time
+
+```
+O(N²)
+```
+
+Too slow.
+
+---
+
+# Better Thinking
+
+Ask yourself
+
+> What information does a parent need?
+
+Parent only needs
+
+```
+Child subtree sizes.
+```
+
+Nothing else.
+
+Therefore
+
+each child should compute
+
+its subtree size
+
+and return it
+
+to the parent.
+
+This immediately suggests
+
+```
+Postorder DFS
+```
+
+(children first, parent later)
+
+---
+
+# Why Postorder DFS?
+
+Suppose
+
+```
+        0
+      /   \
+     1     2
+```
+
+Can node
+
+```
+0
+```
+
+know whether its child subtree sizes are equal
+
+before
+
+visiting
+
+```
+1
+
+2
+```
+
+No.
+
+Therefore
+
+Parent
+
+must wait.
+
+Children compute first.
+
+Exactly
+
+```
+Postorder
+```
+
+---
+
+# Core Idea
+
+Each DFS call should return
+
+```
+Subtree Size
+```
+
+Example
+
+```
+dfs(node)
+
+returns
+
+size of subtree rooted at node
+```
+
+Parent collects
+
+```
+3
+
+3
+
+3
+```
+
+All equal?
+
+Yes.
+
+Good node.
+
+---
+
+# Building the Algorithm
+
+## Step 1
+
+Convert
+
+```
+edges
+```
+
+into
+
+```
+Adjacency List
+```
+
+Example
+
+```
+0-1
+
+0-2
+
+1-3
+
+1-4
+```
+
+becomes
+
+```
+0 → [1,2]
+
+1 → [0,3,4]
+
+2 → [0]
+
+3 → [1]
+
+4 → [1]
+```
+
+---
+
+## Step 2
+
+Run DFS from
+
+```
+0
+```
+
+---
+
+## Step 3
+
+Every node computes
+
+its subtree size.
+
+Initially
+
+```
+size = 1
+```
+
+(count itself)
+
+---
+
+## Step 4
+
+Visit every child.
+
+Child returns
+
+```
+childSize
+```
+
+Store it.
+
+Add to
+
+```
+size
+```
+
+---
+
+## Step 5
+
+After processing children
+
+Suppose child sizes are
+
+```
+3
+
+3
+
+3
+```
+
+All equal?
+
+Good.
+
+Suppose
+
+```
+3
+
+4
+
+3
+```
+
+Not good.
+
+---
+
+## Step 6
+
+Return
+
+```
+size
+```
+
+to parent.
+
+---
+
+# Visual Dry Run
+
+Example
+
+```
+        0
+      /   \
+     1     2
+    / \   / \
+   3  4  5  6
+```
+
+---
+
+## Leaf 3
+
+Subtree
+
+```
+3
+```
+
+Size
+
+```
+1
+```
+
+Return
+
+```
+1
+```
+
+---
+
+Leaf 4
+
+Return
+
+```
+1
+```
+
+---
+
+Node 1
+
+Receives
+
+```
+1
+
+1
+```
+
+Equal
+
+Good
+
+Subtree
+
+```
+1+1+1=3
+```
+
+Return
+
+```
+3
+```
+
+---
+
+Node 2
+
+Same
+
+Returns
+
+```
+3
+```
+
+---
+
+Node 0
+
+Receives
+
+```
+3
+
+3
+```
+
+Equal
+
+Good
+
+Subtree
+
+```
+7
+```
+
+Done.
+
+---
+
+# Dry Run (Example 2)
+
+Tree
+
+```
+0
+├──1
+│  ├──2
+│  │  ├──3
+│  │  │  ├──4
+│  │  │  └──8
+│  │  └──7
+│  └──6
+└──5
+```
+
+Start from leaves
+
+```
+4
+
+6
+
+7
+
+8
+
+5
+```
+
+Each returns
+
+```
+1
+```
+
+Now
+
+Node
+
+```
+3
+```
+
+Children
+
+```
+4
+
+8
+```
+
+Sizes
+
+```
+1
+
+1
+```
+
+Good
+
+Returns
+
+```
+3
+```
+
+Continue upward.
+
+Eventually
+
+Node
+
+```
+1
+```
+
+gets
+
+```
+5
+
+1
+```
+
+Different.
+
+Not Good.
+
+Continue.
+
+---
+
+# Why This Works
+
+Every subtree size
+
+is computed
+
+exactly once.
+
+Parent uses already-computed answers.
+
+No repeated work.
+
+---
+
+# Mathematical Logic
+
+Suppose
+
+```
+size(node)
+
+=
+
+1
+
++
+
+Σ size(children)
+```
+
+This is the recurrence.
+
+For every node
+
+```
+Subtree Size
+
+=
+
+Itself
+
++
+
+All child subtree sizes
+```
+
+While computing this
+
+we simply check
+
+```
+All child sizes equal?
+```
+
+If yes
+
+Answer++
+
+---
+
+# Correct Python Solution
+
+```python
+from collections import defaultdict
+
+class Solution:
+    def countGoodNodes(self, edges):
+
+        n = len(edges) + 1
+
+        graph = defaultdict(list)
+
+        for u, v in edges:
+            graph[u].append(v)
+            graph[v].append(u)
+
+        answer = 0
+
+        def dfs(node, parent):
+
+            nonlocal answer
+
+            subtree = 1
+
+            child_sizes = []
+
+            for nei in graph[node]:
+
+                if nei == parent:
+                    continue
+
+                size = dfs(nei, node)
+
+                child_sizes.append(size)
+
+                subtree += size
+
+            if (
+                len(child_sizes) <= 1 or
+                len(set(child_sizes)) == 1
+            ):
+                answer += 1
+
+            return subtree
+
+        dfs(0, -1)
+
+        return answer
+```
+
+---
+
+# Complexity Analysis
+
+## Building Graph
+
+```
+O(N)
+```
+
+---
+
+## DFS
+
+Every node visited once.
+
+```
+O(N)
+```
+
+---
+
+## Space
+
+Adjacency List
+
+```
+O(N)
+```
+
+Recursion Stack
+
+Worst
+
+```
+O(N)
+```
+
+---
+
+# Why We Pass Parent?
+
+The tree is
+
+**undirected**
+
+Example
+
+```
+0 ---- 1
+```
+
+Adjacency
+
+```
+0 → 1
+
+1 → 0
+```
+
+Without
+
+```
+parent
+```
+
+DFS
+
+```
+0
+
+↓
+
+1
+
+↓
+
+0
+
+↓
+
+1
+
+↓
+
+...
+```
+
+Infinite recursion.
+
+Passing
+
+```
+parent
+```
+
+prevents going back.
+
+---
+
+# Pattern Recognition
+
+Whenever a problem asks
+
+- Subtree Size
+- Number of Descendants
+- Height of Subtree
+- Diameter
+- Tree DP
+- Information needed by parent
+
+Think
+
+```
+Postorder DFS
+```
+
+because
+
+children must compute first.
+
+---
+
+# Interview Thinking Process
+
+```
+Need child subtree sizes
+        │
+        ▼
+Children must finish first
+        │
+        ▼
+Postorder DFS
+        │
+        ▼
+Each child returns subtree size
+        │
+        ▼
+Parent compares all child sizes
+        │
+        ▼
+If equal → Good Node
+        │
+        ▼
+Return subtree size to parent
+```
+
+---
+
+# Common Mistakes
+
+❌ Forgetting the graph is **undirected**.
+
+❌ Not passing the parent, causing infinite recursion.
+
+❌ Trying to recompute subtree sizes repeatedly (`O(N²)`).
+
+❌ Forgetting that leaf nodes are automatically good.
+
+❌ Checking node values instead of subtree sizes.
+
+---
+
+# Similar Problems
+
+| Problem | Pattern |
+|---------|---------|
+| Subtree of Another Tree | Postorder DFS |
+| Count Complete Tree Nodes | Subtree information |
+| Diameter of Binary Tree | Postorder DFS |
+| Binary Tree Maximum Path Sum | Postorder DFS |
+| Sum of Distances in Tree | Tree DP |
+| Count Good Nodes | Postorder + Subtree Size |
+
+---
+
+# Key Takeaways
+
+✅ The parent only needs one thing from each child: **its subtree size**.
+
+✅ Since parents depend on children, use **Postorder DFS**.
+
+✅ Each DFS call returns the size of its subtree.
+
+✅ A node is **good** if all returned child subtree sizes are identical.
+
+✅ Computing subtree sizes once gives an **O(N)** solution.
+
+---
+
+# Mental Model
+
+Whenever you solve a tree problem, ask yourself:
+
+```
+Does the parent need information from its children?
+```
+
+If **YES**, think:
+
+```
+Postorder DFS
+```
+
+Then ask:
+
+```
+What should each DFS call return?
+```
+
+In this problem, the answer is:
+
+```
+Return the size of the subtree rooted at the current node.
+```
+
+Once you identify what each recursive call should return, the implementation becomes straightforward.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 200. Number of Islands
+
+**Difficulty:** Medium
+
+**Topics**
+- Graph
+- DFS
+- BFS
+- Matrix
+- Flood Fill
+- Connected Components
+
+---
+
+# Problem Statement
+
+You are given an `m × n` grid.
+
+Each cell contains
+
+```
+'1' → Land
+'0' → Water
+```
+
+An **Island** is formed by connecting adjacent land cells.
+
+You can move only
+
+- Up
+- Down
+- Left
+- Right
+
+(Diagonal cells are **NOT** connected.)
+
+Return the **number of islands** in the grid.
+
+---
+
+# Example 1
+
+Input
+
+```
+1 1 1 1 0
+1 1 0 1 0
+1 1 0 0 0
+0 0 0 0 0
+```
+
+Output
+
+```
+1
+```
+
+Explanation
+
+All land cells are connected together.
+
+So there is only **one island**.
+
+---
+
+# Example 2
+
+Input
+
+```
+1 1 0 0 0
+
+1 1 0 0 0
+
+0 0 1 0 0
+
+0 0 0 1 1
+```
+
+Output
+
+```
+3
+```
+
+Explanation
+
+Island 1
+
+```
+1 1
+1 1
+```
+
+Island 2
+
+```
+1
+```
+
+Island 3
+
+```
+1 1
+```
+
+Total Islands
+
+```
+3
+```
+
+---
+
+# Understanding the Problem
+
+Imagine a real map.
+
+```
+🌊 🌊 🌊 🌊
+
+🏝️ 🏝️ 🌊 🌊
+
+🏝️ 🏝️ 🌊 🏝️
+
+🌊 🌊 🌊 🏝️
+```
+
+Every connected piece of land is one island.
+
+The question is simply
+
+> "How many separate groups of land exist?"
+
+---
+
+# First Observation
+
+Suppose you stand on one land cell.
+
+Can you visit every land belonging to that island?
+
+Yes.
+
+Using
+
+- DFS
+- BFS
+
+Once you visit them,
+
+you never need to visit them again.
+
+This is the entire solution.
+
+---
+
+# Thinking Like an Interviewer
+
+Most beginners think
+
+```
+Count every 1.
+```
+
+Wrong.
+
+Because
+
+```
+1 1
+
+1 1
+```
+
+contains
+
+```
+4 land cells
+```
+
+but
+
+only
+
+```
+1 island
+```
+
+So we don't count cells.
+
+We count
+
+```
+Connected Components
+```
+
+---
+
+# What is a Connected Component?
+
+Suppose
+
+```
+1 1
+
+1 0
+```
+
+Every land cell is reachable from every other land cell.
+
+This entire group
+
+is one
+
+```
+Connected Component
+```
+
+Another example
+
+```
+1 0 1
+```
+
+Now there are
+
+```
+2 Connected Components
+```
+
+Therefore
+
+```
+2 Islands
+```
+
+---
+
+# The Main Idea
+
+Whenever we discover a new land cell
+
+```
+1
+```
+
+that hasn't been visited,
+
+we have found
+
+```
+A New Island.
+```
+
+Increase answer by
+
+```
+1
+```
+
+Then
+
+visit the entire island
+
+using DFS/BFS.
+
+Mark everything visited.
+
+Continue.
+
+---
+
+# Visual Intuition
+
+Grid
+
+```
+1 1 0
+
+1 0 0
+
+0 0 1
+```
+
+Start scanning.
+
+First land
+
+```
+1
+```
+
+Answer
+
+```
+1
+```
+
+Run DFS
+
+Visited
+
+```
+✓ ✓ 0
+
+✓ 0 0
+
+0 0 1
+```
+
+Continue scanning.
+
+Next unvisited land
+
+```
+1
+```
+
+Answer
+
+```
+2
+```
+
+Done.
+
+---
+
+# Why DFS Works
+
+Suppose
+
+```
+1 1 1
+
+1 1 0
+
+0 0 0
+```
+
+Start DFS
+
+```
+↓
+
+1
+```
+
+Visit
+
+```
+↓
+
+1
+```
+
+Visit
+
+```
+↓
+
+1
+```
+
+Eventually
+
+every connected land cell
+
+gets visited.
+
+No land from this island remains unvisited.
+
+Therefore
+
+the next land we find
+
+must belong to a different island.
+
+---
+
+# Algorithm
+
+## Step 1
+
+Traverse every cell.
+
+---
+
+## Step 2
+
+If cell is
+
+```
+1
+```
+
+A new island is found.
+
+Increase answer.
+
+---
+
+## Step 3
+
+Run DFS.
+
+Visit every connected
+
+```
+1
+```
+
+Mark them
+
+```
+visited
+```
+
+or
+
+change them into
+
+```
+0
+```
+
+---
+
+## Step 4
+
+Continue scanning.
+
+---
+
+## Step 5
+
+Return answer.
+
+---
+
+# Dry Run
+
+Input
+
+```
+1 1 0 0 0
+
+1 1 0 0 0
+
+0 0 1 0 0
+
+0 0 0 1 1
+```
+
+Initially
+
+```
+Answer = 0
+```
+
+---
+
+## Scan Row 0
+
+First cell
+
+```
+1
+```
+
+New island.
+
+Answer
+
+```
+1
+```
+
+Run DFS
+
+Grid becomes
+
+```
+0 0 0 0 0
+
+0 0 0 0 0
+
+0 0 1 0 0
+
+0 0 0 1 1
+```
+
+---
+
+Continue scanning.
+
+Next land
+
+```
+(2,2)
+```
+
+New island.
+
+Answer
+
+```
+2
+```
+
+Run DFS
+
+Grid
+
+```
+0 0 0 0 0
+
+0 0 0 0 0
+
+0 0 0 0 0
+
+0 0 0 1 1
+```
+
+---
+
+Continue scanning.
+
+Next land
+
+```
+(3,3)
+```
+
+Answer
+
+```
+3
+```
+
+DFS visits
+
+```
+(3,3)
+
+↓
+
+(3,4)
+```
+
+Grid
+
+```
+0 0 0 0 0
+
+0 0 0 0 0
+
+0 0 0 0 0
+
+0 0 0 0 0
+```
+
+Finished.
+
+Return
+
+```
+3
+```
+
+---
+
+# Mathematical Logic
+
+Suppose there are
+
+```
+k
+```
+
+connected groups.
+
+Every DFS
+
+marks exactly
+
+```
+One Connected Component.
+```
+
+Therefore
+
+```
+Number of DFS Calls
+
+=
+
+Number of Islands
+```
+
+This is the key mathematical idea.
+
+---
+
+# Why We Mark Visited
+
+Suppose
+
+```
+1 1
+
+1 1
+```
+
+Without marking visited
+
+every land cell starts a new DFS.
+
+Answer becomes
+
+```
+4
+```
+
+Wrong.
+
+After marking
+
+Only first land starts DFS.
+
+Remaining lands
+
+are already visited.
+
+Answer
+
+```
+1
+```
+
+Correct.
+
+---
+
+# DFS Implementation
+
+Instead of maintaining a visited matrix,
+
+we can directly change
+
+```
+1 → 0
+```
+
+because
+
+once land is visited,
+
+we never need it again.
+
+This saves memory.
+
+---
+
+# Python Solution (DFS)
+
+```python
+class Solution:
+
+    def numIslands(self, grid):
+
+        rows = len(grid)
+        cols = len(grid[0])
+
+        directions = [
+            (-1,0),
+            (1,0),
+            (0,-1),
+            (0,1)
+        ]
+
+        def dfs(r, c):
+
+            grid[r][c] = "0"
+
+            for dr, dc in directions:
+
+                nr = r + dr
+                nc = c + dc
+
+                if (
+                    0 <= nr < rows and
+                    0 <= nc < cols and
+                    grid[nr][nc] == "1"
+                ):
+
+                    dfs(nr, nc)
+
+        islands = 0
+
+        for i in range(rows):
+            for j in range(cols):
+
+                if grid[i][j] == "1":
+
+                    islands += 1
+
+                    dfs(i, j)
+
+        return islands
+```
+
+---
+
+# BFS Solution
+
+```python
+from collections import deque
+
+class Solution:
+
+    def numIslands(self, grid):
+
+        rows = len(grid)
+        cols = len(grid[0])
+
+        directions = [
+            (-1,0),
+            (1,0),
+            (0,-1),
+            (0,1)
+        ]
+
+        islands = 0
+
+        for i in range(rows):
+            for j in range(cols):
+
+                if grid[i][j] == "1":
+
+                    islands += 1
+
+                    queue = deque()
+
+                    queue.append((i, j))
+
+                    grid[i][j] = "0"
+
+                    while queue:
+
+                        r, c = queue.popleft()
+
+                        for dr, dc in directions:
+
+                            nr = r + dr
+                            nc = c + dc
+
+                            if (
+                                0 <= nr < rows and
+                                0 <= nc < cols and
+                                grid[nr][nc] == "1"
+                            ):
+
+                                grid[nr][nc] = "0"
+
+                                queue.append((nr, nc))
+
+        return islands
+```
+
+---
+
+# Complexity Analysis
+
+## Time
+
+Every cell is visited only once.
+
+```
+O(m × n)
+```
+
+---
+
+## Space
+
+DFS recursion stack
+
+Worst Case
+
+```
+O(m × n)
+```
+
+BFS queue
+
+Worst Case
+
+```
+O(m × n)
+```
+
+---
+
+# Common Mistakes
+
+❌ Counting every land cell instead of every island.
+
+❌ Forgetting to mark visited cells.
+
+❌ Using diagonal movement.
+
+❌ Starting DFS from water cells.
+
+❌ Revisiting already explored land.
+
+---
+
+# Pattern Recognition
+
+Whenever you see
+
+- Grid
+- Connected Cells
+- Groups
+- Islands
+- Regions
+- Components
+
+Think
+
+```
+Connected Components
+```
+
+Immediately ask
+
+> Can DFS/BFS visit the entire group?
+
+If yes,
+
+then
+
+```
+One DFS
+
+=
+
+One Group
+```
+
+---
+
+# Similar Problems
+
+| Problem | Pattern |
+|----------|----------|
+| Number of Islands | Connected Components |
+| Max Area of Island | Connected Components |
+| Surrounded Regions | Boundary DFS |
+| Number of Enclaves | Boundary DFS |
+| Flood Fill | DFS/BFS |
+| Rotting Oranges | Multi-source BFS |
+
+---
+
+# Interview Thinking Process
+
+```
+Need number of islands
+          │
+          ▼
+Island = Connected land cells
+          │
+          ▼
+Need to count connected components
+          │
+          ▼
+Scan every cell
+          │
+          ▼
+Found unvisited land?
+          │
+     Yes ──────────────► New Island
+          │                  │
+          ▼                  ▼
+Increase answer      DFS/BFS entire island
+          │                  │
+          └──────────► Mark visited
+                           │
+                           ▼
+Continue scanning
+```
+
+---
+
+# Mental Model
+
+When solving any grid problem, ask yourself these questions:
+
+### Question 1
+
+What does one group represent?
+
+```
+Here
+
+↓
+
+One Island
+```
+
+---
+
+### Question 2
+
+How do I explore one group?
+
+```
+DFS
+
+or
+
+BFS
+```
+
+---
+
+### Question 3
+
+How do I avoid counting the same group again?
+
+```
+Mark visited.
+```
+
+---
+
+### Question 4
+
+When should I increase the answer?
+
+```
+Only when we discover
+
+an unvisited land cell.
+
+NOT
+
+for every land cell.
+```
+
+---
+
+# Key Takeaways
+
+✅ An island is simply a **connected component of land cells**.
+
+✅ Every DFS/BFS completely explores **one island**.
+
+✅ Therefore,
+
+```
+Number of DFS/BFS calls
+
+=
+
+Number of Islands.
+```
+
+✅ This is one of the most fundamental graph patterns and forms the basis for many advanced grid problems like **Max Area of Island**, **Surrounded Regions**, and **Number of Enclaves**.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 210. Course Schedule II
+
+**Difficulty:** Medium
+
+**Topics**
+- Graph
+- Topological Sort
+- BFS (Kahn's Algorithm)
+- DAG (Directed Acyclic Graph)
+- In-degree
+
+---
+
+# Before Solving, Let's Review Your Solution
+
+Your solution is **NOT correct**.
+
+The biggest issue is that you're treating this as a normal graph traversal (BFS), but this problem is **NOT asking you to traverse the graph**.
+
+It is asking you to find an order that satisfies all dependencies.
+
+This is called a **Topological Ordering**.
+
+Let's analyze your mistakes one by one.
+
+---
+
+# Mistake 1: Starting BFS from only one node
+
+You wrote
+
+```python
+q = deque([prerequisites[0][1]])
+```
+
+Suppose
+
+```
+numCourses = 4
+
+prerequisites =
+
+[
+ [1,0],
+ [3,2]
+]
+```
+
+Graph
+
+```
+0 → 1
+
+2 → 3
+```
+
+There are two independent components.
+
+Your queue becomes
+
+```
+[0]
+```
+
+BFS visits
+
+```
+0
+
+↓
+
+1
+```
+
+But
+
+```
+2
+
+↓
+
+3
+```
+
+is never visited.
+
+Answer becomes
+
+```
+[0,1]
+```
+
+Correct answer should contain
+
+```
+0
+
+1
+
+2
+
+3
+```
+
+---
+
+# Mistake 2: Graph Traversal ≠ Valid Course Order
+
+Suppose
+
+```
+0 → 2
+
+1 → 2
+```
+
+Graph
+
+```
+0
+
+ \
+
+  2
+
+ /
+
+1
+```
+
+Course
+
+```
+2
+```
+
+requires BOTH
+
+```
+0
+
+and
+
+1
+```
+
+Your BFS
+
+starting from
+
+```
+0
+```
+
+produces
+
+```
+0
+
+↓
+
+2
+```
+
+But
+
+```
+1
+```
+
+has not been completed.
+
+So
+
+```
+0,2
+```
+
+is invalid.
+
+This is the biggest conceptual mistake.
+
+---
+
+# Mistake 3: No In-degree Tracking
+
+Suppose
+
+```
+1 depends on 0
+
+2 depends on 0
+
+3 depends on 1
+
+3 depends on 2
+```
+
+Graph
+
+```
+      0
+     / \
+    1   2
+     \ /
+      3
+```
+
+Can we take
+
+```
+3
+```
+
+immediately after
+
+```
+1
+```
+
+No.
+
+Because
+
+```
+2
+```
+
+is still unfinished.
+
+Your algorithm doesn't check this.
+
+Topological Sort does.
+
+---
+
+# Mistake 4
+
+You wrote
+
+```python
+if len(ans)==len(graph):
+```
+
+But
+
+```
+graph
+```
+
+contains only nodes that appear as prerequisites.
+
+Suppose
+
+```
+numCourses = 4
+
+edges
+
+0→1
+```
+
+Graph contains
+
+```
+0
+```
+
+only.
+
+Length
+
+```
+1
+```
+
+But there are actually
+
+```
+4
+```
+
+courses.
+
+Always compare against
+
+```
+numCourses
+```
+
+---
+
+# Mistake 5
+
+You repeatedly do
+
+```python
+if node not in ans
+```
+
+Checking
+
+```
+in list
+```
+
+takes
+
+```
+O(n)
+```
+
+Making your BFS slower.
+
+---
+
+# Your Thinking
+
+Your thought process was
+
+```
+Prerequisite
+
+↓
+
+Graph
+
+↓
+
+Run BFS
+
+↓
+
+Answer
+```
+
+This would work for
+
+- Graph traversal
+- Reachability
+- Shortest path
+
+But
+
+Course Schedule
+
+is different.
+
+It asks
+
+```
+Can I legally take this course now?
+```
+
+That depends on
+
+```
+All prerequisites finished.
+```
+
+Not simply
+
+```
+Have I visited it?
+```
+
+---
+
+# Understanding the Problem
+
+Suppose you have
+
+```
+Math
+
+↓
+
+Physics
+
+↓
+
+Quantum Physics
+```
+
+Can you directly study
+
+```
+Quantum Physics
+```
+
+No.
+
+You must finish
+
+```
+Math
+
+↓
+
+Physics
+```
+
+first.
+
+Now imagine hundreds of courses.
+
+Question
+
+In what order can I study them?
+
+---
+
+# Convert Into Graph
+
+Given
+
+```
+[1,0]
+```
+
+Meaning
+
+```
+0
+
+↓
+
+1
+```
+
+Because
+
+```
+0
+
+must be completed
+
+before
+
+1
+```
+
+Every prerequisite
+
+becomes
+
+```
+Directed Edge
+```
+
+---
+
+# Example
+
+```
+numCourses = 4
+
+[1,0]
+
+[2,0]
+
+[3,1]
+
+[3,2]
+```
+
+Graph
+
+```
+      0
+     / \
+    1   2
+     \ /
+      3
+```
+
+---
+
+# What Is Actually Being Asked?
+
+Find an order
+
+such that
+
+every edge
+
+goes
+
+```
+Earlier
+
+↓
+
+Later
+```
+
+Example
+
+```
+0
+
+↓
+
+1
+
+↓
+
+3
+```
+
+Valid
+
+```
+0
+
+1
+
+3
+```
+
+Invalid
+
+```
+3
+
+1
+
+0
+```
+
+---
+
+# Important Observation
+
+A course can be taken only if
+
+it has
+
+```
+NO remaining prerequisites.
+```
+
+Question
+
+How do we know that?
+
+Count
+
+```
+Incoming Edges.
+```
+
+---
+
+# What Is In-degree?
+
+In-degree means
+
+```
+How many prerequisites are still needed?
+```
+
+Example
+
+```
+0
+
+↓
+
+2
+
+1
+
+↓
+
+2
+```
+
+Node
+
+```
+2
+```
+
+has
+
+```
+In-degree =2
+```
+
+because
+
+two courses
+
+must be completed.
+
+---
+
+# Core Idea
+
+Initially
+
+take every course
+
+whose
+
+```
+In-degree =0
+```
+
+Why?
+
+Because
+
+they require
+
+nothing.
+
+After completing one course
+
+remove its outgoing edges.
+
+Some other courses
+
+may now have
+
+```
+In-degree =0
+```
+
+Take them next.
+
+Repeat.
+
+This algorithm is called
+
+```
+Kahn's Algorithm
+```
+
+---
+
+# Why Does This Work?
+
+Suppose
+
+```
+0 → 1 → 2
+```
+
+Initially
+
+```
+Indegree
+
+0 :0
+
+1 :1
+
+2 :1
+```
+
+Take
+
+```
+0
+```
+
+Remove edge
+
+```
+0→1
+```
+
+Now
+
+```
+1
+
+has indegree
+
+0
+```
+
+Take
+
+```
+1
+```
+
+Remove
+
+```
+1→2
+```
+
+Now
+
+```
+2
+
+becomes
+
+0
+```
+
+Everything naturally unlocks.
+
+---
+
+# Building the Algorithm
+
+## Step 1
+
+Build graph.
+
+```
+Prerequisite
+
+↓
+
+Course
+```
+
+---
+
+## Step 2
+
+Compute
+
+```
+Indegree
+```
+
+for every node.
+
+---
+
+## Step 3
+
+Put every node with
+
+```
+Indegree=0
+```
+
+inside queue.
+
+---
+
+## Step 4
+
+While queue not empty
+
+Take one course.
+
+Append answer.
+
+---
+
+## Step 5
+
+Remove outgoing edges.
+
+Decrease indegree.
+
+Whenever
+
+```
+Indegree becomes 0
+```
+
+Push into queue.
+
+---
+
+## Step 6
+
+Finished.
+
+If answer contains
+
+```
+numCourses
+```
+
+Return answer.
+
+Else
+
+Cycle exists.
+
+Return
+
+```
+[]
+```
+
+---
+
+# Dry Run
+
+Example
+
+```
+numCourses=4
+
+[1,0]
+
+[2,0]
+
+[3,1]
+
+[3,2]
+```
+
+Graph
+
+```
+      0
+     / \
+    1   2
+     \ /
+      3
+```
+
+---
+
+## Build In-degree
+
+```
+0 :0
+
+1 :1
+
+2 :1
+
+3 :2
+```
+
+Queue
+
+```
+[0]
+```
+
+---
+
+## Pop
+
+Take
+
+```
+0
+```
+
+Answer
+
+```
+[0]
+```
+
+Remove
+
+```
+0→1
+
+0→2
+```
+
+New indegree
+
+```
+0
+
+0
+
+0
+
+2
+```
+
+Queue
+
+```
+1
+
+2
+```
+
+---
+
+## Pop
+
+Take
+
+```
+1
+```
+
+Answer
+
+```
+0
+
+1
+```
+
+Remove
+
+```
+1→3
+```
+
+Indegree
+
+```
+3
+
+↓
+
+1
+```
+
+Still not zero.
+
+---
+
+## Pop
+
+Take
+
+```
+2
+```
+
+Answer
+
+```
+0
+
+1
+
+2
+```
+
+Remove
+
+```
+2→3
+```
+
+Indegree
+
+```
+0
+```
+
+Queue
+
+```
+3
+```
+
+---
+
+## Pop
+
+Take
+
+```
+3
+```
+
+Answer
+
+```
+0
+
+1
+
+2
+
+3
+```
+
+Finished.
+
+---
+
+# What About Cycles?
+
+Suppose
+
+```
+0→1
+
+1→0
+```
+
+Graph
+
+```
+0
+
+↓
+
+1
+
+↑
+
+|
+```
+
+Indegree
+
+```
+1
+
+1
+```
+
+Queue
+
+```
+Empty
+```
+
+Nothing can start.
+
+Answer
+
+```
+[]
+```
+
+Correct.
+
+---
+
+# Python Solution (Kahn's Algorithm)
+
+```python
+from collections import defaultdict, deque
+
+class Solution:
+
+    def findOrder(self, numCourses, prerequisites):
+
+        graph = defaultdict(list)
+
+        indegree = [0] * numCourses
+
+        for course, pre in prerequisites:
+
+            graph[pre].append(course)
+
+            indegree[course] += 1
+
+        queue = deque()
+
+        for i in range(numCourses):
+
+            if indegree[i] == 0:
+                queue.append(i)
+
+        answer = []
+
+        while queue:
+
+            node = queue.popleft()
+
+            answer.append(node)
+
+            for neighbor in graph[node]:
+
+                indegree[neighbor] -= 1
+
+                if indegree[neighbor] == 0:
+
+                    queue.append(neighbor)
+
+        if len(answer) == numCourses:
+
+            return answer
+
+        return []
+```
+
+---
+
+# Complexity Analysis
+
+Building Graph
+
+```
+O(V+E)
+```
+
+BFS
+
+```
+O(V+E)
+```
+
+Total
+
+```
+O(V+E)
+```
+
+Space
+
+```
+O(V+E)
+```
+
+---
+
+# Pattern Recognition
+
+Whenever you see
+
+- Course Prerequisites
+- Build Order
+- Dependency
+- Task Scheduling
+- Install Packages
+- Compilation Order
+
+Think
+
+```
+Topological Sort
+```
+
+---
+
+# Interview Thinking Process
+
+```
+Need valid order
+        │
+        ▼
+Dependencies exist
+        │
+        ▼
+Directed Graph
+        │
+        ▼
+Need every prerequisite before course
+        │
+        ▼
+Topological Sort
+        │
+        ▼
+Use In-degree
+        │
+        ▼
+Start with nodes having In-degree = 0
+        │
+        ▼
+Remove edges
+        │
+        ▼
+New nodes become available
+        │
+        ▼
+Continue until all courses processed
+```
+
+---
+
+# Common Mistakes
+
+❌ Treating it as a normal BFS/DFS traversal.
+
+❌ Starting from a single node.
+
+❌ Ignoring disconnected components.
+
+❌ Not tracking in-degrees.
+
+❌ Forgetting cycle detection.
+
+❌ Comparing answer length with the graph size instead of `numCourses`.
+
+---
+
+# Similar Problems
+
+| Problem | Pattern |
+|----------|---------|
+| Course Schedule I | Cycle Detection |
+| Course Schedule II | Topological Sort |
+| Alien Dictionary | Topological Sort |
+| Parallel Courses | Topological Sort |
+| Sequence Reconstruction | Topological Sort |
+| Build System / Package Manager | Topological Sort |
+
+---
+
+# Key Takeaways
+
+✅ This is **not** a graph traversal problem—it is a **dependency ordering** problem.
+
+✅ A course is available **only when all its prerequisites are complete**.
+
+✅ The number of remaining prerequisites is the **in-degree**.
+
+✅ Start with all courses having **in-degree = 0**.
+
+✅ Repeatedly remove completed courses and unlock new ones.
+
+✅ If every course is processed, you found a valid order. Otherwise, a cycle exists, so no valid ordering is possible.
 
 <br/><br/><br/><br/><br/>
 
