@@ -1,4 +1,21 @@
-# LeetCode 1791 - Find Center of Star Graph
+# Graph Problems
+
+Welcome to the graph problems section! Here you will find various data structure and algorithm problems related to Graphs, along with their detailed explanations, intuition, and optimal solutions.
+
+## Questions
+
+- [1791. Find Center of Star Graph](#1791-find-center-of-star-graph)
+- [797. All Paths From Source to Target](#797-all-paths-from-source-to-target)
+- [1557. Minimum Number of Vertices to Reach All Nodes](#1557-minimum-number-of-vertices-to-reach-all-nodes)
+- [994. Rotting Oranges](#994-rotting-oranges)
+- [547. Number of Provinces](#547-number-of-provinces)
+- [207. Course Schedule](#207-course-schedule)
+
+<br><br><br><br><br>
+
+---
+
+# 1791. Find Center of Star Graph
 
 ## Difficulty
 Easy
@@ -862,7 +879,1401 @@ Use the first two edges trick
 
 ---
 
-# LeetCode 994 - Rotting Oranges
+# 797. All Paths From Source to Target
+
+## Problem Statement
+
+You are given a **Directed Acyclic Graph (DAG)** represented as an adjacency list.
+
+- Nodes are numbered from **0** to **n - 1**.
+- `graph[i]` contains all the nodes that can be reached directly from node `i`.
+- You need to find **every possible path** from node `0` (source) to node `n-1` (target).
+
+---
+
+## Example Input
+
+```python
+graph = [[1,2],[3],[3],[]]
+```
+
+Let's first understand what this graph means.
+
+```
+graph[0] = [1,2]
+graph[1] = [3]
+graph[2] = [3]
+graph[3] = []
+```
+
+Graph Representation
+
+```
+        0
+      /   \
+     1     2
+      \   /
+        3
+```
+
+Possible paths are
+
+```
+0 → 1 → 3
+
+0 → 2 → 3
+```
+
+Expected Output
+
+```python
+[
+    [0,1,3],
+    [0,2,3]
+]
+```
+
+---
+
+# Observation
+
+The graph is a **DAG**.
+
+That means
+
+- No cycles
+- No infinite recursion
+- We can safely perform DFS.
+
+The idea is
+
+> Start from node 0.
+
+Whenever we reach node `n-1`, we have found one complete path.
+
+Store that path.
+
+Continue exploring the remaining branches.
+
+---
+
+# DFS + Backtracking
+
+Suppose our DFS function is
+
+```python
+dfs(node, path)
+```
+
+where
+
+- `node` → current node
+- `path` → current path from source
+
+---
+
+## Algorithm
+
+```
+Append current node to path
+
+If current node is destination
+    Save a copy of path
+    Return
+
+Visit every neighbour
+
+Remove current node from path
+```
+
+Notice the important pattern
+
+```
+Append
+
+Explore
+
+Pop
+```
+
+This is called **Backtracking**.
+
+---
+
+# Code
+
+```python
+class Solution:
+    def allPathsSourceTarget(self, graph):
+        ans = []
+        target = len(graph) - 1
+
+        def dfs(node, path):
+
+            path.append(node)
+
+            if node == target:
+                ans.append(path[:])
+
+            else:
+                for neighbour in graph[node]:
+                    dfs(neighbour, path)
+
+            path.pop()
+
+        dfs(0, [])
+
+        return ans
+```
+
+---
+
+# Complete Dry Run
+
+Input
+
+```python
+graph = [[1,2],[3],[3],[]]
+```
+
+Target
+
+```
+3
+```
+
+Initially
+
+```
+ans = []
+
+path = []
+```
+
+Call
+
+```
+dfs(0, [])
+```
+
+---
+
+## Step 1
+
+Current node
+
+```
+0
+```
+
+Append
+
+```
+path = [0]
+```
+
+Not destination.
+
+Neighbours
+
+```
+1
+2
+```
+
+Go to first neighbour.
+
+---
+
+## Step 2
+
+Call
+
+```
+dfs(1,[0])
+```
+
+Append
+
+```
+path = [0,1]
+```
+
+Not destination.
+
+Neighbour
+
+```
+3
+```
+
+Call DFS.
+
+---
+
+## Step 3
+
+Call
+
+```
+dfs(3,[0,1])
+```
+
+Append
+
+```
+path = [0,1,3]
+```
+
+Current node is target.
+
+Store copy
+
+```
+ans =
+
+[
+    [0,1,3]
+]
+```
+
+Now backtrack.
+
+Pop
+
+```
+path = [0,1]
+```
+
+Return.
+
+---
+
+Back to node 1.
+
+No more neighbours.
+
+Backtrack.
+
+Pop
+
+```
+path = [0]
+```
+
+Return.
+
+---
+
+Back to node 0.
+
+Next neighbour is
+
+```
+2
+```
+
+Call
+
+```
+dfs(2,[0])
+```
+
+---
+
+## Step 4
+
+Append
+
+```
+path = [0,2]
+```
+
+Neighbour
+
+```
+3
+```
+
+Call DFS.
+
+---
+
+## Step 5
+
+Append
+
+```
+path = [0,2,3]
+```
+
+Destination reached.
+
+Store copy.
+
+```
+ans =
+
+[
+    [0,1,3],
+    [0,2,3]
+]
+```
+
+Backtrack.
+
+Pop
+
+```
+path = [0,2]
+```
+
+Return.
+
+---
+
+Back to node 2.
+
+No neighbours.
+
+Pop
+
+```
+path = [0]
+```
+
+Return.
+
+---
+
+Back to node 0.
+
+No neighbours.
+
+Pop
+
+```
+path = []
+```
+
+Return.
+
+DFS ends.
+
+Final answer
+
+```python
+[
+    [0,1,3],
+    [0,2,3]
+]
+```
+
+---
+
+# Complete Recursion Tree
+
+```
+dfs(0)
+
+path=[0]
+
+            0
+          /   \
+         /     \
+        1       2
+        |       |
+        3       3
+```
+
+Execution order
+
+```
+dfs(0)
+
+    dfs(1)
+
+        dfs(3)
+        save [0,1,3]
+
+    dfs(2)
+
+        dfs(3)
+        save [0,2,3]
+```
+
+---
+
+# How Backtracking Works
+
+When DFS reaches node 3
+
+```
+path = [0,1,3]
+```
+
+We save it.
+
+Now we return.
+
+Before returning
+
+```
+path.pop()
+```
+
+Now
+
+```
+path = [0,1]
+```
+
+Return again.
+
+```
+path.pop()
+```
+
+Now
+
+```
+path = [0]
+```
+
+Now DFS can explore
+
+```
+0 → 2
+```
+
+If we **don't pop**, then
+
+```
+path would become
+
+[0,1,3,2]
+```
+
+which is incorrect.
+
+That's why every
+
+```
+append()
+```
+
+must have a matching
+
+```
+pop()
+```
+
+---
+
+# Why do we use `path[:]`?
+
+Suppose we write
+
+```python
+ans.append(path)
+```
+
+Current path
+
+```
+path = [0,1,3]
+```
+
+Later DFS pops
+
+```
+path = [0,1]
+
+path = [0]
+
+path = []
+```
+
+Since lists are mutable,
+
+the answer also changes.
+
+Finally,
+
+```
+ans
+
+[
+    []
+]
+```
+
+or incorrect values.
+
+Instead
+
+```python
+ans.append(path[:])
+```
+
+creates a **copy**.
+
+```
+path
+
+[0,1,3]
+```
+
+is copied into
+
+```
+[0,1,3]
+```
+
+Now future modifications do not affect the stored answer.
+
+---
+
+# Time Complexity
+
+Let
+
+- `P` = Number of valid paths
+- `L` = Average length of a path
+
+Each path is copied once.
+
+Time Complexity
+
+```
+O(P × L)
+```
+
+---
+
+# Space Complexity
+
+Recursion depth
+
+```
+O(n)
+```
+
+Answer storage
+
+```
+O(P × L)
+```
+
+Overall
+
+```
+O(n + P × L)
+```
+
+---
+
+# Key Takeaways
+
+✅ The graph is a DAG, so no `visited` array is needed.
+
+✅ DFS explores one path at a time.
+
+✅ `append()` adds the current node.
+
+✅ `pop()` removes it before returning (Backtracking).
+
+✅ Always store `path[:]` instead of `path`.
+
+✅ The recursion naturally explores every possible path from source to destination.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+
+# 1557. Minimum Number of Vertices to Reach All Nodes
+
+> How to Think About Graph Problems (Using LeetCode 1557)
+---
+
+# Before Anything Else...
+
+If you're struggling with this problem, **it's completely normal**.
+
+This problem is difficult **not because the coding is hard**, but because it tests **how you think** about graphs.
+
+Many beginners (including me when I first learned graphs) immediately think:
+
+> "Should I use DFS?"
+>
+> "Should I use BFS?"
+>
+> "Should I use recursion?"
+
+For this problem, **none of those are the first thing you should think about**.
+
+---
+
+# Step 1: Forget the Algorithms
+
+Don't think about DFS, BFS, recursion, or trees.
+
+Instead, ask only one question:
+
+> **What is the problem asking me to find?**
+
+Read the question carefully.
+
+It says:
+
+> Find the **smallest set of vertices** from which **all nodes are reachable**.
+
+Notice what it **doesn't** ask.
+
+It does **not** ask:
+
+- Find a path
+- Count paths
+- Traverse the graph
+- Detect a cycle
+- Visit every node using DFS
+
+It simply asks:
+
+> Which nodes **must** be chosen?
+
+That changes everything.
+
+---
+
+# Step 2: Draw the Graph
+
+Input:
+
+```text
+n = 6
+
+edges =
+
+[
+ [0,1],
+ [0,2],
+ [2,5],
+ [3,4],
+ [4,2]
+]
+```
+
+Let's draw it.
+
+```
+        0
+       / \
+      /   \
+     1     2
+            |
+            |
+            v
+            5
+
+
+        3
+        |
+        |
+        v
+        4
+        |
+        |
+        v
+        2
+```
+
+Forget coding.
+
+Just observe.
+
+---
+
+# Step 3: Imagine Starting from Node 0
+
+What nodes can you visit?
+
+```
+0
+
+↓
+
+1
+
+↓
+
+2
+
+↓
+
+5
+```
+
+Visited
+
+```
+0
+1
+2
+5
+```
+
+Can you visit
+
+```
+3 ?
+```
+
+No.
+
+Can you visit
+
+```
+4 ?
+```
+
+No.
+
+Therefore,
+
+starting only from **0** is not enough.
+
+---
+
+# Step 4: Start from Node 3
+
+Now imagine starting here.
+
+```
+3
+
+↓
+
+4
+
+↓
+
+2
+
+↓
+
+5
+```
+
+Visited
+
+```
+3
+4
+2
+5
+```
+
+Now combine both starting points.
+
+```
+Start from 0
+
++
+
+Start from 3
+```
+
+Now every node is covered.
+
+```
+0
+1
+2
+3
+4
+5
+```
+
+Answer
+
+```text
+[0,3]
+```
+
+---
+
+# Step 5: Why ONLY 0 and 3?
+
+Now inspect every node.
+
+---
+
+## Node 0
+
+Can anyone reach node 0?
+
+Look at the graph.
+
+```
+0
+```
+
+No arrows point into it.
+
+Therefore,
+
+if you don't start from 0,
+
+you will never reach 0.
+
+So 0 **must** be chosen.
+
+---
+
+## Node 3
+
+Same question.
+
+Can anyone reach node 3?
+
+No.
+
+No incoming arrows.
+
+Therefore,
+
+3 **must** be chosen.
+
+---
+
+## Node 2
+
+Can someone reach node 2?
+
+Yes.
+
+```
+0 → 2
+
+4 → 2
+```
+
+So we don't need to start from 2.
+
+Someone else can already reach it.
+
+---
+
+## Node 1
+
+Already reachable.
+
+```
+0 → 1
+```
+
+No need to start there.
+
+---
+
+## Node 5
+
+Already reachable.
+
+```
+2 → 5
+```
+
+Again,
+
+no need to start there.
+
+---
+
+# The Pattern
+
+Look at the chosen nodes.
+
+```
+0
+
+3
+```
+
+What is special about them?
+
+They have
+
+```
+NO incoming edges.
+```
+
+That is the entire trick.
+
+---
+
+# Think of Water Flow 💧
+
+Imagine arrows are pipes.
+
+Water flows in the direction of the arrows.
+
+```
+0
+
+↓
+
+2
+
+↓
+
+5
+```
+
+Water naturally reaches
+
+```
+2
+
+↓
+
+5
+```
+
+Do we need another water source at
+
+```
+2
+```
+
+No.
+
+Water already arrives there.
+
+---
+
+Now look at
+
+```
+3
+
+↓
+
+4
+```
+
+Nothing brings water into 3.
+
+So we must place a water source there.
+
+---
+
+This idea leads to a very important graph concept.
+
+---
+
+# Indegree
+
+Indegree means
+
+> **How many arrows come INTO a node?**
+
+Example
+
+```
+0 → 2
+
+3 → 2
+
+5 → 2
+```
+
+Three arrows enter node 2.
+
+```
+Indegree(2) = 3
+```
+
+---
+
+Example
+
+```
+0
+```
+
+No arrows enter.
+
+```
+Indegree(0) = 0
+```
+
+---
+
+# The Main Observation
+
+Every node with
+
+```
+Indegree = 0
+```
+
+must be included in the answer.
+
+Why?
+
+Because nothing can reach it.
+
+If nothing reaches it,
+
+the only way to visit it
+
+is to start there.
+
+---
+
+# Dry Run
+
+Input
+
+```
+edges
+
+0 → 1
+
+0 → 2
+
+2 → 5
+
+3 → 4
+
+4 → 2
+```
+
+Initially
+
+```
+indegree
+
+0 0 0 0 0 0
+```
+
+---
+
+Process edge
+
+```
+0 → 1
+```
+
+Increase indegree of 1.
+
+```
+0 1 0 0 0 0
+```
+
+---
+
+Process
+
+```
+0 → 2
+```
+
+```
+0 1 1 0 0 0
+```
+
+---
+
+Process
+
+```
+2 → 5
+```
+
+```
+0 1 1 0 0 1
+```
+
+---
+
+Process
+
+```
+3 → 4
+```
+
+```
+0 1 1 0 1 1
+```
+
+---
+
+Process
+
+```
+4 → 2
+```
+
+```
+0 1 2 0 1 1
+```
+
+Final indegree array
+
+| Node | 0 | 1 | 2 | 3 | 4 | 5 |
+|------|---|---|---|---|---|---|
+| Indegree | 0 | 1 | 2 | 0 | 1 | 1 |
+
+Nodes having indegree 0
+
+```
+0
+
+3
+```
+
+Answer
+
+```
+[0,3]
+```
+
+---
+
+# Code
+
+```python
+class Solution:
+    def findSmallestSetOfVertices(self, n, edges):
+
+        indegree = [0] * n
+
+        for u, v in edges:
+            indegree[v] += 1
+
+        answer = []
+
+        for node in range(n):
+            if indegree[node] == 0:
+                answer.append(node)
+
+        return answer
+```
+
+---
+
+# Why Didn't We Use DFS?
+
+This is an important lesson.
+
+Many graph problems require DFS.
+
+This one doesn't.
+
+Why?
+
+Because the question is asking
+
+> "Which nodes cannot be reached by anyone else?"
+
+To answer that,
+
+we only need to know
+
+how many incoming edges each node has.
+
+Traversal is unnecessary.
+
+---
+
+# How Should You Think During Interviews?
+
+Instead of immediately thinking
+
+```
+DFS?
+
+BFS?
+
+Recursion?
+```
+
+follow this process.
+
+---
+
+## Step 1
+
+Ask
+
+> **What exactly is the question asking?**
+
+Examples
+
+- Can I reach a node?
+- Shortest path?
+- Connected components?
+- Minimum starting points?
+- Detect cycles?
+
+---
+
+## Step 2
+
+Ask
+
+> **What information do I need?**
+
+For this problem,
+
+you need to know
+
+```
+Which nodes are unreachable from others?
+```
+
+That immediately suggests
+
+```
+Incoming edges
+```
+
+instead of traversal.
+
+---
+
+## Step 3
+
+Ask
+
+> **Do I actually need DFS or BFS?**
+
+Sometimes the answer is yes.
+
+Sometimes the answer is no.
+
+For this problem,
+
+the answer is
+
+```
+No.
+```
+
+---
+
+# A Better Way to Learn Graphs
+
+Instead of memorizing algorithms,
+
+classify problems first.
+
+| If the problem asks... | Think about... |
+|-------------------------|----------------|
+| Can I reach a node? | DFS / BFS |
+| Number of connected components | DFS / BFS |
+| Detect cycles | DFS or Kahn's Algorithm |
+| Shortest path (unweighted) | BFS |
+| Shortest path (weighted) | Dijkstra |
+| Valid task ordering | Topological Sort |
+| Minimum starting vertices | Indegree |
+| Course prerequisites | Topological Sort |
+
+This habit is what experienced programmers develop.
+
+---
+
+# Your Biggest Concern
+
+> "I can't imagine recursion or trees in my mind."
+
+Here's something important:
+
+**You don't always need recursion.**
+
+Many graph problems have nothing to do with recursive thinking.
+
+Recursion is just one tool.
+
+The real skill is recognizing **what property** the problem is asking about.
+
+Once you identify the property,
+
+choosing the algorithm becomes much easier.
+
+---
+
+# How to Improve Your Thinking
+
+When solving every graph problem, follow these questions **in order**:
+
+1. What is the problem asking?
+2. Is this about paths, groups, ordering, cycles, or dependencies?
+3. What information do I need?
+4. Can I solve it without traversal?
+5. If traversal is needed, should I use DFS or BFS?
+
+Don't start with the algorithm.
+
+Start with the **problem's goal**.
+
+---
+
+# My Assessment of Your Progress
+
+From the kinds of questions you've been asking, here's what I notice:
+
+✅ You understand how graphs are represented.
+
+✅ You know the basics of DFS and BFS.
+
+✅ You're practicing medium-level graph problems.
+
+The main thing you're missing is **pattern recognition**.
+
+Right now, you're asking:
+
+> "Which algorithm should I use?"
+
+Try changing that to:
+
+> "What property is this problem asking me to find?"
+
+That small change in thinking will make graph problems much easier over time.
+
+---
+
+# Final Takeaway
+
+Whenever you see a graph problem:
+
+❌ Don't immediately think:
+
+```
+DFS?
+
+BFS?
+
+Recursion?
+```
+
+✅ Instead, ask:
+
+```
+What is the problem asking me to find?
+```
+
+Once you answer that question, the right algorithm—or sometimes no traversal at all—often becomes much clearer.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 994. Rotting Oranges
 
 ## Difficulty
 Medium
@@ -1616,7 +3027,7 @@ This problem is one of the classic introductions to recognizing and applying Mul
 
 ---
 
-# LeetCode 547 - Number of Provinces
+# 547. Number of Provinces
 
 ## Difficulty
 Medium
@@ -2512,7 +3923,7 @@ This is one of the classic **Connected Components** problems and is often the fi
 
 ---
 
-# LeetCode 207 - Course Schedule
+# 207. Course Schedule
 
 ## Difficulty
 Medium
