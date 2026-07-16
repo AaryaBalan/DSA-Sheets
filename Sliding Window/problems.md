@@ -21,6 +21,8 @@ Welcome to the sliding window problems section! Here you will find various data 
 - [2024. Maximize the Confusion of an Exam](#2024-maximize-the-confusion-of-an-exam)
 - [2134. Minimum Swaps to Group All 1's Together II](#2134-minimum-swaps-to-group-all-1s-together-ii)
 - [2537. Count the Number of Good Subarrays](#2537-count-the-number-of-good-subarrays)
+- [438. Find All Anagrams in a String](#438-find-all-anagrams-in-a-string)
+- [713. Subarray Product Less Than K](#713-subarray-product-less-than-k)
 
 <br><br><br><br><br>
 
@@ -9179,3 +9181,1396 @@ Time  : O(n)
 
 Space : O(n)
 ```
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 438. Find All Anagrams in a String
+
+**Difficulty:** Medium  
+**Pattern:** Fixed Size Sliding Window + Frequency Count
+
+---
+
+# Problem Statement
+
+Given two strings:
+
+- `s` (text)
+- `p` (pattern)
+
+Return all starting indices where an **anagram** of `p` appears in `s`.
+
+An anagram means both strings contain **exactly the same characters with the same frequencies**, but the order can be different.
+
+---
+
+## Example
+
+### Input
+
+```text
+s = "cbaebabacd"
+p = "abc"
+```
+
+Possible windows of size 3:
+
+```text
+cba ✔
+bae ✘
+aeb ✘
+eba ✘
+bab ✘
+aba ✘
+bac ✔
+acd ✘
+```
+
+Output
+
+```text
+[0,6]
+```
+
+---
+
+# Observation
+
+Notice that every valid substring must have length equal to `len(p)`.
+
+If
+
+```text
+p = "abc"
+```
+
+then every candidate substring must also have length **3**.
+
+So this becomes a **Fixed Size Sliding Window** problem.
+
+---
+
+# Brute Force Approach
+
+For every substring of length `len(p)`:
+
+1. Count frequencies.
+2. Compare with frequency of `p`.
+
+Example:
+
+```text
+Window = "cba"
+
+Frequency
+
+a : 1
+b : 1
+c : 1
+
+Pattern
+
+a : 1
+b : 1
+c : 1
+
+Equal ✔
+```
+
+Time Complexity
+
+```text
+O(n * k)
+```
+
+where
+
+- n = length of s
+- k = length of p
+
+Too slow.
+
+---
+
+# Optimal Approach
+
+Instead of recomputing frequency every time,
+
+Maintain a **fixed window**.
+
+Whenever window moves:
+
+- Add new character
+- Remove old character
+
+Then compare frequencies.
+
+---
+
+# Sliding Window Intuition
+
+Suppose
+
+```text
+s = "cbaebabacd"
+p = "abc"
+```
+
+Window size = 3
+
+Initial window
+
+```text
+[c b a]
+```
+
+Move one step
+
+```text
+[b a e]
+```
+
+Instead of recounting:
+
+Remove
+
+```text
+c
+```
+
+Add
+
+```text
+e
+```
+
+That's all.
+
+---
+
+# Algorithm
+
+### Step 1
+
+Compute frequency of pattern.
+
+```python
+freqP = Counter(p)
+```
+
+---
+
+### Step 2
+
+Build frequency of first window.
+
+```python
+freqS = Counter(s[:len(p)])
+```
+
+---
+
+### Step 3
+
+Compare frequencies.
+
+If equal
+
+Store answer.
+
+---
+
+### Step 4
+
+Slide window.
+
+Every move:
+
+```text
+Add right character
+
+Remove left character
+```
+
+---
+
+### Step 5
+
+Again compare frequencies.
+
+If equal
+
+Store starting index.
+
+---
+
+# Dry Run
+
+Input
+
+```text
+s = "cbaebabacd"
+p = "abc"
+```
+
+Window size
+
+```text
+3
+```
+
+---
+
+## Window 1
+
+```text
+cba
+```
+
+Frequency
+
+```text
+a : 1
+b : 1
+c : 1
+```
+
+Pattern
+
+```text
+a : 1
+b : 1
+c : 1
+```
+
+Equal
+
+Answer
+
+```text
+[0]
+```
+
+---
+
+## Window 2
+
+Remove
+
+```text
+c
+```
+
+Add
+
+```text
+e
+```
+
+Window
+
+```text
+bae
+```
+
+Frequency
+
+```text
+a : 1
+b : 1
+e : 1
+```
+
+Not equal.
+
+---
+
+## Window 3
+
+Window
+
+```text
+aeb
+```
+
+Not equal.
+
+---
+
+## Window 4
+
+Window
+
+```text
+eba
+```
+
+Not equal.
+
+---
+
+## Window 5
+
+Window
+
+```text
+bab
+```
+
+Not equal.
+
+---
+
+## Window 6
+
+Window
+
+```text
+aba
+```
+
+Not equal.
+
+---
+
+## Window 7
+
+Remove
+
+```text
+a
+```
+
+Add
+
+```text
+c
+```
+
+Window
+
+```text
+bac
+```
+
+Frequency
+
+```text
+a : 1
+b : 1
+c : 1
+```
+
+Matches pattern.
+
+Answer
+
+```text
+[0,6]
+```
+
+---
+
+# Code
+
+```python
+from collections import Counter
+
+class Solution:
+    def findAnagrams(self, s: str, p: str):
+
+        m = len(p)
+        n = len(s)
+
+        if m > n:
+            return []
+
+        freqP = Counter(p)
+
+        freqS = Counter(s[:m])
+
+        ans = []
+
+        if freqS == freqP:
+            ans.append(0)
+
+        for right in range(m, n):
+
+            # Add new character
+            freqS[s[right]] += 1
+
+            # Remove left character
+            leftChar = s[right - m]
+            freqS[leftChar] -= 1
+
+            if freqS[leftChar] == 0:
+                del freqS[leftChar]
+
+            if freqS == freqP:
+                ans.append(right - m + 1)
+
+        return ans
+```
+
+---
+
+# Why Your Approach Didn't Work
+
+Your idea was close, but there were three major mistakes.
+
+---
+
+## Mistake 1
+
+You reset the whole window.
+
+```python
+freqS = defaultdict(int)
+```
+
+Sliding window should **never restart**.
+
+Instead,
+
+remove only one character from the left.
+
+---
+
+## Mistake 2
+
+You reset after finding an answer.
+
+```python
+freqS = defaultdict(int)
+```
+
+This misses overlapping anagrams.
+
+Example
+
+```text
+s = "abab"
+
+p = "ab"
+```
+
+Correct answer
+
+```text
+[0,1,2]
+```
+
+Your reset would miss
+
+```text
+1
+2
+```
+
+---
+
+## Mistake 3
+
+Your window size was changing.
+
+This problem requires
+
+```text
+Window Size = len(p)
+```
+
+Always.
+
+---
+
+# Time Complexity
+
+Building first window
+
+```text
+O(m)
+```
+
+Sliding window
+
+```text
+O(n)
+```
+
+Comparing frequencies
+
+```text
+O(26)
+```
+
+Since there are only lowercase English letters.
+
+Overall
+
+```text
+O(n)
+```
+
+---
+
+# Space Complexity
+
+```text
+O(26)
+
+≈ O(1)
+```
+
+---
+
+# Pattern Recognition
+
+Whenever you read
+
+> **Find all substrings of size k**
+
+Immediately think
+
+```text
+Fixed Size Sliding Window
+```
+
+General Template
+
+```python
+Build first window
+
+Check answer
+
+for every next position:
+
+    Add right character
+
+    Remove left character
+
+    Check answer
+```
+
+---
+
+# Key Takeaways
+
+✅ Window size is always fixed.
+
+✅ Never reset the window.
+
+✅ Only:
+
+- Add one character
+- Remove one character
+
+✅ Compare frequencies after every slide.
+
+---
+
+# Similar Problems
+
+- 567. Permutation in String
+- 1456. Maximum Number of Vowels in a Substring of Given Length
+- 1343. Number of Subarrays of Size K and Average Greater Than or Equal to Threshold
+- 643. Maximum Average Subarray I
+- 3254. Find the Power of K-Size Subarrays I
+
+---
+
+# Sliding Window Pattern
+
+```python
+# Build first window
+
+for i in range(windowSize):
+    add()
+
+check_answer()
+
+# Slide window
+
+for right in range(windowSize, n):
+
+    add(right)
+
+    remove(right-windowSize)
+
+    check_answer()
+```
+
+> **Golden Rule:**  
+> If the problem asks for **all substrings/windows of a fixed length**, use a **fixed-size sliding window**. Never restart the window—slide it by adding the new element and removing the old one.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 713. Subarray Product Less Than K
+
+**Difficulty:** Medium  
+**Pattern:** Variable Size Sliding Window
+
+---
+
+# Problem Statement
+
+Given:
+
+- An array of **positive integers** `nums`
+- An integer `k`
+
+Return the number of **contiguous subarrays** whose **product** is **strictly less than `k`**.
+
+---
+
+## Example
+
+### Input
+
+```text
+nums = [10,5,2,6]
+k = 100
+```
+
+Output
+
+```text
+8
+```
+
+Valid subarrays
+
+```text
+[10]
+[5]
+[2]
+[6]
+[10,5]
+[5,2]
+[2,6]
+[5,2,6]
+```
+
+Notice
+
+```text
+[10,5,2]
+```
+
+has product
+
+```text
+100
+```
+
+which is **NOT strictly less** than 100.
+
+---
+
+# Brute Force Approach
+
+Generate every possible subarray.
+
+For every subarray:
+
+- Compute product.
+- If product < k, increment answer.
+
+### Code
+
+```python
+ans = 0
+
+for i in range(n):
+
+    product = 1
+
+    for j in range(i,n):
+
+        product *= nums[j]
+
+        if product < k:
+            ans += 1
+```
+
+### Complexity
+
+```text
+Time : O(n²)
+
+Space : O(1)
+```
+
+Too slow for
+
+```text
+n = 30000
+```
+
+---
+
+# Key Observation
+
+All numbers are **positive**.
+
+Therefore,
+
+when we expand the window,
+
+```text
+product
+```
+
+can only
+
+- increase
+- or remain same (if multiplied by 1)
+
+It will **never decrease**.
+
+This gives us a monotonic property.
+
+---
+
+# Sliding Window Intuition
+
+Maintain
+
+```text
+Window Product < k
+```
+
+Whenever product becomes
+
+```text
+>= k
+```
+
+we must shrink from the left until
+
+```text
+product < k
+```
+
+again.
+
+---
+
+# Why Sliding Window Works
+
+Suppose
+
+```text
+Current Product = 150
+
+k = 100
+```
+
+Can adding more positive numbers make it
+
+```text
+<100 ?
+```
+
+No.
+
+It can only increase.
+
+Therefore,
+
+the only option is
+
+```text
+Move Left Pointer
+```
+
+This is why Sliding Window works.
+
+---
+
+# Algorithm
+
+### Step 1
+
+Initialize
+
+```python
+left = 0
+product = 1
+answer = 0
+```
+
+---
+
+### Step 2
+
+Expand the window.
+
+```python
+product *= nums[right]
+```
+
+---
+
+### Step 3
+
+If product becomes invalid
+
+```text
+product >= k
+```
+
+Shrink.
+
+```python
+while product >= k:
+    product //= nums[left]
+    left += 1
+```
+
+---
+
+### Step 4
+
+Now every subarray ending at
+
+```text
+right
+```
+
+is valid.
+
+Number of such subarrays
+
+```python
+right - left + 1
+```
+
+Add them to answer.
+
+---
+
+# Why
+
+```python
+answer += right-left+1
+```
+
+works
+
+This is the most important concept.
+
+Suppose current window
+
+```text
+5 2 6
+```
+
+Current indices
+
+```text
+left = 1
+
+right = 3
+```
+
+Product
+
+```text
+60
+```
+
+Valid.
+
+How many valid subarrays end at
+
+```text
+6
+```
+
+They are
+
+```text
+[6]
+
+[2,6]
+
+[5,2,6]
+```
+
+Exactly
+
+```text
+3
+```
+
+Which equals
+
+```text
+right-left+1
+
+3-1+1
+
+3
+```
+
+Hence
+
+```python
+answer += right-left+1
+```
+
+---
+
+# Dry Run
+
+Input
+
+```text
+nums = [10,5,2,6]
+
+k = 100
+```
+
+---
+
+## Step 1
+
+Window
+
+```text
+10
+```
+
+Product
+
+```text
+10
+```
+
+Valid.
+
+Subarrays ending here
+
+```text
+[10]
+```
+
+Count
+
+```text
+1
+```
+
+Answer
+
+```text
+1
+```
+
+---
+
+## Step 2
+
+Window
+
+```text
+10 5
+```
+
+Product
+
+```text
+50
+```
+
+Still valid.
+
+Subarrays ending here
+
+```text
+[5]
+
+[10,5]
+```
+
+Count
+
+```text
+2
+```
+
+Answer
+
+```text
+3
+```
+
+---
+
+## Step 3
+
+Multiply
+
+```text
+50 × 2
+
+=
+
+100
+```
+
+Window
+
+```text
+10 5 2
+```
+
+Invalid.
+
+Shrink.
+
+Remove
+
+```text
+10
+```
+
+Product
+
+```text
+10
+```
+
+Window
+
+```text
+5 2
+```
+
+Now valid.
+
+Subarrays ending here
+
+```text
+[2]
+
+[5,2]
+```
+
+Count
+
+```text
+2
+```
+
+Answer
+
+```text
+5
+```
+
+---
+
+## Step 4
+
+Multiply
+
+```text
+10 × 6
+
+=
+
+60
+```
+
+Window
+
+```text
+5 2 6
+```
+
+Still valid.
+
+Subarrays ending here
+
+```text
+[6]
+
+[2,6]
+
+[5,2,6]
+```
+
+Count
+
+```text
+3
+```
+
+Answer
+
+```text
+8
+```
+
+Final Answer
+
+```text
+8
+```
+
+---
+
+# Correct Code
+
+```python
+class Solution:
+    def numSubarrayProductLessThanK(self, nums, k):
+
+        if k <= 1:
+            return 0
+
+        left = 0
+        product = 1
+        answer = 0
+
+        for right in range(len(nums)):
+
+            product *= nums[right]
+
+            while product >= k:
+                product //= nums[left]
+                left += 1
+
+            answer += right - left + 1
+
+        return answer
+```
+
+---
+
+# Mistakes in My Original Code
+
+## Mistake 1
+
+Used
+
+```python
+if
+```
+
+instead of
+
+```python
+while
+```
+
+Wrong
+
+```python
+if product >= k:
+```
+
+Correct
+
+```python
+while product >= k:
+```
+
+Reason
+
+Removing one element may still leave the product invalid.
+
+---
+
+## Mistake 2
+
+Removed both
+
+```python
+nums[left]
+
+nums[right]
+```
+
+Wrong
+
+```python
+product //= nums[left]
+product //= nums[right]
+```
+
+Only remove
+
+```python
+nums[left]
+```
+
+because the right element is still inside the window.
+
+Correct
+
+```python
+product //= nums[left]
+left += 1
+```
+
+---
+
+## Mistake 3
+
+Forgot edge case
+
+If
+
+```text
+k <= 1
+```
+
+Every product is at least
+
+```text
+1
+```
+
+Therefore,
+
+no valid subarray exists.
+
+Need
+
+```python
+if k <= 1:
+    return 0
+```
+
+---
+
+# Complexity
+
+### Time
+
+```text
+O(n)
+```
+
+Both pointers move only forward.
+
+---
+
+### Space
+
+```text
+O(1)
+```
+
+---
+
+# Pattern Recognition
+
+Whenever you see
+
+```text
+Count / Longest
+
+Subarray
+
+AND
+
+sum/product/count <= K
+```
+
+Think
+
+```text
+Variable Size Sliding Window
+```
+
+Ask yourself
+
+> If the window becomes invalid after expanding,
+> can adding more elements ever make it valid again?
+
+If the answer is
+
+```text
+NO
+```
+
+Sliding Window is applicable.
+
+---
+
+# Sliding Window Template
+
+```python
+left = 0
+
+for right in range(n):
+
+    include(nums[right])
+
+    while window_is_invalid:
+
+        remove(nums[left])
+
+        left += 1
+
+    answer += right-left+1
+```
+
+---
+
+# Key Takeaways
+
+✅ Numbers are positive.
+
+✅ Product only increases while expanding.
+
+✅ Shrink until product becomes valid.
+
+✅ Never remove the right element while shrinking.
+
+✅ Every valid window contributes
+
+```text
+right-left+1
+```
+
+new subarrays.
+
+---
+
+# Similar Problems
+
+- 209. Minimum Size Subarray Sum
+- 1004. Max Consecutive Ones III
+- 2024. Maximize the Confusion of an Exam
+- 424. Longest Repeating Character Replacement
+- 904. Fruit Into Baskets
+- 1493. Longest Subarray of 1's After Deleting One Element
+
+---
+
+# Interview Tip
+
+This problem teaches one of the most important sliding window principles:
+
+> **Maintain a window invariant.**
+
+Here, the invariant is:
+
+```text
+Current Window Product < k
+```
+
+Every expansion or shrink operation is done only to preserve this invariant. Once you think in terms of maintaining invariants instead of resetting windows, variable-size sliding window problems become much easier to solve.
+
+<br/><br/><br/><br/><br/>
+
+---
+
