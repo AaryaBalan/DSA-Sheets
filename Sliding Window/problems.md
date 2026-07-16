@@ -23,6 +23,7 @@ Welcome to the sliding window problems section! Here you will find various data 
 - [2537. Count the Number of Good Subarrays](#2537-count-the-number-of-good-subarrays)
 - [438. Find All Anagrams in a String](#438-find-all-anagrams-in-a-string)
 - [713. Subarray Product Less Than K](#713-subarray-product-less-than-k)
+- [2516. Take K of Each Character From Left and Right](#2516-take-k-of-each-character-from-left-and-right)
 
 <br><br><br><br><br>
 
@@ -10574,3 +10575,874 @@ Every expansion or shrink operation is done only to preserve this invariant. Onc
 
 ---
 
+# 2516. Take K of Each Character From Left and Right
+
+> **Difficulty:** Medium  
+> **Technique:** Sliding Window + Complement Thinking
+
+---
+
+# 📚 Problem Statement
+
+You are given a string containing only
+
+```
+'a'
+'b'
+'c'
+```
+
+Every minute you may remove
+
+- one character from the **left**, or
+- one character from the **right**.
+
+Your goal is to remove characters so that you have taken **at least `k` occurrences of each character**.
+
+Return the **minimum number of minutes** required.
+
+If it is impossible,
+
+return
+
+```
+-1
+```
+
+---
+
+# Example
+
+```
+s = "aabaaaacaabc"
+
+k = 2
+```
+
+Output
+
+```
+8
+```
+
+---
+
+# 🤔 Understanding the Problem
+
+Initially I also thought
+
+```
+Take from left.
+
+Take from right.
+
+Try every combination.
+```
+
+Example
+
+```
+Left = 3
+
+Right = 5
+```
+
+Then
+
+```
+3 + 5 = 8
+```
+
+But...
+
+How many combinations exist?
+
+```
+Take 0 from left
+
+Take 1 from left
+
+Take 2 from left
+
+...
+
+Take n from left
+```
+
+For each,
+
+try every possible right.
+
+Time Complexity
+
+```
+O(N²)
+```
+
+Impossible.
+
+---
+
+# 💡 Biggest Observation
+
+The problem says
+
+```
+Take
+
+from left
+
+OR
+
+from right
+```
+
+Instead of thinking
+
+```
+What am I taking?
+```
+
+Think
+
+```
+What am I NOT taking?
+```
+
+---
+
+Suppose
+
+```
+String
+
+aabaaaacaabc
+```
+
+Take
+
+```
+Left
+
+↓
+
+aab
+```
+
+Take
+
+```
+Right
+
+↓
+
+caabc
+```
+
+What remains?
+
+```
+aaaa
+```
+
+Notice something?
+
+The remaining characters are
+
+```
+ONE CONTIGUOUS SUBSTRING
+```
+
+Always.
+
+Because we only remove from the ends.
+
+---
+
+# ⭐ Complement Thinking
+
+Instead of solving
+
+```
+Take characters
+```
+
+Solve
+
+```
+Keep a middle window.
+```
+
+Then
+
+```
+Minutes Taken
+
+=
+
+Total Length
+
+-
+
+Window Length
+```
+
+So now our goal becomes
+
+```
+Keep the LONGEST possible middle window.
+```
+
+Because
+
+```
+Longest Window
+
+↓
+
+Minimum Characters Removed
+```
+
+---
+
+# What Can We Keep?
+
+Suppose
+
+```
+Total Frequency
+
+a = 8
+
+b = 2
+
+c = 2
+```
+
+Need
+
+```
+k = 2
+```
+
+We must remove
+
+```
+2 a
+
+2 b
+
+2 c
+```
+
+Therefore,
+
+inside the window,
+
+we are allowed to keep at most
+
+```
+a = 8-2 = 6
+
+b = 2-2 = 0
+
+c = 2-2 = 0
+```
+
+This is the key transformation.
+
+---
+
+# General Formula
+
+If
+
+```
+Total Frequency
+
+=
+
+freq
+```
+
+Then
+
+Allowed inside the window
+
+```
+freq[char] - k
+```
+
+---
+
+# Sliding Window Goal
+
+Find the
+
+```
+Longest Window
+```
+
+such that
+
+```
+window['a']
+
+≤
+
+total['a']-k
+```
+
+AND
+
+```
+window['b']
+
+≤
+
+total['b']-k
+```
+
+AND
+
+```
+window['c']
+
+≤
+
+total['c']-k
+```
+
+If all three conditions are true,
+
+the window is valid.
+
+---
+
+# Dry Run
+
+```
+s
+
+aabaaaacaabc
+```
+
+Total
+
+```
+a=8
+
+b=2
+
+c=2
+```
+
+Allowed
+
+```
+a≤6
+
+b≤0
+
+c≤0
+```
+
+---
+
+Start
+
+```
+Window
+
+a
+```
+
+Valid
+
+Expand.
+
+---
+
+Window
+
+```
+aa
+```
+
+Still valid.
+
+Expand.
+
+---
+
+Window
+
+```
+aab
+```
+
+Now
+
+```
+b=1
+
+>
+
+0
+```
+
+Window becomes invalid.
+
+Shrink from left.
+
+Remove
+
+```
+a
+```
+
+Still
+
+```
+b=1
+```
+
+Remove another
+
+```
+a
+```
+
+Still
+
+```
+b=1
+```
+
+Remove
+
+```
+b
+```
+
+Now
+
+```
+b=0
+```
+
+Window becomes valid again.
+
+Continue.
+
+---
+
+The algorithm always keeps
+
+```
+The Longest Valid Window.
+```
+
+---
+
+# Why Your Approach Was Good
+
+Your biggest achievement was this idea:
+
+```
+Take Ends
+
+↓
+
+Keep Middle
+```
+
+This is called
+
+```
+Complement Thinking
+```
+
+Many interview problems are solved this way.
+
+Whenever you see
+
+```
+Take
+
+Remove
+
+Delete
+
+Choose from Ends
+```
+
+Always ask yourself
+
+```
+What remains?
+```
+
+Often,
+
+the remaining part is much easier to solve.
+
+---
+
+# ❌ Bug in Your Code
+
+You wrote
+
+```python
+while windowFreq[s[right]] > freq[s[right]]-k:
+```
+
+This only checks
+
+```
+Current Character
+```
+
+Suppose
+
+Window
+
+```
+a=6
+
+b=1
+
+c=0
+```
+
+Now you insert
+
+```
+a
+```
+
+You only check
+
+```
+a
+```
+
+But maybe
+
+```
+b
+```
+
+was already invalid.
+
+A sliding window is valid only if
+
+**ALL**
+
+constraints are satisfied.
+
+Correct condition
+
+```python
+while (
+    windowFreq['a'] > limit['a'] or
+    windowFreq['b'] > limit['b'] or
+    windowFreq['c'] > limit['c']
+):
+```
+
+---
+
+# Another Small Bug
+
+Inside your loop,
+
+you wrote
+
+```python
+ans = max(ans, right-left)
+```
+
+Window length is
+
+```python
+right-left+1
+```
+
+because both ends are included.
+
+---
+
+# Algorithm
+
+## Step 1
+
+Count total frequency.
+
+---
+
+## Step 2
+
+If any character appears fewer than
+
+```
+k
+```
+
+times,
+
+return
+
+```
+-1
+```
+
+---
+
+## Step 3
+
+Compute
+
+```
+Allowed Frequency
+
+=
+
+Total Frequency
+
+-
+
+k
+```
+
+---
+
+## Step 4
+
+Use Sliding Window.
+
+Maintain
+
+```
+Current Window Frequency.
+```
+
+---
+
+## Step 5
+
+If any character exceeds its allowed limit,
+
+shrink the window.
+
+---
+
+## Step 6
+
+Keep track of
+
+```
+Longest Valid Window.
+```
+
+---
+
+## Step 7
+
+Answer
+
+```
+Length
+
+-
+
+Longest Window
+```
+
+---
+
+# Python Solution
+
+```python
+from collections import Counter, defaultdict
+
+class Solution:
+    def takeCharacters(self, s: str, k: int) -> int:
+
+        if k == 0:
+            return 0
+
+        total = Counter(s)
+
+        if (
+            total['a'] < k or
+            total['b'] < k or
+            total['c'] < k
+        ):
+            return -1
+
+        limit = {
+            'a': total['a'] - k,
+            'b': total['b'] - k,
+            'c': total['c'] - k
+        }
+
+        left = 0
+        window = defaultdict(int)
+
+        longest = 0
+
+        for right in range(len(s)):
+
+            window[s[right]] += 1
+
+            while (
+                window['a'] > limit['a'] or
+                window['b'] > limit['b'] or
+                window['c'] > limit['c']
+            ):
+                window[s[left]] -= 1
+                left += 1
+
+            longest = max(longest, right - left + 1)
+
+        return len(s) - longest
+```
+
+---
+
+# Complexity Analysis
+
+### Time Complexity
+
+Every character enters the window once.
+
+Every character leaves the window once.
+
+```
+O(N)
+```
+
+---
+
+### Space Complexity
+
+We only store
+
+```
+a
+
+b
+
+c
+```
+
+```
+O(1)
+```
+
+---
+
+# 🧠 Pattern Recognition
+
+Whenever you see
+
+```
+Take from Left
+
+Take from Right
+
+Remove from Ends
+```
+
+Think
+
+```
+Complement
+```
+
+Ask yourself
+
+```
+What remains?
+```
+
+If the remaining part is
+
+```
+One Continuous Subarray
+
+or
+
+One Continuous Substring
+```
+
+then there is a high chance the problem can be solved using
+
+```
+Sliding Window
+```
+
+instead of trying every combination of left and right removals.
+
+---
+
+# 📝 Key Takeaways
+
+```
+Remove from Ends
+        ↓
+Think Complement
+        ↓
+Keep Middle Window
+        ↓
+Window must satisfy frequency limits
+        ↓
+Find Longest Valid Window
+        ↓
+Answer = Total Length - Longest Window
+```
+
+---
+
+# 🎯 Interview Learning
+
+## Good Thinking
+
+✔ You recognized the complement transformation:
+
+```
+Take Ends
+
+↓
+
+Keep Middle
+```
+
+This is the hardest insight in the problem.
+
+---
+
+## Improvement Needed
+
+A sliding window is valid only when **all constraints** are satisfied.
+
+Don't check only the character that was just added.
+
+Always ask:
+
+```
+Is my window validity determined by
+
+one variable
+
+or
+
+the entire window state?
+```
+
+Here, it depends on the entire window (`a`, `b`, and `c` counts), so all constraints must be checked together.
+
+<br/><br/><br/><br/><br/>
+
+---

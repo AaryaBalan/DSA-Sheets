@@ -7,6 +7,9 @@ Welcome to the prefix sum problems section! Here you will find various data stru
 - [1371. Find the Longest Substring Containing Vowels in Even Counts](#1371-find-the-longest-substring-containing-vowels-in-even-counts)
 - [1314. Matrix Block Sum](#1314-matrix-block-sum)
 - [3152. Special Array II](#3152-special-array-ii)
+- [2055. Plates Between Candles](#2055-plates-between-candles)
+- [2121. Intervals Between Identical Elements](#2121-intervals-between-identical-elements)
+- [3381. Maximum Subarray Sum With Length Divisible by K](#3381-maximum-subarray-sum-with-length-divisible-by-k)
 
 <br><br><br><br><br>
 
@@ -2655,3 +2658,3480 @@ This is a classic **preprocessing + range query** pattern: spend O(n) time once 
 <br/><br/><br/><br/><br/>
 
 ---
+
+# 2055. Plates Between Candles
+
+> **Difficulty:** Medium  
+> **Technique:** Prefix Sum + Preprocessing (Nearest Left & Right Arrays)
+
+---
+
+# 📚 Problem Statement
+
+There is a long table containing:
+
+- Plates (`*`)
+- Candles (`|`)
+
+For every query `[left, right]`, find the number of **plates that are between two candles** inside that substring.
+
+A plate is counted **only if**
+
+- there is a candle somewhere to its left
+- there is a candle somewhere to its right
+
+inside the queried substring.
+
+---
+
+## Example
+
+Input
+
+```text
+s = "**|**|***|"
+
+queries = [[2,5],[5,9]]
+```
+
+Output
+
+```text
+[2,3]
+```
+
+---
+
+# 🤔 Understanding the Question
+
+Suppose
+
+```text
+s
+
+**|**|***|
+```
+
+Index
+
+```text
+0 1 2 3 4 5 6 7 8 9
+```
+
+Characters
+
+```text
+* * | * * | * * * |
+```
+
+---
+
+## Query
+
+```text
+[2,9]
+```
+
+Substring
+
+```text
+|**|***|
+```
+
+Visualization
+
+```text
+| ** | *** |
+```
+
+Plates between candles
+
+```text
+2 + 3
+
+=
+
+5
+```
+
+Answer
+
+```text
+5
+```
+
+---
+
+## Another Query
+
+```text
+[0,4]
+```
+
+Substring
+
+```text
+**|**
+```
+
+Visualization
+
+```text
+* * | * *
+```
+
+There is only **one candle**.
+
+A plate must have
+
+- candle on left
+- candle on right
+
+Impossible.
+
+Answer
+
+```text
+0
+```
+
+---
+
+# ❌ Brute Force Thinking
+
+For every query
+
+1. Extract substring
+2. Find first candle
+3. Find last candle
+4. Count plates
+
+Example
+
+```python
+for query:
+
+    scan substring
+
+    count plates
+```
+
+---
+
+## Complexity
+
+If
+
+```
+N = 100000
+
+Queries = 100000
+```
+
+Worst case
+
+```
+100000 × 100000
+
+=
+
+10^10
+```
+
+Too slow.
+
+---
+
+# 💡 Observation
+
+Every query asks exactly three things.
+
+```
+Find
+
+↓
+
+First Candle
+
+↓
+
+Last Candle
+
+↓
+
+Count Plates Between Them
+```
+
+Instead of finding these every time,
+
+can we prepare them once?
+
+Yes.
+
+---
+
+# ⭐ Key Idea
+
+Preprocess the string once.
+
+Create three arrays.
+
+1. Prefix Sum of Plates
+2. Nearest Candle on Left
+3. Nearest Candle on Right
+
+Then every query becomes O(1).
+
+---
+
+# 1️⃣ Prefix Sum of Plates
+
+Store
+
+```
+Number of plates seen till index i
+```
+
+Example
+
+```
+* * | * * | * * * |
+```
+
+Index
+
+```
+0 1 2 3 4 5 6 7 8 9
+```
+
+Prefix
+
+```
+1
+2
+2
+3
+4
+4
+5
+6
+7
+7
+```
+
+Or as an array
+
+```text
+prefix = [0,1,2,2,3,4,4,5,6,7,7]
+```
+
+Notice
+
+```
+prefix[i]
+
+=
+
+plates before index i
+```
+
+Now
+
+plates between
+
+```
+L
+
+and
+
+R
+```
+
+becomes
+
+```
+prefix[R]
+
+-
+
+prefix[L]
+```
+
+No scanning needed.
+
+---
+
+# 2️⃣ Nearest Candle on Left
+
+For every index,
+
+store
+
+```
+Nearest candle on LEFT
+```
+
+Example
+
+```
+* * | * * | * * * |
+```
+
+Nearest Left
+
+```text
+-1
+-1
+2
+2
+2
+5
+5
+5
+5
+9
+```
+
+Meaning
+
+For index
+
+```
+7
+```
+
+nearest candle on left
+
+```
+5
+```
+
+---
+
+# 3️⃣ Nearest Candle on Right
+
+Store
+
+```
+Nearest candle on RIGHT
+```
+
+Example
+
+```text
+2
+2
+2
+5
+5
+5
+9
+9
+9
+9
+```
+
+Meaning
+
+For index
+
+```
+3
+```
+
+nearest candle on right
+
+```
+5
+```
+
+---
+
+# 🧠 Answering a Query
+
+Suppose
+
+```
+Query
+
+[0,8]
+```
+
+First valid candle
+
+```
+right[0]
+
+↓
+
+2
+```
+
+Last valid candle
+
+```
+left[8]
+
+↓
+
+5
+```
+
+Now
+
+plates
+
+```
+between
+
+2
+
+and
+
+5
+```
+
+Answer
+
+```
+prefix[5]
+
+-
+
+prefix[2]
+
+=
+
+4
+
+-
+
+2
+
+=
+
+2
+```
+
+Done.
+
+Every query takes
+
+```
+O(1)
+```
+
+---
+
+# Dry Run
+
+Example
+
+```
+s
+
+**|**|***|
+```
+
+Query
+
+```
+[2,9]
+```
+
+Nearest candle from left boundary
+
+```
+right[2]
+
+↓
+
+2
+```
+
+Nearest candle from right boundary
+
+```
+left[9]
+
+↓
+
+9
+```
+
+Now
+
+```
+plates
+
+=
+
+prefix[9]
+
+-
+
+prefix[2]
+
+=
+
+7
+
+-
+
+2
+
+=
+
+5
+```
+
+Answer
+
+```
+5
+```
+
+---
+
+# Another Dry Run
+
+Query
+
+```
+[0,4]
+```
+
+Nearest right candle
+
+```
+2
+```
+
+Nearest left candle
+
+```
+2
+```
+
+Notice
+
+```
+L
+
+=
+
+R
+```
+
+Need two different candles.
+
+Answer
+
+```
+0
+```
+
+---
+
+# Algorithm
+
+Step 1
+
+Compute prefix sum of plates.
+
+---
+
+Step 2
+
+Compute nearest candle on left.
+
+---
+
+Step 3
+
+Compute nearest candle on right.
+
+---
+
+Step 4
+
+For every query
+
+```
+L = nearest candle on right of left boundary
+
+R = nearest candle on left of right boundary
+```
+
+If
+
+```
+L >= R
+```
+
+Answer
+
+```
+0
+```
+
+Otherwise
+
+```
+prefix[R]
+
+-
+
+prefix[L]
+```
+
+---
+
+# Python Solution
+
+```python
+class Solution:
+    def platesBetweenCandles(self, s: str, queries: List[List[int]]) -> List[int]:
+
+        n = len(s)
+
+        # Prefix Sum of Plates
+        prefix = [0] * (n + 1)
+
+        for i in range(n):
+            prefix[i + 1] = prefix[i] + (1 if s[i] == '*' else 0)
+
+        # Nearest Candle on Left
+        left = [-1] * n
+        last = -1
+
+        for i in range(n):
+            if s[i] == '|':
+                last = i
+            left[i] = last
+
+        # Nearest Candle on Right
+        right = [-1] * n
+        last = -1
+
+        for i in range(n - 1, -1, -1):
+            if s[i] == '|':
+                last = i
+            right[i] = last
+
+        ans = []
+
+        for l, r in queries:
+
+            L = right[l]
+            R = left[r]
+
+            if L == -1 or R == -1 or L >= R:
+                ans.append(0)
+            else:
+                ans.append(prefix[R] - prefix[L])
+
+        return ans
+```
+
+---
+
+# Complexity Analysis
+
+### Time Complexity
+
+Preprocessing
+
+```
+Prefix
+
+O(N)
+```
+
+Left array
+
+```
+O(N)
+```
+
+Right array
+
+```
+O(N)
+```
+
+Each Query
+
+```
+O(1)
+```
+
+Overall
+
+```
+O(N + Q)
+```
+
+---
+
+### Space Complexity
+
+```
+Prefix
+
+O(N)
+
+Left
+
+O(N)
+
+Right
+
+O(N)
+```
+
+Overall
+
+```
+O(N)
+```
+
+---
+
+# 🎯 Pattern Recognition
+
+Whenever you see
+
+- One fixed string/array
+- Multiple range queries
+- Query count up to `10^5`
+- Need information inside a range
+
+Think
+
+```
+Preprocessing
+```
+
+Possible preprocessing techniques include
+
+- Prefix Sum
+- Suffix Sum
+- Nearest Left Array
+- Nearest Right Array
+- Prefix Maximum
+- Prefix Minimum
+
+---
+
+# 📝 Key Takeaways
+
+```
+Brute Force
+
+↓
+
+Scan every query
+
+↓
+
+O(N × Q)
+
+❌
+
+────────────────────────────
+
+Preprocess Once
+
+↓
+
+Prefix Sum
+
++
+
+Nearest Left Candle
+
++
+
+Nearest Right Candle
+
+↓
+
+Every Query
+
+O(1)
+
+↓
+
+Overall
+
+O(N + Q)
+```
+
+---
+
+# 🧠 Interview Learning
+
+### ✅ Good Observation
+
+You correctly realized that the answer depends on the **first candle** and the **last candle** inside the query.
+
+---
+
+### ❌ What Needed Improvement
+
+You solved every query independently.
+
+Whenever constraints look like
+
+```
+N = 100000
+
+Q = 100000
+```
+
+Immediately ask yourself
+
+```
+Can I preprocess once
+
+and
+
+answer each query quickly?
+```
+
+This is one of the most common interview patterns for range query problems.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 2121. Intervals Between Identical Elements
+
+> **Difficulty:** Medium  
+> **Technique:** HashMap + Prefix Sum / Running Prefix & Suffix Contribution
+
+---
+
+# 📚 Problem Statement
+
+You are given an array.
+
+```text
+arr = [2,1,3,1,2,3,3]
+```
+
+For every index `i`, calculate
+
+```
+Sum of distances
+```
+
+between
+
+```
+arr[i]
+```
+
+and every other occurrence of the same value.
+
+Distance means
+
+```
+|i-j|
+```
+
+where
+
+```
+j
+```
+
+is another index having the same value.
+
+---
+
+# Example
+
+Input
+
+```text
+arr = [2,1,3,1,2,3,3]
+```
+
+Output
+
+```text
+[4,2,7,2,4,4,5]
+```
+
+---
+
+# 🤔 Understanding the Problem
+
+Take
+
+```
+Index 2
+
+↓
+
+Value = 3
+```
+
+Where are other 3's?
+
+```
+Index
+
+2
+5
+6
+```
+
+Distances
+
+```
+|2-5| = 3
+
+|2-6| = 4
+```
+
+Answer
+
+```
+3+4=7
+```
+
+---
+
+Take
+
+```
+Index 5
+
+↓
+
+Value = 3
+```
+
+Other 3's
+
+```
+2
+6
+```
+
+Distance
+
+```
+|5-2|=3
+
+|5-6|=1
+```
+
+Answer
+
+```
+4
+```
+
+---
+
+# ❌ First Brute Force Thinking
+
+For every index
+
+scan entire array.
+
+```
+for i
+
+    for j
+
+        if arr[i]==arr[j]
+
+            answer+=abs(i-j)
+```
+
+Complexity
+
+```
+O(N²)
+```
+
+Impossible for
+
+```
+N=100000
+```
+
+---
+
+# 💡 Observation 1
+
+We never compare
+
+```
+2
+
+with
+
+3
+```
+
+Only
+
+same values matter.
+
+Example
+
+```
+2
+
+only compares
+
+2
+```
+
+```
+3
+
+only compares
+
+3
+```
+
+So first group equal numbers.
+
+---
+
+# Observation 2
+
+Example
+
+```
+2 1 3 1 2 3 3
+```
+
+Group indices.
+
+```
+2
+
+↓
+
+0
+
+4
+```
+
+```
+1
+
+↓
+
+1
+
+3
+```
+
+```
+3
+
+↓
+
+2
+
+5
+
+6
+```
+
+Now each group becomes an independent problem.
+
+---
+
+# New Problem
+
+Suppose
+
+```
+Indices
+
+2
+
+5
+
+6
+```
+
+Need answer for every position.
+
+---
+
+For
+
+```
+2
+```
+
+```
+3+4=7
+```
+
+For
+
+```
+5
+```
+
+```
+3+1=4
+```
+
+For
+
+```
+6
+```
+
+```
+4+1=5
+```
+
+---
+
+# ❌ Brute Force Again
+
+Inside each group
+
+```
+for every index
+
+compare all other indices
+```
+
+Still
+
+```
+O(K²)
+```
+
+Need better.
+
+---
+
+# 💡 Biggest Observation
+
+Take
+
+```
+Indices
+
+2
+
+5
+
+6
+```
+
+Imagine standing at
+
+```
+5
+```
+
+Everything
+
+```
+Left
+
+↓
+
+2
+```
+
+Distance
+
+```
+5-2
+```
+
+Everything
+
+```
+Right
+
+↓
+
+6
+```
+
+Distance
+
+```
+6-5
+```
+
+Instead of computing absolute values one by one,
+
+can we calculate
+
+```
+Left Contribution
+
++
+
+Right Contribution
+```
+
+Yes.
+
+---
+
+# Understanding Left Contribution
+
+Suppose
+
+```
+Indices
+
+2
+
+5
+
+6
+```
+
+Standing at
+
+```
+5
+```
+
+Left
+
+```
+2
+```
+
+Distance
+
+```
+5-2
+```
+
+Formula
+
+```
+CurrentIndex
+
+×
+
+NumberOfLeftElements
+
+-
+
+SumOfLeftIndices
+```
+
+Why?
+
+Because
+
+```
+(5-2)
+
+=
+
+5
+
+-
+
+2
+```
+
+If there were
+
+```
+1
+
+2
+
+4
+```
+
+Standing at
+
+```
+7
+```
+
+Distance
+
+```
+7-1
+
++
+
+7-2
+
++
+
+7-4
+```
+
+Expand
+
+```
+7+7+7
+
+-
+
+(1+2+4)
+```
+
+Which becomes
+
+```
+7×3
+
+-
+
+7
+```
+
+General Formula
+
+```
+CurrentIndex × LeftCount
+
+-
+
+LeftSum
+```
+
+---
+
+# Understanding Right Contribution
+
+Suppose
+
+```
+Standing at
+
+5
+```
+
+Right
+
+```
+6
+```
+
+Distance
+
+```
+6-5
+```
+
+Formula
+
+```
+RightSum
+
+-
+
+CurrentIndex × RightCount
+```
+
+Because
+
+```
+(6-5)
+
+=
+
+6
+
+-
+
+5
+```
+
+If many elements
+
+```
+9
+
+10
+
+13
+```
+
+Standing at
+
+```
+5
+```
+
+Distance
+
+```
+9-5
+
++
+
+10-5
+
++
+
+13-5
+```
+
+Expand
+
+```
+(9+10+13)
+
+-
+
+5×3
+```
+
+Formula
+
+```
+RightSum
+
+-
+
+Current×RightCount
+```
+
+---
+
+# Final Formula
+
+For every occurrence
+
+```
+Answer
+
+=
+
+Left Contribution
+
++
+
+Right Contribution
+```
+
+Which becomes
+
+```
+CurrentIndex×LeftCount
+
+-
+
+LeftSum
+
++
+
+RightSum
+
+-
+
+CurrentIndex×RightCount
+```
+
+---
+
+# How Do We Compute Efficiently?
+
+We process each group twice.
+
+---
+
+## Pass 1
+
+Left → Right
+
+Maintain
+
+```
+Left Count
+
+Left Sum
+```
+
+Compute
+
+```
+Left Contribution
+```
+
+---
+
+## Pass 2
+
+Right → Left
+
+Maintain
+
+```
+Right Count
+
+Right Sum
+```
+
+Compute
+
+```
+Right Contribution
+```
+
+---
+
+# Example Dry Run
+
+Group
+
+```
+2
+
+5
+
+6
+```
+
+---
+
+## Left Pass
+
+Initially
+
+```
+LeftCount=0
+
+LeftSum=0
+```
+
+---
+
+Current
+
+```
+2
+```
+
+Contribution
+
+```
+0
+```
+
+Update
+
+```
+Count=1
+
+Sum=2
+```
+
+---
+
+Current
+
+```
+5
+```
+
+Contribution
+
+```
+5×1
+
+-
+
+2
+
+=
+
+3
+```
+
+Update
+
+```
+Count=2
+
+Sum=7
+```
+
+---
+
+Current
+
+```
+6
+```
+
+Contribution
+
+```
+6×2
+
+-
+
+7
+
+=
+
+5
+```
+
+Update
+
+```
+Count=3
+
+Sum=13
+```
+
+Left contributions
+
+```
+0
+
+3
+
+5
+```
+
+---
+
+## Right Pass
+
+Start
+
+```
+Count=0
+
+Sum=0
+```
+
+---
+
+Current
+
+```
+6
+```
+
+Contribution
+
+```
+0
+```
+
+Update
+
+```
+Count=1
+
+Sum=6
+```
+
+---
+
+Current
+
+```
+5
+```
+
+Contribution
+
+```
+6
+
+-
+
+5×1
+
+=
+
+1
+```
+
+Update
+
+```
+Count=2
+
+Sum=11
+```
+
+---
+
+Current
+
+```
+2
+```
+
+Contribution
+
+```
+11
+
+-
+
+2×2
+
+=
+
+7
+```
+
+Update
+
+```
+Count=3
+
+Sum=13
+```
+
+Right contribution
+
+```
+7
+
+1
+
+0
+```
+
+---
+
+Final Answer
+
+```
+Left
+
++
+
+Right
+```
+
+```
+0+7=7
+
+3+1=4
+
+5+0=5
+```
+
+Exactly matches
+
+```
+7
+
+4
+
+5
+```
+
+---
+
+# Algorithm
+
+Step 1
+
+Group indices by value.
+
+Example
+
+```
+2
+
+↓
+
+0
+
+4
+```
+
+---
+
+Step 2
+
+For every group
+
+Perform Left Pass.
+
+---
+
+Step 3
+
+Perform Right Pass.
+
+---
+
+Step 4
+
+Store answer.
+
+---
+
+# Python Solution
+
+```python
+from collections import defaultdict
+
+class Solution:
+    def getDistances(self, arr):
+        groups = defaultdict(list)
+
+        # Store indices for each value
+        for i, val in enumerate(arr):
+            groups[val].append(i)
+
+        ans = [0] * len(arr)
+
+        # Process each group
+        for indices in groups.values():
+
+            # Left contribution
+            left_sum = 0
+            left_count = 0
+
+            for idx in indices:
+                ans[idx] += idx * left_count - left_sum
+                left_sum += idx
+                left_count += 1
+
+            # Right contribution
+            right_sum = 0
+            right_count = 0
+
+            for idx in reversed(indices):
+                ans[idx] += right_sum - idx * right_count
+                right_sum += idx
+                right_count += 1
+
+        return ans
+```
+
+---
+
+# Complexity Analysis
+
+Building HashMap
+
+```
+O(N)
+```
+
+Processing Groups
+
+```
+O(N)
+```
+
+Total
+
+```
+O(N)
+```
+
+Space
+
+```
+O(N)
+```
+
+---
+
+# 🧠 Pattern Recognition
+
+Whenever you see
+
+```
+Sum of distances
+
+Same values only
+
+Many repeated elements
+
+Absolute difference
+```
+
+Think
+
+```
+Group equal values
+
+↓
+
+Process indices only
+
+↓
+
+Left Contribution
+
++
+
+Right Contribution
+
+↓
+
+Running Prefix / Running Suffix
+```
+
+---
+
+# 🎯 How to Think in Interviews
+
+When you first saw this problem, it's completely normal to feel stuck because your brain naturally goes to:
+
+```
+For every index
+
+↓
+
+Compare with every other index
+```
+
+The mental shift interviewers expect is:
+
+1. **Ignore unrelated elements.** Only equal values matter, so group them.
+2. **Don't compute each distance separately.** Distances on the left and right follow a pattern.
+3. **Turn many absolute differences into a formula** using counts and sums.
+4. **Maintain running information** (count and sum) instead of recomputing.
+
+This "group → derive a formula → maintain running state" approach is a common pattern in many hard array and prefix-sum problems.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 3381. Maximum Subarray Sum With Length Divisible by K
+
+> **Difficulty:** Medium
+>
+> **Technique:** Prefix Sum + Modulo Observation + HashMap
+
+---
+
+# Step 1: Read the Question Carefully
+
+We are asked to find
+
+```
+Maximum Subarray Sum
+```
+
+BUT
+
+There is a condition
+
+```
+Length of Subarray
+
+must be divisible by K
+```
+
+Notice carefully.
+
+The condition is **NOT**
+
+```
+Sum divisible by K
+```
+
+It is
+
+```
+Length divisible by K
+```
+
+Many beginners read it incorrectly.
+
+---
+
+# Step 2: Brute Force Thinking
+
+Suppose
+
+```
+nums = [1,2,3,4]
+
+k = 2
+```
+
+Generate every subarray.
+
+```
+[1]
+
+length =1 ❌
+
+----------------
+
+[1,2]
+
+length=2 ✅
+
+sum=3
+
+----------------
+
+[1,2,3]
+
+length=3 ❌
+
+----------------
+
+[1,2,3,4]
+
+length=4 ✅
+
+sum=10
+
+...
+```
+
+Time complexity
+
+```
+O(N²)
+```
+
+Too slow.
+
+---
+
+# Step 3: Whenever You See
+
+```
+Maximum Sum
+
+Subarray
+```
+
+Immediately think
+
+```
+Prefix Sum
+```
+
+This is your first instinct.
+
+---
+
+# Step 4: Prefix Sum Formula
+
+Suppose
+
+```
+prefix[i]
+
+=
+
+sum of first i elements
+```
+
+Then
+
+```
+Subarray Sum
+
+(L,R)
+
+=
+
+prefix[R+1]
+
+-
+
+prefix[L]
+```
+
+Nothing new.
+
+---
+
+# Step 5: What About the Length?
+
+Length
+
+```
+R-L+1
+```
+
+Condition
+
+```
+(R-L+1)%k==0
+```
+
+Let's rewrite.
+
+```
+R-L+1
+
+=
+
+multiple of k
+```
+
+Move terms.
+
+```
+(R+1)-L
+
+=
+
+multiple of k
+```
+
+Now think carefully.
+
+This looks exactly like
+
+```
+prefix index
+
+-
+
+starting prefix index
+```
+
+Interesting.
+
+---
+
+# Step 6: Important Observation
+
+Suppose
+
+```
+k=3
+```
+
+Prefix indices
+
+```
+0
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+```
+
+Take
+
+```
+Prefix index
+
+8
+```
+
+Need another prefix index
+
+whose difference
+
+is divisible by 3.
+
+Example
+
+```
+8-5=3
+
+✓
+```
+
+```
+8-2=6
+
+✓
+```
+
+```
+8-7=1
+
+✗
+```
+
+Notice something?
+
+Look at remainder.
+
+```
+8%3
+
+=
+
+2
+```
+
+```
+5%3
+
+=
+
+2
+```
+
+```
+2%3
+
+=
+
+2
+```
+
+All have SAME remainder.
+
+---
+
+# Huge Observation
+
+If
+
+```
+(a-b)%k==0
+```
+
+Then
+
+```
+a%k
+
+=
+
+b%k
+```
+
+This is one of the most useful mathematical identities in DSA.
+
+Remember forever.
+
+---
+
+# Step 7: What Does This Mean?
+
+Suppose
+
+Current Prefix Index
+
+```
+i
+```
+
+Need another prefix index
+
+```
+j
+```
+
+such that
+
+```
+(i-j)%k==0
+```
+
+Meaning
+
+```
+i%k
+
+=
+
+j%k
+```
+
+So instead of searching
+
+by length,
+
+we only care about
+
+```
+Prefix Index % K
+```
+
+Amazing.
+
+---
+
+# Step 8: Now the Maximum Sum
+
+Suppose
+
+Current Prefix Sum
+
+```
+currentPrefix
+```
+
+Need
+
+```
+currentPrefix
+
+-
+
+smallestPrefixSeen
+```
+
+Because
+
+```
+Current
+
+-
+
+Smallest
+
+=
+
+Maximum
+```
+
+Exactly like Kadane thinking.
+
+---
+
+# Step 9: What Do We Store?
+
+For every remainder
+
+```
+0
+
+1
+
+2
+
+...
+
+k-1
+```
+
+Store
+
+```
+Minimum Prefix Sum
+```
+
+Why minimum?
+
+Because
+
+```
+Current Prefix
+
+-
+
+Minimum Prefix
+
+=
+
+Maximum Sum
+```
+
+---
+
+# Dry Run
+
+nums
+
+```
+[-5,1,2,-3,4]
+```
+
+k
+
+```
+2
+```
+
+Prefix
+
+```
+0
+
+-5
+
+-4
+
+-2
+
+-5
+
+-1
+```
+
+Prefix indices
+
+```
+0
+
+1
+
+2
+
+3
+
+4
+
+5
+```
+
+Now compute
+
+```
+Index %2
+```
+
+```
+0→0
+
+1→1
+
+2→0
+
+3→1
+
+4→0
+
+5→1
+```
+
+Now process.
+
+Initially
+
+```
+remainder
+
+0
+
+↓
+
+minimum prefix
+
+0
+```
+
+---
+
+Index
+
+```
+1
+```
+
+Prefix
+
+```
+-5
+```
+
+Remainder
+
+```
+1
+```
+
+Store
+
+```
+-5
+```
+
+---
+
+Index
+
+```
+2
+```
+
+Prefix
+
+```
+-4
+```
+
+Remainder
+
+```
+0
+```
+
+Current answer
+
+```
+-4
+
+-
+
+0
+
+=
+
+-4
+```
+
+Minimum stays
+
+```
+-4?
+```
+
+No.
+
+Minimum becomes
+
+```
+-4? Wait
+
+0<-4?
+
+Actually
+
+minimum=-4
+```
+
+---
+
+Continue similarly.
+
+Eventually
+
+maximum
+
+```
+4
+```
+
+---
+
+# Algorithm
+
+1. Compute prefix sums.
+2. For every prefix index
+
+```
+i
+```
+
+find
+
+```
+remainder=i%k
+```
+
+3. Maintain
+
+```
+minimum prefix sum
+
+for each remainder
+```
+
+4. Update answer
+
+```
+current prefix
+
+-
+
+minimum prefix
+```
+
+5. Update minimum.
+
+Done.
+
+---
+
+# Pattern Recognition
+
+Whenever you see
+
+```
+Subarray
+
++
+
+Length
+
+divisible
+
+by
+
+K
+```
+
+Think
+
+```
+Prefix Index
+
+NOT
+
+Prefix Sum
+```
+
+Because
+
+length depends on
+
+```
+Indices
+```
+
+not values.
+
+---
+
+# Mental Checklist
+
+Question contains
+
+```
+Subarray
+```
+
+↓
+
+Think Prefix Sum
+
+↓
+
+Condition on Length?
+
+↓
+
+Think Prefix Indices
+
+↓
+
+Difference divisible by K?
+
+↓
+
+Same remainder
+
+↓
+
+HashMap
+
+↓
+
+Store Best Prefix
+
+↓
+
+Answer
+
+# Step 10: Complete Dry Run
+
+Let's completely dry run the algorithm.
+
+Example
+
+```text
+nums = [-5,1,2,-3,4]
+
+k = 2
+```
+
+---
+
+## Prefix Sums
+
+Remember
+
+```
+prefix[0] = 0
+```
+
+Compute prefix sums.
+
+| Prefix Index | Prefix Sum |
+|-------------|-----------:|
+| 0 | 0 |
+| 1 | -5 |
+| 2 | -4 |
+| 3 | -2 |
+| 4 | -5 |
+| 5 | -1 |
+
+---
+
+## Prefix Index Mod K
+
+Since
+
+```
+k = 2
+```
+
+Compute
+
+```
+prefix_index % 2
+```
+
+| Prefix Index | Prefix Sum | Index % 2 |
+|-------------|-----------:|----------:|
+|0|0|0|
+|1|-5|1|
+|2|-4|0|
+|3|-2|1|
+|4|-5|0|
+|5|-1|1|
+
+---
+
+## What Will We Store?
+
+Dictionary
+
+```
+minimumPrefix[remainder]
+```
+
+Initially
+
+```
+minimumPrefix
+
+{
+
+0 : 0
+
+}
+```
+
+Because
+
+```
+Prefix Index = 0
+
+Prefix Sum = 0
+```
+
+Answer
+
+```
+-∞
+```
+
+---
+
+## Process Prefix Index 1
+
+Current
+
+```
+Prefix Sum
+
+=
+
+-5
+```
+
+Remainder
+
+```
+1
+```
+
+No previous prefix having remainder 1.
+
+Store
+
+```
+minimumPrefix
+
+{
+
+0:0,
+
+1:-5
+
+}
+```
+
+Answer unchanged.
+
+---
+
+## Process Prefix Index 2
+
+Current Prefix
+
+```
+-4
+```
+
+Remainder
+
+```
+0
+```
+
+Already have
+
+```
+minimumPrefix[0]
+
+=
+
+0
+```
+
+Possible answer
+
+```
+-4
+
+-
+
+0
+
+=
+
+-4
+```
+
+Update
+
+```
+answer
+
+=
+
+-4
+```
+
+Now update minimum
+
+Current minimum
+
+```
+0
+```
+
+Current prefix
+
+```
+-4
+```
+
+Smaller
+
+↓
+
+Update
+
+```
+minimumPrefix[0]
+
+=
+
+-4
+```
+
+Dictionary
+
+```
+{
+
+0:-4,
+
+1:-5
+
+}
+```
+
+---
+
+## Process Prefix Index 3
+
+Current Prefix
+
+```
+-2
+```
+
+Remainder
+
+```
+1
+```
+
+minimum
+
+```
+-5
+```
+
+Candidate
+
+```
+-2
+
+-
+
+(-5)
+
+=
+
+3
+```
+
+Update answer
+
+```
+max(-4,3)
+
+=
+
+3
+```
+
+Update minimum?
+
+Current minimum
+
+```
+-5
+```
+
+Current prefix
+
+```
+-2
+```
+
+No.
+
+Dictionary remains
+
+```
+{
+
+0:-4,
+
+1:-5
+
+}
+```
+
+---
+
+## Process Prefix Index 4
+
+Current Prefix
+
+```
+-5
+```
+
+Remainder
+
+```
+0
+```
+
+Candidate
+
+```
+-5
+
+-
+
+(-4)
+
+=
+
+-1
+```
+
+Answer stays
+
+```
+3
+```
+
+Update minimum
+
+```
+Current minimum
+
+-4
+
+Current Prefix
+
+-5
+```
+
+Update
+
+```
+minimumPrefix[0]
+
+=
+
+-5
+```
+
+---
+
+## Process Prefix Index 5
+
+Current Prefix
+
+```
+-1
+```
+
+Remainder
+
+```
+1
+```
+
+Candidate
+
+```
+-1
+
+-
+
+(-5)
+
+=
+
+4
+```
+
+Update
+
+```
+answer
+
+=
+
+4
+```
+
+Finished.
+
+---
+
+Final Answer
+
+```
+4
+```
+
+Exactly matches the expected output.
+
+---
+
+# Why Do We Store Minimum Prefix Sum?
+
+Suppose
+
+Current Prefix
+
+```
+20
+```
+
+Possible previous prefixes
+
+```
+15
+
+7
+
+2
+
+10
+```
+
+Subarray sums
+
+```
+20-15 = 5
+
+20-7 = 13
+
+20-2 = 18
+
+20-10 = 10
+```
+
+Which gives the maximum?
+
+```
+20
+
+-
+
+Smallest Prefix
+```
+
+Always.
+
+So for every remainder
+
+we only need
+
+```
+Smallest Prefix Sum
+```
+
+No other prefix is useful.
+
+---
+
+# Why Does This Work?
+
+Suppose
+
+```
+Current Prefix Index
+
+=
+
+10
+```
+
+Need
+
+```
+Subarray Length
+
+divisible by 3
+```
+
+Possible starting prefix indices
+
+```
+7
+
+4
+
+1
+```
+
+Notice
+
+```
+10 % 3
+
+=
+
+1
+```
+
+```
+7 % 3
+
+=
+
+1
+```
+
+```
+4 % 3
+
+=
+
+1
+```
+
+```
+1 % 3
+
+=
+
+1
+```
+
+Same remainder.
+
+Therefore,
+
+all valid starting points belong to the same remainder group.
+
+Among them,
+
+choose the one having
+
+```
+Minimum Prefix Sum
+```
+
+to maximize the answer.
+
+---
+
+# Python Solution
+
+```python
+from math import inf
+
+class Solution:
+    def maxSubarraySum(self, nums, k):
+
+        # minimum prefix sum for every remainder
+        min_prefix = {0: 0}
+
+        prefix = 0
+
+        ans = -inf
+
+        for i, num in enumerate(nums):
+
+            prefix += num
+
+            # prefix index
+            idx = i + 1
+
+            rem = idx % k
+
+            if rem in min_prefix:
+                ans = max(ans, prefix - min_prefix[rem])
+
+            if rem not in min_prefix:
+                min_prefix[rem] = prefix
+            else:
+                min_prefix[rem] = min(min_prefix[rem], prefix)
+
+        return ans
+```
+
+---
+
+# Complexity Analysis
+
+### Time Complexity
+
+Each element is processed exactly once.
+
+```
+O(N)
+```
+
+---
+
+### Space Complexity
+
+We store at most
+
+```
+k
+```
+
+remainders.
+
+```
+O(k)
+```
+
+---
+
+# Visualization
+
+```
+Array
+ │
+ ▼
+Compute Prefix Sum
+ │
+ ▼
+Current Prefix Index
+ │
+ ▼
+Compute
+
+Index % K
+ │
+ ▼
+Same remainder?
+ │
+ ├── No
+ │      │
+ │      ▼
+ │   Store Prefix
+ │
+ └── Yes
+        │
+        ▼
+Candidate Sum
+
+Current Prefix
+
+-
+
+Minimum Prefix
+
+        │
+        ▼
+Update Answer
+        │
+        ▼
+Update Minimum Prefix
+```
+
+---
+
+# Pattern Recognition
+
+Whenever you see
+
+```
+Maximum
+
+Subarray
+
++
+
+Length Divisible by K
+```
+
+Think immediately
+
+```
+Subarray
+
+↓
+
+Prefix Sum
+
+↓
+
+Length
+
+↓
+
+Prefix Indices
+
+↓
+
+(Index Difference)
+
+↓
+
+Same Remainder
+
+↓
+
+HashMap
+
+↓
+
+Store Minimum Prefix
+```
+
+---
+
+# Interview Trick ⭐
+
+There are two very similar but different patterns:
+
+## Pattern 1
+
+### Sum Divisible by K
+
+Store
+
+```
+Prefix Sum % K
+```
+
+Examples:
+
+- 974. Subarray Sums Divisible by K
+- 523. Continuous Subarray Sum
+
+---
+
+## Pattern 2
+
+### Length Divisible by K
+
+Store
+
+```
+Prefix Index % K
+```
+
+Example:
+
+- 3381. Maximum Subarray Sum With Length Divisible by K
+
+---
+
+# 📝 Final Cheat Sheet
+
+```
+Subarray Problem
+        │
+        ▼
+Think Prefix Sum
+        │
+        ▼
+Constraint on SUM?
+        │
+        ├── Yes
+        │      │
+        │      ▼
+        │  Prefix Sum % K
+        │
+        ▼
+Constraint on LENGTH?
+        │
+        ▼
+Prefix Index % K
+        │
+        ▼
+Same Remainder
+        │
+        ▼
+Need Maximum?
+        │
+        ▼
+Store Minimum Prefix Sum
+        │
+        ▼
+Current Prefix - Minimum Prefix
+        │
+        ▼
+Answer
+```
