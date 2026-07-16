@@ -23,6 +23,7 @@ Welcome to the sliding window problems section! Here you will find various data 
 - [2537. Count the Number of Good Subarrays](#2537-count-the-number-of-good-subarrays)
 - [438. Find All Anagrams in a String](#438-find-all-anagrams-in-a-string)
 - [713. Subarray Product Less Than K](#713-subarray-product-less-than-k)
+- [3152. Special Array II](#3152-special-array-ii)
 
 <br><br><br><br><br>
 
@@ -10574,3 +10575,1077 @@ Every expansion or shrink operation is done only to preserve this invariant. Onc
 
 ---
 
+# 3152. Special Array II
+
+**Difficulty:** Medium
+
+**Pattern:** Prefix Sum + Range Query
+
+---
+
+# Problem Statement
+
+You are given:
+
+- An integer array `nums`
+- Multiple queries
+
+Each query is
+
+```text
+[from, to]
+```
+
+For every query,
+
+check whether the subarray
+
+```text
+nums[from...to]
+```
+
+is **Special**.
+
+Return
+
+```text
+True
+```
+
+if special,
+
+otherwise
+
+```text
+False
+```
+
+---
+
+# What is a Special Array?
+
+A subarray is special if
+
+> Every adjacent pair has different parity.
+
+Parity means
+
+- Even
+- Odd
+
+---
+
+## Example
+
+```text
+[3,4,1,2]
+```
+
+Check every adjacent pair.
+
+```
+3 4
+```
+
+Odd → Even ✅
+
+```
+4 1
+```
+
+Even → Odd ✅
+
+```
+1 2
+```
+
+Odd → Even ✅
+
+Everything alternates.
+
+So
+
+```text
+Special
+```
+
+---
+
+## Example
+
+```text
+[3,4,2]
+```
+
+Check
+
+```
+3 4
+```
+
+Odd → Even ✅
+
+```
+4 2
+```
+
+Even → Even ❌
+
+Not special.
+
+---
+
+# Understanding the Question
+
+Suppose
+
+```text
+nums = [3,4,1,2,6]
+```
+
+Query
+
+```text
+[0,4]
+```
+
+Subarray
+
+```text
+3 4 1 2 6
+```
+
+Pairs
+
+```
+3 4
+
+different
+```
+
+```
+4 1
+
+different
+```
+
+```
+1 2
+
+different
+```
+
+```
+2 6
+
+same parity
+
+even even ❌
+```
+
+Hence
+
+```text
+False
+```
+
+---
+
+Another query
+
+```text
+[1,3]
+```
+
+Subarray
+
+```text
+4 1 2
+```
+
+Pairs
+
+```
+4 1
+
+different
+```
+
+```
+1 2
+
+different
+```
+
+No bad pair.
+
+Answer
+
+```text
+True
+```
+
+---
+
+# First Thought (Brute Force)
+
+For every query
+
+Traverse every adjacent pair.
+
+```
+for every query
+
+    for every adjacent pair
+
+        if same parity
+
+             False
+```
+
+---
+
+# Complexity
+
+Suppose
+
+```
+n =100000
+
+queries =100000
+```
+
+Worst case
+
+```
+100000 ×100000
+```
+
+Impossible.
+
+Need preprocessing.
+
+---
+
+# Important Observation
+
+The query never asks
+
+```text
+How many even?
+
+How many odd?
+```
+
+It only asks
+
+```text
+Is there any bad adjacent pair?
+```
+
+That's the key observation.
+
+---
+
+# What is a Bad Pair?
+
+Two adjacent numbers
+
+having same parity.
+
+Example
+
+```
+2 4
+```
+
+Even Even ❌
+
+```
+3 5
+```
+
+Odd Odd ❌
+
+These are
+
+```text
+Bad Pairs
+```
+
+---
+
+# Good Pair
+
+```
+2 3
+```
+
+Even Odd ✅
+
+```
+7 8
+```
+
+Odd Even ✅
+
+---
+
+# New Way of Thinking
+
+Instead of checking
+
+```
+Whole subarray
+```
+
+Let's mark only
+
+```text
+bad positions
+```
+
+Example
+
+```
+nums
+
+3 4 1 2 6
+```
+
+Adjacent pairs
+
+```
+3 4
+
+good
+```
+
+```
+4 1
+
+good
+```
+
+```
+1 2
+
+good
+```
+
+```
+2 6
+
+BAD
+```
+
+So create
+
+```
+bad
+
+0 0 0 1
+```
+
+Meaning
+
+```
+Index
+
+0
+
+represents
+
+(3,4)
+```
+
+```
+Index
+
+1
+
+represents
+
+(4,1)
+```
+
+etc.
+
+---
+
+# Now the Question Changes
+
+Original question
+
+```
+Is subarray special?
+```
+
+becomes
+
+```
+Is there any BAD pair inside this range?
+```
+
+That's much easier.
+
+---
+
+# Prefix Sum Idea
+
+Suppose
+
+```
+bad
+
+0 0 0 1
+```
+
+Build prefix.
+
+```
+prefix
+
+0 0 0 1
+```
+
+Meaning
+
+```
+prefix[i]
+
+=
+
+Number of bad pairs till i
+```
+
+---
+
+# Example
+
+```
+bad
+
+0 1 0 1
+```
+
+Prefix
+
+```
+0 1 1 2
+```
+
+Now suppose query asks
+
+```
+Check pair positions
+
+1
+
+to
+
+3
+```
+
+Bad pairs
+
+```
+prefix[3]-prefix[0]
+
+=
+
+2-0
+
+=
+
+2
+```
+
+There are
+
+2 bad pairs.
+
+Hence
+
+```text
+False
+```
+
+---
+
+# Mapping Query to Bad Array
+
+This is the trick.
+
+Suppose
+
+```
+nums
+
+3 4 1 2 6
+```
+
+Query
+
+```
+[1,4]
+```
+
+Subarray
+
+```
+4 1 2 6
+```
+
+Adjacent pairs
+
+```
+4 1
+
+1 2
+
+2 6
+```
+
+These correspond to
+
+bad array indices
+
+```
+1
+
+2
+
+3
+```
+
+Notice
+
+```
+Left = l
+
+Right = r-1
+```
+
+Always.
+
+---
+
+# Algorithm
+
+## Step 1
+
+Create
+
+```
+bad
+```
+
+For every adjacent pair
+
+```
+if same parity
+
+bad[i]=1
+
+else
+
+bad[i]=0
+```
+
+---
+
+## Step 2
+
+Build prefix sum.
+
+```
+prefix[i]
+
+=
+
+bad[0]+...
+
++bad[i]
+```
+
+---
+
+## Step 3
+
+For every query
+
+Need bad pairs
+
+between
+
+```
+l
+
+and
+
+r-1
+```
+
+If count
+
+```
+==0
+```
+
+Answer
+
+```
+True
+```
+
+Else
+
+```
+False
+```
+
+---
+
+# Dry Run
+
+Input
+
+```text
+nums = [4,3,1,6]
+
+queries
+
+[0,2]
+
+[2,3]
+```
+
+---
+
+## Build Bad Array
+
+Pair
+
+```
+4 3
+```
+
+Different
+
+```
+0
+```
+
+Pair
+
+```
+3 1
+```
+
+Same parity
+
+```
+1
+```
+
+Pair
+
+```
+1 6
+```
+
+Different
+
+```
+0
+```
+
+Bad
+
+```
+0 1 0
+```
+
+---
+
+## Prefix
+
+```
+0 1 1
+```
+
+---
+
+# Query 1
+
+```
+[0,2]
+```
+
+Need bad pairs
+
+```
+0
+
+to
+
+1
+```
+
+Count
+
+```
+prefix[1]
+
+=
+
+1
+```
+
+One bad pair exists.
+
+Answer
+
+```
+False
+```
+
+---
+
+# Query 2
+
+```
+[2,3]
+```
+
+Need pair
+
+```
+2
+```
+
+Count
+
+```
+prefix[2]-prefix[1]
+
+=
+
+1-1
+
+=
+
+0
+```
+
+No bad pair.
+
+Answer
+
+```
+True
+```
+
+---
+
+# Python Code
+
+```python
+class Solution:
+    def isArraySpecial(self, nums, queries):
+
+        n = len(nums)
+
+        bad = [0] * (n - 1)
+
+        for i in range(n - 1):
+
+            if nums[i] % 2 == nums[i + 1] % 2:
+                bad[i] = 1
+
+        prefix = [0] * (n - 1)
+
+        if n > 1:
+            prefix[0] = bad[0]
+
+            for i in range(1, n - 1):
+                prefix[i] = prefix[i - 1] + bad[i]
+
+        ans = []
+
+        for l, r in queries:
+
+            # Single element is always special
+            if l == r:
+                ans.append(True)
+                continue
+
+            left = l
+            right = r - 1
+
+            badPairs = prefix[right]
+
+            if left > 0:
+                badPairs -= prefix[left - 1]
+
+            ans.append(badPairs == 0)
+
+        return ans
+```
+
+---
+
+# Simpler Prefix Construction (Recommended)
+
+Instead of creating a separate `bad` array, we can directly build a prefix array of size `n`.
+
+```python
+class Solution:
+    def isArraySpecial(self, nums, queries):
+
+        n = len(nums)
+
+        prefix = [0] * n
+
+        for i in range(1, n):
+
+            prefix[i] = prefix[i - 1]
+
+            if nums[i] % 2 == nums[i - 1] % 2:
+                prefix[i] += 1
+
+        ans = []
+
+        for l, r in queries:
+
+            if prefix[r] == prefix[l]:
+                ans.append(True)
+            else:
+                ans.append(False)
+
+        return ans
+```
+
+This version is cleaner and is the one most people use in interviews.
+
+---
+
+# Why Does
+
+```python
+prefix[r] == prefix[l]
+```
+
+Work?
+
+Suppose
+
+```
+nums
+
+4 3 1 6
+```
+
+Prefix
+
+```
+Index
+
+0 1 2 3
+
+Value
+
+0 0 1 1
+```
+
+Query
+
+```
+[2,3]
+```
+
+Compare
+
+```
+prefix[3]
+
+=
+
+1
+
+prefix[2]
+
+=
+
+1
+```
+
+Difference
+
+```
+0
+```
+
+Meaning
+
+No new bad pair appeared.
+
+Hence
+
+```
+Special
+```
+
+---
+
+# Complexity
+
+Building Prefix
+
+```
+O(n)
+```
+
+Answering Query
+
+```
+O(1)
+```
+
+Total
+
+```
+O(n+q)
+```
+
+Space
+
+```
+O(n)
+```
+
+---
+
+# Pattern Recognition
+
+Whenever you see
+
+```
+Many Queries
+
++
+
+Check whether something exists
+
+inside a range
+```
+
+Think
+
+```
+Prefix Sum
+```
+
+Ask yourself
+
+> Can I preprocess the array so that each query becomes O(1)?
+
+Here,
+
+instead of checking every adjacent pair for every query,
+
+we preprocess
+
+```
+Bad Adjacent Pairs
+```
+
+and answer each query using prefix sums.
+
+---
+
+# Mathematical Logic
+
+A subarray is special **if and only if** it contains **zero bad adjacent pairs**.
+
+Let
+
+```
+Bad Pair
+
+=
+
+Adjacent numbers with same parity.
+```
+
+Then
+
+```
+Special
+
+⇔
+
+Bad Pair Count = 0
+```
+
+Using prefix sums,
+
+```
+Bad Pair Count
+
+=
+
+prefix[right]
+
+-
+
+prefix[left]
+```
+
+If
+
+```
+0
+```
+
+Then
+
+```
+Special
+```
+
+Otherwise
+
+```
+Not Special
+```
+
+---
+
+# Similar Problems
+
+- 303. Range Sum Query
+- 304. Range Sum Query 2D
+- 724. Find Pivot Index
+- 560. Subarray Sum Equals K
+- 525. Contiguous Array
+- Range Query Problems using Prefix Sum
+
+---
+
+# Key Takeaways
+
+✅ Convert the original condition into a simpler property (**bad adjacent pairs**).
+
+✅ Precompute the locations of bad pairs.
+
+✅ Use prefix sums to answer each query in O(1).
+
+✅ For every query, check whether the number of bad pairs in the range is zero.
+
+This is a classic **preprocessing + range query** pattern: spend O(n) time once so that each of up to 100,000 queries can be answered instantly.
+
+<br/><br/><br/><br/><br/>
+
+---
