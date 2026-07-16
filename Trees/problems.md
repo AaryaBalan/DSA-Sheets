@@ -21,6 +21,7 @@ Welcome to the tree problems section! Here you will find various data structure 
 - [257. Binary Tree Paths](#257-binary-tree-paths)
 - [107. Binary Tree Level Order Traversal II](#107-binary-tree-level-order-traversal-ii)
 - [437. Path Sum III](#437-path-sum-iii)
+- [95. Unique Binary Search Trees II](#95-unique-binary-search-trees-ii)
 
 <br><br><br><br><br>
 
@@ -11797,3 +11798,884 @@ Have I already seen (runningSum - target)?
 
 ✅ This reduces the time complexity from **O(N²)** to **O(N)**.
 
+<br/><br/><br/><br/><br/>
+
+---
+
+# <span style="color: limegreen;">95. Unique Binary Search Trees II</span>
+**Difficulty:** Medium
+
+---
+
+# ⭐ First Impression
+
+When beginners see this problem, they usually think:
+
+> "How can I generate every possible BST?"
+
+That is actually the **wrong first question**.
+
+The correct first question is:
+
+> **What makes one BST different from another?**
+
+Once you answer that, the whole problem becomes much easier.
+
+---
+
+# Step 1: Understand the Problem
+
+Suppose
+
+```
+n = 3
+```
+
+The numbers are
+
+```
+1 2 3
+```
+
+We need to construct **every possible BST**.
+
+Remember:
+
+```
+BST Property
+
+Left subtree  < Root
+
+Right subtree > Root
+```
+
+---
+
+For example,
+
+This is valid
+
+```
+    2
+   / \
+  1   3
+```
+
+because
+
+```
+1 < 2 < 3
+```
+
+---
+
+This is also valid
+
+```
+1
+ \
+  2
+   \
+    3
+```
+
+because
+
+```
+1 < 2 < 3
+```
+
+---
+
+This is also valid
+
+```
+    3
+   /
+  2
+ /
+1
+```
+
+Still valid.
+
+---
+
+The answer should contain **every unique structure**.
+
+For n=3
+
+There are **5** trees.
+
+---
+
+# Step 2: The Biggest Observation
+
+Instead of thinking
+
+```
+How do I build all trees?
+```
+
+Think
+
+```
+How do I choose the ROOT?
+```
+
+This changes everything.
+
+---
+
+Suppose numbers are
+
+```
+1 2 3
+```
+
+Possible roots are
+
+```
+1
+
+2
+
+3
+```
+
+Only three possibilities.
+
+Let's see them.
+
+---
+
+# Case 1
+
+Choose
+
+```
+Root = 1
+```
+
+Then BST property forces
+
+```
+Left
+
+Nothing
+```
+
+Right
+
+```
+2 3
+```
+
+Tree becomes
+
+```
+    1
+     \
+    ?
+```
+
+Now the question becomes
+
+```
+Generate every BST using
+
+2 3
+```
+
+Notice...
+
+This is exactly the SAME problem again.
+
+---
+
+# Case 2
+
+Choose
+
+```
+Root = 2
+```
+
+Left numbers
+
+```
+1
+```
+
+Right numbers
+
+```
+3
+```
+
+Easy.
+
+Only one possibility.
+
+```
+    2
+   / \
+  1   3
+```
+
+---
+
+# Case 3
+
+Choose
+
+```
+Root = 3
+```
+
+Left numbers
+
+```
+1 2
+```
+
+Right
+
+Nothing
+
+Again,
+
+Need to generate
+
+every BST using
+
+1 2
+
+Exactly the same problem again.
+
+---
+
+Notice the recursion?
+
+---
+
+# Step 3
+
+Generalize
+
+Suppose we want to generate
+
+```
+4 5 6 7
+```
+
+Possible roots
+
+```
+4
+
+5
+
+6
+
+7
+```
+
+If root is
+
+```
+6
+```
+
+Left subtree must be
+
+```
+4 5
+```
+
+Right subtree
+
+```
+7
+```
+
+Again
+
+Generate all left BSTs
+
+Generate all right BSTs
+
+Combine them.
+
+That's the entire algorithm.
+
+---
+
+# Step 4
+
+Let's define recursion.
+
+```
+generate(start,end)
+```
+
+means
+
+```
+Generate every BST
+
+using numbers
+
+start...
+
+end
+```
+
+Example
+
+```
+generate(2,4)
+```
+
+returns every BST made using
+
+```
+2 3 4
+```
+
+---
+
+# Step 5
+
+Base Case
+
+Suppose
+
+```
+generate(4,3)
+```
+
+Meaning
+
+```
+No numbers left.
+```
+
+Then
+
+```
+Return
+
+[None]
+```
+
+NOT
+
+```
+[]
+```
+
+Why?
+
+Because
+
+Suppose
+
+```
+Root=2
+
+Left=None
+
+Right=3
+```
+
+The parent still needs one possibility.
+
+Returning
+
+```
+[]
+```
+
+would produce zero combinations.
+
+Returning
+
+```
+[None]
+```
+
+means
+
+"There is one empty subtree."
+
+This is extremely important.
+
+---
+
+# Step 6
+
+General Case
+
+Suppose
+
+```
+generate(1,3)
+```
+
+Loop
+
+```
+for root in 1..3
+```
+
+For each root
+
+Generate
+
+```
+leftTrees
+
+rightTrees
+```
+
+Then
+
+Combine every left with every right.
+
+---
+
+# Why Combine?
+
+Suppose
+
+Left subtree has
+
+```
+2 possibilities
+```
+
+Right subtree has
+
+```
+3 possibilities
+```
+
+Total trees
+
+```
+2 × 3
+
+=
+
+6
+```
+
+Every left can pair with every right.
+
+This is Cartesian Product.
+
+---
+
+# Dry Run (n=3)
+
+Start
+
+```
+generate(1,3)
+```
+
+---
+
+## Root = 1
+
+Left
+
+```
+generate(1,0)
+
+↓
+
+[None]
+```
+
+Right
+
+```
+generate(2,3)
+```
+
+Let's solve it.
+
+---
+
+### generate(2,3)
+
+Possible roots
+
+```
+2
+
+3
+```
+
+---
+
+#### Root =2
+
+Left
+
+```
+None
+```
+
+Right
+
+```
+3
+```
+
+Tree
+
+```
+2
+ \
+  3
+```
+
+---
+
+#### Root =3
+
+Left
+
+```
+2
+```
+
+Right
+
+```
+None
+```
+
+Tree
+
+```
+    3
+   /
+  2
+```
+
+Return
+
+```
+[
+2->3,
+
+3<-2
+]
+```
+
+Now attach them to root=1
+
+Tree 1
+
+```
+1
+ \
+ 2
+  \
+   3
+```
+
+Tree 2
+
+```
+1
+ \
+  3
+ /
+2
+```
+
+Two trees.
+
+---
+
+## Root=2
+
+Left
+
+```
+1
+```
+
+Right
+
+```
+3
+```
+
+Only one possibility.
+
+```
+    2
+   / \
+  1   3
+```
+
+---
+
+## Root=3
+
+Symmetric.
+
+Produces
+
+```
+    3
+   /
+  1
+   \
+    2
+```
+
+and
+
+```
+    3
+   /
+  2
+ /
+1
+```
+
+Total
+
+```
+5
+```
+
+Exactly the answer.
+
+---
+
+# Why This Works
+
+Every BST has
+
+```
+Exactly one root.
+```
+
+Once the root is fixed,
+
+BST property automatically fixes
+
+```
+Left numbers
+
+Right numbers.
+```
+
+There is no choice.
+
+The only remaining work is
+
+Generate left BSTs
+
+Generate right BSTs.
+
+Recursion solves both.
+
+---
+
+# Python Code
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+
+class Solution:
+    def generateTrees(self, n: int):
+
+        def generate(start, end):
+
+            if start > end:
+                return [None]
+
+            trees = []
+
+            for rootVal in range(start, end + 1):
+
+                leftTrees = generate(start, rootVal - 1)
+                rightTrees = generate(rootVal + 1, end)
+
+                for left in leftTrees:
+                    for right in rightTrees:
+
+                        root = TreeNode(rootVal)
+
+                        root.left = left
+                        root.right = right
+
+                        trees.append(root)
+
+            return trees
+
+        return generate(1, n)
+```
+
+---
+
+# Complexity
+
+This is not
+
+```
+O(n²)
+```
+
+or
+
+```
+O(n³)
+```
+
+The number of BSTs itself grows.
+
+It follows the
+
+**Catalan Numbers**
+
+```
+n=1
+
+1
+
+n=2
+
+2
+
+n=3
+
+5
+
+n=4
+
+14
+
+n=5
+
+42
+
+n=6
+
+132
+```
+
+The total time is proportional to the number of trees generated:
+
+```
+O(Cn × n)
+```
+
+where `Cn` is the nth Catalan number.
+
+---
+
+# Pattern Recognition
+
+This problem belongs to
+
+```
+Generate All Possibilities
+```
+
+Whenever you see
+
+```
+Generate all
+
+Return all
+
+Every possible
+
+All combinations
+```
+
+your brain should think
+
+```
+Backtracking
+
+or
+
+Divide & Conquer
+```
+
+For trees,
+
+this usually becomes
+
+```
+Choose Root
+
+↓
+
+Generate Left
+
+↓
+
+Generate Right
+
+↓
+
+Combine
+```
+
+---
+
+# Mental Checklist
+
+Whenever you see a similar problem, ask:
+
+1. **Can I choose one element as the root/decision?**
+2. **Does that split the remaining problem into independent subproblems?**
+3. **Can I recursively generate all possibilities for each side?**
+4. **Do I need to combine every left result with every right result?**
+
+If the answer to all four is "yes", you're looking at the same pattern used in:
+
+- Unique Binary Search Trees II
+- All Possible Full Binary Trees
+- Different Ways to Add Parentheses
+- Generate Parentheses
+- Expression Tree generation
+
+---
+
+# Interview Thinking
+
+An interviewer is not expecting you to memorize this solution. They are looking for whether you can make the key observation:
+
+> **Choosing the root completely determines the left and right value ranges.**
+
+Once you discover that, the recursion follows naturally:
+
+```
+Choose Root
+      ↓
+Generate Left Trees
+      ↓
+Generate Right Trees
+      ↓
+Combine Every Pair
+```
+
+That is the intuition behind the entire problem.
