@@ -1,4 +1,39 @@
 # Graph Representations in Python
+
+---
+
+# 📚 Table of Contents
+
+1. [Sample Graph](#sample-graph)
+2. [1. Edge List](#1-edge-list)
+3. [2. Adjacency List](#2-adjacency-list)
+4. [Undirected Graph](#undirected-graph)
+5. [Directed Graph](#directed-graph)
+6. [Traversing Neighbors](#traversing-neighbors)
+7. [Adding an Edge](#adding-an-edge)
+8. [Removing an Edge](#removing-an-edge)
+9. [Using defaultdict](#using-defaultdict)
+10. [Advantages](#advantages)
+11. [Disadvantages](#disadvantages)
+12. [Time Complexity](#time-complexity)
+13. [3. Adjacency Matrix](#3-adjacency-matrix)
+14. [Undirected Graph](#undirected-graph)
+15. [Directed Graph](#directed-graph)
+16. [Checking an Edge](#checking-an-edge)
+17. [Adding an Edge](#adding-an-edge)
+18. [Removing an Edge](#removing-an-edge)
+19. [Advantages](#advantages)
+20. [Disadvantages](#disadvantages)
+21. [Time Complexity](#time-complexity)
+22. [Weighted Graphs](#weighted-graphs)
+23. [Comparison Table](#comparison-table)
+24. [Which Representation Is Used in Interviews?](#which-representation-is-used-in-interviews)
+25. [Decision Flowchart](#decision-flowchart)
+26. [Interview Tips](#interview-tips)
+27. [Key Takeaways](#key-takeaways)
+
+---
+
 ## Complete Guide to Implementing Graphs
 
 Graphs can be represented in multiple ways depending on the problem.

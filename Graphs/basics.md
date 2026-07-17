@@ -1,5 +1,61 @@
 # 📚 Graphs for Beginners — The Complete Foundation
 
+
+---
+
+# 📚 Table of Contents
+
+1. [🤔 Are Graphs Really Difficult?](#are-graphs-really-difficult)
+2. [🌳 The Most Important Realization](#the-most-important-realization)
+3. [🧠 Don't Think Like This](#dont-think-like-this)
+4. [🌍 Real Life Examples](#real-life-examples)
+5. [⭐ The Biggest Beginner Mistake](#the-biggest-beginner-mistake)
+6. [🧭 Think Like This](#think-like-this)
+7. [📖 Step 1 — Learn Graph Representation](#step-1-learn-graph-representation)
+8. [📖 Step 2 — BFS and DFS Are Not New](#step-2-bfs-and-dfs-are-not-new)
+9. [🔥 The Challenge](#the-challenge)
+10. [✅ Solution](#solution)
+11. [🧠 Step 3 — Every Graph Problem Belongs to a Pattern](#step-3-every-graph-problem-belongs-to-a-pattern)
+12. [Pattern 1 — Traverse Everything](#pattern-1-traverse-everything)
+13. [Pattern 2 — Can I Reach?](#pattern-2-can-i-reach)
+14. [Pattern 3 — Shortest Path](#pattern-3-shortest-path)
+15. [Pattern 4 — Cycle Detection](#pattern-4-cycle-detection)
+16. [Pattern 5 — Connected Components](#pattern-5-connected-components)
+17. [Pattern 6 — Topological Ordering](#pattern-6-topological-ordering)
+18. [Pattern 7 — Minimum Cost Connection](#pattern-7-minimum-cost-connection)
+19. [🧠 The Graph Thinking Process](#the-graph-thinking-process)
+20. [📚 Recommended Learning Order](#recommended-learning-order)
+21. [🎯 Interview Thinking Framework](#interview-thinking-framework)
+22. [📈 How to Practice Graphs](#how-to-practice-graphs)
+23. [🚀 Final Advice](#final-advice)
+24. [💡 The Golden Rule](#the-golden-rule)
+25. [🏆 Remember](#remember)
+26. [📚 Types of Graphs — Complete Beginner Guide](#types-of-graphs-complete-beginner-guide)
+27. [📖 Classification of Graphs](#classification-of-graphs)
+28. [1️⃣ Undirected Graph](#1-undirected-graph)
+29. [2️⃣ Directed Graph (Digraph)](#2-directed-graph-digraph)
+30. [3️⃣ Weighted Graph](#3-weighted-graph)
+31. [4️⃣ Unweighted Graph](#4-unweighted-graph)
+32. [5️⃣ Connected Graph](#5-connected-graph)
+33. [6️⃣ Disconnected Graph](#6-disconnected-graph)
+34. [7️⃣ Cyclic Graph](#7-cyclic-graph)
+35. [8️⃣ Acyclic Graph](#8-acyclic-graph)
+36. [9️⃣ Directed Acyclic Graph (DAG)](#9-directed-acyclic-graph-dag)
+37. [🔟 Tree](#tree)
+38. [1️⃣1️⃣ Forest](#11-forest)
+39. [1️⃣2️⃣ Complete Graph](#12-complete-graph)
+40. [1️⃣3️⃣ Simple Graph](#13-simple-graph)
+41. [1️⃣4️⃣ Multigraph](#14-multigraph)
+42. [1️⃣5️⃣ Pseudograph](#15-pseudograph)
+43. [1️⃣6️⃣ Bipartite Graph ⭐](#16-bipartite-graph)
+44. [1️⃣7️⃣ Dense Graph](#17-dense-graph)
+45. [1️⃣8️⃣ Sparse Graph](#18-sparse-graph)
+46. [📊 Summary Table](#summary-table)
+47. [🎯 Interview Trick](#interview-trick)
+48. [💡 Golden Rule](#golden-rule)
+
+---
+
 > **Goal:** Build a strong intuition for Graphs before learning algorithms like BFS, DFS, Dijkstra, or Union Find.
 
 ---

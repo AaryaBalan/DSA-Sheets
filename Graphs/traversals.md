@@ -1,4 +1,58 @@
 # Graph BFS Traversal in Python
+
+---
+
+# 📚 Table of Contents
+
+1. [Complete Beginner to Interview Guide](#complete-beginner-to-interview-guide)
+2. [What is Graph Traversal?](#what-is-graph-traversal)
+3. [What is BFS?](#what-is-bfs)
+4. [Real Life Analogy](#real-life-analogy)
+5. [Why Does BFS Use a Queue?](#why-does-bfs-use-a-queue)
+6. [Data Structures Used in BFS](#data-structures-used-in-bfs)
+7. [How BFS Works Behind the Scenes](#how-bfs-works-behind-the-scenes)
+8. [Dry Run](#dry-run)
+9. [BFS Algorithm](#bfs-algorithm)
+10. [Python Implementation](#python-implementation)
+11. [Code Explanation](#code-explanation)
+12. [Why Do We Mark Visited Before Enqueuing?](#why-do-we-mark-visited-before-enqueuing)
+13. [Time Complexity](#time-complexity)
+14. [Space Complexity](#space-complexity)
+15. [Applications of BFS](#applications-of-bfs)
+16. [Common Mistakes](#common-mistakes)
+17. [Interview Tips](#interview-tips)
+18. [Mental Model](#mental-model)
+19. [Key Takeaways](#key-takeaways)
+20. [Mental Formula](#mental-formula)
+21. [Graph DFS Traversal in Python](#graph-dfs-traversal-in-python)
+22. [Complete Beginner to Interview Guide](#complete-beginner-to-interview-guide)
+23. [Before Learning DFS](#before-learning-dfs)
+24. [What is DFS?](#what-is-dfs)
+25. [BFS vs DFS](#bfs-vs-dfs)
+26. [Why Does DFS Use a Stack?](#why-does-dfs-use-a-stack)
+27. [Two Ways to Implement DFS](#two-ways-to-implement-dfs)
+28. [How Recursion Works Behind the Scenes](#how-recursion-works-behind-the-scenes)
+29. [What Happens at a Dead End?](#what-happens-at-a-dead-end)
+30. [DFS Step-by-Step](#dfs-step-by-step)
+31. [Complete Dry Run](#complete-dry-run)
+32. [Recursive DFS Algorithm](#recursive-dfs-algorithm)
+33. [Recursive Python Solution](#recursive-python-solution)
+34. [Code Explanation](#code-explanation)
+35. [Iterative DFS](#iterative-dfs)
+36. [Python Implementation](#python-implementation)
+37. [Why Reverse the Neighbor List?](#why-reverse-the-neighbor-list)
+38. [Time Complexity](#time-complexity)
+39. [Space Complexity](#space-complexity)
+40. [Applications of DFS](#applications-of-dfs)
+41. [Common Mistakes](#common-mistakes)
+42. [BFS vs DFS](#bfs-vs-dfs)
+43. [Interview Tips](#interview-tips)
+44. [Mental Model](#mental-model)
+45. [Key Takeaways](#key-takeaways)
+46. [Mental Formula](#mental-formula)
+
+---
+
 # Complete Beginner to Interview Guide
 
 > **Difficulty:** Easy  

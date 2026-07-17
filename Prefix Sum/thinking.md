@@ -1,5 +1,32 @@
 # Prefix Sum Mindset — How to THINK Like a Problem Solver
 
+
+---
+
+# 📚 Table of Contents
+
+1. [The Biggest Mistake Beginners Make](#the-biggest-mistake-beginners-make)
+2. [Step 1 — Read the Problem Like an Interviewer](#step-1-read-the-problem-like-an-interviewer)
+3. [Step 2 — Count the Repeated Work](#step-2-count-the-repeated-work)
+4. [Step 3 — Ask the Most Important Question](#step-3-ask-the-most-important-question)
+5. [Step 4 — Recognize the Pattern](#step-4-recognize-the-pattern)
+6. [Step 5 — Ask These Five Questions](#step-5-ask-these-five-questions)
+7. [The Magical Observation](#the-magical-observation)
+8. [How Experts Mentally Visualize Prefix Sum](#how-experts-mentally-visualize-prefix-sum)
+9. [Mental Trigger Checklist](#mental-trigger-checklist)
+10. [Example Thought Process](#example-thought-process)
+11. [Example 2](#example-2)
+12. [Example 3](#example-3)
+13. [Learn to Think in "Reuse"](#learn-to-think-in-reuse)
+14. [Prefix Sum Recognition Flowchart](#prefix-sum-recognition-flowchart)
+15. [Common Beginner Mistakes](#common-beginner-mistakes)
+16. [The Ultimate Mental Shift](#the-ultimate-mental-shift)
+17. [Interview Mindset](#interview-mindset)
+18. [Golden Rule](#golden-rule)
+19. [One-Line Recognition Formula](#one-line-recognition-formula)
+
+---
+
 > **"Knowing Prefix Sum is different from recognizing when to use it."**
 >
 > This guide is **NOT** about the algorithm.
