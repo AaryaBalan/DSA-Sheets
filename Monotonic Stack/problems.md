@@ -7,6 +7,9 @@ Welcome to the monotonic stack problems section! Here you will find various data
 - [316. Remove Duplicate Letters](#316-remove-duplicate-letters)
 - [1574. Shortest Subarray to be Removed to Make Array Sorted](#1574-shortest-subarray-to-be-removed-to-make-array-sorted)
 - [1673. Find the Most Competitive Subsequence](#1673-find-the-most-competitive-subsequence)
+- [853. Car Fleet](#853-car-fleet)
+- [962. Maximum Width Ramp](#962-maximum-width-ramp)
+- [581. Shortest Unsorted Continuous Subarray](#581-shortest-unsorted-continuous-subarray)
 
 <br><br><br><br><br>
 
@@ -5211,3 +5214,1958 @@ Merge into Existing Fleet
         ▼
 Count Fleets
 ```
+
+<br/><br/><br/><br/><br>
+
+---
+
+# 962. Maximum Width Ramp
+
+> **Difficulty:** Medium  
+> **Technique:** Monotonic Stack + Greedy + Reverse Traversal
+
+---
+
+# 📚 Problem Statement
+
+You are given an array.
+
+A **ramp** is a pair of indices
+
+```
+(i, j)
+```
+
+such that
+
+```
+i < j
+
+AND
+
+nums[i] <= nums[j]
+```
+
+Its width is
+
+```
+j - i
+```
+
+Return the **maximum width** among all valid ramps.
+
+---
+
+# 🤔 Understanding the Problem
+
+Suppose
+
+```
+nums = [6,0,8,2,1,5]
+```
+
+Index
+
+```
+0 1 2 3 4 5
+```
+
+Values
+
+```
+6 0 8 2 1 5
+```
+
+Can we choose
+
+```
+(0,2)
+```
+
+?
+
+Check
+
+```
+6 <= 8
+```
+
+Yes.
+
+Width
+
+```
+2
+```
+
+---
+
+Can we choose
+
+```
+(1,5)
+```
+
+?
+
+```
+0 <= 5
+```
+
+Yes.
+
+Width
+
+```
+5-1=4
+```
+
+---
+
+Answer
+
+```
+4
+```
+
+---
+
+# Step 1 : Brute Force Thinking
+
+Every beginner starts here.
+
+For every
+
+```
+i
+```
+
+check every
+
+```
+j
+```
+
+```
+for i
+
+    for j
+
+        if nums[i]<=nums[j]:
+
+            answer=max(answer,j-i)
+```
+
+---
+
+## Complexity
+
+```
+O(N²)
+```
+
+For
+
+```
+N = 50000
+```
+
+Impossible.
+
+---
+
+# Step 2 : What Are We Maximizing?
+
+The question asks
+
+```
+Maximum Width
+```
+
+Meaning
+
+```
+j-i
+```
+
+To maximize width,
+
+what do we want?
+
+```
+Small i
+
+Large j
+```
+
+Immediately write this on paper.
+
+```
+Need
+
+↓
+
+Smallest possible left index
+
+Largest possible right index
+```
+
+---
+
+# Step 3 : What Makes a Valid Ramp?
+
+Need
+
+```
+nums[i]
+
+<=
+
+nums[j]
+```
+
+Question
+
+Which left indices are useful?
+
+Example
+
+```
+6 0 8 2 1 5
+```
+
+Look at
+
+```
+6
+```
+
+Then
+
+```
+0
+```
+
+Question
+
+If
+
+```
+0
+```
+
+appears after
+
+```
+6
+```
+
+will we ever choose
+
+```
+6
+```
+
+instead?
+
+No.
+
+Because
+
+```
+0
+
+is smaller
+
+AND
+
+comes later
+```
+
+Actually let's compare.
+
+Candidate 1
+
+```
+i=0
+
+value=6
+```
+
+Candidate 2
+
+```
+i=1
+
+value=0
+```
+
+Any future number
+
+that works for
+
+```
+6
+```
+
+will also work for
+
+```
+0
+```
+
+And
+
+```
+0
+```
+
+is even smaller.
+
+Therefore
+
+```
+6
+
+is useless.
+```
+
+---
+
+# Biggest Observation
+
+The only useful left indices are
+
+those having
+
+```
+New Minimum
+```
+
+Example
+
+```
+6 0 8 2 1 5
+```
+
+Minimums appear at
+
+```
+6
+
+↓
+
+0
+```
+
+Stack becomes
+
+```
+6
+
+0
+```
+
+Indices
+
+```
+0
+
+1
+```
+
+Everything else
+
+```
+8
+
+2
+
+1
+
+5
+```
+
+cannot become
+
+better left endpoints.
+
+---
+
+# Why Monotonic Stack?
+
+We want
+
+```
+Decreasing Values
+```
+
+Example
+
+```
+6
+
+0
+```
+
+Each new value
+
+is smaller than previous.
+
+Store
+
+indices.
+
+Stack
+
+```
+0
+
+1
+```
+
+Values
+
+```
+6
+
+0
+```
+
+This is a
+
+```
+Monotonic Decreasing Stack
+```
+
+---
+
+# Step 4 : Why Traverse From Right?
+
+We need
+
+```
+Maximum Width
+```
+
+Largest
+
+```
+j
+```
+
+comes first
+
+if we start
+
+from right.
+
+Suppose
+
+```
+j=5
+```
+
+If
+
+```
+nums[5]
+
+>=
+
+nums[i]
+```
+
+Then
+
+```
+5-i
+```
+
+is already
+
+the largest possible width
+
+for that
+
+```
+i.
+```
+
+No need
+
+to check smaller
+
+```
+j.
+```
+
+Amazing.
+
+---
+
+# Complete Algorithm
+
+Step 1
+
+Build stack
+
+of
+
+```
+indices
+
+having decreasing values
+```
+
+---
+
+Example
+
+```
+6 0 8 2 1 5
+```
+
+Stack
+
+```
+0
+
+1
+```
+
+---
+
+Step 2
+
+Traverse
+
+from right.
+
+```
+j=5
+
+↓
+
+4
+
+↓
+
+3
+
+↓
+
+2
+
+↓
+
+1
+
+↓
+
+0
+```
+
+Whenever
+
+```
+nums[j]
+
+>=
+
+nums[stack top]
+```
+
+Found a ramp.
+
+Update answer.
+
+Pop.
+
+Why pop?
+
+Because
+
+this
+
+```
+j
+```
+
+already gives
+
+maximum width
+
+for that index.
+
+No future
+
+smaller
+
+```
+j
+```
+
+can improve it.
+
+---
+
+# Dry Run
+
+Example
+
+```
+nums
+
+6 0 8 2 1 5
+```
+
+Index
+
+```
+0 1 2 3 4 5
+```
+
+---
+
+## Step 1
+
+Build stack.
+
+Start
+
+```
+[]
+```
+
+---
+
+Index
+
+```
+0
+
+value=6
+```
+
+Push
+
+```
+[0]
+```
+
+---
+
+Index
+
+```
+1
+
+value=0
+```
+
+```
+0<6
+```
+
+Push
+
+```
+[0,1]
+```
+
+---
+
+Index
+
+```
+2
+
+value=8
+```
+
+```
+8<0
+
+No
+```
+
+Skip.
+
+---
+
+Index
+
+```
+3
+
+value=2
+```
+
+```
+2<0
+
+No
+```
+
+Skip.
+
+---
+
+Index
+
+```
+4
+
+value=1
+```
+
+```
+1<0
+
+No
+```
+
+Skip.
+
+---
+
+Index
+
+```
+5
+
+value=5
+```
+
+Skip.
+
+Final Stack
+
+```
+Indices
+
+0
+
+1
+```
+
+Values
+
+```
+6
+
+0
+```
+
+---
+
+# Step 2
+
+Traverse
+
+from right.
+
+---
+
+### j=5
+
+Value
+
+```
+5
+```
+
+Top
+
+```
+0
+```
+
+Check
+
+```
+5>=0
+```
+
+Yes.
+
+Width
+
+```
+5-1
+
+=
+
+4
+```
+
+Answer
+
+```
+4
+```
+
+Pop.
+
+Stack
+
+```
+0
+```
+
+---
+
+Again
+
+Top
+
+```
+6
+```
+
+Check
+
+```
+5>=6
+```
+
+No.
+
+---
+
+### j=4
+
+Value
+
+```
+1
+```
+
+Top
+
+```
+6
+```
+
+```
+1>=6
+
+No
+```
+
+---
+
+### j=3
+
+Value
+
+```
+2
+```
+
+```
+2>=6
+
+No
+```
+
+---
+
+### j=2
+
+Value
+
+```
+8
+```
+
+Top
+
+```
+6
+```
+
+```
+8>=6
+```
+
+Yes.
+
+Width
+
+```
+2-0
+
+=
+
+2
+```
+
+Answer
+
+still
+
+```
+4
+```
+
+Pop.
+
+Stack empty.
+
+Done.
+
+Final Answer
+
+```
+4
+```
+
+---
+
+# Why Can We Pop?
+
+Suppose
+
+```
+Current Right Index
+
+=
+
+8
+```
+
+Matched
+
+```
+Left Index
+
+=
+
+2
+```
+
+Width
+
+```
+6
+```
+
+Will
+
+```
+Right Index
+
+=
+
+7
+```
+
+ever give
+
+larger width?
+
+No.
+
+```
+7-2
+
+<
+
+8-2
+```
+
+Impossible.
+
+Therefore
+
+remove it forever.
+
+---
+
+# Python Solution
+
+```python
+class Solution:
+    def maxWidthRamp(self, nums):
+
+        stack = []
+
+        # Build decreasing stack
+        for i, num in enumerate(nums):
+
+            if not stack or nums[stack[-1]] > num:
+                stack.append(i)
+
+        ans = 0
+
+        # Traverse from right
+        for j in range(len(nums) - 1, -1, -1):
+
+            while stack and nums[j] >= nums[stack[-1]]:
+
+                ans = max(ans, j - stack[-1])
+
+                stack.pop()
+
+        return ans
+```
+
+---
+
+# Complexity Analysis
+
+Building stack
+
+```
+O(N)
+```
+
+Reverse traversal
+
+```
+O(N)
+```
+
+Every index
+
+is pushed once
+
+and popped once.
+
+Overall
+
+```
+O(N)
+```
+
+Space
+
+```
+O(N)
+```
+
+---
+
+# 🧠 How to Think Like an Interviewer
+
+Most beginners think:
+
+> "For every left index, let me find the farthest right index."
+
+That leads to an `O(N²)` solution.
+
+Instead, ask yourself:
+
+### Question 1
+
+```
+What am I maximizing?
+```
+
+Answer
+
+```
+Width
+
+=
+
+j-i
+```
+
+So we want
+
+```
+Small i
+
+Large j
+```
+
+---
+
+### Question 2
+
+```
+Which left indices are actually useful?
+```
+
+If a smaller value appears later,
+
+the earlier larger value is never a better starting point.
+
+Keep only
+
+```
+New Minimums
+```
+
+---
+
+### Question 3
+
+```
+Which direction should I traverse?
+```
+
+Need
+
+```
+Largest j
+```
+
+So start
+
+```
+Right
+
+↓
+
+Left
+```
+
+---
+
+### Question 4
+
+```
+Can I permanently discard some candidates?
+```
+
+Yes.
+
+Once a left index finds the farthest possible right index,
+
+it can never get a better answer.
+
+Pop it.
+
+---
+
+# 🎯 Pattern Recognition
+
+Whenever you see
+
+```
+Maximum Width
+
+OR
+
+Maximum Distance
+
+OR
+
+Farthest Pair
+
+with a condition
+```
+
+Think
+
+```
+Can I keep only the best left candidates?
+
+↓
+
+Monotonic Stack
+
+↓
+
+Process from opposite direction
+
+↓
+
+Greedy Matching
+```
+
+---
+
+# 📝 Final Cheat Sheet
+
+```text
+Need Maximum Width
+        │
+        ▼
+Need Small Left Index
+        │
+        ▼
+Keep Only New Minimums
+(Monotonic Decreasing Stack)
+        │
+        ▼
+Traverse From Right
+        │
+        ▼
+nums[j] >= nums[stack.top] ?
+        │
+   Yes ─────► Update Width
+        │
+             Pop Left Index
+        │
+   No
+        │
+Continue
+        │
+        ▼
+Maximum Width Ramp
+```
+
+<br/><br/><br/><br/><br>
+
+---
+
+# 581. Shortest Unsorted Continuous Subarray
+
+> **Difficulty:** Medium  
+> **Technique:** Monotonic Stack (Increasing + Decreasing) / Array Boundary Detection
+
+---
+
+# 📚 Problem Statement
+
+You are given an integer array.
+
+Find the **smallest continuous subarray** such that:
+
+- If you sort only that subarray,
+- the **entire array becomes sorted**.
+
+Return the length of that subarray.
+
+---
+
+# Example
+
+```
+nums = [2,6,4,8,10,9,15]
+```
+
+Current array
+
+```
+2 6 4 8 10 9 15
+```
+
+Only this part is wrong
+
+```
+6 4 8 10 9
+```
+
+If we sort it
+
+```
+4 6 8 9 10
+```
+
+Whole array becomes
+
+```
+2 4 6 8 9 10 15
+```
+
+Answer
+
+```
+5
+```
+
+---
+
+# 🤔 Understanding the Problem
+
+Notice something.
+
+The array is
+
+```
+Sorted
+
+↓
+
+Wrong
+
+↓
+
+Sorted
+```
+
+Our job is simply
+
+```
+Find where disorder starts
+
+Find where disorder ends
+```
+
+---
+
+# Step 1 : Brute Force
+
+Try every subarray.
+
+Sort it.
+
+Check if whole array becomes sorted.
+
+```
+for every L
+
+    for every R
+
+        sort
+
+        check
+```
+
+Complexity
+
+```
+O(N³ logN)
+```
+
+Impossible.
+
+---
+
+# Step 2 : What Makes an Array Sorted?
+
+A sorted array satisfies
+
+```
+nums[i]
+
+<=
+
+nums[i+1]
+```
+
+everywhere.
+
+So ask
+
+```
+Where does this rule break?
+```
+
+Example
+
+```
+2 6 4 8 10 9 15
+```
+
+At
+
+```
+6 > 4
+```
+
+and
+
+```
+10 > 9
+```
+
+Interesting...
+
+Those are exactly the places where the order is violated.
+
+---
+
+# Step 3 : Finding the Left Boundary
+
+Suppose
+
+```
+2 6 4
+```
+
+Question
+
+```
+Can 6 stay before 4?
+```
+
+No.
+
+So
+
+```
+6
+```
+
+must belong to the unsorted part.
+
+But maybe something even earlier?
+
+If more elements violate the order,
+
+the boundary moves left.
+
+So we need the **leftmost index** involved in any inversion.
+
+---
+
+# Why Monotonic Increasing Stack?
+
+We want indices whose values stay increasing.
+
+Example
+
+```
+2 6
+```
+
+Stack
+
+```
+[0,1]
+```
+
+Now
+
+```
+4
+```
+
+comes.
+
+```
+6 > 4
+```
+
+Order breaks.
+
+Pop
+
+```
+6
+```
+
+Now
+
+```
+start = min(start, popped_index)
+```
+
+Continue until increasing order is restored.
+
+---
+
+# Step 4 : Finding the Right Boundary
+
+Now think from the opposite direction.
+
+Traverse
+
+```
+Right
+
+↓
+
+Left
+```
+
+Maintain a **decreasing stack**.
+
+Whenever
+
+```
+nums[i]
+
+>
+
+stack top
+```
+
+the order is broken.
+
+That popped index belongs to the unsorted region.
+
+Update
+
+```
+end = max(end, popped_index)
+```
+
+---
+
+# Why Two Passes?
+
+The first pass only tells us
+
+```
+How far left
+
+the disorder reaches.
+```
+
+The second pass tells us
+
+```
+How far right
+
+the disorder reaches.
+```
+
+Together they define the smallest subarray.
+
+---
+
+# Dry Run
+
+Example
+
+```
+nums
+
+2 6 4 8 10 9 15
+```
+
+Indices
+
+```
+0 1 2 3 4 5 6
+```
+
+---
+
+## First Pass (Increasing Stack)
+
+Start
+
+```
+stack = []
+start = n
+```
+
+---
+
+### i = 0
+
+```
+2
+```
+
+Push
+
+```
+[0]
+```
+
+---
+
+### i = 1
+
+```
+6
+```
+
+Increasing.
+
+Push
+
+```
+[0,1]
+```
+
+---
+
+### i = 2
+
+```
+4
+```
+
+Top
+
+```
+6
+```
+
+```
+6 > 4
+```
+
+Pop index
+
+```
+1
+```
+
+Update
+
+```
+start = 1
+```
+
+Push
+
+```
+2
+```
+
+Stack
+
+```
+0 2
+```
+
+---
+
+### i = 3
+
+```
+8
+```
+
+Push
+
+---
+
+### i = 4
+
+```
+10
+```
+
+Push
+
+---
+
+### i = 5
+
+```
+9
+```
+
+Top
+
+```
+10
+```
+
+Pop
+
+```
+4
+```
+
+start
+
+still
+
+```
+1
+```
+
+Push
+
+```
+5
+```
+
+---
+
+### i = 6
+
+Push.
+
+Done.
+
+Left boundary
+
+```
+1
+```
+
+---
+
+# Second Pass
+
+Traverse
+
+```
+Right
+
+↓
+
+Left
+```
+
+---
+
+### i = 6
+
+Push
+
+---
+
+### i = 5
+
+Push
+
+---
+
+### i = 4
+
+```
+10
+```
+
+Top
+
+```
+9
+```
+
+```
+10 > 9
+```
+
+Pop
+
+```
+5
+```
+
+Update
+
+```
+end = 5
+```
+
+Push
+
+```
+4
+```
+
+---
+
+Continue.
+
+Nothing extends farther.
+
+Right boundary
+
+```
+5
+```
+
+---
+
+Length
+
+```
+5-1+1
+
+=
+
+5
+```
+
+Answer
+
+```
+5
+```
+
+---
+
+# Why Does This Work?
+
+Suppose
+
+```
+2 6 4
+```
+
+The moment we see
+
+```
+6 > 4
+```
+
+we know
+
+```
+6
+
+cannot stay there.
+```
+
+Therefore
+
+its index must belong
+
+to the unsorted subarray.
+
+The stack helps us find **every such index** in one pass.
+
+---
+
+# Python Solution
+
+```python
+class Solution:
+    def findUnsortedSubarray(self, nums):
+
+        n = len(nums)
+
+        start = n
+        end = 0
+
+        stack = []
+
+        # Find left boundary
+        for i in range(n):
+
+            while stack and nums[stack[-1]] > nums[i]:
+
+                start = min(start, stack.pop())
+
+            stack.append(i)
+
+        if start == n:
+            return 0
+
+        stack = []
+
+        # Find right boundary
+        for i in range(n - 1, -1, -1):
+
+            while stack and nums[stack[-1]] < nums[i]:
+
+                end = max(end, stack.pop())
+
+            stack.append(i)
+
+        return end - start + 1
+```
+
+---
+
+# Complexity Analysis
+
+### Time
+
+Every index is
+
+- pushed once
+- popped once
+
+```
+O(N)
+```
+
+---
+
+### Space
+
+Stack
+
+```
+O(N)
+```
+
+---
+
+# 🧠 How to Think Like an Interviewer
+
+Most people see this problem and think:
+
+> "Which subarray should I sort?"
+
+That leads to checking many subarrays.
+
+Instead, ask:
+
+### Question 1
+
+```
+What property does a sorted array satisfy?
+```
+
+Answer
+
+```
+nums[i] <= nums[i+1]
+```
+
+---
+
+### Question 2
+
+```
+Where is this property violated?
+```
+
+Those violations must be inside the answer.
+
+---
+
+### Question 3
+
+```
+How do I efficiently find the earliest and latest violations?
+```
+
+A monotonic stack naturally keeps the array in sorted order.
+
+Whenever that order breaks, we've found part of the unsorted region.
+
+---
+
+# 🎯 Pattern Recognition
+
+Whenever you see
+
+```
+Find the smallest range
+
+OR
+
+Find disorder
+
+OR
+
+Find first/last violation
+```
+
+Think
+
+```
+Monotonic Stack
+
+↓
+
+Detect where sorted order breaks
+
+↓
+
+Left boundary + Right boundary
+
+↓
+
+Answer
+```
+
+---
+
+# 📌 Connection to Other Problems
+
+This problem belongs to the same family as:
+
+- **739. Daily Temperatures** → Next greater element
+- **84. Largest Rectangle in Histogram** → Previous/next smaller
+- **907. Sum of Subarray Minimums** → Previous/next smaller
+- **962. Maximum Width Ramp** → Monotonic stack + greedy
+- **1673. Most Competitive Subsequence** → Greedy + monotonic stack
+- **402. Remove K Digits** → Greedy + monotonic stack
+
+The common theme is:
+
+> **Maintain a monotonic order. When that order breaks, use the popped indices to answer the question.**
+
+Once you start recognizing **"order breaks"**, you'll naturally think about monotonic stacks.
