@@ -8,6 +8,7 @@ Welcome to the graph problems section! Here you will find various data structure
 - [797. All Paths From Source to Target](#797-all-paths-from-source-to-target)
 - [1557. Minimum Number of Vertices to Reach All Nodes](#1557-minimum-number-of-vertices-to-reach-all-nodes)
 - [841. Keys and Rooms](#841-keys-and-rooms)
+- [🧠 Topological Sort (DFS & BFS Implementations)](#🧠-topological-sort-dfs--bfs-implementations)
 - [1334. Find the City With the Smallest Number of Neighbors at a Threshold Distance](#1334-find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance)
 - [994. Rotting Oranges](#994-rotting-oranges)
 - [547. Number of Provinces](#547-number-of-provinces)
@@ -18,6 +19,8 @@ Welcome to the graph problems section! Here you will find various data structure
 - [3249. Count the Number of Good Nodes](#3249-count-the-number-of-good-nodes)
 - [200. Number of Islands](#200-number-of-islands)
 - [210. Course Schedule II](#210-course-schedule-ii)
+- [310. Minimum Height Trees (MHT)](#310-minimum-height-trees-mht)
+- [399. Evaluate Division](#399-evaluate-division)
 
 <br><br><br><br><br>
 
@@ -3041,6 +3044,112 @@ BFS
 <br/><br/><br/><br/><br/>
 
 ---
+
+# 🧠 Topological Sort (DFS & BFS Implementations)
+
+Topological Sorting is a linear ordering of vertices in a Directed Acyclic Graph (DAG) such that for every directed edge `u -> v`, vertex `u` comes before `v` in the ordering. It is widely used in scheduling jobs, finding prerequisites (like Course Schedule), and resolving dependencies.
+
+There are two primary ways to implement Topological Sort: **DFS** and **BFS (Kahn's Algorithm)**.
+
+## 1. DFS Method
+
+In the DFS approach, we perform a standard Depth First Search. The key difference is that we only push a node to a stack **after** we have visited all of its descendants. The final topological ordering is the reverse of this stack.
+
+```python
+from collections import defaultdict
+
+edges = [
+    [5, 2],
+    [5, 0],
+    [4, 0],
+    [4, 1],
+    [2, 3],
+    [3, 1]
+]
+V = 6
+
+# Build the adjacency list
+adj = defaultdict(list)
+for u, v in edges:
+    adj[u].append(v)
+
+stack = []
+seen = [0] * V
+
+def dfs(node):
+    seen[node] = 1
+    for neighbour in adj[node]:
+        if seen[neighbour] == 0:
+            dfs(neighbour)
+    
+    # Push to stack only after visiting all children
+    stack.append(node)
+
+# Run DFS from all unvisited nodes to handle disconnected components
+for i in range(V):
+    if seen[i] == 0:
+        dfs(i)
+
+# The result is the stack in reverse order
+topological_order = stack[::-1]
+print("DFS Topological Sort:", topological_order)
+```
+
+## 2. BFS Method (Kahn's Algorithm)
+
+Kahn's Algorithm uses BFS and relies on the concept of **In-degree** (the number of incoming edges to a node). 
+1. We first compute the in-degree of all nodes.
+2. Nodes with an in-degree of `0` have no prerequisites, so we add them to a queue.
+3. We process the queue, appending each node to our result and decrementing the in-degree of its neighbors.
+4. If a neighbor's in-degree drops to `0`, it is ready to be processed, so we push it into the queue.
+
+```python
+from collections import defaultdict, deque
+
+edges = [
+    [5, 2],
+    [5, 0],
+    [4, 0],
+    [4, 1],
+    [2, 3],
+    [3, 1]
+]
+V = 6
+
+# Build the adjacency list and compute in-degrees
+adj = defaultdict(list)
+indegree = [0] * V
+
+for u, v in edges:
+    adj[u].append(v)
+    indegree[v] += 1
+
+# Start with nodes that have 0 in-degree
+queue = deque()
+for i in range(V):
+    if indegree[i] == 0:
+        queue.append(i)
+
+ans = []
+while queue:
+    node = queue.popleft()
+    ans.append(node)
+    
+    for neighbour in adj[node]:
+        # Remove the edge logically by decrementing in-degree
+        indegree[neighbour] -= 1
+        
+        # If it has no more dependencies, add to queue
+        if indegree[neighbour] == 0:
+            queue.append(neighbour)
+
+print("BFS (Kahn's) Topological Sort:", ans)
+```
+
+<br><br><br><br><br>
+
+---
+
 
 # 1334. Find the City With the Smallest Number of Neighbors at a Threshold Distance
 
@@ -12547,3 +12656,2432 @@ Continue until all courses processed
 <br/><br/><br/><br/><br/>
 
 ---
+
+# 310. Minimum Height Trees (MHT)
+# Complete Beginner to Interview Guide
+
+> **Difficulty:** Medium  
+> **Pattern:** Graph + Topological Sort (Leaf Trimming) + BFS
+
+---
+
+# Understanding the Problem
+
+We are given a tree.
+
+We can choose **any node** as the root.
+
+Different roots produce different heights.
+
+Our goal is
+
+> Find the node(s) that produce the **minimum possible height**.
+
+---
+
+# What is Height?
+
+Height is
+
+> The number of edges in the longest path from the root to any leaf.
+
+Example
+
+```text
+0
+|
+1
+|
+2
+|
+3
+```
+
+If root = 0
+
+```text
+0
+|
+1
+|
+2
+|
+3
+```
+
+Longest path
+
+```text
+0 → 1 → 2 → 3
+```
+
+Height = 3
+
+---
+
+If root = 2
+
+```text
+    2
+   / \
+  1   3
+ /
+0
+```
+
+Longest path
+
+```text
+2 → 1 → 0
+```
+
+Height = 2
+
+Better!
+
+---
+
+# Example 1
+
+Input
+
+```text
+n = 4
+
+edges =
+
+[
+[1,0],
+[1,2],
+[1,3]
+]
+```
+
+Graph
+
+```text
+      1
+    / | \
+   0  2  3
+```
+
+Choose root = 1
+
+Height
+
+```text
+1
+```
+
+Choose root = 0
+
+```text
+0
+|
+1
+/\
+2 3
+```
+
+Height
+
+```text
+2
+```
+
+Clearly
+
+```text
+1
+```
+
+is the best root.
+
+Answer
+
+```text
+[1]
+```
+
+---
+
+# First Thought (Brute Force)
+
+A beginner usually thinks
+
+> "Try every node as the root."
+
+For every node
+
+- Run BFS
+- Find maximum depth
+- Store height
+- Return minimum
+
+Pseudo-code
+
+```text
+For every node
+
+    Run BFS
+
+    Compute Height
+
+Take Minimum
+```
+
+---
+
+# Complexity
+
+Suppose
+
+```text
+n = 20,000
+```
+
+One BFS
+
+```text
+O(n)
+```
+
+Run for every node
+
+```text
+O(n²)
+```
+
+```text
+20,000 × 20,000
+
+=
+
+400,000,000
+```
+
+Too slow.
+
+Need a better idea.
+
+---
+
+# Key Observation
+
+Consider
+
+```text
+0
+
+|
+
+1
+
+|
+
+2
+
+|
+
+3
+
+|
+
+4
+```
+
+Root = 0
+
+Height = 4
+
+Root = 1
+
+Height = 3
+
+Root = 2
+
+Height = 2
+
+Root = 3
+
+Height = 3
+
+Root = 4
+
+Height = 4
+
+Best root?
+
+```text
+2
+```
+
+Exactly the middle node.
+
+---
+
+Another example
+
+```text
+0
+
+|
+
+1
+
+|
+
+2
+
+|
+
+3
+
+|
+
+4
+
+|
+
+5
+```
+
+Middle?
+
+```text
+2
+
+3
+```
+
+Answer
+
+```text
+[2,3]
+```
+
+Interesting!
+
+The answer is always near the center.
+
+---
+
+# The Core Intuition
+
+Instead of finding the center directly,
+
+remove the outside first.
+
+Imagine an onion.
+
+```text
+Outer Layer
+
+↓
+
+Outer Layer
+
+↓
+
+Outer Layer
+
+↓
+
+Center
+```
+
+A tree behaves the same way.
+
+Remove all outer nodes repeatedly.
+
+Eventually
+
+only the center remains.
+
+---
+
+# Who are the Outer Nodes?
+
+Leaves.
+
+A leaf is
+
+```text
+Degree = 1
+```
+
+Example
+
+```text
+0
+
+|
+
+1
+
+|
+
+2
+
+|
+
+3
+```
+
+Degrees
+
+```text
+0 → 1
+
+1 → 2
+
+2 → 2
+
+3 → 1
+```
+
+Leaves
+
+```text
+0
+
+3
+```
+
+---
+
+# Why Remove Leaves?
+
+Look again
+
+```text
+0
+
+|
+
+1
+
+|
+
+2
+
+|
+
+3
+
+|
+
+4
+```
+
+Remove leaves
+
+```text
+0
+
+4
+```
+
+Remaining
+
+```text
+1
+
+|
+
+2
+
+|
+
+3
+```
+
+Again remove leaves
+
+```text
+1
+
+3
+```
+
+Remaining
+
+```text
+2
+```
+
+We naturally reach the center.
+
+---
+
+# Graph Theory Behind It
+
+Every tree has
+
+- One center
+
+or
+
+- Two centers
+
+Never more.
+
+Removing every leaf shortens the longest path by
+
+```text
+2 edges
+```
+
+Eventually
+
+only the center survives.
+
+That center minimizes the maximum distance to every node.
+
+Exactly what the problem asks.
+
+---
+
+# Why Use a Queue?
+
+Every round
+
+remove **all current leaves simultaneously**.
+
+Queue stores
+
+```text
+Current Layer of Leaves
+```
+
+Exactly like
+
+```text
+BFS
+```
+
+We process one layer at a time.
+
+---
+
+# Data Structures Needed
+
+## Adjacency List
+
+```python
+graph = defaultdict(list)
+```
+
+Stores neighbors.
+
+---
+
+## Degree Array
+
+```python
+degree = [0] * n
+```
+
+Stores number of connections.
+
+---
+
+## Queue
+
+```python
+from collections import deque
+
+leaves = deque()
+```
+
+Stores current leaves.
+
+---
+
+# Step-by-Step Algorithm
+
+## Step 1
+
+Build graph
+
+```text
+u ↔ v
+```
+
+---
+
+## Step 2
+
+Compute degree of every node.
+
+---
+
+## Step 3
+
+Push every node with
+
+```text
+degree == 1
+```
+
+into queue.
+
+---
+
+## Step 4
+
+Remove one layer of leaves.
+
+---
+
+## Step 5
+
+Decrease neighbor degrees.
+
+---
+
+## Step 6
+
+If neighbor becomes
+
+```text
+degree == 1
+```
+
+it becomes a new leaf.
+
+Push it into queue.
+
+---
+
+## Step 7
+
+Repeat until
+
+```text
+Remaining Nodes ≤ 2
+```
+
+Those remaining nodes are the answer.
+
+---
+
+# Dry Run
+
+Input
+
+```text
+n = 6
+
+edges =
+[
+[3,0],
+[3,1],
+[3,2],
+[3,4],
+[5,4]
+]
+```
+
+Graph
+
+```text
+        3
+      / | \
+     0  1  2
+         |
+         4
+         |
+         5
+```
+
+---
+
+## Build Graph
+
+Adjacency List
+
+```text
+0 → 3
+
+1 → 3
+
+2 → 3
+
+3 → 0 1 2 4
+
+4 → 3 5
+
+5 → 4
+```
+
+Degree
+
+```text
+0 = 1
+
+1 = 1
+
+2 = 1
+
+3 = 4
+
+4 = 2
+
+5 = 1
+```
+
+---
+
+## Initial Queue
+
+Leaves
+
+```text
+0
+
+1
+
+2
+
+5
+```
+
+Remaining Nodes
+
+```text
+6
+```
+
+---
+
+## Round 1
+
+Remove
+
+```text
+0
+
+1
+
+2
+
+5
+```
+
+Remaining
+
+```text
+2
+```
+
+Update Degree
+
+Node 3
+
+```text
+4
+
+↓
+
+3
+
+↓
+
+2
+
+↓
+
+1
+```
+
+Node 4
+
+```text
+2
+
+↓
+
+1
+```
+
+Now
+
+```text
+3
+
+4
+```
+
+become leaves.
+
+Queue
+
+```text
+3
+
+4
+```
+
+Remaining Nodes
+
+```text
+2
+```
+
+Stop.
+
+Answer
+
+```text
+[3,4]
+```
+
+---
+
+# Why Stop at Remaining ≤ 2?
+
+A tree can only have
+
+```text
+1 Center
+
+or
+
+2 Centers
+```
+
+Never more.
+
+Those remaining nodes are always Minimum Height Tree roots.
+
+---
+
+# Python Solution
+
+```python
+from collections import defaultdict, deque
+from typing import List
+
+
+class Solution:
+    def findMinHeightTrees(self, n: int, edges: List[List[int]]) -> List[int]:
+
+        if n == 1:
+            return [0]
+
+        graph = defaultdict(list)
+        degree = [0] * n
+
+        # Build graph
+        for u, v in edges:
+            graph[u].append(v)
+            graph[v].append(u)
+            degree[u] += 1
+            degree[v] += 1
+
+        # Initial leaves
+        leaves = deque()
+
+        for node in range(n):
+            if degree[node] == 1:
+                leaves.append(node)
+
+        remaining = n
+
+        while remaining > 2:
+
+            size = len(leaves)
+            remaining -= size
+
+            for _ in range(size):
+
+                leaf = leaves.popleft()
+
+                for neighbor in graph[leaf]:
+
+                    degree[neighbor] -= 1
+
+                    if degree[neighbor] == 1:
+                        leaves.append(neighbor)
+
+        return list(leaves)
+```
+
+---
+
+# Code Explanation
+
+## Handle Single Node
+
+```python
+if n == 1:
+    return [0]
+```
+
+A tree with one node has height 0.
+
+---
+
+## Build Graph
+
+```python
+graph = defaultdict(list)
+degree = [0] * n
+```
+
+Graph stores neighbors.
+
+Degree stores number of edges connected to each node.
+
+---
+
+## Fill Graph
+
+```python
+graph[u].append(v)
+graph[v].append(u)
+```
+
+Undirected graph.
+
+Increase degree
+
+```python
+degree[u] += 1
+degree[v] += 1
+```
+
+---
+
+## Find Initial Leaves
+
+```python
+if degree[node] == 1:
+    leaves.append(node)
+```
+
+Leaves always have one connection.
+
+---
+
+## Remove Layer by Layer
+
+```python
+while remaining > 2:
+```
+
+Continue until only centers remain.
+
+---
+
+## Process Current Layer
+
+```python
+size = len(leaves)
+```
+
+Process exactly one layer.
+
+---
+
+## Remove Leaf
+
+```python
+leaf = leaves.popleft()
+```
+
+Delete leaf.
+
+---
+
+## Update Neighbor
+
+```python
+degree[neighbor] -= 1
+```
+
+Its neighbor loses one connection.
+
+---
+
+## New Leaf
+
+```python
+if degree[neighbor] == 1:
+    leaves.append(neighbor)
+```
+
+Neighbor becomes part of next layer.
+
+---
+
+# Time Complexity
+
+Build Graph
+
+```text
+O(n)
+```
+
+Each edge processed once.
+
+Leaf removal
+
+```text
+O(n)
+```
+
+Overall
+
+```text
+O(n)
+```
+
+---
+
+# Space Complexity
+
+Adjacency List
+
+```text
+O(n)
+```
+
+Degree Array
+
+```text
+O(n)
+```
+
+Queue
+
+```text
+O(n)
+```
+
+Overall
+
+```text
+O(n)
+```
+
+---
+
+# Mathematical Proof
+
+Longest path
+
+```text
+A ---------------- B
+```
+
+Every round removes
+
+```text
+A
+
+B
+```
+
+Longest path shrinks by
+
+```text
+2 edges
+```
+
+Eventually
+
+only
+
+```text
+•
+
+```
+
+or
+
+```text
+• ---- •
+```
+
+remains.
+
+These are the center(s).
+
+The center minimizes the maximum distance to every node.
+
+Therefore
+
+Minimum Height Trees are always rooted at the center(s).
+
+---
+
+# Pattern Recognition
+
+Whenever you hear
+
+- Minimum Height Tree
+- Best Root
+- Center of Tree
+- Remove Leaves
+- Trim Layers
+
+Think immediately
+
+```text
+Tree Center
+
+↓
+
+Leaf Trimming
+
+↓
+
+Queue
+
+↓
+
+Degree Array
+
+↓
+
+BFS
+```
+
+---
+
+# Common Mistakes
+
+❌ Running BFS from every node
+
+```text
+O(n²)
+```
+
+Too slow.
+
+---
+
+❌ Forgetting to decrease degree
+
+```python
+degree[neighbor] -= 1
+```
+
+Without this,
+
+new leaves are never discovered.
+
+---
+
+❌ Processing newly added leaves immediately
+
+Always process
+
+```python
+size = len(leaves)
+```
+
+This keeps BFS layer-by-layer.
+
+---
+
+❌ Forgetting the `n == 1` case
+
+Single-node trees have no edges.
+
+Return
+
+```text
+[0]
+```
+
+---
+
+# Interview Tips
+
+When you see
+
+- Best root
+- Minimum height
+- Center of tree
+- Remove leaves
+- Onion-like trimming
+
+Don't think DFS.
+
+Don't think brute force.
+
+Think
+
+```text
+Center of Tree
+
+↓
+
+Trim Leaves
+
+↓
+
+Topological Sort Style BFS
+
+↓
+
+O(n)
+```
+
+---
+
+# Key Takeaways
+
+- Minimum Height Trees are rooted at the **center(s)** of the tree.
+- Leaves can never be optimal roots (except when the tree has one or two nodes).
+- Repeatedly remove all current leaves.
+- This is a **multi-layer BFS** using a queue.
+- Use an adjacency list and degree array.
+- Stop when at most two nodes remain.
+- Time Complexity: **O(n)**
+- Space Complexity: **O(n)**
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 399. Evaluate Division
+# Complete Beginner to Interview Guide
+
+> **Difficulty:** Medium  
+> **Pattern:** Graph + BFS / DFS + Weighted Graph
+
+---
+
+# Understanding the Problem
+
+You are given equations like
+
+```text
+a / b = 2
+b / c = 3
+```
+
+Now someone asks
+
+```text
+a / c = ?
+```
+
+Can we calculate it?
+
+Yes.
+
+```
+a / c
+
+=
+
+(a / b) × (b / c)
+
+=
+
+2 × 3
+
+=
+
+6
+```
+
+So answer
+
+```text
+6
+```
+
+---
+
+Another query
+
+```text
+b / a
+```
+
+Since
+
+```text
+a / b = 2
+```
+
+then
+
+```text
+b / a
+
+=
+
+1 / 2
+
+=
+
+0.5
+```
+
+---
+
+Another query
+
+```text
+a / e
+```
+
+We know nothing about
+
+```text
+e
+```
+
+Answer
+
+```text
+-1
+```
+
+---
+
+# Real-Life Analogy
+
+Imagine
+
+```text
+1 Dollar
+
+=
+
+80 Rupees
+```
+
+and
+
+```text
+1 Rupee
+
+=
+
+2 Yen
+```
+
+Question
+
+```text
+Dollar → Yen
+```
+
+You simply multiply
+
+```text
+80 × 2
+```
+
+Exactly the same idea.
+
+Each equation is simply a conversion.
+
+---
+
+# Why is this a Graph Problem?
+
+Look carefully.
+
+Equation
+
+```text
+a / b = 2
+```
+
+means
+
+```text
+a -------> b
+```
+
+There is a relationship between two variables.
+
+That is exactly what an edge represents.
+
+Each variable
+
+↓
+
+becomes
+
+```text
+Node
+```
+
+Each equation
+
+↓
+
+becomes
+
+```text
+Edge
+```
+
+---
+
+Example
+
+```
+a / b = 2
+
+b / c = 3
+```
+
+Graph
+
+```text
+        2
+a ------------> b
+
+               |
+               |
+             3 |
+               |
+               v
+
+               c
+```
+
+But graph is actually **bidirectional**
+
+because
+
+```text
+a / b = 2
+```
+
+also means
+
+```text
+b / a = 1/2
+```
+
+So graph becomes
+
+```text
+        2
+a ------------> b
+
+<------------
+
+      1/2
+```
+
+Similarly
+
+```text
+b → c = 3
+
+c → b = 1/3
+```
+
+Final graph
+
+```text
+      2
+
+a ---------- b
+
+^            |
+
+|            |
+
+1/2          3
+
+|            |
+
+|            v
+
+      1/3
+
+      c
+```
+
+---
+
+# Graph Representation
+
+Adjacency List
+
+```python
+graph = defaultdict(list)
+```
+
+Each edge stores
+
+```text
+Neighbor
+
+Weight
+```
+
+Example
+
+```python
+graph["a"] = [("b",2)]
+graph["b"] = [("a",0.5),("c",3)]
+graph["c"] = [("b",1/3)]
+```
+
+---
+
+# Brute Force Thinking
+
+Suppose query
+
+```text
+a / c
+```
+
+How can we find it?
+
+We need a path
+
+```text
+a
+
+↓
+
+b
+
+↓
+
+c
+```
+
+Multiply
+
+```text
+2 × 3
+```
+
+Done.
+
+So we only need
+
+> A path from source to destination.
+
+Finding paths?
+
+Graph traversal.
+
+Exactly
+
+```text
+DFS
+
+or
+
+BFS
+```
+
+---
+
+# Key Observation
+
+Every edge has a weight.
+
+Suppose
+
+```text
+a / b = 4
+
+b / c = 5
+```
+
+Then
+
+```text
+a / c
+
+=
+
+4 × 5
+
+=
+
+20
+```
+
+Notice
+
+We keep multiplying weights.
+
+That is the whole problem.
+
+---
+
+# Main Intuition
+
+Question
+
+```text
+a / c
+```
+
+means
+
+> Start at
+
+```text
+a
+```
+
+Walk through graph
+
+until
+
+```text
+c
+```
+
+Multiply every edge weight.
+
+Done.
+
+---
+
+# Why BFS Works
+
+Suppose graph
+
+```text
+a --2--> b --3--> c
+```
+
+Queue
+
+```text
+[a,1]
+```
+
+Meaning
+
+```text
+Current Node
+
+Current Product
+```
+
+Pop
+
+```text
+a
+
+Product = 1
+```
+
+Neighbor
+
+```text
+b
+```
+
+New product
+
+```text
+1 × 2
+
+=
+
+2
+```
+
+Push
+
+```text
+[b,2]
+```
+
+Pop
+
+```text
+b
+
+Product = 2
+```
+
+Neighbor
+
+```text
+c
+```
+
+Product
+
+```text
+2 × 3
+
+=
+
+6
+```
+
+Push
+
+```text
+[c,6]
+```
+
+Pop
+
+```text
+c
+```
+
+Reached target.
+
+Return
+
+```text
+6
+```
+
+---
+
+# Mathematical Logic
+
+Suppose
+
+```text
+a / b = x
+
+b / c = y
+```
+
+Then
+
+```
+a
+
+=
+
+x × b
+```
+
+and
+
+```
+b
+
+=
+
+y × c
+```
+
+Substitute
+
+```
+a
+
+=
+
+x × y × c
+```
+
+Divide by
+
+```text
+c
+```
+
+```
+a / c
+
+=
+
+x × y
+```
+
+That's why
+
+we multiply weights.
+
+---
+
+# Step-by-Step Algorithm
+
+## Step 1
+
+Build graph.
+
+For every equation
+
+```text
+a / b = value
+```
+
+Store
+
+```text
+a → b
+
+value
+```
+
+and
+
+```text
+b → a
+
+1/value
+```
+
+---
+
+## Step 2
+
+For every query
+
+Run BFS.
+
+---
+
+## Step 3
+
+Start queue
+
+```text
+(source,1)
+```
+
+Because
+
+```
+a / a
+
+=
+
+1
+```
+
+Initially
+
+product = 1.
+
+---
+
+## Step 4
+
+Visit neighbors.
+
+Multiply
+
+```text
+current_product
+
+×
+
+edge_weight
+```
+
+---
+
+## Step 5
+
+Reach destination.
+
+Return accumulated product.
+
+---
+
+If destination never reached
+
+Return
+
+```text
+-1
+```
+
+---
+
+# Dry Run
+
+Input
+
+```text
+equations
+
+=
+
+[a,b]
+
+[b,c]
+
+values
+
+=
+
+2
+
+3
+```
+
+Graph
+
+```text
+a --2--> b
+
+b --3--> c
+
+b --0.5--> a
+
+c --1/3--> b
+```
+
+Query
+
+```text
+a / c
+```
+
+Queue
+
+```text
+[(a,1)]
+```
+
+Visited
+
+```text
+{}
+```
+
+---
+
+### Pop
+
+```text
+(a,1)
+```
+
+Neighbor
+
+```text
+b
+```
+
+New Product
+
+```text
+1 × 2
+
+=
+
+2
+```
+
+Queue
+
+```text
+[(b,2)]
+```
+
+Visited
+
+```text
+{b}
+```
+
+---
+
+### Pop
+
+```text
+(b,2)
+```
+
+Neighbor
+
+```text
+c
+```
+
+New Product
+
+```text
+2 × 3
+
+=
+
+6
+```
+
+Queue
+
+```text
+[(c,6)]
+```
+
+Visited
+
+```text
+{b,c}
+```
+
+---
+
+### Pop
+
+```text
+(c,6)
+```
+
+Reached destination.
+
+Answer
+
+```text
+6
+```
+
+---
+
+# Dry Run
+
+Query
+
+```text
+b / a
+```
+
+Queue
+
+```text
+[(b,1)]
+```
+
+Neighbor
+
+```text
+a
+```
+
+Weight
+
+```text
+0.5
+```
+
+Answer
+
+```text
+1 × 0.5
+
+=
+
+0.5
+```
+
+---
+
+# Dry Run
+
+Query
+
+```text
+a / e
+```
+
+Graph has no
+
+```text
+e
+```
+
+Immediately
+
+Return
+
+```text
+-1
+```
+
+---
+
+# Python Solution
+
+```python
+from collections import defaultdict, deque
+
+class Solution:
+    def calcEquation(self, equations, values, queries):
+
+        graph = defaultdict(list)
+
+        # Build graph
+        for (a, b), value in zip(equations, values):
+
+            graph[a].append((b, value))
+            graph[b].append((a, 1 / value))
+
+        def bfs(start, target):
+
+            if start not in graph or target not in graph:
+                return -1.0
+
+            queue = deque([(start, 1.0)])
+            visited = {start}
+
+            while queue:
+
+                node, product = queue.popleft()
+
+                if node == target:
+                    return product
+
+                for neighbor, weight in graph[node]:
+
+                    if neighbor not in visited:
+
+                        visited.add(neighbor)
+                        queue.append((neighbor, product * weight))
+
+            return -1.0
+
+        answer = []
+
+        for start, end in queries:
+            answer.append(bfs(start, end))
+
+        return answer
+```
+
+---
+
+# Code Explanation
+
+## Build Graph
+
+```python
+graph[a].append((b,value))
+```
+
+Store
+
+```text
+a → b
+```
+
+---
+
+Store reverse
+
+```python
+graph[b].append((a,1/value))
+```
+
+Because
+
+```
+a / b = x
+
+↓
+
+b / a = 1/x
+```
+
+---
+
+## BFS
+
+Queue stores
+
+```text
+(Current Node,
+
+Current Product)
+```
+
+Initially
+
+```python
+(start,1)
+```
+
+---
+
+## Visit Neighbor
+
+```python
+product * weight
+```
+
+Because
+
+```
+a / b
+
+×
+
+b / c
+
+=
+
+a / c
+```
+
+---
+
+## Destination
+
+If
+
+```python
+node == target
+```
+
+Return
+
+```python
+product
+```
+
+---
+
+# Time Complexity
+
+Suppose
+
+```
+N
+
+=
+
+number of variables
+```
+
+Each BFS
+
+```
+O(V+E)
+```
+
+Each query
+
+```
+O(V+E)
+```
+
+Overall
+
+```
+O(Q(V+E))
+```
+
+where
+
+```
+Q
+
+=
+
+queries
+```
+
+---
+
+# Space Complexity
+
+Adjacency List
+
+```
+O(V+E)
+```
+
+Queue
+
+```
+O(V)
+```
+
+Visited
+
+```
+O(V)
+```
+
+Total
+
+```
+O(V+E)
+```
+
+---
+
+# Common Mistakes
+
+## Forgetting Reverse Edge
+
+Wrong
+
+```python
+graph[a].append((b,value))
+```
+
+Correct
+
+```python
+graph[a].append((b,value))
+graph[b].append((a,1/value))
+```
+
+---
+
+## Forgetting Visited
+
+Without
+
+```python
+visited
+```
+
+Cycles can cause infinite traversal.
+
+---
+
+## Wrong Initial Product
+
+Wrong
+
+```python
+(start,0)
+```
+
+Correct
+
+```python
+(start,1)
+```
+
+Because multiplying starts with
+
+```
+1
+```
+
+not
+
+```
+0
+```
+
+---
+
+## Returning Integer
+
+Always return
+
+```text
+-1.0
+```
+
+not
+
+```text
+-1
+```
+
+---
+
+# Pattern Recognition
+
+Whenever you see
+
+- Variable relationships
+- Currency conversion
+- Unit conversion
+- Ratio
+- Division equations
+- Unknown value through known equations
+
+Think
+
+```
+Variables
+
+↓
+
+Graph Nodes
+
+↓
+
+Equation
+
+↓
+
+Weighted Edge
+
+↓
+
+Need Path
+
+↓
+
+BFS / DFS
+
+↓
+
+Multiply Edge Weights
+```
+
+---
+
+# Interview Tips
+
+When you see
+
+```
+a / b
+
+b / c
+
+Find
+
+a / c
+```
+
+Never think of algebra first.
+
+Think
+
+```
+Graph
+
+↓
+
+Weighted Edge
+
+↓
+
+Path
+
+↓
+
+Multiply Along Path
+```
+
+This mental model helps you identify the graph pattern immediately and derive the BFS/DFS solution.
+
+---
+
+# Key Takeaways
+
+- Treat every variable as a graph node.
+- Every equation becomes a weighted edge.
+- Add both forward and reverse edges.
+- A query asks for a path between two nodes.
+- Traverse the graph using BFS or DFS.
+- Multiply edge weights while traversing.
+- Return the accumulated product when the destination is reached.
+- If no path exists, return `-1.0`.
