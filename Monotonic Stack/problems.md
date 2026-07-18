@@ -10,6 +10,7 @@ Welcome to the monotonic stack problems section! Here you will find various data
 - [853. Car Fleet](#853-car-fleet)
 - [962. Maximum Width Ramp](#962-maximum-width-ramp)
 - [581. Shortest Unsorted Continuous Subarray](#581-shortest-unsorted-continuous-subarray)
+- [456. 132 Pattern](#456-132-pattern)
 
 <br><br><br><br><br>
 
@@ -7169,3 +7170,1198 @@ The common theme is:
 > **Maintain a monotonic order. When that order breaks, use the popped indices to answer the question.**
 
 Once you start recognizing **"order breaks"**, you'll naturally think about monotonic stacks.
+
+<br/><br/><br/><br/><br>
+
+---
+
+# 456. 132 Pattern
+
+> **Difficulty:** Medium  
+> **Technique:** Monotonic Stack + Reverse Traversal + Greedy
+
+---
+
+# 📚 Problem Statement
+
+You are given an array.
+
+Determine whether there exist **three indices**
+
+```
+i < j < k
+```
+
+such that
+
+```
+nums[i] < nums[k] < nums[j]
+```
+
+This is called a **132 Pattern**.
+
+If such a pattern exists,
+
+return
+
+```
+True
+```
+
+otherwise
+
+```
+False
+```
+
+---
+
+# 🤔 First Understand the Pattern
+
+The name
+
+```
+132
+```
+
+does **NOT** mean
+
+```
+1
+
+3
+
+2
+```
+
+It means
+
+```
+Small
+
+Large
+
+Middle
+```
+
+because
+
+```
+1 < 2 < 3
+```
+
+but their positions are
+
+```
+1
+
+3
+
+2
+```
+
+So we need
+
+```
+nums[i]
+
+<
+
+nums[k]
+
+<
+
+nums[j]
+```
+
+and
+
+```
+i < j < k
+```
+
+---
+
+Example
+
+```
+[3,1,4,2]
+```
+
+Indices
+
+```
+0 1 2 3
+```
+
+Values
+
+```
+3 1 4 2
+```
+
+Choose
+
+```
+1
+
+4
+
+2
+```
+
+Check
+
+```
+1<2<4
+```
+
+Yes.
+
+Indices
+
+```
+1<2<3
+```
+
+Also yes.
+
+Answer
+
+```
+True
+```
+
+---
+
+# Step 1 : Brute Force Thinking
+
+Try every triple.
+
+```
+for i
+
+    for j
+
+        for k
+
+            check
+```
+
+Complexity
+
+```
+O(N³)
+```
+
+Impossible.
+
+---
+
+# Step 2 : Reduce the Problem
+
+Whenever I solve a problem,
+
+I ask
+
+```
+Which value is hardest to find?
+```
+
+We need
+
+```
+Small
+
+Large
+
+Middle
+```
+
+Suppose
+
+we already know
+
+```
+Large
+
+and
+
+Middle
+```
+
+Then
+
+finding
+
+```
+Small
+```
+
+is easy.
+
+Or
+
+suppose
+
+we already know
+
+```
+Small
+
+and
+
+Large
+```
+
+Finding
+
+```
+Middle
+```
+
+is difficult.
+
+So maybe
+
+we should process
+
+```
+Large
+
+↓
+
+Middle
+```
+
+first.
+
+---
+
+# Step 3 : Which Direction?
+
+Look carefully.
+
+```
+i < j < k
+```
+
+Notice
+
+```
+j
+
+and
+
+k
+```
+
+are on the right side.
+
+If we traverse
+
+```
+Right
+
+↓
+
+Left
+```
+
+then
+
+when we stand at
+
+```
+i
+```
+
+everything to the right
+
+is already processed.
+
+This feels useful.
+
+---
+
+# Step 4 : Rearranging the Pattern
+
+Instead of
+
+thinking
+
+```
+Find
+
+1
+
+3
+
+2
+```
+
+Let's ask
+
+```
+Can current number become
+
+1 ?
+```
+
+Suppose
+
+current number
+
+is
+
+```
+1
+```
+
+Then we only need
+
+```
+Some
+
+2
+
+and
+
+3
+
+already seen
+```
+
+Great!
+
+Reverse traversal makes this possible.
+
+---
+
+# Step 5 : What Should We Store?
+
+Suppose
+
+we process
+
+```
+3
+
+1
+
+4
+
+2
+```
+
+from right.
+
+Order becomes
+
+```
+2
+
+4
+
+1
+
+3
+```
+
+Question
+
+When we see
+
+```
+4
+```
+
+what should we remember?
+
+Answer
+
+```
+Possible
+
+Middle Values (2)
+```
+
+Because
+
+future numbers
+
+may become
+
+```
+1.
+```
+
+---
+
+# Biggest Observation
+
+We need
+
+```
+Largest Value
+
+↓
+
+Middle Value
+```
+
+Notice
+
+the "middle"
+
+must always be
+
+```
+Less than
+
+some larger number.
+```
+
+A stack naturally helps us maintain
+
+possible
+
+```
+3's
+```
+
+while remembering
+
+the best
+
+```
+2.
+```
+
+---
+
+# The Secret Variable
+
+We maintain
+
+```
+second
+```
+
+It represents
+
+```
+Largest possible
+
+2
+```
+
+that we've seen so far.
+
+Initially
+
+```
+second = -∞
+```
+
+---
+
+# Why Reverse Traversal?
+
+Suppose
+
+Current
+
+```
+1
+```
+
+If
+
+```
+Current
+
+<
+
+second
+```
+
+Then
+
+we already know
+
+```
+Current
+
+↓
+
+second
+
+↓
+
+Some Larger Number
+```
+
+Which means
+
+```
+1
+
+3
+
+2
+```
+
+exists.
+
+Done.
+
+---
+
+# Building the Stack
+
+We maintain
+
+a
+
+```
+Decreasing Stack
+```
+
+containing
+
+possible
+
+```
+3's.
+```
+
+Whenever
+
+```
+Current
+
+>
+
+Stack Top
+```
+
+those smaller elements
+
+become candidates for
+
+```
+2.
+```
+
+So we pop them
+
+and update
+
+```
+second.
+```
+
+---
+
+# Why?
+
+Example
+
+```
+Stack
+
+8
+
+6
+
+4
+```
+
+Current
+
+```
+7
+```
+
+Since
+
+```
+7>4
+```
+
+The
+
+```
+4
+```
+
+can become
+
+our
+
+```
+2.
+```
+
+Pop.
+
+Update
+
+```
+second=4
+```
+
+Continue.
+
+---
+
+# Dry Run
+
+Example
+
+```
+nums
+
+3 1 4 2
+```
+
+Reverse
+
+```
+2
+
+4
+
+1
+
+3
+```
+
+---
+
+Start
+
+```
+stack=[]
+
+second=-∞
+```
+
+---
+
+### Current = 2
+
+```
+2<second?
+
+No
+```
+
+Push
+
+```
+2
+```
+
+Stack
+
+```
+2
+```
+
+---
+
+### Current = 4
+
+```
+4<second?
+
+No
+```
+
+Top
+
+```
+2
+```
+
+```
+4>2
+```
+
+Pop
+
+```
+2
+```
+
+Update
+
+```
+second=2
+```
+
+Push
+
+```
+4
+```
+
+Stack
+
+```
+4
+```
+
+---
+
+### Current = 1
+
+Check
+
+```
+1<second
+
+1<2
+
+Yes
+```
+
+Pattern found.
+
+Return
+
+```
+True
+```
+
+Notice
+
+```
+1
+
+↓
+
+4
+
+↓
+
+2
+```
+
+Exactly
+
+```
+132
+```
+
+---
+
+# Another Dry Run
+
+```
+nums
+
+1 2 3 4
+```
+
+Reverse
+
+```
+4
+
+3
+
+2
+
+1
+```
+
+Stack
+
+```
+4
+
+↓
+
+4 3
+
+↓
+
+4 3 2
+
+↓
+
+4 3 2 1
+```
+
+Nothing pops.
+
+```
+second
+```
+
+never changes.
+
+Never satisfy
+
+```
+current<second
+```
+
+Return
+
+```
+False
+```
+
+---
+
+# Why Does This Work?
+
+Suppose
+
+```
+second=5
+```
+
+This means
+
+we already found
+
+```
+Some larger number
+
+>
+
+5
+```
+
+Now
+
+if current
+
+is
+
+```
+3
+```
+
+Then
+
+```
+3<5
+```
+
+Automatically
+
+```
+3
+
+↓
+
+Larger Number
+
+↓
+
+5
+```
+
+forms
+
+```
+132
+```
+
+No further searching needed.
+
+---
+
+# Python Solution
+
+```python
+class Solution:
+    def find132pattern(self, nums):
+
+        stack = []
+
+        second = float("-inf")
+
+        for num in reversed(nums):
+
+            if num < second:
+                return True
+
+            while stack and num > stack[-1]:
+                second = stack.pop()
+
+            stack.append(num)
+
+        return False
+```
+
+---
+
+# Complexity Analysis
+
+Each element
+
+is
+
+- pushed once
+- popped once
+
+Time
+
+```
+O(N)
+```
+
+Space
+
+```
+O(N)
+```
+
+---
+
+# 🧠 How to Think Like an Interviewer
+
+This is the part most people skip.
+
+Let's learn **how to discover** this solution instead of memorizing it.
+
+---
+
+## ❌ Beginner Thinking
+
+Most beginners immediately think:
+
+```
+Need three numbers
+
+↓
+
+Let's try every triple
+```
+
+or
+
+```
+Need i
+
+Find j
+
+Find k
+```
+
+This becomes very complicated.
+
+---
+
+## ✅ Interview Thinking
+
+### Question 1
+
+```
+What am I searching for?
+```
+
+Answer
+
+```
+Three numbers
+
+with inequalities
+```
+
+Whenever there are **3 or more numbers with relationships**, ask:
+
+> **Can I fix one of them and search for the others?**
+
+---
+
+### Question 2
+
+Which one should I fix?
+
+We need
+
+```
+1
+
+3
+
+2
+```
+
+Finding all three together is hard.
+
+Instead ask:
+
+```
+If I already knew
+
+2
+
+could I recognize
+
+1?
+```
+
+Yes.
+
+Just check
+
+```
+current < second
+```
+
+Much easier.
+
+---
+
+### Question 3
+
+Can I process the array in a direction that makes this possible?
+
+Since
+
+```
+i < j < k
+```
+
+everything we need for
+
+```
+i
+```
+
+is to its right.
+
+So process
+
+```
+Right
+
+↓
+
+Left
+```
+
+---
+
+### Question 4
+
+What information should I remember?
+
+Not every element.
+
+Only the useful ones.
+
+Useful "3" values are maintained using a
+
+```
+Monotonic Decreasing Stack.
+```
+
+Useful "2" value is stored in
+
+```
+second.
+```
+
+---
+
+# 🎯 Pattern Recognition
+
+Whenever you see
+
+```
+Three numbers
+
+↓
+
+Inequalities
+
+↓
+
+Order matters
+```
+
+Ask yourself
+
+```
+Can I fix one number?
+
+↓
+
+Can I process backwards?
+
+↓
+
+Can I store candidates in a stack?
+
+↓
+
+Can I reduce three-variable search
+to one-variable checking?
+```
+
+This is the mental trick behind many hard interview problems.
+
+---
+
+# 🔗 Similar Problems
+
+This thinking appears in
+
+- **739. Daily Temperatures**
+- **496. Next Greater Element**
+- **84. Largest Rectangle in Histogram**
+- **962. Maximum Width Ramp**
+- **402. Remove K Digits**
+- **1673. Most Competitive Subsequence**
+
+The common idea is:
+
+> **Use a monotonic stack to keep only useful candidates and discard everything else.**
+
+---
+
+# 📝 Final Cheat Sheet
+
+```text
+Need Pattern
+
+1 < 2 < 3
+
+But Order
+
+1 → 3 → 2
+
+        │
+        ▼
+Process From Right
+        │
+        ▼
+Maintain Decreasing Stack
+(Possible 3's)
+        │
+        ▼
+Pop Smaller Values
+        │
+        ▼
+Largest Popped = second (2)
+        │
+        ▼
+Current < second ?
+        │
+   Yes ─────► Found 132 Pattern
+        │
+   No
+        │
+        ▼
+Push Current
+```

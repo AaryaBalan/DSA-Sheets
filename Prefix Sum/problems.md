@@ -10,6 +10,7 @@ Welcome to the prefix sum problems section! Here you will find various data stru
 - [2055. Plates Between Candles](#2055-plates-between-candles)
 - [2121. Intervals Between Identical Elements](#2121-intervals-between-identical-elements)
 - [3381. Maximum Subarray Sum With Length Divisible by K](#3381-maximum-subarray-sum-with-length-divisible-by-k)
+- [1124. Longest Well-Performing Interval](#1124-longest-well-performing-interval)
 
 <br><br><br><br><br>
 
@@ -6135,3 +6136,1024 @@ Current Prefix - Minimum Prefix
         ▼
 Answer
 ```
+
+<br/><br/><br/><br/><br>
+
+---
+
+# 1124. Longest Well-Performing Interval
+
+> **Difficulty:** Medium  
+> **Technique:** Prefix Sum + HashMap
+
+---
+
+# 📚 Problem Statement
+
+You are given an array `hours`, where each element represents the number of hours worked on that day.
+
+A day is called:
+
+- **Tiring Day** → hours > 8
+- **Non-Tiring Day** → hours ≤ 8
+
+A **Well-Performing Interval** is a continuous subarray where
+
+```
+Number of Tiring Days
+        >
+Number of Non-Tiring Days
+```
+
+Return the **length of the longest well-performing interval**.
+
+---
+
+# Example
+
+```
+Input
+
+hours = [9,9,6,0,6,6,9]
+```
+
+Output
+
+```
+3
+```
+
+Explanation
+
+```
+[9,9,6]
+
+Hard Days = 2
+
+Easy Days = 1
+
+2 > 1
+
+Length = 3
+```
+
+---
+
+# Step 1 : Understand the Problem
+
+Instead of thinking
+
+```
+Hours
+```
+
+think
+
+```
+Hard Days
+
+Easy Days
+```
+
+Example
+
+```
+hours
+
+9 9 6 0 6 6 9
+```
+
+Convert into
+
+```
+H H E E E E H
+```
+
+Our condition becomes
+
+```
+Hard Days
+
+>
+
+Easy Days
+```
+
+---
+
+# Step 2 : Convert English into Mathematics
+
+Instead of keeping two counts
+
+```
+Hard
+
+Easy
+```
+
+Move everything to one side.
+
+```
+Hard > Easy
+
+↓
+
+Hard - Easy > 0
+```
+
+This is the biggest trick.
+
+Whenever you see
+
+```
+More A than B
+```
+
+convert it into
+
+```
+A - B > 0
+```
+
+---
+
+# Step 3 : Convert Categories into Numbers
+
+Now represent each day by one number.
+
+```
+Hard Day
+
+↓
+
++1
+```
+
+```
+Easy Day
+
+↓
+
+-1
+```
+
+Example
+
+```
+9 9 6 0 6 6 9
+```
+
+becomes
+
+```
++1 +1 -1 -1 -1 -1 +1
+```
+
+Now the problem changes into
+
+> Find the **longest subarray whose sum is greater than 0.**
+
+This is much easier.
+
+---
+
+# Step 4 : Prefix Sum Appears
+
+Whenever you hear
+
+```
+Subarray Sum
+```
+
+think
+
+```
+Prefix Sum
+```
+
+Let's compute it.
+
+---
+
+## Prefix Sum
+
+Array
+
+```
++1 +1 -1 -1 -1 -1 +1
+```
+
+Start
+
+```
+prefix = 0
+```
+
+|Index|Value|Prefix|
+|------|-----|------|
+|-1|—|0|
+|0|+1|1|
+|1|+1|2|
+|2|-1|1|
+|3|-1|0|
+|4|-1|-1|
+|5|-1|-2|
+|6|+1|-1|
+
+So
+
+```
+Prefix
+
+0
+
+1
+
+2
+
+1
+
+0
+
+-1
+
+-2
+
+-1
+```
+
+---
+
+# Step 5 : Why Prefix Sum Works
+
+Remember
+
+```
+Subarray Sum
+
+=
+
+Current Prefix
+
+-
+
+Previous Prefix
+```
+
+We need
+
+```
+Subarray Sum > 0
+```
+
+Therefore
+
+```
+Current Prefix
+
+-
+
+Previous Prefix
+
+>
+
+0
+```
+
+Move
+
+```
+Previous Prefix
+```
+
+to the other side.
+
+```
+Current Prefix
+
+>
+
+Previous Prefix
+```
+
+So for every position
+
+we need an **earlier prefix sum that is smaller than the current prefix**.
+
+---
+
+# Step 6 : Important Observation
+
+Suppose
+
+```
+Current Prefix = 5
+```
+
+Previous Prefix can be
+
+```
+4
+
+3
+
+2
+
+1
+
+0
+
+...
+```
+
+Searching all smaller values every time would be expensive.
+
+---
+
+# Why Only Check `prefix - 1`?
+
+This is the trick that most people memorize.
+
+Let's understand why.
+
+Our prefix changes only by
+
+```
++1
+
+or
+
+-1
+```
+
+because each day contributes only
+
+```
++1
+
+or
+
+-1
+```
+
+Suppose
+
+```
+Current Prefix = -1
+```
+
+Need
+
+```
+Previous Prefix
+
+<
+
+-1
+```
+
+Possible values
+
+```
+-2
+
+-3
+
+-4
+```
+
+If any smaller prefix exists,
+
+then
+
+```
+prefix - 1
+```
+
+must also have appeared before.
+
+So checking
+
+```
+prefix - 1
+```
+
+is sufficient.
+
+---
+
+# Why Store the First Occurrence?
+
+Suppose
+
+```
+Prefix = 2
+```
+
+appears at
+
+```
+Index 3
+
+and
+
+Index 8
+```
+
+Current Index
+
+```
+12
+```
+
+Using
+
+```
+3
+
+↓
+
+Length = 9
+```
+
+Using
+
+```
+8
+
+↓
+
+Length = 4
+```
+
+The earlier occurrence always gives a longer interval.
+
+Therefore
+
+store only the first occurrence.
+
+---
+
+# Dry Run
+
+Input
+
+```
+hours
+
+9 9 6 0 6 6 9
+```
+
+Converted
+
+```
++1 +1 -1 -1 -1 -1 +1
+```
+
+---
+
+Initial
+
+```
+prefix = 0
+
+ans = 0
+
+first = {}
+```
+
+---
+
+## Index 0
+
+Value
+
+```
++1
+```
+
+Prefix
+
+```
+1
+```
+
+Since
+
+```
+prefix > 0
+```
+
+Entire array
+
+```
+[9]
+```
+
+is valid.
+
+Answer
+
+```
+1
+```
+
+Dictionary
+
+```
+{}
+```
+
+---
+
+## Index 1
+
+Value
+
+```
++1
+```
+
+Prefix
+
+```
+2
+```
+
+Still positive.
+
+Entire array
+
+```
+9 9
+```
+
+Answer
+
+```
+2
+```
+
+Dictionary
+
+```
+{}
+```
+
+---
+
+## Index 2
+
+Value
+
+```
+-1
+```
+
+Prefix
+
+```
+1
+```
+
+Still positive.
+
+Entire array
+
+```
+9 9 6
+```
+
+Answer
+
+```
+3
+```
+
+Dictionary
+
+```
+{}
+```
+
+---
+
+## Index 3
+
+Value
+
+```
+-1
+```
+
+Prefix
+
+```
+0
+```
+
+Not positive.
+
+Store first occurrence.
+
+```
+first[0]=3
+```
+
+Dictionary
+
+```
+{
+
+0 : 3
+
+}
+```
+
+Check
+
+```
+prefix-1
+
+=
+
+-1
+```
+
+Not present.
+
+Answer
+
+```
+3
+```
+
+---
+
+## Index 4
+
+Value
+
+```
+-1
+```
+
+Prefix
+
+```
+-1
+```
+
+Store
+
+```
+first[-1]=4
+```
+
+Dictionary
+
+```
+{
+
+0 : 3
+
+-1 : 4
+
+}
+```
+
+Check
+
+```
+-2
+```
+
+Not present.
+
+---
+
+## Index 5
+
+Value
+
+```
+-1
+```
+
+Prefix
+
+```
+-2
+```
+
+Store
+
+```
+first[-2]=5
+```
+
+Dictionary
+
+```
+{
+
+0 : 3
+
+-1 : 4
+
+-2 : 5
+
+}
+```
+
+Check
+
+```
+-3
+```
+
+Not found.
+
+---
+
+## Index 6
+
+Value
+
+```
++1
+```
+
+Prefix
+
+```
+-1
+```
+
+Already exists.
+
+Do NOT overwrite.
+
+Check
+
+```
+prefix-1
+
+=
+
+-2
+```
+
+Found
+
+```
+first[-2]=5
+```
+
+Length
+
+```
+6-5
+
+=
+
+1
+```
+
+Answer remains
+
+```
+3
+```
+
+---
+
+# Final Answer
+
+```
+3
+```
+
+Subarray
+
+```
+9 9 6
+```
+
+---
+
+# Algorithm
+
+1. Convert
+
+```
+Hard Day → +1
+
+Easy Day → -1
+```
+
+2. Compute Prefix Sum.
+
+3. If
+
+```
+prefix > 0
+```
+
+then
+
+```
+Entire array
+
+0...i
+```
+
+is valid.
+
+4. Otherwise
+
+- Store first occurrence of the prefix.
+- Check whether
+
+```
+prefix - 1
+```
+
+exists.
+
+5. Update the maximum interval length.
+
+---
+
+# Python Code
+
+```python
+class Solution:
+    def longestWPI(self, hours):
+        prefix = 0
+        ans = 0
+
+        # Stores first occurrence of every prefix sum
+        first = {}
+
+        for i, h in enumerate(hours):
+
+            # Convert hours to +1 / -1
+            if h > 8:
+                prefix += 1
+            else:
+                prefix -= 1
+
+            # Entire prefix is valid
+            if prefix > 0:
+                ans = i + 1
+
+            else:
+                # Store first occurrence only
+                if prefix not in first:
+                    first[prefix] = i
+
+                # Check for a smaller prefix
+                if (prefix - 1) in first:
+                    ans = max(ans, i - first[prefix - 1])
+
+        return ans
+```
+
+---
+
+# Complexity Analysis
+
+### Time Complexity
+
+```
+O(N)
+```
+
+Each element is processed once.
+
+---
+
+### Space Complexity
+
+```
+O(N)
+```
+
+HashMap stores at most one entry for every prefix sum.
+
+---
+
+# Pattern Recognition
+
+Whenever you see
+
+```
+More A than B
+```
+
+follow this thinking.
+
+```
+English
+
+↓
+
+Hard > Easy
+
+↓
+
+Hard - Easy > 0
+
+↓
+
+Hard = +1
+
+Easy = -1
+
+↓
+
+Subarray Sum > 0
+
+↓
+
+Prefix Sum
+
+↓
+
+Current Prefix > Previous Prefix
+
+↓
+
+HashMap
+```
+
+This thinking is used in many interview problems such as
+
+- 1124. Longest Well-Performing Interval
+- 525. Contiguous Array
+- 560. Subarray Sum Equals K
+- 974. Subarray Sums Divisible by K
+- 1590. Make Sum Divisible by P
+
+---
+
+# Interview Tips
+
+## Whenever you see
+
+```
+More A than B
+```
+
+Think
+
+```
+A = +1
+
+B = -1
+```
+
+---
+
+## Whenever you see
+
+```
+Subarray Sum
+```
+
+Think
+
+```
+Prefix Sum
+```
+
+---
+
+## Whenever you see
+
+```
+Longest Subarray
+```
+
+Think
+
+```
+HashMap
+
+or
+
+Monotonic Stack
+```
+
+depending on the condition.
+
+---
+
+# Key Takeaways
+
+- Convert categories into numbers whenever possible.
+- Transform comparisons like `A > B` into mathematical expressions.
+- Prefix Sum converts subarray problems into prefix comparisons.
+- Store the **first occurrence** of each prefix sum to maximize interval length.
+- The transformation is more important than memorizing the code.
