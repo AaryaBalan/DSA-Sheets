@@ -24,6 +24,7 @@ Welcome to the sliding window problems section! Here you will find various data 
 - [438. Find All Anagrams in a String](#438-find-all-anagrams-in-a-string)
 - [713. Subarray Product Less Than K](#713-subarray-product-less-than-k)
 - [2516. Take K of Each Character From Left and Right](#2516-take-k-of-each-character-from-left-and-right)
+- [187. Repeated DNA Sequences](#187-repeated-dna-sequences)
 
 <br><br><br><br><br>
 
@@ -11446,3 +11447,866 @@ Here, it depends on the entire window (`a`, `b`, and `c` counts), so all constra
 <br/><br/><br/><br/><br/>
 
 ---
+
+# 187. Repeated DNA Sequences
+
+**Difficulty:** Medium
+
+**Pattern:** Fixed Size Sliding Window + HashMap
+
+---
+
+# Problem Statement
+
+A DNA sequence contains only four characters:
+
+```text
+A
+C
+G
+T
+```
+
+You are given a DNA string `s`.
+
+Your task is to find **every substring of length 10** that appears **more than once**.
+
+Return all repeated DNA sequences.
+
+---
+
+# Example 1
+
+```text
+Input
+
+s = "AAAAACCCCCAAAAACCCCCCAAAAAGGGTTT"
+```
+
+Output
+
+```text
+[
+"AAAAACCCCC",
+"CCCCCAAAAA"
+]
+```
+
+Explanation
+
+```
+AAAAACCCCC
+```
+
+appears twice.
+
+```
+CCCCCAAAAA
+```
+
+also appears twice.
+
+---
+
+# Example 2
+
+```text
+Input
+
+AAAAAAAAAAAAA
+```
+
+Output
+
+```text
+["AAAAAAAAAA"]
+```
+
+Explanation
+
+Length of string = 13
+
+Possible windows
+
+```
+AAAAAAAAAA
+AAAAAAAAAA
+AAAAAAAAAA
+AAAAAAAAAA
+```
+
+The same sequence appears multiple times.
+
+---
+
+# Understanding the Problem
+
+The question is **NOT** asking
+
+> Which characters repeat?
+
+Instead it asks
+
+> Which **10-letter substring** repeats?
+
+Notice the word
+
+```text
+Substring
+```
+
+Substring means
+
+```text
+Continuous characters.
+```
+
+---
+
+# First Observation
+
+Every answer must have
+
+```text
+Length = 10
+```
+
+Nothing else matters.
+
+This immediately suggests
+
+```text
+Fixed Size Sliding Window
+```
+
+---
+
+# Brute Force Thinking
+
+Take every substring of length 10.
+
+Store its frequency.
+
+Finally,
+
+return all substrings whose frequency is greater than 1.
+
+---
+
+# Example
+
+```
+AAAAAAAAAAAAA
+```
+
+Windows
+
+```
+AAAAAAAAAA
+AAAAAAAAAA
+AAAAAAAAAA
+AAAAAAAAAA
+```
+
+Frequency
+
+```
+AAAAAAAAAA
+
+↓
+
+4
+```
+
+Since frequency > 1
+
+Answer
+
+```
+AAAAAAAAAA
+```
+
+---
+
+# How Do We Generate All Windows?
+
+Suppose
+
+```
+ABCDEFGHIJKLM
+```
+
+Window size
+
+```
+10
+```
+
+Possible windows
+
+```
+ABCDEFGHIJ
+
+BCDEFGHIJK
+
+CDEFGHIJKL
+
+DEFGHIJKLM
+```
+
+Notice
+
+Each time
+
+```
+Left moves by 1
+
+Right moves by 1
+```
+
+This is exactly
+
+```text
+Sliding Window
+```
+
+---
+
+# Sliding Window Intuition
+
+Window Size
+
+```
+10
+```
+
+Move one step at a time.
+
+```
+AAAAAAAAAA
+
+↓
+
+AAAAAAAAAA
+
+↓
+
+AAAAAAAAAA
+```
+
+Count every window.
+
+---
+
+# Your Original Code
+
+```python
+class Solution:
+    def findRepeatedDnaSequences(self, s: str) -> List[str]:
+
+        n = len(s)
+
+        freq = defaultdict(int)
+
+        left = 1
+
+        window = s[:10]
+
+        freq[window] += 1
+
+        for right in range(10,n):
+
+            window += s[right]
+
+            freq[window[right-9:]] += 1
+
+        ans = []
+
+        for key,val in freq.items():
+
+            if val>1:
+
+                ans.append(key)
+
+        return ans
+```
+
+---
+
+# Mistake 1
+
+## Window Keeps Growing
+
+You wrote
+
+```python
+window += s[right]
+```
+
+Let's see.
+
+Initially
+
+```
+window
+
+ABCDEFGHIJ
+```
+
+Length
+
+```
+10
+```
+
+After
+
+```python
+window += "K"
+```
+
+Window becomes
+
+```
+ABCDEFGHIJK
+```
+
+Length
+
+```
+11
+```
+
+Next iteration
+
+```
+ABCDEFGHIJKL
+```
+
+Length
+
+```
+12
+```
+
+Eventually
+
+```
+Length
+
+13
+
+14
+
+15
+
+...
+```
+
+This is **NOT** a sliding window.
+
+A fixed-size sliding window must always satisfy
+
+```
+Window Length = 10
+```
+
+---
+
+# Mistake 2
+
+Wrong Slicing
+
+You used
+
+```python
+window[right-9:]
+```
+
+Remember
+
+```
+right
+```
+
+is an index in the original string.
+
+NOT inside
+
+```
+window
+```
+
+Example
+
+Suppose
+
+```
+right = 20
+```
+
+Then
+
+```python
+window[11:]
+```
+
+But
+
+```
+window
+```
+
+already has a completely different size.
+
+This produces incorrect substrings.
+
+---
+
+# Mistake 3
+
+Unused Variable
+
+You declared
+
+```python
+left = 1
+```
+
+but never used it.
+
+This indicates the sliding window was incomplete.
+
+---
+
+# Simpler Way
+
+Instead of manually maintaining the window,
+
+Python slicing makes this problem very easy.
+
+Every substring is simply
+
+```python
+s[i:i+10]
+```
+
+No need to append or remove characters.
+
+---
+
+# Correct Algorithm
+
+For every possible starting position
+
+```
+0
+
+↓
+
+1
+
+↓
+
+2
+
+↓
+
+...
+```
+
+Take
+
+```python
+window = s[i:i+10]
+```
+
+Increase frequency.
+
+If frequency becomes
+
+```
+2
+```
+
+Add to answer.
+
+---
+
+# Why
+
+```python
+if freq[window] == 2
+```
+
+Suppose
+
+```
+AAAAAAAAAA
+```
+
+appears
+
+```
+6 times
+```
+
+Frequency
+
+```
+1
+
+2 ← Add once
+
+3
+
+4
+
+5
+
+6
+```
+
+If we wait until the end,
+
+we need another loop.
+
+Instead,
+
+the second occurrence is exactly when we know
+
+```
+This sequence repeats.
+```
+
+So we append immediately.
+
+---
+
+# Dry Run
+
+Input
+
+```text
+s = "AAAAAAAAAAAAA"
+```
+
+Length
+
+```
+13
+```
+
+---
+
+## i = 0
+
+Window
+
+```
+AAAAAAAAAA
+```
+
+Frequency
+
+```
+1
+```
+
+Do not add.
+
+---
+
+## i = 1
+
+Window
+
+```
+AAAAAAAAAA
+```
+
+Frequency
+
+```
+2
+```
+
+Add
+
+```
+AAAAAAAAAA
+```
+
+Answer
+
+```
+["AAAAAAAAAA"]
+```
+
+---
+
+## i = 2
+
+Window
+
+```
+AAAAAAAAAA
+```
+
+Frequency
+
+```
+3
+```
+
+Already added.
+
+Ignore.
+
+---
+
+## i = 3
+
+Frequency
+
+```
+4
+```
+
+Ignore.
+
+Final Answer
+
+```
+["AAAAAAAAAA"]
+```
+
+---
+
+# Correct Python Solution
+
+```python
+from collections import defaultdict
+
+class Solution:
+    def findRepeatedDnaSequences(self, s):
+
+        freq = defaultdict(int)
+
+        ans = []
+
+        for i in range(len(s) - 9):
+
+            window = s[i:i+10]
+
+            freq[window] += 1
+
+            if freq[window] == 2:
+                ans.append(window)
+
+        return ans
+```
+
+---
+
+# Complexity Analysis
+
+### Time
+
+There are
+
+```
+n - 9
+```
+
+possible windows.
+
+Each slice copies exactly
+
+```
+10
+```
+
+characters.
+
+Since
+
+```
+10
+```
+
+is constant,
+
+Overall
+
+```
+O(n)
+```
+
+---
+
+### Space
+
+HashMap stores every unique window.
+
+Worst Case
+
+```
+O(n)
+```
+
+---
+
+# Can We Optimize Further?
+
+Yes.
+
+This problem has an advanced interview solution.
+
+Instead of storing strings,
+
+store each DNA sequence as a number.
+
+Notice
+
+DNA contains only
+
+```
+A
+
+C
+
+G
+
+T
+```
+
+Only
+
+```
+4
+```
+
+possible characters.
+
+Represent each character using
+
+```
+2 bits
+```
+
+Example
+
+```
+A → 00
+
+C → 01
+
+G → 10
+
+T → 11
+```
+
+A DNA sequence of length
+
+```
+10
+```
+
+requires
+
+```
+20 bits
+```
+
+Now use
+
+```
+Rolling Hash
+```
+
+instead of storing strings.
+
+This reduces memory usage and is the optimized solution often discussed in interviews.
+
+---
+
+# Pattern Recognition
+
+Whenever you see
+
+```
+Every substring of fixed length
+
+Find repeated
+
+Count occurrences
+
+Find duplicates
+```
+
+Think immediately
+
+```
+Fixed Size Sliding Window
+
++
+
+HashMap
+```
+
+Ask yourself
+
+> Is the window size fixed?
+
+If **yes**, you usually don't need a variable-size sliding window. Just move the window one position at a time.
+
+---
+
+# Similar Problems
+
+- 438. Find All Anagrams in a String
+- 567. Permutation in String
+- 30. Substring with Concatenation of All Words
+- 219. Contains Duplicate II
+- 187. Repeated DNA Sequences
+
+---
+
+# Key Takeaways
+
+✅ Every answer is exactly **10 characters long**.
+
+✅ This is a **Fixed Size Sliding Window** problem.
+
+✅ Count each 10-character substring using a HashMap.
+
+✅ Append a substring only when its frequency becomes **2**, ensuring it appears only once in the result.
+
+✅ Python slicing (`s[i:i+10]`) naturally maintains a fixed-size window and keeps the implementation simple.
+
+---
+
+# Interview Tips
+
+Before implementing a sliding window, always ask:
+
+1. **Is the window size fixed or variable?**
+   - Fixed → move both pointers together.
+   - Variable → expand and shrink based on a condition.
+
+2. **What should always remain true?**
+   - In this problem:
+     ```
+     Window Length = 10
+     ```
+
+3. **Can Python slicing simplify the implementation?**
+   - If the window size is small and constant, slicing is often the cleanest solution.
+
+Keeping these questions in mind will help you identify and solve fixed-size sliding window problems much faster.
+
+<br/><br/><br/><br/><br/>
+
+---
+

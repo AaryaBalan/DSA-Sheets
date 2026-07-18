@@ -21,6 +21,7 @@ Welcome to the graph problems section! Here you will find various data structure
 - [210. Course Schedule II](#210-course-schedule-ii)
 - [310. Minimum Height Trees (MHT)](#310-minimum-height-trees-mht)
 - [399. Evaluate Division](#399-evaluate-division)
+- [743. Network Delay Time](#743-network-delay-time)
 
 <br><br><br><br><br>
 
@@ -15085,3 +15086,1233 @@ This mental model helps you identify the graph pattern immediately and derive th
 - Multiply edge weights while traversing.
 - Return the accumulated product when the destination is reached.
 - If no path exists, return `-1.0`.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 743. Network Delay Time
+
+> **Difficulty:** Medium  
+> **Pattern:** Graph + Shortest Path + Dijkstra's Algorithm (Priority Queue)
+
+---
+
+# Understanding the Problem
+
+Imagine there are **n computers** connected by cables.
+
+Each cable has a travel time.
+
+Example
+
+```text
+Computer A ----5 sec----> Computer B
+```
+
+If Computer A sends a signal,
+
+Computer B receives it after
+
+```text
+5 seconds
+```
+
+Now suppose
+
+```text
+A ----2----> B ----3----> C
+```
+
+Signal starts at
+
+```text
+A
+```
+
+Timeline
+
+```text
+Time = 0
+
+A receives signal
+```
+
+```text
+Time = 2
+
+B receives signal
+```
+
+```text
+Time = 5
+
+C receives signal
+```
+
+The question asks
+
+> **How long until EVERY computer receives the signal?**
+
+Answer
+
+```text
+5
+```
+
+---
+
+# Understanding the Input
+
+Example
+
+```text
+times =
+[
+[2,1,1],
+[2,3,1],
+[3,4,1]
+]
+
+n = 4
+
+k = 2
+```
+
+Each entry
+
+```text
+[u,v,w]
+```
+
+means
+
+```text
+u
+
+↓
+
+v
+
+takes w seconds
+```
+
+Example
+
+```text
+[2,1,1]
+```
+
+means
+
+```text
+2 ----1----> 1
+```
+
+---
+
+# Draw the Graph
+
+```text
+        1
+      ↙
+
+2
+
+      ↘
+
+        3
+
+         |
+
+         |1
+
+         v
+
+         4
+```
+
+Signal starts from
+
+```text
+2
+```
+
+---
+
+# Travel Time
+
+Initially
+
+```text
+Node 2
+
+Time = 0
+```
+
+After
+
+```text
+1 second
+```
+
+Reach
+
+```text
+1
+```
+
+and
+
+```text
+3
+```
+
+After another
+
+```text
+1 second
+```
+
+Reach
+
+```text
+4
+```
+
+Timeline
+
+```text
+0 sec
+
+2
+```
+
+↓
+
+```text
+1 sec
+
+1
+
+3
+```
+
+↓
+
+```text
+2 sec
+
+4
+```
+
+Every node has received the signal after
+
+```text
+2 seconds
+```
+
+Answer
+
+```text
+2
+```
+
+---
+
+# What is a Directed Weighted Graph?
+
+This problem is a graph.
+
+Each computer
+
+↓
+
+Node
+
+Each cable
+
+↓
+
+Directed Edge
+
+Travel time
+
+↓
+
+Weight
+
+Example
+
+```text
+1 ----4----> 2
+```
+
+Notice
+
+You can only go
+
+```text
+1 → 2
+```
+
+Not
+
+```text
+2 → 1
+```
+
+unless another edge exists.
+
+---
+
+# What Are We Actually Looking For?
+
+Suppose
+
+```text
+1
+
+↓
+
+2
+
+↓
+
+3
+
+↓
+
+4
+```
+
+Signal starts at
+
+```text
+1
+```
+
+Need
+
+```text
+Shortest Time
+
+to every node
+```
+
+Why shortest?
+
+Because
+
+Signals always take the fastest route.
+
+---
+
+# Brute Force Thinking
+
+Suppose
+
+```text
+1
+```
+
+can reach
+
+```text
+4
+```
+
+using many paths.
+
+```text
+1→2→4
+
+1→3→4
+
+1→5→6→4
+```
+
+Should we try every path?
+
+Impossible.
+
+There can be exponentially many.
+
+Need something smarter.
+
+---
+
+# Why BFS Doesn't Work?
+
+BFS works when
+
+Every edge has
+
+```text
+Equal Cost
+```
+
+Example
+
+```text
+1
+
+↓
+
+2
+
+↓
+
+3
+```
+
+Every edge costs
+
+```text
+1
+```
+
+Then
+
+BFS finds shortest path.
+
+---
+
+But here
+
+```text
+1
+
+↓
+
+2
+
+cost = 100
+```
+
+```text
+1
+
+↓
+
+3
+
+cost = 1
+```
+
+```text
+3
+
+↓
+
+2
+
+cost = 1
+```
+
+Graph
+
+```text
+1
+
+|100
+
+↓
+
+2
+
+^
+
+|
+
+1
+
+|
+
+3
+
+^
+
+|
+
+1
+
+|
+
+1
+```
+
+Shortest path
+
+```text
+1→3→2
+
+=
+
+2
+```
+
+BFS may visit
+
+```text
+2
+```
+
+first through
+
+```text
+100
+```
+
+Wrong answer.
+
+So
+
+BFS fails.
+
+---
+
+# Why Dijkstra?
+
+We need
+
+> Always process the node with the **smallest known time**.
+
+This is exactly what
+
+```text
+Dijkstra
+```
+
+does.
+
+It always expands the nearest node first.
+
+---
+
+# Main Intuition
+
+Imagine
+
+You are throwing a stone into water.
+
+```text
+Start
+```
+
+Ripples spread.
+
+Closest places receive water first.
+
+Farther places receive water later.
+
+Exactly how signals travel.
+
+Dijkstra simulates this.
+
+---
+
+# Data Structures Needed
+
+## Adjacency List
+
+```python
+graph = defaultdict(list)
+```
+
+Stores
+
+```text
+Neighbor
+
+Weight
+```
+
+Example
+
+```python
+graph[2] = [(1,1),(3,1)]
+```
+
+---
+
+## Min Heap
+
+```python
+heap = [(0,k)]
+```
+
+Stores
+
+```text
+(Current Time,
+
+Current Node)
+```
+
+Heap always gives
+
+Smallest Time First.
+
+---
+
+# Mathematical Logic
+
+Suppose
+
+```text
+Current shortest time
+
+=
+
+5
+```
+
+Edge
+
+```text
+Current
+
+↓
+
+Neighbor
+
+Weight = 3
+```
+
+Then
+
+Neighbor time
+
+```text
+5 + 3
+
+=
+
+8
+```
+
+This is called
+
+```text
+Relaxation
+```
+
+Formula
+
+```text
+newDistance
+
+=
+
+currentDistance
+
++
+
+edgeWeight
+```
+
+---
+
+# Step-by-Step Algorithm
+
+## Step 1
+
+Build graph.
+
+---
+
+## Step 2
+
+Min Heap
+
+```python
+[(0,k)]
+```
+
+Meaning
+
+```text
+Source receives signal at
+
+0 seconds
+```
+
+---
+
+## Step 3
+
+Pop
+
+Smallest Time.
+
+---
+
+## Step 4
+
+Visit every neighbor.
+
+Compute
+
+```text
+new_time
+
+=
+
+current_time
+
++
+
+edge_weight
+```
+
+---
+
+## Step 5
+
+Push
+
+Neighbor
+
+into heap.
+
+---
+
+## Step 6
+
+Continue until heap empty.
+
+---
+
+## Step 7
+
+If every node visited
+
+Return
+
+Maximum Time.
+
+Otherwise
+
+Return
+
+```text
+-1
+```
+
+---
+
+# Dry Run
+
+Example
+
+```text
+times
+
+=
+
+[
+[2,1,1],
+[2,3,1],
+[3,4,1]
+]
+
+k = 2
+```
+
+Graph
+
+```text
+2
+
+↙
+
+1
+
+↘
+
+3
+
+↓
+
+4
+```
+
+Heap
+
+```text
+[(0,2)]
+```
+
+Visited
+
+```text
+{}
+```
+
+Maximum Time
+
+```text
+0
+```
+
+---
+
+## Pop
+
+```text
+(0,2)
+```
+
+Visit
+
+```text
+2
+```
+
+Maximum
+
+```text
+0
+```
+
+Push
+
+```text
+(1,1)
+
+(1,3)
+```
+
+Heap
+
+```text
+[(1,1),(1,3)]
+```
+
+---
+
+## Pop
+
+```text
+(1,1)
+```
+
+Visit
+
+```text
+1
+```
+
+Maximum
+
+```text
+1
+```
+
+No neighbors.
+
+---
+
+## Pop
+
+```text
+(1,3)
+```
+
+Visit
+
+```text
+3
+```
+
+Maximum
+
+```text
+1
+```
+
+Push
+
+```text
+(2,4)
+```
+
+Heap
+
+```text
+[(2,4)]
+```
+
+---
+
+## Pop
+
+```text
+(2,4)
+```
+
+Visit
+
+```text
+4
+```
+
+Maximum
+
+```text
+2
+```
+
+Heap empty.
+
+Visited
+
+```text
+{1,2,3,4}
+```
+
+All nodes reached.
+
+Answer
+
+```text
+2
+```
+
+---
+
+# Python Solution
+
+```python
+from collections import defaultdict
+import heapq
+from typing import List
+
+
+class Solution:
+    def networkDelayTime(self, times: List[List[int]], n: int, k: int) -> int:
+
+        graph = defaultdict(list)
+
+        # Build graph
+        for u, v, w in times:
+            graph[u].append((v, w))
+
+        # Min Heap (time, node)
+        heap = [(0, k)]
+
+        visited = set()
+
+        max_time = 0
+
+        while heap:
+
+            current_time, node = heapq.heappop(heap)
+
+            if node in visited:
+                continue
+
+            visited.add(node)
+
+            max_time = max(max_time, current_time)
+
+            for neighbor, weight in graph[node]:
+
+                if neighbor not in visited:
+
+                    heapq.heappush(
+                        heap,
+                        (current_time + weight, neighbor)
+                    )
+
+        if len(visited) == n:
+            return max_time
+
+        return -1
+```
+
+---
+
+# Code Explanation
+
+## Build Graph
+
+```python
+graph[u].append((v,w))
+```
+
+Stores
+
+```text
+u → v
+
+Weight
+```
+
+---
+
+## Heap
+
+```python
+heap = [(0,k)]
+```
+
+Initially
+
+Source node receives signal
+
+at
+
+```text
+0 seconds
+```
+
+---
+
+## Pop
+
+```python
+current_time, node = heapq.heappop(heap)
+```
+
+Always gets
+
+Smallest Time.
+
+---
+
+## Visited
+
+```python
+if node in visited:
+    continue
+```
+
+Ignore duplicate entries.
+
+---
+
+## Relaxation
+
+```python
+current_time + weight
+```
+
+Example
+
+Current
+
+```text
+5 sec
+```
+
+Edge
+
+```text
+3 sec
+```
+
+Neighbor
+
+```text
+8 sec
+```
+
+---
+
+## Maximum Time
+
+```python
+max_time = max(max_time,current_time)
+```
+
+Because
+
+The last node to receive the signal
+
+determines the answer.
+
+---
+
+## Return
+
+If
+
+```text
+Visited Nodes
+
+=
+
+n
+```
+
+Return
+
+Maximum Time.
+
+Otherwise
+
+Return
+
+```text
+-1
+```
+
+---
+
+# Time Complexity
+
+Building Graph
+
+```text
+O(E)
+```
+
+Heap Operations
+
+```text
+O(E log V)
+```
+
+Overall
+
+```text
+O(E log V)
+```
+
+---
+
+# Space Complexity
+
+Adjacency List
+
+```text
+O(E)
+```
+
+Heap
+
+```text
+O(V)
+```
+
+Visited
+
+```text
+O(V)
+```
+
+Overall
+
+```text
+O(E + V)
+```
+
+---
+
+# Common Mistakes
+
+❌ Using BFS
+
+Works only for equal edge weights.
+
+---
+
+❌ Using Queue
+
+Must use
+
+```text
+Priority Queue (Min Heap)
+```
+
+---
+
+❌ Marking node visited before popping
+
+Wrong.
+
+A shorter path may still exist.
+
+Mark visited
+
+only after
+
+```python
+heapq.heappop()
+```
+
+---
+
+❌ Returning minimum time
+
+Question asks
+
+> **When does the last node receive the signal?**
+
+Return
+
+Maximum shortest distance.
+
+---
+
+# Pattern Recognition
+
+Whenever you see
+
+- Network Delay
+- Fastest Route
+- Minimum Cost
+- Travel Time
+- Weighted Graph
+- Shortest Path
+- Signal Transmission
+
+Think immediately
+
+```text
+Weighted Graph
+
+↓
+
+Shortest Path
+
+↓
+
+Dijkstra
+
+↓
+
+Priority Queue
+```
+
+---
+
+# Interview Tips
+
+Ask yourself these questions:
+
+1. **Are edges weighted?**
+   - Yes → BFS is not enough.
+
+2. **Are weights non-negative?**
+   - Yes → Dijkstra is the standard choice.
+
+3. **Do I need the shortest path from one source to all nodes?**
+   - Yes → Single-source shortest path → Dijkstra.
+
+4. **What is the final answer?**
+   - Not the shortest path to one node, but the **maximum** among all shortest paths.
+
+---
+
+# Key Takeaways
+
+- Treat each computer as a graph node.
+- Treat each cable as a directed weighted edge.
+- We need the shortest time from the source to every node.
+- Dijkstra's algorithm solves this efficiently for non-negative weights.
+- Use a **min-heap** to always process the closest node first.
+- The answer is the **largest shortest distance** among all reachable nodes.
+- If any node is unreachable, return **-1**.
