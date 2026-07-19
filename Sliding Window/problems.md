@@ -25,6 +25,10 @@ Welcome to the sliding window problems section! Here you will find various data 
 - [713. Subarray Product Less Than K](#713-subarray-product-less-than-k)
 - [2516. Take K of Each Character From Left and Right](#2516-take-k-of-each-character-from-left-and-right)
 - [187. Repeated DNA Sequences](#187-repeated-dna-sequences)
+- [978. Longest Turbulent Subarray](#978-longest-turbulent-subarray)
+- [1016. Binary String With Substrings Representing 1 To N](#1016-binary-string-with-substrings-representing-1-to-n)
+- [1031. Maximum Sum of Two Non-Overlapping Subarrays](#1031-maximum-sum-of-two-non-overlapping-subarrays)
+- [1156. Swap For Longest Repeated Character Substring](#1156-swap-for-longest-repeated-character-substring)
 
 <br><br><br><br><br>
 
@@ -12310,3 +12314,3884 @@ Keeping these questions in mind will help you identify and solve fixed-size slid
 
 ---
 
+# 978. Longest Turbulent Subarray
+
+**Difficulty:** Medium
+
+**Pattern:** Variable Size Sliding Window / Two Pointers
+
+---
+
+# Problem Statement
+
+You are given an array
+
+```text
+arr
+```
+
+Find the **length of the longest subarray** whose comparison signs **keep alternating**.
+
+In other words,
+
+```
+>
+
+<
+
+>
+
+<
+
+>
+
+<
+```
+
+or
+
+```
+<
+
+>
+
+<
+
+>
+
+<
+```
+
+The comparison must **flip at every adjacent pair**.
+
+---
+
+# What does Turbulent mean?
+
+Suppose
+
+```text
+5 2 7 3 8
+```
+
+Comparisons
+
+```
+5 > 2
+
+2 < 7
+
+7 > 3
+
+3 < 8
+```
+
+Signs
+
+```
+>
+
+<
+
+>
+
+<
+```
+
+They alternate perfectly.
+
+Therefore,
+
+the whole array is turbulent.
+
+---
+
+# Another Example
+
+```text
+2 4 6 8
+```
+
+Comparisons
+
+```
+2 < 4
+
+4 < 6
+
+6 < 8
+```
+
+Signs
+
+```
+<
+
+<
+
+<
+```
+
+No alternation.
+
+Longest answer
+
+```
+2
+```
+
+Because any two numbers are always turbulent.
+
+---
+
+# Equal Elements
+
+Suppose
+
+```text
+5 5
+```
+
+Comparison
+
+```
+=
+```
+
+Neither
+
+```
+<
+```
+
+nor
+
+```
+>
+```
+
+Therefore,
+
+the turbulence breaks immediately.
+
+---
+
+# Example 1
+
+```text
+arr =
+
+9 4 2 10 7 8 8 1 9
+```
+
+Comparisons
+
+```
+9 > 4
+
+4 > 2
+
+2 <10
+
+10 >7
+
+7 <8
+
+8 =8
+
+8 >1
+
+1 <9
+```
+
+Signs
+
+```
+>
+
+>
+
+<
+
+>
+
+<
+
+=
+
+>
+
+<
+```
+
+Longest alternating part
+
+```
+4 >2
+
+2 <10
+
+10 >7
+
+7 <8
+```
+
+Subarray
+
+```
+4 2 10 7 8
+```
+
+Length
+
+```
+5
+```
+
+Answer
+
+```
+5
+```
+
+---
+
+# Example 2
+
+```text
+4 8 12 16
+```
+
+Comparisons
+
+```
+<
+
+<
+
+<
+```
+
+No alternation.
+
+Answer
+
+```
+2
+```
+
+---
+
+# Example 3
+
+```text
+100
+```
+
+Only one element.
+
+Answer
+
+```
+1
+```
+
+---
+
+# First Observation
+
+We don't care about numbers.
+
+We only care about comparisons.
+
+```
+>
+
+<
+
+=
+```
+
+---
+
+# Convert into Comparison Array
+
+Example
+
+```text
+9 4 2 10 7 8
+```
+
+Comparisons become
+
+```
+>
+
+>
+
+<
+
+>
+
+<
+```
+
+Now the problem becomes
+
+```
+Find longest alternating
+
+>
+
+<
+
+>
+
+<
+```
+
+---
+
+# Sliding Window Intuition
+
+Maintain
+
+```
+left
+
+right
+```
+
+Expand
+
+while comparisons alternate.
+
+If alternation breaks,
+
+move
+
+```
+left
+```
+
+appropriately.
+
+---
+
+# How Do We Check Alternation?
+
+Suppose
+
+Previous comparison
+
+```
+>
+```
+
+Current comparison
+
+```
+<
+```
+
+Perfect.
+
+Continue.
+
+---
+
+Suppose
+
+Previous
+
+```
+<
+```
+
+Current
+
+```
+>
+```
+
+Perfect.
+
+Continue.
+
+---
+
+Suppose
+
+Previous
+
+```
+>
+```
+
+Current
+
+```
+>
+```
+
+Broken.
+
+Need new window.
+
+---
+
+Suppose
+
+```
+=
+```
+
+Broken immediately.
+
+Restart.
+
+---
+
+# Key Logic
+
+Let
+
+```python
+cmp(a,b)
+```
+
+be
+
+```
+1
+
+if a>b
+```
+
+```
+-1
+
+if a<b
+```
+
+```
+0
+
+if equal
+```
+
+Now compare
+
+Previous sign
+
+and
+
+Current sign.
+
+If
+
+```text
+previous × current == -1
+```
+
+they are opposite.
+
+Continue.
+
+Otherwise,
+
+restart.
+
+---
+
+# Dry Run
+
+Input
+
+```text
+9 4 2 10 7 8 8 1 9
+```
+
+Initially
+
+```
+left =0
+
+ans =1
+```
+
+---
+
+## right =1
+
+```
+9 >4
+```
+
+Window
+
+```
+9 4
+```
+
+Length
+
+```
+2
+```
+
+Answer
+
+```
+2
+```
+
+---
+
+## right =2
+
+Previous
+
+```
+>
+```
+
+Current
+
+```
+4 >2
+
+>
+```
+
+Same sign.
+
+Alternation broken.
+
+Restart window at
+
+```
+4 2
+```
+
+Length
+
+```
+2
+```
+
+---
+
+## right =3
+
+Previous
+
+```
+>
+
+Current
+
+<
+```
+
+Opposite.
+
+Window
+
+```
+4 2 10
+```
+
+Length
+
+```
+3
+```
+
+Answer
+
+```
+3
+```
+
+---
+
+## right =4
+
+Previous
+
+```
+<
+
+Current
+
+>
+```
+
+Alternate.
+
+Window
+
+```
+4 2 10 7
+```
+
+Length
+
+```
+4
+```
+
+Answer
+
+```
+4
+```
+
+---
+
+## right =5
+
+Previous
+
+```
+>
+
+Current
+
+<
+```
+
+Alternate.
+
+Window
+
+```
+4 2 10 7 8
+```
+
+Length
+
+```
+5
+```
+
+Answer
+
+```
+5
+```
+
+---
+
+## right =6
+
+```
+8==8
+```
+
+Equal.
+
+Everything breaks.
+
+Restart.
+
+---
+
+Final Answer
+
+```
+5
+```
+
+---
+
+# Python Solution (Sliding Window)
+
+```python
+class Solution:
+    def maxTurbulenceSize(self, arr):
+
+        n = len(arr)
+
+        if n == 1:
+            return 1
+
+        left = 0
+        ans = 1
+
+        for right in range(1, n):
+
+            cmp = 0
+
+            if arr[right - 1] < arr[right]:
+                cmp = 1
+            elif arr[right - 1] > arr[right]:
+                cmp = -1
+
+            if cmp == 0:
+                left = right
+
+            elif right == n - 1 or cmp * (
+                1 if arr[right] < arr[right + 1]
+                else -1 if arr[right] > arr[right + 1]
+                else 0
+            ) != -1:
+
+                ans = max(ans, right - left + 1)
+
+                left = right
+
+        return ans
+```
+
+This solution works, but many interviewers prefer a simpler Dynamic Programming style because it's easier to reason about.
+
+---
+
+# Simpler DP Solution (Recommended)
+
+Maintain two values:
+
+- `up` = longest turbulent subarray ending at current index where the last comparison is `<`
+- `down` = longest turbulent subarray ending at current index where the last comparison is `>`
+
+### Transition
+
+If
+
+```text
+arr[i] > arr[i-1]
+```
+
+then
+
+```text
+down = up + 1
+up = 1
+```
+
+because the previous comparison must have been `<`.
+
+If
+
+```text
+arr[i] < arr[i-1]
+```
+
+then
+
+```text
+up = down + 1
+down = 1
+```
+
+If equal,
+
+both become
+
+```text
+1
+```
+
+---
+
+## Python Code (Recommended)
+
+```python
+class Solution:
+    def maxTurbulenceSize(self, arr):
+
+        n = len(arr)
+
+        up = 1
+        down = 1
+        ans = 1
+
+        for i in range(1, n):
+
+            if arr[i] > arr[i - 1]:
+                down = up + 1
+                up = 1
+
+            elif arr[i] < arr[i - 1]:
+                up = down + 1
+                down = 1
+
+            else:
+                up = 1
+                down = 1
+
+            ans = max(ans, up, down)
+
+        return ans
+```
+
+---
+
+# Complexity
+
+### Time
+
+```
+O(n)
+```
+
+One pass through the array.
+
+---
+
+### Space
+
+```
+O(1)
+```
+
+Only a few variables are used.
+
+---
+
+# Pattern Recognition
+
+Whenever you see
+
+```
+Alternating
+
+>
+
+<
+
+>
+
+<
+```
+
+or
+
+```
+Positive
+
+Negative
+
+Positive
+
+Negative
+```
+
+Think
+
+```
+Compare adjacent elements
+```
+
+rather than focusing on the actual values.
+
+The important information is the **relationship** between neighbors, not the numbers themselves.
+
+---
+
+# Key Takeaways
+
+✅ A turbulent array alternates between `>` and `<`.
+
+✅ Equal adjacent elements immediately break turbulence.
+
+✅ Any two different adjacent elements form a turbulent subarray of length `2`.
+
+✅ The problem is really about alternating **comparison signs**, not values.
+
+✅ You can solve it in **O(n)** using either:
+- Sliding Window (comparison-based), or
+- Dynamic Programming (`up` / `down`), which is usually simpler in interviews.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 1016. Binary String With Substrings Representing 1 To N
+
+## Problem Understanding
+
+You are given:
+
+- A binary string `s` (contains only `0` and `1`)
+- An integer `n`
+
+Your task is to determine whether **every integer from `1` to `n`**, when written in **binary**, appears somewhere inside `s` as a **substring**.
+
+A **substring** means consecutive characters.
+
+---
+
+## Example 1
+
+```text
+s = "0110"
+n = 3
+```
+
+Numbers from `1` to `3`
+
+| Decimal | Binary |
+|----------|--------|
+| 1 | 1 |
+| 2 | 10 |
+| 3 | 11 |
+
+Now look at the string
+
+```text
+0110
+```
+
+Possible substrings are
+
+```text
+0
+1
+01
+11
+10
+011
+110
+0110
+```
+
+Do we have
+
+```
+1   ✓
+10  ✓
+11  ✓
+```
+
+Yes.
+
+Answer is
+
+```text
+True
+```
+
+---
+
+## Example 2
+
+```text
+s = "0110"
+n = 4
+```
+
+Need
+
+| Decimal | Binary |
+|----------|--------|
+|1|1|
+|2|10|
+|3|11|
+|4|100|
+
+Check
+
+```
+1   ✓
+10  ✓
+11  ✓
+100 ✗
+```
+
+Since `"100"` is not inside `"0110"`
+
+Answer
+
+```text
+False
+```
+
+---
+
+# Step 1 : What is the most natural solution?
+
+Whenever a problem asks
+
+> "Check every number from 1 to n"
+
+our first thought should be
+
+```
+Loop through every number.
+```
+
+So,
+
+For every integer
+
+```
+1
+2
+3
+...
+n
+```
+
+Convert it into binary.
+
+Python already provides
+
+```python
+bin(5)
+```
+
+Output
+
+```text
+'0b101'
+```
+
+Remove the first two characters
+
+```python
+bin(5)[2:]
+```
+
+Output
+
+```text
+101
+```
+
+Now simply check whether this binary string exists in `s`.
+
+Python provides
+
+```python
+if binary_string in s:
+```
+
+This checks whether it is a substring.
+
+So the brute force algorithm becomes
+
+```python
+for every number from 1 to n
+      convert to binary
+      check if binary exists in s
+      if not
+            return False
+
+return True
+```
+
+Very simple.
+
+---
+
+# Step 2 : Is this fast enough?
+
+Now always ask yourself
+
+> What are the constraints?
+
+Given
+
+```
+n <= 10^9
+```
+
+That means
+
+```
+1,000,000,000 numbers
+```
+
+Imagine
+
+```
+1
+2
+3
+...
+1 billion
+```
+
+Even checking one million numbers takes time.
+
+Checking one billion numbers is impossible.
+
+So the brute force cannot work.
+
+Whenever you see
+
+```
+10^8
+10^9
+10^12
+```
+
+your brain should immediately think
+
+> "There must be some observation."
+
+---
+
+# Step 3 : Look at the other constraint
+
+Now inspect the second constraint.
+
+```
+len(s) <= 1000
+```
+
+This is actually much more important.
+
+The string is tiny.
+
+Only
+
+```
+1000 characters.
+```
+
+Now ask
+
+> Can a tiny string really contain binary representations of billions of numbers?
+
+Probably not.
+
+This is the key intuition.
+
+---
+
+# Step 4 : Count how many substrings a string can have
+
+Suppose
+
+```
+s = "abc"
+```
+
+Substrings are
+
+```
+a
+ab
+abc
+b
+bc
+c
+```
+
+Total
+
+```
+6
+```
+
+Now suppose length is
+
+```
+4
+```
+
+```
+abcd
+```
+
+Substrings
+
+Start at index 0
+
+```
+a
+ab
+abc
+abcd
+```
+
+4 substrings.
+
+Start at index 1
+
+```
+b
+bc
+bcd
+```
+
+3 substrings.
+
+Start at index 2
+
+```
+c
+cd
+```
+
+2 substrings.
+
+Start at index 3
+
+```
+d
+```
+
+1 substring.
+
+Total
+
+```
+4+3+2+1
+```
+
+Now for length
+
+```
+L
+```
+
+Total substrings
+
+```
+L
++ (L-1)
++ (L-2)
+...
++1
+```
+
+This is a famous formula
+
+```
+1+2+3+...+L
+
+=
+
+L(L+1)/2
+```
+
+Therefore
+
+```
+Total substrings
+
+=
+
+L(L+1)/2
+```
+
+---
+
+# Step 5 : Apply the formula
+
+Maximum length
+
+```
+1000
+```
+
+Therefore
+
+```
+1000 × 1001 /2
+
+=
+
+500500
+```
+
+This means
+
+A string of length 1000 can have at most
+
+```
+500500
+```
+
+substrings.
+
+Notice something.
+
+Even if
+
+**every substring represented a different number**
+
+(which is impossible),
+
+the string still cannot represent more than
+
+```
+500500 numbers.
+```
+
+Therefore
+
+If
+
+```
+n > 500500
+```
+
+There is absolutely no chance.
+
+Immediately return
+
+```
+False
+```
+
+without doing anything.
+
+This is the mathematical trick.
+
+---
+
+# Step 6 : Why is this enough?
+
+Suppose
+
+```
+n = 900000
+```
+
+Need binary representations of
+
+```
+1
+2
+3
+...
+900000
+```
+
+That's
+
+```
+900000 different binary strings.
+```
+
+But the string has only
+
+```
+500500 substrings.
+```
+
+Impossible.
+
+So
+
+```
+False
+```
+
+This avoids checking billions of numbers.
+
+---
+
+# Step 7 : Final Algorithm
+
+Now we combine both ideas.
+
+### First
+
+If
+
+```
+n > total_substrings
+```
+
+Return
+
+```
+False
+```
+
+Otherwise
+
+Loop through
+
+```
+n
+n-1
+...
+1
+```
+
+Convert each number into binary.
+
+Check
+
+```
+binary in s
+```
+
+If missing
+
+```
+False
+```
+
+Otherwise
+
+```
+True
+```
+
+---
+
+# Why do we iterate from n down to 1?
+
+Instead of
+
+```
+1
+2
+3
+...
+n
+```
+
+we use
+
+```
+n
+n-1
+...
+1
+```
+
+Why?
+
+Large numbers have longer binary strings.
+
+Example
+
+```
+1
+
+1
+```
+
+Length
+
+```
+1
+```
+
+But
+
+```
+100000
+```
+
+Binary
+
+```
+11000011010100000
+```
+
+Much longer.
+
+Long binary strings are harder to find.
+
+Usually they are missing.
+
+So we fail earlier.
+
+This makes the algorithm faster in practice.
+
+---
+
+# Dry Run
+
+Input
+
+```text
+s = "0110"
+n = 3
+```
+
+Length
+
+```
+4
+```
+
+Maximum substrings
+
+```
+4×5/2
+
+=
+
+10
+```
+
+Since
+
+```
+3 < 10
+```
+
+Continue.
+
+---
+
+### Check 3
+
+Binary
+
+```python
+bin(3)
+```
+
+Output
+
+```
+0b11
+```
+
+Remove
+
+```
+0b
+```
+
+Get
+
+```
+11
+```
+
+Check
+
+```
+"11" in "0110"
+```
+
+Yes
+
+Continue.
+
+---
+
+### Check 2
+
+Binary
+
+```
+10
+```
+
+Check
+
+```
+"10" in "0110"
+```
+
+Yes
+
+Continue.
+
+---
+
+### Check 1
+
+Binary
+
+```
+1
+```
+
+Check
+
+```
+"1" in "0110"
+```
+
+Yes
+
+Continue.
+
+No failures.
+
+Return
+
+```
+True
+```
+
+---
+
+## Another Dry Run
+
+```text
+s = "0110"
+n = 4
+```
+
+Check
+
+### 4
+
+Binary
+
+```
+100
+```
+
+Search
+
+```
+100
+```
+
+inside
+
+```
+0110
+```
+
+Not found.
+
+Immediately
+
+```
+False
+```
+
+No need to check
+
+```
+3
+2
+1
+```
+
+---
+
+# Complexity Analysis
+
+Let
+
+```
+L = len(s)
+```
+
+### Early check
+
+```
+O(1)
+```
+
+### Loop
+
+At most
+
+```
+500500
+```
+
+iterations.
+
+Each substring search happens in a string of length at most
+
+```
+1000
+```
+
+Since `L` is very small (≤1000), this is efficient enough for the constraints.
+
+### Space
+
+Only a few variables are used.
+
+```
+O(1)
+```
+
+---
+
+# Python Solution
+
+```python
+class Solution:
+    def queryString(self, s: str, n: int) -> bool:
+
+        # Maximum possible substrings
+        if n > len(s) * (len(s) + 1) // 2:
+            return False
+
+        # Check every binary representation
+        for num in range(n, 0, -1):
+            if bin(num)[2:] not in s:
+                return False
+
+        return True
+```
+
+---
+
+# How to Develop This Intuition
+
+Many interview problems are solved not by clever coding, but by asking the right questions.
+
+### Step 1: Ignore the constraints and solve it first
+
+Always think:
+
+> "If the input were small, how would I solve it?"
+
+Here, the answer is:
+
+```
+Check every number.
+```
+
+This gives you the brute-force solution.
+
+---
+
+### Step 2: Look at what makes the brute force fail
+
+Ask:
+
+> "Why is my solution too slow?"
+
+Here, it's because:
+
+```
+n can be 10^9
+```
+
+So iterating over all numbers is impossible.
+
+---
+
+### Step 3: Look for the *small* constraint
+
+Whenever one constraint is huge, another is often surprisingly small.
+
+Here:
+
+```
+len(s) <= 1000
+```
+
+That should immediately catch your attention.
+
+A tiny input often hides the key optimization.
+
+---
+
+### Step 4: Ask what the small constraint limits
+
+Instead of thinking about `n`, think about the string itself.
+
+Ask:
+
+> "How many different substrings can this string even have?"
+
+That leads to the mathematical formula:
+
+```
+Number of substrings
+
+=
+
+L(L+1)/2
+```
+
+Once you realize the string has a limited number of substrings, you know it cannot possibly contain binary representations for more numbers than that.
+
+This observation allows you to eliminate impossible cases instantly.
+
+---
+
+## Key Takeaways
+
+- Start with the simplest brute-force solution first.
+- Use the constraints to identify why it won't work.
+- Look for another constraint that is much smaller.
+- Ask what that small constraint fundamentally limits.
+- Apply a mathematical observation if it can eliminate impossible cases before doing any work.
+- Combine the observation with the brute-force approach to get an efficient solution.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 1031. Maximum Sum of Two Non-Overlapping Subarrays
+
+## Problem Statement
+
+You are given:
+
+- An integer array `nums`
+- Two integers:
+  - `firstLen`
+  - `secondLen`
+
+You need to choose:
+
+- One contiguous subarray of length `firstLen`
+- One contiguous subarray of length `secondLen`
+
+such that:
+
+1. The two subarrays **do not overlap**.
+2. Their total sum is **maximum**.
+
+Return that maximum sum.
+
+---
+
+## Example
+
+```text
+nums = [0,6,5,2,2,5,1,9,4]
+
+firstLen = 1
+secondLen = 2
+```
+
+One possible choice
+
+```text
+[6,5] = 11
+
+[9] = 9
+
+Total = 20
+```
+
+Output
+
+```text
+20
+```
+
+---
+
+# Step 1: Understanding the Problem
+
+Suppose
+
+```text
+nums
+
+0 6 5 2 2 5 1 9 4
+```
+
+We need two windows.
+
+One window has size
+
+```text
+1
+```
+
+The other has size
+
+```text
+2
+```
+
+The important condition is
+
+```text
+They must not overlap.
+```
+
+For example,
+
+This is valid
+
+```text
+[6 5]        [9]
+```
+
+This is invalid
+
+```text
+[6 5]
+  [5 2]
+```
+
+because both windows use the element `5`.
+
+---
+
+# Step 2: First Thought (Brute Force)
+
+A beginner's first idea is usually:
+
+- Pick every possible first window.
+- For each first window, try every possible second window.
+- Check whether they overlap.
+- Keep the maximum answer.
+
+Pseudo code
+
+```python
+for every first window:
+    for every second window:
+        if no overlap:
+            answer = max(answer, sum1 + sum2)
+```
+
+This works.
+
+But it is slow.
+
+If there are `n` windows,
+
+we compare
+
+```text
+n × n
+
+=
+
+O(n²)
+```
+
+We need something better.
+
+---
+
+# Step 3: Looking for an Optimization
+
+Instead of checking **every previous window**, ask:
+
+> **What information do I actually need?**
+
+Suppose our current second window is
+
+```text
+0 6 5 2 2 5 1 9 4
+
+            [5 1]
+```
+
+Possible first windows are
+
+```text
+[0]
+
+[6]
+
+[5]
+
+[2]
+
+[2]
+```
+
+Do we need all of them?
+
+No.
+
+We only care about
+
+```text
+Which one has the maximum sum?
+```
+
+Because
+
+```text
+6 + currentWindow
+
+>
+
+5 + currentWindow
+
+>
+
+2 + currentWindow
+```
+
+The smaller windows will never give a better answer.
+
+This is the key observation.
+
+---
+
+# Step 4: Another Important Observation
+
+The answer can be arranged in only two ways.
+
+Either
+
+```text
+First window
+
+before
+
+Second window
+```
+
+```
+LLLL ..... MMMM
+```
+
+or
+
+```text
+Second window
+
+before
+
+First window
+```
+
+```
+MMMM ..... LLLL
+```
+
+There is no third arrangement.
+
+So we'll solve
+
+```
+L before M
+```
+
+and then
+
+```
+M before L
+```
+
+Finally,
+
+take the larger answer.
+
+---
+
+# Step 5: Main Idea
+
+Suppose
+
+```text
+L = 1
+
+M = 2
+```
+
+Initially
+
+```text
+L
+
+[0]
+
+M
+
+[6 5]
+```
+
+Now we keep moving only the **M window**.
+
+Every time M moves,
+
+L also moves so that
+
+```text
+L always stays before M.
+```
+
+While moving,
+
+we remember
+
+```text
+What is the maximum L window seen so far?
+```
+
+We don't remember every L window.
+
+Only the best one.
+
+---
+
+# Variables
+
+Our solution maintains four variables.
+
+## l_sum
+
+Current L window sum.
+
+Example
+
+```text
+[6]
+
+l_sum = 6
+```
+
+---
+
+## m_sum
+
+Current M window sum.
+
+Example
+
+```text
+[5 2]
+
+m_sum = 7
+```
+
+---
+
+## best_l
+
+Largest L window encountered so far.
+
+Suppose L window sums become
+
+```text
+0
+
+6
+
+5
+
+2
+
+2
+
+5
+```
+
+Then
+
+```text
+best_l
+
+=
+
+6
+```
+
+We never need the smaller values again.
+
+---
+
+## ans
+
+Stores the maximum answer.
+
+---
+
+# Step 6: Sliding Window
+
+Suppose current window is
+
+```text
+5 2
+```
+
+Current sum
+
+```text
+7
+```
+
+Move one step
+
+```text
+2 2
+```
+
+Instead of adding both numbers again,
+
+we do
+
+```text
+New Sum
+
+=
+
+Old Sum
+
++
+
+New Element
+
+-
+
+Removed Element
+```
+
+Example
+
+```
+7
+
++
+
+2
+
+-
+
+5
+
+=
+
+4
+```
+
+This updates the sum in constant time.
+
+The same idea is used for both windows.
+
+---
+
+# Dry Run
+
+Input
+
+```text
+nums=[0,6,5,2,2,5,1,9,4]
+
+L=1
+
+M=2
+```
+
+---
+
+## Initial State
+
+L window
+
+```text
+[0]
+```
+
+```
+l_sum=0
+```
+
+```
+best_l=0
+```
+
+M window
+
+```text
+[6 5]
+```
+
+```
+m_sum=11
+```
+
+Answer
+
+```
+11
+```
+
+---
+
+## Iteration 1
+
+Current
+
+```text
+L
+
+[0]
+
+M
+
+[6 5]
+```
+
+```
+best_l=0
+
+m_sum=11
+```
+
+Answer
+
+```
+11
+```
+
+Move windows.
+
+---
+
+## Iteration 2
+
+M becomes
+
+```text
+[5 2]
+```
+
+Update
+
+```python
+m_sum += nums[i]
+
+m_sum -= nums[i-M]
+```
+
+```
+11+2-6
+
+=
+
+7
+```
+
+Move L
+
+Old
+
+```text
+[0]
+```
+
+New
+
+```text
+[6]
+```
+
+Update
+
+```python
+l_sum += nums[i-M]
+
+l_sum -= nums[i-M-L]
+```
+
+```
+0+6-0
+
+=
+
+6
+```
+
+Update
+
+```
+best_l=max(0,6)
+
+=
+
+6
+```
+
+Answer
+
+```
+6+7
+
+=
+
+13
+```
+
+---
+
+## Iteration 3
+
+Move M
+
+```text
+[2 2]
+```
+
+```
+7+2-5
+
+=
+
+4
+```
+
+Move L
+
+```text
+[5]
+```
+
+```
+6+5-6
+
+=
+
+5
+```
+
+Update
+
+```
+best_l=max(6,5)
+
+=
+
+6
+```
+
+Answer
+
+```
+6+4
+
+=
+
+10
+```
+
+No improvement.
+
+---
+
+## Iteration 4
+
+Move M
+
+```text
+[2 5]
+```
+
+```
+4+5-2
+
+=
+
+7
+```
+
+Move L
+
+```text
+[2]
+```
+
+```
+5+2-5
+
+=
+
+2
+```
+
+```
+best_l=6
+```
+
+Answer
+
+```
+13
+```
+
+---
+
+## Iteration 5
+
+Move M
+
+```text
+[5 1]
+```
+
+```
+m_sum=6
+```
+
+Move L
+
+```text
+[2]
+```
+
+```
+l_sum=2
+```
+
+```
+best_l=6
+```
+
+Answer
+
+```
+12
+```
+
+---
+
+## Iteration 6
+
+Move M
+
+```text
+[1 9]
+```
+
+```
+m_sum=10
+```
+
+Move L
+
+```text
+[5]
+```
+
+```
+l_sum=5
+```
+
+```
+best_l=6
+```
+
+Answer
+
+```
+16
+```
+
+---
+
+## Iteration 7
+
+Move M
+
+```text
+[9 4]
+```
+
+```
+m_sum=13
+```
+
+Move L
+
+```text
+[1]
+```
+
+```
+l_sum=1
+```
+
+```
+best_l=6
+```
+
+Answer
+
+```
+19
+```
+
+So
+
+```text
+arrange(1,2)
+
+returns
+
+19
+```
+
+---
+
+# Why isn't this the final answer?
+
+Because we only checked
+
+```text
+1-length window
+
+before
+
+2-length window
+```
+
+The optimal solution is actually
+
+```text
+[6 5]
+
+before
+
+[9]
+```
+
+which means
+
+```text
+2-length
+
+before
+
+1-length
+```
+
+So we call
+
+```python
+arrange(2,1)
+```
+
+This returns
+
+```
+20
+```
+
+Final answer
+
+```
+max(19,20)
+
+=
+
+20
+```
+
+---
+
+# Understanding the Sliding Window Updates
+
+These two lines move the M window.
+
+```python
+m_sum += nums[i]
+
+m_sum -= nums[i-M]
+```
+
+Meaning
+
+```text
+Current Window
+
+5 2
+
+↓
+
+Move Right
+
+2 2
+
+New Sum
+
+=
+
+Old Sum
+
++
+
+New Element
+
+-
+
+Removed Element
+```
+
+---
+
+These two lines move the L window.
+
+```python
+l_sum += nums[i-M]
+
+l_sum -= nums[i-M-L]
+```
+
+Exactly the same idea.
+
+We remove the leftmost element.
+
+We add the new rightmost element.
+
+Now the L window is shifted by one position.
+
+---
+
+# Why do we keep best_l?
+
+Suppose the L window sums become
+
+```text
+3
+
+8
+
+5
+
+9
+
+2
+
+4
+```
+
+Should we store all of them?
+
+No.
+
+Only
+
+```text
+9
+```
+
+because
+
+```
+9 + current_M
+
+>
+
+8 + current_M
+
+>
+
+5 + current_M
+```
+
+The smaller windows can never produce a better answer.
+
+Therefore
+
+```python
+best_l = max(best_l, l_sum)
+```
+
+always stores the best L window seen so far.
+
+---
+
+# Complete Python Solution
+
+```python
+class Solution:
+    def maxSumTwoNoOverlap(self, nums, firstLen, secondLen):
+        n = len(nums)
+
+        # Returns the answer assuming
+        # L window always comes before M window
+        def arrange(L, M):
+
+            # Current L window sum
+            l_sum = sum(nums[:L])
+
+            # Best L window seen so far
+            best_l = l_sum
+
+            # Current M window sum
+            m_sum = sum(nums[L:L+M])
+
+            # Initial answer
+            ans = best_l + m_sum
+
+            # Slide both windows
+            for i in range(L + M, n):
+
+                # Move M window
+                m_sum += nums[i]
+                m_sum -= nums[i - M]
+
+                # Move L window
+                l_sum += nums[i - M]
+                l_sum -= nums[i - M - L]
+
+                # Update best L window
+                best_l = max(best_l, l_sum)
+
+                # Update answer
+                ans = max(ans, best_l + m_sum)
+
+            return ans
+
+        # Check both possible orders
+        return max(
+            arrange(firstLen, secondLen),
+            arrange(secondLen, firstLen)
+        )
+```
+
+---
+
+# How to Develop This Intuition
+
+Whenever you solve sliding window problems, ask yourself these questions:
+
+### Question 1
+
+Instead of checking **every previous window**, can I remember only the **best previous window**?
+
+If yes,
+
+store only
+
+- maximum
+- minimum
+- best value so far
+
+instead of every previous answer.
+
+---
+
+### Question 2
+
+Does the problem have only a few possible arrangements?
+
+Here there were only two.
+
+```text
+L before M
+
+or
+
+M before L
+```
+
+Recognizing this immediately cuts the search space.
+
+---
+
+### Question 3
+
+Can the window be moved one step at a time?
+
+If yes,
+
+don't recompute the sum.
+
+Instead use
+
+```text
+new_sum
+
+=
+
+old_sum
+
++
+
+incoming element
+
+-
+
+outgoing element
+```
+
+This is the standard sliding window optimization.
+
+---
+
+# Complexity
+
+Time Complexity
+
+```text
+O(n)
+```
+
+Space Complexity
+
+```text
+O(1)
+```
+
+Only a few variables are used, so the algorithm runs in linear time with constant extra space.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 1156. Swap For Longest Repeated Character Substring
+
+**Difficulty:** Medium
+
+**Pattern:** Sliding Window + Frequency Counting + String Grouping
+
+---
+
+# 1. Understanding the Problem
+
+At first glance, this problem looks like a normal sliding window problem.
+
+It is **NOT**.
+
+The biggest mistake beginners make is trying to solve it exactly like
+
+- Longest Repeating Character Replacement (424)
+- Max Consecutive Ones III (1004)
+
+This problem has an extra condition:
+
+> **You can perform only ONE SWAP between any two characters.**
+
+Not replace.
+Not delete.
+Not insert.
+
+Exactly **one swap**.
+
+---
+
+# 2. What does "swap" mean?
+
+Suppose
+
+```
+text = "ababa"
+```
+
+We can swap any two characters.
+
+Example
+
+```
+a b a b a
+
+swap
+
+b  <---->  a
+```
+
+Result
+
+```
+a a a b b
+```
+
+Now
+
+```
+Longest repeated substring
+
+=
+
+"aaa"
+
+length = 3
+```
+
+Answer
+
+```
+3
+```
+
+---
+
+# Example 2
+
+```
+aaabaaa
+```
+
+Visual
+
+```
+a a a b a a a
+```
+
+Notice something?
+
+There are
+
+```
+3 a
+
+1 b
+
+3 a
+```
+
+If we move
+
+```
+b
+```
+
+away
+
+```
+a a a a a a b
+```
+
+Longest block
+
+```
+6
+```
+
+Answer
+
+```
+6
+```
+
+---
+
+# Example 3
+
+```
+aaaaa
+```
+
+Already perfect.
+
+No need to swap.
+
+Answer
+
+```
+5
+```
+
+---
+
+# 3. What are we maximizing?
+
+We want
+
+```
+Longest continuous substring
+```
+
+containing
+
+```
+only one character
+```
+
+after
+
+```
+at most one swap.
+```
+
+---
+
+# 4. First Thought
+
+Most beginners think
+
+```
+Sliding Window
+```
+
+Let's see if that works.
+
+Suppose
+
+```
+aaabbaaa
+```
+
+Window
+
+```
+aaabb
+```
+
+Can we make everything 'a'?
+
+No.
+
+Because
+
+```
+Swap
+
+≠
+
+Replacement
+```
+
+Sliding window replacement logic doesn't apply.
+
+---
+
+# 5. Why Your Code is Wrong
+
+Your code is trying to solve
+
+```
+424.
+
+Longest Repeating Character Replacement
+```
+
+Look at this condition:
+
+```python
+while right-left+1-major>1:
+```
+
+This means
+
+```
+Window Size
+
+-
+
+Major Frequency
+
+<=1
+```
+
+This is exactly the formula used in Problem 424.
+
+That formula means
+
+> "I can replace every non-major character."
+
+But here
+
+we cannot replace.
+
+We can only
+
+```
+swap ONE character.
+```
+
+Huge difference.
+
+---
+
+## Another mistake
+
+You maintain
+
+```python
+major
+major_ele
+```
+
+But after shrinking
+
+```python
+major -=1
+```
+
+doesn't necessarily produce the correct majority.
+
+Example
+
+```
+aaaabbbb
+```
+
+After shrinking,
+
+the majority could change completely.
+
+---
+
+# Conclusion
+
+❌ Your code is **not correct** for this problem.
+
+It is solving a different problem.
+
+---
+
+# 6. How Should We Think?
+
+Forget sliding window.
+
+Let's inspect the string.
+
+Example
+
+```
+aaabbaaa
+```
+
+Groups
+
+```
+aaa
+
+bb
+
+aaa
+```
+
+Interesting.
+
+We already have
+
+```
+aaa
+```
+
+and
+
+```
+aaa
+```
+
+Can they be merged?
+
+No.
+
+Because
+
+```
+bb
+```
+
+has length
+
+```
+2
+```
+
+One swap cannot remove both.
+
+---
+
+Another example
+
+```
+aaabaaa
+```
+
+Groups
+
+```
+aaa
+
+b
+
+aaa
+```
+
+Now the middle group length is
+
+```
+1
+```
+
+One swap CAN remove that single obstacle.
+
+Then
+
+```
+aaa
+
++
+
+aaa
+
+=
+
+aaaaaa
+```
+
+---
+
+Huge observation
+
+We only care about
+
+```
+Character Groups
+```
+
+---
+
+# 7. Group Compression
+
+Instead of
+
+```
+aaabaaa
+```
+
+Store
+
+```
+('a',3)
+
+('b',1)
+
+('a',3)
+```
+
+Much easier.
+
+---
+
+Another example
+
+```
+aaabbccccaaa
+```
+
+becomes
+
+```
+(a,3)
+
+(b,2)
+
+(c,4)
+
+(a,3)
+```
+
+---
+
+# 8. Count Total Frequency
+
+Suppose
+
+```
+aaabaaa
+```
+
+Total frequency
+
+```
+a =6
+
+b =1
+```
+
+Why?
+
+Because even if
+
+two groups combine,
+
+we cannot exceed
+
+```
+Total number of a's.
+```
+
+---
+
+Example
+
+```
+aaa
+```
+
+already length
+
+```
+3
+```
+
+Total
+
+```
+a =3
+```
+
+Cannot become
+
+```
+4
+```
+
+No extra 'a' exists.
+
+---
+
+# 9. Two Cases
+
+## Case 1
+
+Single group
+
+```
+aaaa
+```
+
+Length
+
+```
+4
+```
+
+If another
+
+```
+a
+```
+
+exists elsewhere
+
+```
+aaaa....a
+```
+
+Swap it.
+
+Now
+
+```
+5
+```
+
+Otherwise
+
+remain
+
+```
+4
+```
+
+Formula
+
+```
+min(groupLength+1,totalFrequency)
+```
+
+---
+
+## Case 2
+
+Merge
+
+```
+aaa
+
+b
+
+aaaa
+```
+
+Middle length
+
+```
+1
+```
+
+Same character
+
+```
+a
+```
+
+Merge
+
+```
+3+4
+
+=
+
+7
+```
+
+Can only become
+
+```
+min(7,totalFrequency)
+```
+
+---
+
+# 10. Algorithm
+
+Step 1
+
+Count frequencies
+
+```
+Counter(text)
+```
+
+---
+
+Step 2
+
+Compress into groups
+
+Example
+
+```
+aaabaaa
+```
+
+↓
+
+```
+(a,3)
+
+(b,1)
+
+(a,3)
+```
+
+---
+
+Step 3
+
+For every group
+
+Compute
+
+```
+min(length+1,totalFreq)
+```
+
+---
+
+Step 4
+
+If
+
+```
+same char
+
+single different char
+
+same char
+```
+
+Merge
+
+```
+left+right
+```
+
+Answer
+
+```
+min(left+right+1,totalFreq)
+```
+
+Actually, since the middle character is replaced by swapping in one matching character from elsewhere, the merged candidate is:
+
+```
+min(leftLength + rightLength + 1, totalFrequency)
+```
+
+If there is no extra matching character outside those two groups, the `min` naturally limits it to `totalFrequency`.
+
+---
+
+# 11. Dry Run
+
+Example
+
+```
+text="aaabaaa"
+```
+
+Frequency
+
+```
+a=6
+
+b=1
+```
+
+Groups
+
+```
+(a,3)
+
+(b,1)
+
+(a,3)
+```
+
+---
+
+First group
+
+```
+3+1=4
+
+min(4,6)=4
+```
+
+Answer
+
+```
+4
+```
+
+---
+
+Merge
+
+```
+3
+
++
+
+3
+
++
+
+1
+
+=
+
+7
+```
+
+But
+
+total
+
+```
+a=6
+```
+
+Answer
+
+```
+min(7,6)
+
+=
+
+6
+```
+
+Final answer
+
+```
+6
+```
+
+---
+
+# Another Dry Run
+
+```
+ababa
+```
+
+Frequency
+
+```
+a=3
+
+b=2
+```
+
+Groups
+
+```
+(a,1)
+
+(b,1)
+
+(a,1)
+
+(b,1)
+
+(a,1)
+```
+
+Single group
+
+```
+1+1
+
+=
+
+2
+```
+
+Merge
+
+```
+1
+
++
+
+1
+
++
+
+1
+
+=
+
+3
+```
+
+Total
+
+```
+a=3
+```
+
+Answer
+
+```
+3
+```
+
+---
+
+# Python Solution
+
+```python
+from collections import Counter
+
+class Solution:
+    def maxRepOpt1(self, text: str) -> int:
+
+        freq = Counter(text)
+
+        groups = []
+
+        i = 0
+        n = len(text)
+
+        while i < n:
+            j = i
+            while j < n and text[j] == text[i]:
+                j += 1
+            groups.append((text[i], j - i))
+            i = j
+
+        ans = 0
+
+        # Case 1: Extend a single group
+        for ch, length in groups:
+            ans = max(ans, min(length + 1, freq[ch]))
+
+        # Case 2: Merge two groups separated by one different character
+        for i in range(1, len(groups) - 1):
+
+            if (
+                groups[i][1] == 1
+                and groups[i - 1][0] == groups[i + 1][0]
+            ):
+
+                ch = groups[i - 1][0]
+
+                merged = groups[i - 1][1] + groups[i + 1][1]
+
+                ans = max(ans, min(merged + 1, freq[ch]))
+
+        return ans
+```
+
+---
+
+# Complexity
+
+### Time
+
+```
+O(n)
+```
+
+We traverse the string a constant number of times.
+
+---
+
+### Space
+
+```
+O(n)
+```
+
+In the worst case (e.g., `"abababab"`), every character forms its own group.
+
+---
+
+# Why This Is a Product Company Solution
+
+This problem is **not** about recognizing a standard sliding window formula.
+
+The key insight is to **change the representation** of the data:
+
+```
+String
+
+↓
+
+Groups of identical characters
+```
+
+Many hard interview problems become easier once you compress the input into meaningful units instead of processing individual characters.
+
+---
+
+# How to Improve Your Thinking
+
+When you encounter a new problem:
+
+### Step 1
+Ask:
+
+```
+What operation is allowed?
+```
+
+Here:
+
+```
+Exactly one swap.
+```
+
+Not replacement.
+
+---
+
+### Step 2
+Ask:
+
+```
+What does the final answer look like?
+```
+
+A single block of identical characters.
+
+---
+
+### Step 3
+Ask:
+
+```
+What prevents two blocks from joining?
+```
+
+The characters between them.
+
+---
+
+### Step 4
+Notice:
+
+```
+One swap
+
+↓
+
+Can eliminate only ONE blocking character.
+```
+
+Therefore, only groups separated by **exactly one** different character are candidates for merging.
+
+This observation is the heart of the solution.
