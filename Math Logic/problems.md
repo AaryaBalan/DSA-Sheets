@@ -3,7 +3,14 @@
 Welcome to the Math Logic Problems section! Here you will find various data structure and algorithm problems that require mathematical observations, pattern recognition, logical reasoning, and optimization techniques.
 
 These problems focus on understanding the hidden mathematical structure behind a problem instead of relying only on brute-force approaches. You will learn how to derive formulas, identify patterns, use number properties, and convert mathematical insights into efficient algorithms.
+## Questions
 
+- [264. Ugly Number II](#264-ugly-number-ii)
+- [769. Max Chunks To Make Sorted](#769-max-chunks-to-make-sorted)
+
+<br><br><br><br><br>
+
+---
 
 # 264. Ugly Number II
 
@@ -881,3 +888,989 @@ Whenever a problem asks you to generate a sequence:
 3. If each new answer depends on earlier answers, it is often a sign that **Dynamic Programming** or a **pointer-based generation** technique can be used.
 
 This change in mindset—from **verification** to **construction**—is one of the most valuable habits in algorithmic problem solving.
+
+<br/><br/><br/><br/><br/><br/>
+
+---
+
+
+# 769. Max Chunks To Make Sorted
+
+> **Difficulty:** Medium  
+> **Technique:** Greedy + Prefix Maximum
+
+---
+
+# 📚 Problem Statement
+
+You are given a permutation of numbers from
+
+```
+0 to n-1
+```
+
+For example,
+
+```
+[1,0,2,3,4]
+```
+
+contains every number exactly once.
+
+You may split the array into several **continuous chunks**.
+
+Example
+
+```
+[1,0] | [2] | [3] | [4]
+```
+
+Then
+
+1. Sort each chunk individually.
+2. Join all chunks together.
+
+The final array **must become completely sorted**.
+
+Your goal is to create the **maximum number of chunks**.
+
+---
+
+# Example 1
+
+```
+Input
+
+[4,3,2,1,0]
+```
+
+Output
+
+```
+1
+```
+
+Why?
+
+No matter where you cut,
+
+sorting pieces separately will never produce
+
+```
+0 1 2 3 4
+```
+
+---
+
+# Example 2
+
+```
+Input
+
+[1,0,2,3,4]
+```
+
+Output
+
+```
+4
+```
+
+Possible partition
+
+```
+[1,0] | [2] | [3] | [4]
+```
+
+Sort individually
+
+```
+[0,1] | [2] | [3] | [4]
+```
+
+Join
+
+```
+0 1 2 3 4
+```
+
+Perfect.
+
+---
+
+# 🤔 First Think Like a Common Person
+
+Forget algorithms.
+
+Imagine numbers are students standing in the wrong order.
+
+```
+1 0 2 3 4
+```
+
+You want to divide them into classrooms.
+
+Each classroom can rearrange students **only inside itself**.
+
+Students **cannot move between classrooms**.
+
+Question:
+
+> When is it safe to close a classroom?
+
+---
+
+# First Observation
+
+Suppose
+
+```
+1 0
+```
+
+Can we close this classroom?
+
+Inside
+
+```
+1 0
+```
+
+Sorting gives
+
+```
+0 1
+```
+
+Exactly what we need.
+
+Good.
+
+---
+
+Now look at
+
+```
+1 0 2
+```
+
+Sorting
+
+```
+0 1 2
+```
+
+Still good.
+
+But
+
+why was
+
+```
+1 0
+```
+
+already enough?
+
+---
+
+# Let's Think About Positions
+
+Index
+
+```
+0 1
+```
+
+Values
+
+```
+1 0
+```
+
+Notice
+
+Largest value
+
+```
+1
+```
+
+Largest index
+
+```
+1
+```
+
+They are equal.
+
+Interesting.
+
+---
+
+# Another Example
+
+```
+2 0 1
+```
+
+Indices
+
+```
+0 1 2
+```
+
+Largest value
+
+```
+2
+```
+
+Largest index
+
+```
+2
+```
+
+Again equal.
+
+Sorting gives
+
+```
+0 1 2
+```
+
+Works.
+
+---
+
+# Another Example
+
+```
+2 1
+```
+
+Indices
+
+```
+0 1
+```
+
+Largest value
+
+```
+2
+```
+
+Largest index
+
+```
+1
+```
+
+Largest value is outside.
+
+If we cut here,
+
+where will
+
+```
+2
+```
+
+go?
+
+It belongs later.
+
+Impossible.
+
+So we cannot cut.
+
+---
+
+# The Biggest Observation
+
+Whenever we reach
+
+index
+
+```
+i
+```
+
+ask
+
+```
+Have I already seen every number
+that belongs in positions 0...i ?
+```
+
+If yes,
+
+then we can cut.
+
+---
+
+# How Do We Check That?
+
+Instead of checking every number,
+
+look only at
+
+```
+Maximum Value
+```
+
+Why?
+
+Suppose
+
+Current index
+
+```
+5
+```
+
+Maximum seen
+
+```
+5
+```
+
+Since the array is a permutation,
+
+numbers are unique.
+
+If maximum is
+
+```
+5
+```
+
+then all numbers
+
+```
+0 1 2 3 4 5
+```
+
+must already exist somewhere before index 5.
+
+Nothing larger belongs here.
+
+So we can safely cut.
+
+---
+
+# Mathematical Proof
+
+Suppose
+
+```
+Index = i
+```
+
+Maximum seen
+
+```
+maxi
+```
+
+If
+
+```
+maxi == i
+```
+
+Then
+
+There are exactly
+
+```
+i+1
+```
+
+positions
+
+```
+0...i
+```
+
+and exactly
+
+```
+i+1
+```
+
+numbers
+
+```
+0...i
+```
+
+Since every number is unique,
+
+all required numbers are already inside this chunk.
+
+Sorting will automatically place them correctly.
+
+Therefore
+
+```
+Cut Here
+```
+
+---
+
+# Greedy Idea
+
+Traverse the array.
+
+Maintain
+
+```
+Maximum value seen so far.
+```
+
+Whenever
+
+```
+Maximum == Current Index
+```
+
+create one chunk.
+
+---
+
+# Dry Run
+
+Example
+
+```
+arr
+
+1 0 2 3 4
+```
+
+---
+
+Start
+
+```
+maxi = 0
+
+chunks = 0
+```
+
+---
+
+## Index 0
+
+Value
+
+```
+1
+```
+
+Maximum
+
+```
+1
+```
+
+Compare
+
+```
+1 == 0 ?
+
+No
+```
+
+Cannot cut.
+
+---
+
+## Index 1
+
+Value
+
+```
+0
+```
+
+Maximum
+
+```
+1
+```
+
+Compare
+
+```
+1 == 1
+
+Yes
+```
+
+Everything
+
+```
+0
+
+1
+```
+
+already exists.
+
+Cut.
+
+Chunks
+
+```
+1
+```
+
+---
+
+## Index 2
+
+Value
+
+```
+2
+```
+
+Maximum
+
+```
+2
+```
+
+Compare
+
+```
+2 == 2
+
+Yes
+```
+
+Cut.
+
+Chunks
+
+```
+2
+```
+
+---
+
+## Index 3
+
+Value
+
+```
+3
+```
+
+Maximum
+
+```
+3
+```
+
+Cut.
+
+Chunks
+
+```
+3
+```
+
+---
+
+## Index 4
+
+Value
+
+```
+4
+```
+
+Maximum
+
+```
+4
+```
+
+Cut.
+
+Chunks
+
+```
+4
+```
+
+Answer
+
+```
+4
+```
+
+---
+
+# Another Dry Run
+
+```
+arr
+
+4 3 2 1 0
+```
+
+---
+
+Start
+
+```
+maxi = 0
+```
+
+---
+
+Index 0
+
+```
+maxi = 4
+```
+
+```
+4==0 ?
+
+No
+```
+
+---
+
+Index 1
+
+```
+maxi = 4
+```
+
+```
+4==1 ?
+
+No
+```
+
+---
+
+Index 2
+
+```
+4==2 ?
+
+No
+```
+
+---
+
+Index 3
+
+```
+4==3 ?
+
+No
+```
+
+---
+
+Index 4
+
+```
+4==4
+
+Yes
+```
+
+Only now
+
+can we cut.
+
+Answer
+
+```
+1
+```
+
+---
+
+# Why Does This Work?
+
+Imagine boxes.
+
+```
+Index
+
+0 1 2 3
+```
+
+Need numbers
+
+```
+0 1 2 3
+```
+
+If maximum seen is
+
+```
+3
+```
+
+then
+
+all numbers
+
+```
+0
+
+1
+
+2
+
+3
+```
+
+must already be inside.
+
+No number outside can belong here.
+
+Sorting fixes everything.
+
+---
+
+# Algorithm
+
+```
+maxi = 0
+
+chunks = 0
+
+for every index
+
+    maxi = max(maxi, arr[i])
+
+    if maxi == i
+
+         chunks +=1
+
+return chunks
+```
+
+---
+
+# Python Solution
+
+```python
+class Solution:
+    def maxChunksToSorted(self, arr):
+        maxi = 0
+        chunks = 0
+
+        for i in range(len(arr)):
+            maxi = max(maxi, arr[i])
+
+            if maxi == i:
+                chunks += 1
+
+        return chunks
+```
+
+---
+
+# Complexity Analysis
+
+### Time
+
+```
+O(N)
+```
+
+Single traversal.
+
+---
+
+### Space
+
+```
+O(1)
+```
+
+Only two variables.
+
+---
+
+# How to Think Like an Interviewer
+
+Most beginners think
+
+```
+Where should I cut?
+```
+
+Experienced candidates ask
+
+```
+When is it SAFE to cut?
+```
+
+This small change in thinking makes the solution much easier.
+
+---
+
+# The Thinking Process
+
+Whenever you see a partition problem,
+
+don't immediately think about cutting.
+
+Ask yourself
+
+```
+What condition must be true
+before I can safely make a cut?
+```
+
+Here,
+
+the condition is
+
+```
+Every number that belongs
+to this part
+must already be inside it.
+```
+
+Then ask
+
+```
+How can I check this efficiently?
+```
+
+Instead of checking every number,
+
+observe that the array is a permutation.
+
+That means checking only
+
+```
+Maximum Seen
+```
+
+is enough.
+
+---
+
+# Why Only Maximum?
+
+Suppose
+
+```
+Current Index = 5
+```
+
+Maximum seen
+
+```
+5
+```
+
+Since every number is unique,
+
+the first six numbers
+
+```
+0 1 2 3 4 5
+```
+
+must already be present.
+
+There is nothing missing.
+
+So sorting this chunk will automatically place them correctly.
+
+---
+
+# Pattern Recognition
+
+Whenever you see
+
+```
+Split Array
+
+Partition Array
+
+Maximum Chunks
+
+Independent Segments
+```
+
+ask yourself
+
+```
+When is it safe to split?
+```
+
+Many greedy problems become easy after finding the **safe boundary condition**.
+
+---
+
+# Similar Problems
+
+- **768. Max Chunks To Make Sorted II** (harder version)
+- **763. Partition Labels**
+- **915. Partition Array into Disjoint Intervals**
+- **56. Merge Intervals** (boundary thinking)
+- **1024. Video Stitching** (greedy partition)
+
+---
+
+# Interview Tips
+
+Whenever you see
+
+```
+Partition
+```
+
+follow this checklist:
+
+```
+Can elements move across partitions?
+
+↓
+
+No
+
+↓
+
+What must already be true
+before making a cut?
+
+↓
+
+Can I maintain that property
+while scanning once?
+
+↓
+
+Greedy
+```
+
+---
+
+# Key Takeaways
+
+- Don't think **"Where do I cut?"**
+- Think **"When is it safe to cut?"**
+- Convert the safety condition into a mathematical property.
+- For permutations, **`max_seen == current_index`** means every required value for that chunk has already appeared.
+- Once you recognize the safety condition, the greedy solution becomes a simple one-pass algorithm.
