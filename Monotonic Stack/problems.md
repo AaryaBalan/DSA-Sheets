@@ -11,6 +11,10 @@ Welcome to the monotonic stack problems section! Here you will find various data
 - [962. Maximum Width Ramp](#962-maximum-width-ramp)
 - [581. Shortest Unsorted Continuous Subarray](#581-shortest-unsorted-continuous-subarray)
 - [456. 132 Pattern](#456-132-pattern)
+- [907. Sum of Subarray Minimums](#907-sum-of-subarray-minimums)
+- [1130. Minimum Cost Tree From Leaf Values](#1130-minimum-cost-tree-from-leaf-values)
+- [1856. Maximum Subarray Min-Product](#1856-maximum-subarray-min-product)
+- [3523. Make Array Non-decreasing](#3523-make-array-non-decreasing)
 
 <br><br><br><br><br>
 
@@ -8369,3 +8373,4288 @@ Push Current
 <br/><br/><br/><br/><br>
 
 ---
+
+# 907. Sum of Subarray Minimums
+
+> **Difficulty:** Medium  
+> **Technique:** Monotonic Stack + Contribution Technique
+
+---
+
+# 📚 Problem Statement
+
+You are given an array.
+
+For **every possible contiguous subarray**, find its **minimum element**.
+
+Finally,
+
+```
+Add all those minimums together.
+```
+
+Return the answer.
+
+---
+
+# Example
+
+```
+arr = [3,1,2,4]
+```
+
+All subarrays
+
+```
+[3]        min = 3
+
+[1]        min = 1
+
+[2]        min = 2
+
+[4]        min = 4
+
+[3,1]      min = 1
+
+[1,2]      min = 1
+
+[2,4]      min = 2
+
+[3,1,2]    min = 1
+
+[1,2,4]    min = 1
+
+[3,1,2,4]  min = 1
+```
+
+Sum
+
+```
+3+1+2+4+1+1+2+1+1+1 = 17
+```
+
+---
+
+# 🤔 Step 1 : How Does a Common Person Think?
+
+When we first read the problem,
+
+we naturally think
+
+```
+Generate every subarray
+
+↓
+
+Find minimum
+
+↓
+
+Add it
+```
+
+---
+
+# Brute Force
+
+```
+for every starting index
+
+    for every ending index
+
+         find minimum
+```
+
+---
+
+Example
+
+```
+3 1 2 4
+```
+
+Generate
+
+```
+3
+
+3 1
+
+3 1 2
+
+3 1 2 4
+
+1
+
+1 2
+
+1 2 4
+
+2
+
+2 4
+
+4
+```
+
+Complexity
+
+Generating
+
+```
+O(N²)
+```
+
+Finding minimum
+
+```
+O(N)
+```
+
+Total
+
+```
+O(N³)
+```
+
+Impossible.
+
+---
+
+# 🤔 Step 2 : Improve the Brute Force
+
+Instead of finding the minimum again,
+
+keep updating it.
+
+```
+mini = INF
+
+for j:
+
+    mini=min(mini,arr[j])
+```
+
+Now
+
+Time
+
+```
+O(N²)
+```
+
+Still too slow.
+
+---
+
+# 🤔 Step 3 : Think Differently
+
+This is where interview thinking starts.
+
+Instead of asking
+
+```
+For every subarray
+
+find minimum
+```
+
+Ask
+
+```
+For every element
+
+How many subarrays
+
+consider THIS element
+
+their minimum?
+```
+
+This is the biggest idea.
+
+---
+
+# Example
+
+```
+3 1 2 4
+```
+
+Instead of
+
+```
+Subarray
+
+↓
+
+Minimum
+```
+
+Think
+
+```
+Element
+
+↓
+
+How many subarrays choose me?
+```
+
+---
+
+Suppose
+
+```
+1
+```
+
+is the minimum in
+
+```
+[1]
+
+[3,1]
+
+[1,2]
+
+[1,2,4]
+
+[3,1,2]
+
+[3,1,2,4]
+```
+
+Instead of adding
+
+```
+1
+
+1
+
+1
+
+1
+
+1
+
+1
+```
+
+Just compute
+
+```
+Contribution
+
+=
+
+1 × 6
+```
+
+Huge simplification.
+
+---
+
+# The New Problem
+
+For every element
+
+find
+
+```
+How many subarrays
+
+have me as minimum?
+```
+
+---
+
+# Step 4 : Let's Focus on One Element
+
+Example
+
+```
+3 1 2 4
+```
+
+Focus only on
+
+```
+2
+```
+
+Question
+
+How many subarrays
+
+have
+
+```
+2
+```
+
+as the minimum?
+
+---
+
+Let's draw.
+
+```
+3 1 2 4
+    ↑
+```
+
+To the left
+
+when do we stop?
+
+At the first element
+
+smaller than
+
+```
+2
+```
+
+which is
+
+```
+1
+```
+
+---
+
+To the right
+
+when do we stop?
+
+At the first element
+
+smaller than
+
+```
+2
+```
+
+There isn't one.
+
+---
+
+Interesting.
+
+This looks exactly like
+
+```
+Previous Smaller Element
+
+Next Smaller Element
+```
+
+Monotonic Stack!
+
+---
+
+# Step 5 : Why Previous Smaller?
+
+Suppose
+
+```
+3 1 2 4
+```
+
+Current
+
+```
+2
+```
+
+Can we include
+
+```
+1
+```
+
+inside the subarray?
+
+No.
+
+Because
+
+```
+1
+```
+
+would become the minimum.
+
+So
+
+```
+1
+```
+
+is the boundary.
+
+---
+
+Similarly
+
+on the right
+
+we stop
+
+when a smaller element appears.
+
+---
+
+# Step 6 : Count Choices
+
+Suppose
+
+```
+Previous Smaller
+
+↓
+
+distance = L
+```
+
+```
+Next Smaller
+
+↓
+
+distance = R
+```
+
+Then
+
+Left side has
+
+```
+L
+
+choices
+```
+
+Right side has
+
+```
+R
+
+choices
+```
+
+Total subarrays
+
+```
+L × R
+```
+
+---
+
+# Why Multiply?
+
+Suppose
+
+Current
+
+```
+2
+```
+
+Left choices
+
+```
+2
+```
+
+Right choices
+
+```
+3
+```
+
+Possible left boundaries
+
+```
+A
+
+B
+```
+
+Possible right boundaries
+
+```
+X
+
+Y
+
+Z
+```
+
+Every left
+
+can combine
+
+with every right.
+
+```
+A-X
+
+A-Y
+
+A-Z
+
+B-X
+
+B-Y
+
+B-Z
+```
+
+Total
+
+```
+2×3=6
+```
+
+This is simple combinatorics.
+
+---
+
+# Step 7 : Dry Run
+
+Example
+
+```
+3 1 2 4
+```
+
+---
+
+## Element
+
+```
+3
+```
+
+Previous Smaller
+
+```
+None
+```
+
+Distance
+
+```
+1
+```
+
+Next Smaller
+
+```
+1
+```
+
+Distance
+
+```
+1
+```
+
+Contribution
+
+```
+3×1×1=3
+```
+
+---
+
+## Element
+
+```
+1
+```
+
+Previous Smaller
+
+```
+None
+```
+
+Distance
+
+```
+2
+```
+
+Choices
+
+```
+Start
+
+0
+
+1
+```
+
+Right
+
+No smaller.
+
+Distance
+
+```
+3
+```
+
+Contribution
+
+```
+1×2×3=6
+```
+
+---
+
+## Element
+
+```
+2
+```
+
+Previous Smaller
+
+```
+1
+```
+
+Distance
+
+```
+1
+```
+
+Right
+
+None
+
+Distance
+
+```
+2
+```
+
+Contribution
+
+```
+2×1×2=4
+```
+
+---
+
+## Element
+
+```
+4
+```
+
+Previous Smaller
+
+```
+2
+```
+
+Distance
+
+```
+1
+```
+
+Right
+
+None
+
+Distance
+
+```
+1
+```
+
+Contribution
+
+```
+4×1×1=4
+```
+
+---
+
+Total
+
+```
+3
+
++
+
+6
+
++
+
+4
+
++
+
+4
+
+=
+
+17
+```
+
+Correct.
+
+---
+
+# Step 8 : Finding Previous Smaller
+
+We use
+
+```
+Increasing Stack
+```
+
+Whenever
+
+```
+stack top
+
+>= current
+```
+
+Pop.
+
+Then
+
+Top
+
+becomes
+
+Previous Smaller.
+
+---
+
+Example
+
+```
+3 1 2 4
+```
+
+---
+
+Current
+
+```
+3
+```
+
+Stack
+
+```
+[]
+```
+
+Previous
+
+```
+-1
+```
+
+Push
+
+```
+3
+```
+
+---
+
+Current
+
+```
+1
+```
+
+Pop
+
+```
+3
+```
+
+Stack
+
+empty
+
+Previous
+
+```
+-1
+```
+
+Push
+
+```
+1
+```
+
+---
+
+Current
+
+```
+2
+```
+
+Top
+
+```
+1
+```
+
+Previous Smaller
+
+```
+1
+```
+
+Push.
+
+---
+
+# Step 9 : Finding Next Smaller
+
+Traverse
+
+```
+Right
+
+↓
+
+Left
+```
+
+Again
+
+use
+
+Increasing Stack.
+
+---
+
+# Handling Duplicates
+
+This is extremely important.
+
+If duplicates exist,
+
+one side should use
+
+```
+>
+```
+
+the other side should use
+
+```
+>=
+```
+
+Otherwise
+
+same subarray
+
+gets counted twice.
+
+Standard choice
+
+Previous Smaller
+
+```
+>
+```
+
+Next Smaller
+
+```
+>=
+```
+
+---
+
+# Algorithm
+
+```
+Find Previous Smaller
+
+Find Next Smaller
+
+For every element
+
+Contribution
+
+=
+
+Value
+
+×
+
+Left Distance
+
+×
+
+Right Distance
+
+Add all contributions
+```
+
+---
+
+# Python Code
+
+```python
+class Solution:
+    def sumSubarrayMins(self, arr):
+        MOD = 10**9 + 7
+        n = len(arr)
+
+        prev = [-1] * n
+        nxt = [n] * n
+
+        stack = []
+
+        # Previous Smaller
+        for i in range(n):
+            while stack and arr[stack[-1]] > arr[i]:
+                stack.pop()
+
+            if stack:
+                prev[i] = stack[-1]
+
+            stack.append(i)
+
+        stack = []
+
+        # Next Smaller or Equal
+        for i in range(n - 1, -1, -1):
+            while stack and arr[stack[-1]] >= arr[i]:
+                stack.pop()
+
+            if stack:
+                nxt[i] = stack[-1]
+
+            stack.append(i)
+
+        ans = 0
+
+        for i in range(n):
+            left = i - prev[i]
+            right = nxt[i] - i
+
+            ans += arr[i] * left * right
+            ans %= MOD
+
+        return ans
+```
+
+---
+
+# Complexity Analysis
+
+### Time
+
+```
+O(N)
+```
+
+Each element
+
+Push once
+
+Pop once.
+
+---
+
+### Space
+
+```
+O(N)
+```
+
+For stack
+
+and
+
+boundary arrays.
+
+---
+
+# 🧠 How to Think Like an Interviewer
+
+This problem teaches one of the most important interview transformations.
+
+---
+
+## Beginner Thinking
+
+```
+Need minimum
+
+↓
+
+Generate every subarray
+```
+
+---
+
+## Intermediate Thinking
+
+```
+Can I reuse minimum?
+```
+
+Still
+
+```
+O(N²)
+```
+
+---
+
+## Advanced Thinking
+
+```
+Instead of
+
+Subarray
+
+↓
+
+Minimum
+
+Reverse it
+
+↓
+
+Element
+
+↓
+
+How many subarrays choose me?
+```
+
+This idea is called the **Contribution Technique**.
+
+---
+
+# Pattern Recognition
+
+Whenever you see
+
+```
+Sum of
+
+Maximums
+
+Minimums
+
+Contribution
+
+Every Subarray
+```
+
+Don't think
+
+```
+Generate every subarray
+```
+
+Instead ask
+
+```
+How much does each element contribute?
+```
+
+Then ask
+
+```
+How far can this element extend
+
+left
+
+and
+
+right
+
+before losing its property?
+```
+
+This naturally leads to
+
+```
+Previous Smaller
+
+Next Smaller
+
+or
+
+Previous Greater
+
+Next Greater
+```
+
+using a **monotonic stack**.
+
+---
+
+# Similar Problems
+
+Once you understand this thinking, these problems become much easier:
+
+- **907. Sum of Subarray Minimums**
+- **2104. Sum of Subarray Ranges**
+- **84. Largest Rectangle in Histogram**
+- **85. Maximal Rectangle**
+- **739. Daily Temperatures**
+- **496. Next Greater Element**
+- **503. Next Greater Element II**
+
+All of them ask:
+
+> **"How far can this element extend before it is blocked?"**
+
+That's the mental trigger for a monotonic stack.
+
+---
+
+# Interview Tips
+
+Whenever you see
+
+```
+Every Subarray
+
++
+
+Minimum
+
+Maximum
+
+Contribution
+```
+
+Follow this checklist:
+
+```
+Need answer for every subarray?
+
+↓
+
+Can I reverse the thinking?
+
+↓
+
+Compute contribution of each element.
+
+↓
+
+How many subarrays choose me?
+
+↓
+
+Need Left Boundary
+
+Need Right Boundary
+
+↓
+
+Previous Smaller / Next Smaller
+
+↓
+
+Monotonic Stack
+```
+
+---
+
+# Key Takeaways
+
+- Don't generate every subarray.
+- Reverse the problem: let each element count its own contribution.
+- Count how many subarrays an element is the minimum for.
+- Number of such subarrays = **Left Choices × Right Choices**.
+- Use a monotonic increasing stack to find the nearest smaller elements efficiently.
+- This "contribution" mindset is one of the most powerful techniques in array interview problems.
+
+<br/><br/><br/><br/><br>
+
+---
+
+# 1130. Minimum Cost Tree From Leaf Values
+
+> **Difficulty:** Medium (Looks like DP, but has an elegant Greedy + Monotonic Stack solution)
+>
+> **Technique:** Greedy + Monotonic Decreasing Stack
+
+---
+
+# 📚 Problem Statement
+
+You are given an array.
+
+```
+arr = [6,2,4]
+```
+
+Every number represents a **leaf node**.
+
+You need to build **one binary tree**.
+
+Rules:
+
+1. Every internal node has exactly **2 children**.
+2. The **leaf nodes must appear in the same inorder order** as the array.
+3. Every internal node value is
+
+```
+Maximum leaf in Left Subtree
+
+×
+
+Maximum leaf in Right Subtree
+```
+
+Finally,
+
+```
+Add every internal node value.
+```
+
+Return the **minimum possible sum.**
+
+---
+
+# 🤔 First Understand the Tree
+
+Suppose
+
+```
+arr
+
+6 2 4
+```
+
+Leaves are fixed.
+
+```
+      ?
+     / \
+    ?   4
+   / \
+  6   2
+```
+
+Internal node
+
+```
+6×2=12
+```
+
+Root
+
+```
+max(6,2)=6
+
+max(4)=4
+
+↓
+
+6×4=24
+```
+
+Total
+
+```
+12+24=36
+```
+
+---
+
+Another tree
+
+```
+      ?
+     / \
+    6   ?
+       / \
+      2   4
+```
+
+Internal
+
+```
+2×4=8
+```
+
+Root
+
+```
+6×4=24
+```
+
+Total
+
+```
+24+8=32
+```
+
+Smaller.
+
+Answer
+
+```
+32
+```
+
+---
+
+# Step 1 : Think Like a Common Person
+
+When beginners see this,
+
+they think
+
+```
+Need every tree
+
+↓
+
+Calculate cost
+
+↓
+
+Take minimum
+```
+
+---
+
+How many trees?
+
+For
+
+```
+3 leaves
+
+↓
+
+2 trees
+```
+
+For
+
+```
+4 leaves
+
+↓
+
+5 trees
+```
+
+For
+
+```
+10 leaves
+
+↓
+
+16796 trees
+```
+
+These are **Catalan Numbers**.
+
+Impossible.
+
+---
+
+# Step 2 : Forget Trees
+
+The biggest trick is
+
+**stop thinking about trees.**
+
+Instead ask
+
+```
+What actually contributes
+to the answer?
+```
+
+Every internal node contributes
+
+```
+Largest Left
+
+×
+
+Largest Right
+```
+
+Notice
+
+the **small numbers disappear**.
+
+Only
+
+```
+Maximums
+```
+
+remain.
+
+Interesting.
+
+---
+
+# Step 3 : Observe the Smallest Number
+
+Example
+
+```
+6 2 4
+```
+
+Look only at
+
+```
+2
+```
+
+Question
+
+Can
+
+```
+2
+```
+
+ever become
+
+the maximum
+
+of a subtree?
+
+No.
+
+Because
+
+```
+6
+
+>
+
+2
+```
+
+and
+
+```
+4
+
+>
+
+2
+```
+
+So eventually
+
+```
+2
+```
+
+must be multiplied
+
+with someone bigger.
+
+It cannot escape.
+
+---
+
+# The Important Observation
+
+Every element except the largest
+
+will be multiplied
+
+**exactly once.**
+
+Think carefully.
+
+```
+Largest element
+
+never disappears.
+```
+
+Every smaller element
+
+gets merged into another subtree.
+
+So
+
+every element except the maximum
+
+pays exactly one multiplication cost.
+
+---
+
+# Step 4 : The Big Question
+
+Suppose
+
+```
+2
+```
+
+must be multiplied.
+
+Should we multiply
+
+with
+
+```
+6
+```
+
+or
+
+```
+4
+```
+
+Which gives smaller cost?
+
+```
+2×6=12
+```
+
+```
+2×4=8
+```
+
+Obviously
+
+```
+8
+```
+
+is better.
+
+So
+
+```
+Always multiply
+the smaller element
+with the smaller neighbour.
+```
+
+This is the greedy rule.
+
+---
+
+# Why?
+
+Suppose
+
+```
+8
+```
+
+must be multiplied sometime.
+
+Choices
+
+```
+8×20=160
+```
+
+or
+
+```
+8×10=80
+```
+
+Why ever choose
+
+```
+160
+```
+
+if
+
+```
+80
+```
+
+is possible?
+
+You wouldn't.
+
+---
+
+# Greedy Rule
+
+Whenever an element disappears,
+
+pair it with
+
+```
+Smaller of
+
+Left Greater
+
+Right Greater
+```
+
+This minimizes the total cost.
+
+---
+
+# Step 5 : But How Do We Find Neighbours Efficiently?
+
+Example
+
+```
+6 2 4 7
+```
+
+Need
+
+nearest greater on left
+
+nearest greater on right.
+
+Whenever you hear
+
+```
+Nearest Greater
+```
+
+think
+
+```
+Monotonic Stack
+```
+
+---
+
+# Why a Decreasing Stack?
+
+Suppose
+
+```
+Stack
+
+8
+
+6
+
+3
+```
+
+Current
+
+```
+5
+```
+
+Since
+
+```
+5>3
+```
+
+the
+
+```
+3
+```
+
+can never be useful again.
+
+It should disappear now.
+
+We calculate its cost immediately.
+
+---
+
+# The Algorithm
+
+Maintain a
+
+```
+Monotonic Decreasing Stack
+```
+
+Whenever
+
+```
+Current
+
+>
+
+Stack Top
+```
+
+Pop.
+
+The popped element
+
+must disappear.
+
+Multiply it with
+
+```
+min(
+
+Current,
+
+New Stack Top
+
+)
+```
+
+---
+
+# Why min()?
+
+Example
+
+```
+Stack
+
+6
+
+2
+```
+
+Current
+
+```
+4
+```
+
+Popped
+
+```
+2
+```
+
+Neighbours
+
+```
+6
+
+4
+```
+
+Smaller neighbour
+
+```
+4
+```
+
+Cost
+
+```
+2×4=8
+```
+
+Exactly the greedy rule.
+
+---
+
+# Dry Run
+
+Example
+
+```
+6 2 4
+```
+
+---
+
+Initial
+
+```
+Stack
+
+∞
+```
+
+(The infinity is a sentinel to avoid empty-stack checks.)
+
+---
+
+Current
+
+```
+6
+```
+
+Stack
+
+```
+∞
+
+6
+```
+
+---
+
+Current
+
+```
+2
+```
+
+Stack
+
+```
+∞
+
+6
+
+2
+```
+
+---
+
+Current
+
+```
+4
+```
+
+Now
+
+```
+4>2
+```
+
+Pop
+
+```
+2
+```
+
+Neighbours
+
+```
+6
+
+4
+```
+
+Smaller
+
+```
+4
+```
+
+Cost
+
+```
+2×4=8
+```
+
+Answer
+
+```
+8
+```
+
+Stack
+
+```
+∞
+
+6
+```
+
+Push
+
+```
+4
+```
+
+Stack
+
+```
+∞
+
+6
+
+4
+```
+
+---
+
+Traversal finished.
+
+Still
+
+```
+6
+
+4
+```
+
+remain.
+
+They must merge.
+
+Pop
+
+```
+4
+```
+
+Cost
+
+```
+4×6=24
+```
+
+Answer
+
+```
+8+24=32
+```
+
+Done.
+
+---
+
+# Another Dry Run
+
+```
+4 11
+```
+
+Stack
+
+```
+∞
+
+4
+```
+
+Current
+
+```
+11
+```
+
+Pop
+
+```
+4
+```
+
+Cost
+
+```
+4×11=44
+```
+
+Answer
+
+```
+44
+```
+
+Done.
+
+---
+
+# Why Does the Stack Work?
+
+Imagine
+
+```
+10
+
+8
+
+3
+```
+
+Current
+
+```
+9
+```
+
+Now
+
+```
+3
+```
+
+has found
+
+both neighbours
+
+```
+8
+
+9
+```
+
+The smaller neighbour is
+
+```
+8
+```
+
+No future element
+
+can make a better choice.
+
+So
+
+we safely remove
+
+```
+3
+```
+
+forever.
+
+---
+
+# Python Solution
+
+```python
+class Solution:
+    def mctFromLeafValues(self, arr):
+
+        stack = [float("inf")]
+        ans = 0
+
+        for num in arr:
+
+            while stack[-1] <= num:
+
+                mid = stack.pop()
+
+                ans += mid * min(stack[-1], num)
+
+            stack.append(num)
+
+        while len(stack) > 2:
+
+            ans += stack.pop() * stack[-1]
+
+        return ans
+```
+
+---
+
+# Complexity Analysis
+
+### Time
+
+```
+O(N)
+```
+
+Every element
+
+Push once
+
+Pop once.
+
+---
+
+### Space
+
+```
+O(N)
+```
+
+---
+
+# 🧠 How to Think Like an Interviewer
+
+This is the most important part.
+
+---
+
+## Beginner Thinking
+
+```
+Need minimum tree
+
+↓
+
+Generate trees
+```
+
+Wrong.
+
+---
+
+## Intermediate Thinking
+
+```
+Can I use DP?
+```
+
+Possible.
+
+There is an
+
+```
+O(N³)
+```
+
+DP solution.
+
+---
+
+## Advanced Thinking
+
+Forget trees.
+
+Ask
+
+```
+What really creates cost?
+```
+
+Answer
+
+```
+Products.
+```
+
+Then ask
+
+```
+Which numbers disappear?
+```
+
+Every number except
+
+the largest.
+
+Then ask
+
+```
+If a number disappears,
+
+who should it multiply with?
+```
+
+Obviously
+
+```
+Smallest possible neighbour.
+```
+
+This greedy observation completely removes the need to build trees.
+
+---
+
+# Pattern Recognition
+
+Whenever you see
+
+```
+Merge
+
+Tree
+
+Combine
+
+Minimum Cost
+```
+
+Ask yourself
+
+```
+Which element disappears?
+
+↓
+
+Can I decide its partner greedily?
+
+↓
+
+Need nearest greater?
+
+↓
+
+Monotonic Stack
+```
+
+---
+
+# Similar Problems
+
+This thinking appears in
+
+- **907. Sum of Subarray Minimums**
+- **84. Largest Rectangle in Histogram**
+- **496. Next Greater Element**
+- **739. Daily Temperatures**
+- **402. Remove K Digits**
+- **1673. Most Competitive Subsequence**
+
+All of them revolve around one idea:
+
+> **An element becomes "finished" (or can be removed) as soon as you've found the information that determines its future contribution.**
+
+---
+
+# 🎯 Interview Tips
+
+Whenever you see a problem involving trees or merges, don't immediately think "build the tree."
+
+Ask these questions instead:
+
+```
+1. What actually contributes to the cost?
+
+↓
+
+2. Which elements disappear?
+
+↓
+
+3. Can I choose the best partner greedily?
+
+↓
+
+4. How do I find that partner efficiently?
+
+↓
+
+Nearest Greater / Smaller
+
+↓
+
+Monotonic Stack
+```
+
+This change in thinking is what separates someone who memorizes solutions from someone who can derive them in an interview.
+
+---
+
+# Key Takeaways
+
+- Don't build every possible tree.
+- Focus on **which element disappears next**.
+- Every non-maximum element contributes exactly once.
+- Always pair the disappearing element with the **smaller of its two greater neighbours**.
+- A monotonic decreasing stack lets us discover that partner in **O(N)** time.
+- This is one of the most elegant examples of combining **Greedy** and **Monotonic Stack** into a linear-time solution.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 1856. Maximum Subarray Min-Product
+
+> **Difficulty:** Medium (Actually an Advanced Monotonic Stack Problem)
+>
+> **Techniques Used**
+>
+> - Monotonic Stack
+> - Prefix Sum
+> - Contribution Thinking
+
+---
+
+# Step 1 : Understand the Problem Like a Common Person
+
+Let's forget DSA.
+
+Suppose someone gives you
+
+```
+[1,2,3,2]
+```
+
+Now they ask
+
+> Choose ANY continuous subarray.
+
+Example
+
+```
+[2,3]
+
+or
+
+[2,3,2]
+
+or
+
+[3]
+
+or
+
+[1,2]
+```
+
+For every chosen subarray
+
+do two things
+
+```
+1. Find minimum
+
+2. Find sum
+```
+
+Multiply them.
+
+```
+Minimum × Sum
+```
+
+Return the largest answer.
+
+---
+
+Example
+
+```
+Subarray
+
+[2,3,2]
+```
+
+Minimum
+
+```
+2
+```
+
+Sum
+
+```
+7
+```
+
+Product
+
+```
+14
+```
+
+---
+
+# Example
+
+```
+[3,2,5]
+```
+
+Minimum
+
+```
+2
+```
+
+Sum
+
+```
+10
+```
+
+Answer
+
+```
+20
+```
+
+Nothing difficult yet.
+
+---
+
+# Step 2 : What Will a Beginner Do?
+
+Generate every subarray.
+
+```
+for every start
+
+    for every end
+
+        find minimum
+
+        find sum
+```
+
+Example
+
+```
+1
+
+1 2
+
+1 2 3
+
+1 2 3 2
+
+2
+
+2 3
+
+2 3 2
+
+3
+
+3 2
+
+2
+```
+
+For every subarray
+
+calculate
+
+```
+minimum
+
+×
+
+sum
+```
+
+Take maximum.
+
+---
+
+# Complexity
+
+Subarrays
+
+```
+O(N²)
+```
+
+Finding minimum
+
+```
+O(N)
+```
+
+Finding sum
+
+```
+O(N)
+```
+
+Overall
+
+```
+O(N³)
+```
+
+Impossible.
+
+---
+
+# Step 3 : Improve the Brute Force
+
+We already know
+
+Prefix Sum
+
+can compute
+
+```
+Sum
+```
+
+in
+
+```
+O(1)
+```
+
+So
+
+now
+
+```
+Finding Sum
+
+↓
+
+O(1)
+```
+
+Still
+
+minimum
+
+takes
+
+```
+O(N)
+```
+
+Overall
+
+```
+O(N²)
+```
+
+Still too slow.
+
+---
+
+# Step 4 : Think Like an Interviewer
+
+This is the biggest jump.
+
+Instead of asking
+
+```
+Which subarray gives
+
+maximum product?
+```
+
+Reverse the question.
+
+Ask
+
+```
+Suppose
+
+THIS element
+
+is the minimum.
+
+How much answer can it produce?
+```
+
+Exactly the same trick as
+
+```
+907
+
+Sum of Subarray Minimums
+```
+
+---
+
+# Why Reverse the Thinking?
+
+Look
+
+```
+1 2 3 2
+```
+
+Suppose
+
+we only focus on
+
+```
+3
+```
+
+Question
+
+```
+Can
+
+3
+
+be the minimum
+
+for
+
+[2,3] ?
+```
+
+No.
+
+Because
+
+```
+2
+```
+
+is smaller.
+
+---
+
+Can
+
+```
+3
+```
+
+be minimum
+
+for
+
+```
+[3]
+```
+
+Yes.
+
+---
+
+Instead of checking
+
+millions of subarrays,
+
+let every element
+
+try becoming
+
+the minimum.
+
+---
+
+# The New Problem
+
+For every index
+
+```
+i
+```
+
+find
+
+```
+Largest subarray
+
+where
+
+nums[i]
+
+is the minimum.
+```
+
+Then
+
+calculate
+
+```
+nums[i]
+
+×
+
+sum(of that subarray)
+```
+
+Take maximum.
+
+---
+
+# Why Largest?
+
+This is an extremely important observation.
+
+Notice
+
+```
+Product
+
+=
+
+Minimum
+
+×
+
+Sum
+```
+
+The minimum
+
+is already fixed.
+
+Suppose
+
+minimum
+
+```
+4
+```
+
+Now
+
+```
+4×10=40
+
+4×15=60
+
+4×22=88
+```
+
+The larger the sum,
+
+the larger the answer.
+
+So
+
+once
+
+minimum is fixed,
+
+we simply want
+
+the **largest possible subarray**
+
+where it remains the minimum.
+
+---
+
+# Example
+
+Suppose
+
+```
+5
+```
+
+is minimum.
+
+Possible ranges
+
+```
+[5]
+
+Sum=5
+
+Answer=25
+```
+
+```
+[7,5]
+
+Sum=12
+
+Answer=60
+```
+
+```
+[7,5,8]
+
+Sum=20
+
+Answer=100
+```
+
+Obviously
+
+take the largest.
+
+---
+
+# New Goal
+
+For every element
+
+find
+
+```
+Largest range
+
+where
+
+it stays
+
+minimum.
+```
+
+---
+
+# Step 5 : How Do We Find That Range?
+
+Example
+
+```
+1 2 3 2
+```
+
+Focus on
+
+```
+3
+```
+
+Can we move left?
+
+```
+2
+
+<3
+```
+
+No.
+
+Because
+
+then
+
+minimum becomes
+
+```
+2
+```
+
+Stop.
+
+---
+
+Move right?
+
+```
+2
+
+<3
+```
+
+Again stop.
+
+Therefore
+
+largest range
+
+is
+
+```
+[3]
+```
+
+---
+
+Now
+
+look at
+
+```
+2
+
+(index 1)
+```
+
+Move left
+
+```
+1
+
+<2
+
+stop
+```
+
+Move right
+
+```
+3
+
+greater
+
+continue
+```
+
+Next
+
+```
+2
+
+equal
+```
+
+Still okay
+
+because
+
+minimum is still
+
+```
+2
+```
+
+Entire range
+
+```
+2 3 2
+```
+
+---
+
+Question
+
+How do we find
+
+```
+Previous Smaller
+
+Next Smaller
+```
+
+efficiently?
+
+Answer
+
+```
+Monotonic Stack
+```
+
+---
+
+# Step 6 : Previous Smaller
+
+Exactly like
+
+907.
+
+Maintain
+
+Increasing Stack.
+
+Whenever
+
+```
+StackTop >= Current
+
+pop
+```
+
+Top becomes
+
+Previous Smaller.
+
+---
+
+# Step 7 : Next Smaller
+
+Traverse
+
+```
+Right
+
+↓
+
+Left
+```
+
+Again
+
+Increasing Stack.
+
+---
+
+Now
+
+every element knows
+
+its boundary.
+
+---
+
+# Step 8 : Why Prefix Sum?
+
+Suppose
+
+largest range
+
+is
+
+```
+2 3 2
+```
+
+Need
+
+```
+Sum
+```
+
+Should we
+
+loop?
+
+No.
+
+Prefix Sum.
+
+---
+
+Example
+
+```
+1 2 3 2
+```
+
+Prefix
+
+```
+0
+
+1
+
+3
+
+6
+
+8
+```
+
+Need
+
+```
+2 3 2
+```
+
+Indices
+
+```
+1
+
+to
+
+3
+```
+
+Sum
+
+```
+prefix[4]-prefix[1]
+
+=
+
+8-1
+
+=
+
+7
+```
+
+Done.
+
+---
+
+# Formula
+
+Suppose
+
+current
+
+index
+
+```
+i
+```
+
+Previous Smaller
+
+```
+left
+```
+
+Next Smaller
+
+```
+right
+```
+
+Largest valid range
+
+```
+left+1
+
+...
+
+right-1
+```
+
+Range Sum
+
+```
+prefix[right]
+
+-
+
+prefix[left+1]
+```
+
+Answer
+
+```
+nums[i]
+
+×
+
+Range Sum
+```
+
+---
+
+# Dry Run
+
+Example
+
+```
+nums
+
+1 2 3 2
+```
+
+---
+
+## Prefix Sum
+
+```
+Index
+
+0 1 2 3
+```
+
+Prefix
+
+```
+0
+
+1
+
+3
+
+6
+
+8
+```
+
+---
+
+## Previous Smaller
+
+```
+Value
+
+1
+
+↓
+
+-1
+```
+
+```
+2
+
+↓
+
+0
+```
+
+```
+3
+
+↓
+
+1
+```
+
+```
+2
+
+↓
+
+0
+```
+
+So
+
+```
+prev
+
+[-1,0,1,0]
+```
+
+---
+
+## Next Smaller
+
+```
+1
+
+↓
+
+4
+```
+
+```
+2
+
+↓
+
+4
+```
+
+```
+3
+
+↓
+
+3
+```
+
+```
+2
+
+↓
+
+4
+```
+
+So
+
+```
+next
+
+[4,4,3,4]
+```
+
+---
+
+## Now Compute
+
+---
+
+### Index 0
+
+```
+Value
+
+1
+```
+
+Range
+
+```
+0
+
+to
+
+3
+```
+
+Sum
+
+```
+8
+```
+
+Answer
+
+```
+8
+```
+
+---
+
+### Index 1
+
+Value
+
+```
+2
+```
+
+Range
+
+```
+1
+
+to
+
+3
+```
+
+Sum
+
+```
+7
+```
+
+Answer
+
+```
+2×7=14
+```
+
+Current Maximum
+
+```
+14
+```
+
+---
+
+### Index 2
+
+Value
+
+```
+3
+```
+
+Range
+
+```
+2
+
+to
+
+2
+```
+
+Sum
+
+```
+3
+```
+
+Answer
+
+```
+9
+```
+
+---
+
+### Index 3
+
+Value
+
+```
+2
+```
+
+Range
+
+```
+1
+
+to
+
+3
+```
+
+Sum
+
+```
+7
+```
+
+Answer
+
+```
+14
+```
+
+Maximum
+
+```
+14
+```
+
+Correct.
+
+---
+
+# Python Solution
+
+```python
+class Solution:
+    def maxSumMinProduct(self, nums):
+        MOD = 10**9 + 7
+        n = len(nums)
+
+        # Prefix Sum
+        prefix = [0] * (n + 1)
+        for i in range(n):
+            prefix[i + 1] = prefix[i] + nums[i]
+
+        prev = [-1] * n
+        nxt = [n] * n
+
+        stack = []
+
+        # Previous Smaller
+        for i in range(n):
+            while stack and nums[stack[-1]] >= nums[i]:
+                stack.pop()
+
+            if stack:
+                prev[i] = stack[-1]
+
+            stack.append(i)
+
+        stack = []
+
+        # Next Smaller
+        for i in range(n - 1, -1, -1):
+            while stack and nums[stack[-1]] > nums[i]:
+                stack.pop()
+
+            if stack:
+                nxt[i] = stack[-1]
+
+            stack.append(i)
+
+        ans = 0
+
+        for i in range(n):
+            left = prev[i] + 1
+            right = nxt[i]
+
+            total = prefix[right] - prefix[left]
+
+            ans = max(ans, total * nums[i])
+
+        return ans % MOD
+```
+
+---
+
+# Complexity
+
+Finding Prefix
+
+```
+O(N)
+```
+
+Previous Smaller
+
+```
+O(N)
+```
+
+Next Smaller
+
+```
+O(N)
+```
+
+Answer
+
+```
+O(N)
+```
+
+Overall
+
+```
+O(N)
+```
+
+Space
+
+```
+O(N)
+```
+
+---
+
+# The Interview Thinking (Most Important)
+
+Most beginners think like this:
+
+```
+Generate every subarray
+
+↓
+
+Find minimum
+
+↓
+
+Find sum
+```
+
+This is **subarray-first thinking**.
+
+Strong interview candidates flip the perspective:
+
+```
+Pick one element.
+
+↓
+
+Assume it is the minimum.
+
+↓
+
+How far can it expand while remaining the minimum?
+
+↓
+
+That gives the largest possible sum for this minimum.
+
+↓
+
+Compute its contribution.
+```
+
+This is called **element-first thinking**.
+
+---
+
+# The Mental Transformation
+
+Whenever you see:
+
+```
+Maximum/Minimum
+
++
+
+Subarray
+
++
+
+One element controls the property
+```
+
+Train yourself to ask:
+
+> **"Can I fix one element instead of generating every subarray?"**
+
+If the answer is yes, then the next questions are:
+
+```
+How far can this element extend?
+
+↓
+
+Need Previous Smaller / Greater?
+
+↓
+
+Monotonic Stack
+
+↓
+
+Need range sum?
+
+↓
+
+Prefix Sum
+```
+
+---
+
+# Pattern Recognition Cheat Sheet
+
+If a problem contains:
+
+```
+✓ Subarray
+✓ Minimum or Maximum
+✓ Need largest/smallest range
+✓ Need range sum
+```
+
+Think immediately:
+
+```
+Monotonic Stack
+        +
+Prefix Sum
+```
+
+---
+
+# Similar Problems
+
+This exact thinking appears in:
+
+- 907. Sum of Subarray Minimums
+- 2104. Sum of Subarray Ranges
+- 84. Largest Rectangle in Histogram
+- 1856. Maximum Subarray Min-Product
+- 2281. Sum of Total Strength of Wizards (hard)
+
+These problems all follow the same interview pattern:
+
+```
+Fix one element
+        ↓
+Find its valid boundary
+        ↓
+Use Prefix Sum (if range sums are needed)
+        ↓
+Compute its contribution
+```
+
+---
+
+# Final Takeaways
+
+- Don't enumerate every subarray.
+- Reverse the thinking: let each element try to be the minimum.
+- Once the minimum is fixed, maximize the range because all numbers are positive, so a larger range means a larger sum.
+- Use a **monotonic increasing stack** to find the largest range where the element remains the minimum.
+- Use **prefix sums** to compute the sum of that range in O(1).
+- This combination of **Monotonic Stack + Prefix Sum + Contribution Thinking** is a classic advanced interview pattern used by top product companies.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 3523. Make Array Non-decreasing
+
+## Intuition
+
+At first, the operation looks confusing:
+
+> We can choose any subarray and replace it with **one element equal to the maximum** of that subarray.
+
+But instead of thinking about **which subarray to merge**, think about **why we need to merge at all**.
+
+The final array must be **non-decreasing**, i.e.,
+
+```text
+a[i] <= a[i+1]
+```
+
+So whenever we find
+
+```text
+current < previous
+```
+
+the order is broken.
+
+This broken part is called a **dip**.
+
+Our goal is to remove the minimum number of elements (merge as little as possible), because we want the **maximum possible final size**.
+
+---
+
+# Step 1: Understand the Operation
+
+Suppose
+
+```text
+nums = [4,2,5,3,5]
+```
+
+Choose the subarray
+
+```text
+[2,5]
+```
+
+The maximum is
+
+```text
+5
+```
+
+So it becomes
+
+```text
+[4,5,3,5]
+```
+
+Notice:
+
+- Two elements become one.
+- The size decreases by 1.
+- The maximum value remains.
+
+---
+
+# Step 2: When Do We Need to Merge?
+
+If the array is already sorted,
+
+```text
+1 2 3 4
+```
+
+no operation is needed.
+
+The answer is simply
+
+```text
+4
+```
+
+So we only need to worry when we find
+
+```text
+nums[i] < nums[last]
+```
+
+Example
+
+```text
+4 2
+```
+
+Since
+
+```text
+4 > 2
+```
+
+the array is no longer non-decreasing.
+
+---
+
+# Step 3: What Happens After a Dip?
+
+Example
+
+```text
+6 2 3 4 7
+```
+
+We keep
+
+```text
+6
+```
+
+Now we see
+
+```text
+2
+```
+
+Since
+
+```text
+2 < 6
+```
+
+we cannot keep it separately.
+
+Move ahead.
+
+```text
+3 < 6
+```
+
+Still cannot keep it.
+
+Move ahead.
+
+```text
+4 < 6
+```
+
+Still cannot keep it.
+
+Finally,
+
+```text
+7 >= 6
+```
+
+Now we can stop.
+
+Everything between
+
+```text
+2 3 4
+```
+
+must become one merged block.
+
+Final array becomes
+
+```text
+6 7
+```
+
+---
+
+# The Important Observation
+
+Once a dip starts,
+
+every element smaller than the last kept value **must be merged**.
+
+They cannot remain separate because they would always violate the non-decreasing order.
+
+So we simply keep moving until we find
+
+```text
+nums[i] >= nums[last]
+```
+
+Everything in between disappears.
+
+---
+
+# Step 4: Variables Used
+
+## last
+
+Index of the last element that we decided to keep.
+
+Initially,
+
+```python
+last = 0
+```
+
+---
+
+## dipped
+
+Indicates whether we are currently inside a decreasing segment.
+
+Initially,
+
+```python
+dipped = False
+```
+
+---
+
+## ans
+
+Current size of the array.
+
+Initially,
+
+```python
+ans = n
+```
+
+because no elements have been removed yet.
+
+---
+
+# Step 5: Algorithm
+
+For every element,
+
+### Case 1
+
+If
+
+```text
+nums[i] < nums[last]
+```
+
+then
+
+- a dip starts (or continues)
+- mark
+
+```python
+dipped = True
+```
+
+and continue.
+
+---
+
+### Case 2
+
+If
+
+```text
+nums[i] >= nums[last]
+```
+
+and we were inside a dip,
+
+then the dip ends.
+
+Everything between
+
+```text
+last
+```
+
+and
+
+```text
+i
+```
+
+must disappear.
+
+Number of removed elements is
+
+```text
+i - last - 1
+```
+
+Subtract them from the answer.
+
+Then
+
+```python
+last = i
+```
+
+---
+
+### Case 3
+
+If the array ends while we are still inside a dip,
+
+everything after
+
+```text
+last
+```
+
+must disappear.
+
+Remove
+
+```text
+n - 1 - last
+```
+
+elements.
+
+---
+
+# Dry Run
+
+## Example
+
+```text
+nums = [4,2,5,3,5]
+```
+
+Initially
+
+```text
+last = 0
+ans = 5
+dipped = False
+```
+
+---
+
+### i = 1
+
+```text
+2 < 4
+```
+
+Dip starts.
+
+```text
+dipped = True
+```
+
+---
+
+### i = 2
+
+```text
+5 >= 4
+```
+
+Dip ends.
+
+Removed elements
+
+```text
+2 - 0 - 1 = 1
+```
+
+So
+
+```text
+ans = 4
+```
+
+Now
+
+```text
+last = 2
+```
+
+---
+
+### i = 3
+
+```text
+3 < 5
+```
+
+Another dip starts.
+
+---
+
+### i = 4
+
+```text
+5 >= 5
+```
+
+Dip ends.
+
+Removed elements
+
+```text
+4 - 2 - 1 = 1
+```
+
+Now
+
+```text
+ans = 3
+```
+
+Finished.
+
+Answer
+
+```text
+3
+```
+
+---
+
+# Another Dry Run
+
+```text
+nums = [6,5,3,9,2,7]
+```
+
+Initially
+
+```text
+last = 0
+ans = 6
+```
+
+---
+
+### i = 1
+
+```text
+5 < 6
+```
+
+Dip starts.
+
+---
+
+### i = 2
+
+```text
+3 < 6
+```
+
+Continue.
+
+---
+
+### i = 3
+
+```text
+9 >= 6
+```
+
+Remove
+
+```text
+3 - 0 - 1 = 2
+```
+
+Removed
+
+```text
+5
+3
+```
+
+Now
+
+```text
+ans = 4
+last = 3
+```
+
+---
+
+### i = 4
+
+```text
+2 < 9
+```
+
+Dip starts.
+
+---
+
+### i = 5
+
+```text
+7 < 9
+```
+
+Still inside the dip.
+
+Array ends.
+
+Remove
+
+```text
+5 - 3 = 2
+```
+
+Answer
+
+```text
+2
+```
+
+Final array can be
+
+```text
+6 9
+```
+
+---
+
+# Why Does This Greedy Approach Work?
+
+Suppose we have
+
+```text
+10 3 5 7
+```
+
+Can we keep
+
+```text
+3
+```
+
+No.
+
+Can we keep
+
+```text
+5
+```
+
+Still no.
+
+Because
+
+```text
+10 > 5
+```
+
+Can we keep
+
+```text
+7
+```
+
+Still no.
+
+Because
+
+```text
+10 > 7
+```
+
+So all of
+
+```text
+3 5 7
+```
+
+must become **one merged block**.
+
+There is no better choice.
+
+That is why this greedy algorithm is correct.
+
+---
+
+# Python Solution
+
+```python
+from typing import List
+
+class Solution:
+    def maximumPossibleSize(self, nums: List[int]) -> int:
+        n = len(nums)
+
+        if n == 1:
+            return 1
+
+        last = 0
+        dipped = False
+        ans = n
+
+        for i in range(1, n):
+
+            if nums[i] < nums[last]:
+                dipped = True
+                continue
+
+            if dipped:
+                ans -= i - last - 1
+                dipped = False
+
+            last = i
+
+        if dipped:
+            ans -= (n - 1 - last)
+
+        return ans
+```
+
+---
+
+# Complexity Analysis
+
+- **Time Complexity:** `O(n)`
+- **Space Complexity:** `O(1)`
+
+---
+
+# Key Intuition to Remember
+
+Whenever you see a problem involving **merging subarrays**, don't immediately think about trying every possible merge.
+
+Instead ask yourself:
+
+- **What property must the final array satisfy?**
+- **Which elements make that property impossible?**
+- **Are those elements forced to merge?**
+
+Here, every element that is **smaller than the last kept element** is **forced** to belong to the same merged block until we encounter an element that is at least as large as the last kept value.
+
+The solution doesn't decide *where* to merge—it simply identifies the elements that **cannot survive individually**.
