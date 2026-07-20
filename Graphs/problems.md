@@ -22,6 +22,8 @@ Welcome to the graph problems section! Here you will find various data structure
 - [310. Minimum Height Trees (MHT)](#310-minimum-height-trees-mht)
 - [399. Evaluate Division](#399-evaluate-division)
 - [743. Network Delay Time](#743-network-delay-time)
+- [787. Cheapest Flights Within K Stops](#787-cheapest-flights-within-k-stops)
+- [785. Is Graph Bipartite?](#785-is-graph-bipartite)
 
 <br><br><br><br><br>
 
@@ -16316,3 +16318,2369 @@ Ask yourself these questions:
 - Use a **min-heap** to always process the closest node first.
 - The answer is the **largest shortest distance** among all reachable nodes.
 - If any node is unreachable, return **-1**.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 787. Cheapest Flights Within K Stops
+
+> **Difficulty:** Medium  
+> **Pattern:** Graph + BFS (Modified) + Shortest Path with Stop Constraint
+
+---
+
+# Understanding the Problem
+
+Suppose you want to travel
+
+```text
+Chennai → Bangalore
+```
+
+There are many flights.
+
+Example
+
+```text
+Chennai → Hyderabad → Bangalore
+
+Cost = ₹3000
+```
+
+Another route
+
+```text
+Chennai → Mumbai → Delhi → Bangalore
+
+Cost = ₹1500
+```
+
+Which one should you choose?
+
+Normally
+
+```text
+₹1500
+```
+
+because it's cheaper.
+
+But the airline says
+
+> **You can have at most ONE stop.**
+
+Now
+
+```text
+Chennai → Mumbai → Delhi → Bangalore
+```
+
+has
+
+```text
+2 stops
+```
+
+Not allowed.
+
+So we must take
+
+```text
+Chennai → Hyderabad → Bangalore
+```
+
+Cost
+
+```text
+₹3000
+```
+
+Exactly this problem.
+
+---
+
+# Understanding the Input
+
+Example
+
+```text
+flights =
+[
+[0,1,100],
+[1,2,100],
+[0,2,500]
+]
+
+src = 0
+
+dst = 2
+
+k = 1
+```
+
+Each flight means
+
+```text
+From
+
+↓
+
+To
+
+↓
+
+Price
+```
+
+Example
+
+```text
+[0,1,100]
+```
+
+means
+
+```text
+0
+
+↓
+
+1
+
+₹100
+```
+
+---
+
+# Draw the Graph
+
+```text
+        100
+
+0 --------------> 1
+
+ \
+
+  \500
+
+   \
+
+    v
+
+     2
+
+1 ----------->2
+
+      100
+```
+
+---
+
+# What is a Stop?
+
+Many students confuse this.
+
+Suppose
+
+```text
+0 → 1 → 2
+```
+
+Flights
+
+```text
+2
+```
+
+Stops
+
+```text
+1
+```
+
+Because
+
+Only city
+
+```text
+1
+```
+
+lies between source and destination.
+
+---
+
+Example
+
+```text
+0 → 1 → 2 → 3
+```
+
+Flights
+
+```text
+3
+```
+
+Stops
+
+```text
+2
+```
+
+Cities
+
+```text
+1
+
+2
+```
+
+are stops.
+
+---
+
+# First Thought (Brute Force)
+
+Try every possible path.
+
+```text
+0
+
+↓
+
+1
+
+↓
+
+2
+```
+
+```text
+0
+
+↓
+
+3
+
+↓
+
+4
+
+↓
+
+2
+```
+
+```text
+0
+
+↓
+
+5
+
+↓
+
+2
+```
+
+Compute every cost.
+
+Take minimum.
+
+Problem?
+
+There may be
+
+millions of paths.
+
+Impossible.
+
+---
+
+# Second Thought
+
+This looks like
+
+Shortest Path.
+
+Immediately
+
+we think
+
+```text
+Dijkstra
+```
+
+But wait...
+
+---
+
+# Why Normal Dijkstra Fails
+
+Suppose
+
+```text
+0
+
+↓
+
+1
+
+↓
+
+2
+
+↓
+
+3
+```
+
+Costs
+
+```text
+100
+
+100
+
+100
+```
+
+Total
+
+```text
+300
+```
+
+Stops
+
+```text
+2
+```
+
+Not allowed.
+
+Another path
+
+```text
+0
+
+↓
+
+3
+```
+
+Cost
+
+```text
+700
+```
+
+Stops
+
+```text
+0
+```
+
+Allowed.
+
+Normal Dijkstra says
+
+```text
+300
+```
+
+because it only minimizes cost.
+
+It completely ignores
+
+```text
+Stops
+```
+
+So normal Dijkstra gives
+
+Wrong Answer.
+
+---
+
+# Main Intuition
+
+This problem has
+
+Two Conditions
+
+We need
+
+```text
+Minimum Cost
+```
+
+AND
+
+```text
+Stops ≤ K
+```
+
+Both must be satisfied.
+
+We cannot ignore either.
+
+---
+
+# Common Man Thinking
+
+Imagine Google Maps.
+
+Suppose you want
+
+Cheapest Route.
+
+Google says
+
+```text
+₹100
+```
+
+But
+
+It has
+
+```text
+25 bus changes
+```
+
+Would you take it?
+
+Probably not.
+
+You may choose
+
+```text
+₹150
+```
+
+with
+
+```text
+1 bus change
+```
+
+Exactly this problem.
+
+Sometimes
+
+Cheapest
+
+is not
+
+Valid.
+
+---
+
+# Why BFS Works
+
+Notice something.
+
+Every time we travel
+
+we increase
+
+Stops
+
+by
+
+```text
+1
+```
+
+So
+
+BFS naturally explores
+
+```text
+0 Stops
+
+↓
+
+1 Stop
+
+↓
+
+2 Stops
+
+↓
+
+3 Stops
+```
+
+Exactly what we need.
+
+---
+
+# State of BFS
+
+Normally
+
+Queue stores
+
+```text
+Node
+```
+
+Not enough.
+
+Need
+
+Current Cost
+
+Current Stops
+
+So queue stores
+
+```text
+(Node,
+
+Cost,
+
+Stops)
+```
+
+Example
+
+```text
+(0,0,0)
+```
+
+Meaning
+
+```text
+Current City = 0
+
+Cost = 0
+
+Stops = 0
+```
+
+---
+
+# Why Maintain Distance Array?
+
+Suppose
+
+We reached
+
+```text
+City 3
+
+Cost = 500
+```
+
+Later
+
+We again reach
+
+```text
+City 3
+
+Cost = 700
+```
+
+Should we continue?
+
+No.
+
+Already have
+
+Cheaper path.
+
+So
+
+Ignore it.
+
+Distance array stores
+
+```text
+Minimum Cost
+
+to every city
+```
+
+---
+
+# Graph Representation
+
+Adjacency List
+
+```python
+graph = defaultdict(list)
+```
+
+Store
+
+```text
+Neighbor
+
+Price
+```
+
+Example
+
+```python
+graph[0] = [(1,100),(2,500)]
+```
+
+---
+
+# Algorithm
+
+## Step 1
+
+Build graph.
+
+---
+
+## Step 2
+
+Queue
+
+```text
+(src,0,0)
+```
+
+Meaning
+
+```text
+City
+
+Cost
+
+Stops
+```
+
+---
+
+## Step 3
+
+Pop.
+
+---
+
+## Step 4
+
+If
+
+```text
+Stops > k
+```
+
+Don't continue.
+
+---
+
+## Step 5
+
+Visit neighbors.
+
+New Cost
+
+```text
+Current Cost
+
++
+
+Flight Cost
+```
+
+New Stops
+
+```text
+Stops + 1
+```
+
+---
+
+## Step 6
+
+If
+
+New Cost
+
+is better
+
+Update.
+
+Push.
+
+---
+
+## Step 7
+
+Return
+
+Distance of Destination.
+
+If impossible
+
+Return
+
+```text
+-1
+```
+
+---
+
+# Dry Run
+
+Example
+
+```text
+0 →1 =100
+
+1→2 =100
+
+0→2 =500
+
+k=1
+```
+
+Queue
+
+```text
+[(0,0,0)]
+```
+
+Distance
+
+```text
+[0,∞,∞]
+```
+
+---
+
+### Pop
+
+```text
+City=0
+
+Cost=0
+
+Stops=0
+```
+
+Neighbors
+
+```text
+1
+
+Cost
+
+100
+```
+
+Update
+
+```text
+dist[1]=100
+```
+
+Push
+
+```text
+(1,100,1)
+```
+
+---
+
+Neighbor
+
+```text
+2
+
+Cost
+
+500
+```
+
+Update
+
+```text
+dist[2]=500
+```
+
+Push
+
+```text
+(2,500,1)
+```
+
+Queue
+
+```text
+[(1,100,1),
+
+(2,500,1)]
+```
+
+---
+
+### Pop
+
+```text
+(1,100,1)
+```
+
+Neighbor
+
+```text
+2
+```
+
+New Cost
+
+```text
+100+100
+
+=
+
+200
+```
+
+Cheaper than
+
+```text
+500
+```
+
+Update
+
+```text
+dist[2]=200
+```
+
+Push
+
+```text
+(2,200,2)
+```
+
+---
+
+Queue
+
+```text
+[(2,500,1),
+
+(2,200,2)]
+```
+
+Answer
+
+```text
+200
+```
+
+---
+
+# Python Solution
+
+```python
+from collections import defaultdict, deque
+from typing import List
+
+class Solution:
+    def findCheapestPrice(self, n: int, flights: List[List[int]], src: int, dst: int, k: int) -> int:
+
+        graph = defaultdict(list)
+
+        # Build graph
+        for u, v, cost in flights:
+            graph[u].append((v, cost))
+
+        dist = [float("inf")] * n
+        dist[src] = 0
+
+        queue = deque()
+        queue.append((src, 0, 0))
+
+        while queue:
+
+            node, cost, stops = queue.popleft()
+
+            if stops > k:
+                continue
+
+            for neighbor, price in graph[node]:
+
+                new_cost = cost + price
+
+                if new_cost < dist[neighbor]:
+
+                    dist[neighbor] = new_cost
+
+                    queue.append(
+                        (
+                            neighbor,
+                            new_cost,
+                            stops + 1
+                        )
+                    )
+
+        if dist[dst] == float("inf"):
+            return -1
+
+        return dist[dst]
+```
+
+---
+
+# Code Explanation
+
+## Build Graph
+
+```python
+graph[u].append((v,cost))
+```
+
+Stores
+
+```text
+u → v
+
+Price
+```
+
+---
+
+## Distance
+
+```python
+dist=[inf]*n
+```
+
+Stores
+
+Minimum Cost
+
+to every city.
+
+---
+
+## Queue
+
+```python
+(src,0,0)
+```
+
+Meaning
+
+```text
+Current City
+
+Current Cost
+
+Stops Used
+```
+
+---
+
+## Stop Condition
+
+```python
+if stops>k:
+    continue
+```
+
+Cannot take more flights.
+
+---
+
+## New Cost
+
+```python
+new_cost=cost+price
+```
+
+Simple addition.
+
+---
+
+## Relaxation
+
+```python
+if new_cost<dist[neighbor]
+```
+
+Found cheaper route.
+
+Update.
+
+Push.
+
+---
+
+# Why Doesn't This Use a Heap?
+
+Notice
+
+We are **not** trying to always expand the cheapest path first.
+
+Our first priority is
+
+```text
+Stops ≤ K
+```
+
+This problem is **not pure Dijkstra** because a path with a slightly higher cost but fewer stops may still lead to the valid answer.
+
+Since `k` limits how deep we can explore, a **BFS by levels (stops)** is sufficient.
+
+Another valid solution uses a **priority queue** with state `(cost, node, stops)`, but the queue-based BFS shown here is simpler and is a common interview solution.
+
+---
+
+# Time Complexity
+
+Building Graph
+
+```text
+O(E)
+```
+
+Traversal
+
+```text
+O(E × K)
+```
+
+where
+
+```text
+E
+
+=
+
+Number of Flights
+```
+
+---
+
+# Space Complexity
+
+Graph
+
+```text
+O(E)
+```
+
+Queue
+
+```text
+O(E)
+```
+
+Distance
+
+```text
+O(V)
+```
+
+Overall
+
+```text
+O(E + V)
+```
+
+---
+
+# Common Mistakes
+
+❌ Using normal Dijkstra.
+
+It ignores
+
+Stops.
+
+---
+
+❌ Using normal BFS.
+
+It ignores
+
+Flight Cost.
+
+---
+
+❌ Forgetting
+
+```python
+stops>k
+```
+
+Must stop exploring.
+
+---
+
+❌ Thinking
+
+Flights
+
+=
+
+Stops.
+
+Actually
+
+```text
+Stops
+
+=
+
+Intermediate Cities
+```
+
+---
+
+# Pattern Recognition
+
+Whenever you see
+
+- Flights
+- Maximum Stops
+- Cheapest Cost
+- Route Constraint
+- K Stops
+- Limited Levels
+
+Think
+
+```text
+Graph
+
+↓
+
+BFS by Levels
+
+↓
+
+Cost Tracking
+
+↓
+
+Distance Array
+```
+
+---
+
+# Interview Tips
+
+Ask yourself
+
+1.
+
+Do I have weighted edges?
+
+Yes.
+
+2.
+
+Is there an additional constraint?
+
+Yes.
+
+```text
+Maximum Stops
+```
+
+3.
+
+Can normal Dijkstra solve it?
+
+No.
+
+Because
+
+Shortest cost alone
+
+isn't enough.
+
+4.
+
+Can BFS help?
+
+Yes.
+
+Because
+
+Levels naturally represent
+
+Stops.
+
+---
+
+# Key Takeaways
+
+- Build a directed weighted graph.
+- Each BFS level corresponds to one additional stop.
+- Store `(city, cost, stops)` in the queue.
+- Track the minimum cost to each city using a distance array.
+- Never explore paths exceeding `k` stops.
+- Update a city only if a cheaper valid route is found.
+- If the destination is unreachable within the stop limit, return `-1`.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 785. Is Graph Bipartite?
+# Complete Beginner to Interview Guide (DFS Approach)
+
+> **Difficulty:** Medium  
+> **Pattern:** Graph + DFS + Graph Coloring
+
+---
+
+# Understanding the Problem
+
+You are given an **undirected graph**.
+
+Example
+
+```text
+0 ----- 1
+|       |
+|       |
+3 ----- 2
+```
+
+You have to determine whether the graph can be divided into **two groups** such that
+
+- Every edge connects one node from Group A
+- To one node from Group B
+
+No edge should connect
+
+```text
+Group A → Group A
+```
+
+or
+
+```text
+Group B → Group B
+```
+
+---
+
+# What is a Bipartite Graph?
+
+A graph is bipartite if we can divide all nodes into two sets.
+
+Example
+
+```text
+0 ----- 1
+|       |
+|       |
+3 ----- 2
+```
+
+One possible division
+
+```text
+Group A
+
+0
+
+2
+```
+
+```text
+Group B
+
+1
+
+3
+```
+
+Every edge connects
+
+```text
+A ↔ B
+```
+
+Never
+
+```text
+A ↔ A
+```
+
+or
+
+```text
+B ↔ B
+```
+
+Hence
+
+```text
+True
+```
+
+---
+
+# Real-Life Analogy
+
+Imagine boys and girls at a dance.
+
+Every friendship must connect
+
+```text
+Boy ↔ Girl
+```
+
+Allowed
+
+```text
+Boy —— Girl
+```
+
+Not allowed
+
+```text
+Boy —— Boy
+```
+
+or
+
+```text
+Girl —— Girl
+```
+
+If such a seating arrangement exists
+
+↓
+
+Graph is Bipartite.
+
+---
+
+# Graph Representation
+
+Input
+
+```python
+graph =
+[
+ [1,3],
+ [0,2],
+ [1,3],
+ [0,2]
+]
+```
+
+Means
+
+```text
+0 → 1
+
+0 → 3
+
+1 → 0
+
+1 → 2
+
+2 → 1
+
+2 → 3
+
+3 → 0
+
+3 → 2
+```
+
+Graph
+
+```text
+0 ------- 1
+
+|         |
+
+|         |
+
+3 ------- 2
+```
+
+---
+
+# Brute Force Thinking
+
+Try every possible grouping.
+
+Example
+
+```text
+A
+
+0
+
+1
+```
+
+```text
+B
+
+2
+
+3
+```
+
+Check all edges.
+
+Then try another grouping.
+
+Number of possibilities
+
+```text
+2ⁿ
+```
+
+Impossible.
+
+Need something smarter.
+
+---
+
+# Main Intuition
+
+Instead of trying every grouping,
+
+build the groups while traversing.
+
+Suppose
+
+```text
+Start
+
+↓
+
+Node 0
+```
+
+Color it
+
+```text
+Red
+```
+
+Now
+
+Every neighbor
+
+must be
+
+```text
+Blue
+```
+
+Every neighbor of Blue
+
+must become
+
+```text
+Red
+```
+
+Continue until graph finishes.
+
+---
+
+# Common Man Thinking
+
+Imagine four friends.
+
+```text
+A ----- B
+
+|       |
+
+|       |
+
+D ----- C
+```
+
+Rule
+
+Every friend must sit opposite to their friend.
+
+Start
+
+```text
+A = Red
+```
+
+Then
+
+```text
+B = Blue
+
+D = Blue
+```
+
+Now go to
+
+```text
+B
+```
+
+Its neighbor
+
+```text
+C
+```
+
+must be
+
+```text
+Red
+```
+
+Everything works.
+
+Graph is Bipartite.
+
+---
+
+# Graph Coloring
+
+We only need
+
+Three values.
+
+```text
+-1
+
+Not Visited
+```
+
+```text
+0
+
+Red
+```
+
+```text
+1
+
+Blue
+```
+
+Python
+
+```python
+color = [-1] * n
+```
+
+---
+
+# Why Graph Coloring Works
+
+Suppose
+
+```text
+0 ----- 1
+```
+
+Color
+
+```text
+0 = Red
+```
+
+Then
+
+```text
+1 = Blue
+```
+
+Now
+
+Suppose
+
+```text
+1 ----- 2
+```
+
+Then
+
+```text
+2 = Red
+```
+
+Continue.
+
+If at any point
+
+Two connected nodes
+
+get the same color
+
+↓
+
+Impossible.
+
+Return
+
+```text
+False
+```
+
+---
+
+# Why We Don't Need Cycle Detection
+
+Many beginners think
+
+> "Need cycle detection."
+
+Actually
+
+No.
+
+Because
+
+The problem never asks
+
+> Is there a cycle?
+
+It asks
+
+> Can adjacent nodes have different colors?
+
+If an odd cycle exists
+
+Coloring automatically fails.
+
+Example
+
+```text
+0
+
+/ \
+
+1---2
+```
+
+Triangle.
+
+Color
+
+```text
+0 = Red
+```
+
+Then
+
+```text
+1 = Blue
+```
+
+Then
+
+```text
+2 = Red
+```
+
+Now
+
+```text
+2
+```
+
+connects to
+
+```text
+0
+```
+
+Both
+
+```text
+Red
+```
+
+Conflict.
+
+Return
+
+```text
+False
+```
+
+No explicit cycle detection required.
+
+---
+
+# DFS Intuition
+
+DFS says
+
+> Keep moving deeper.
+
+Algorithm
+
+```text
+Current Node
+
+↓
+
+Visit Neighbor
+
+↓
+
+Neighbor Colored?
+
+↓
+
+No
+
+↓
+
+Assign Opposite Color
+
+↓
+
+DFS
+
+↓
+
+Yes
+
+↓
+
+Same Color?
+
+↓
+
+Yes
+
+↓
+
+False
+
+↓
+
+No
+
+↓
+
+Continue
+```
+
+---
+
+# DFS Algorithm
+
+### Step 1
+
+Pick an unvisited node.
+
+---
+
+### Step 2
+
+Color it Red.
+
+---
+
+### Step 3
+
+Visit every neighbor.
+
+---
+
+### Step 4
+
+If neighbor not colored
+
+↓
+
+Assign opposite color.
+
+---
+
+### Step 5
+
+DFS(neighbor)
+
+---
+
+### Step 6
+
+If neighbor already colored
+
+↓
+
+Same color?
+
+↓
+
+Return False.
+
+---
+
+### Step 7
+
+Finish DFS.
+
+---
+
+### Step 8
+
+Graph may not be connected.
+
+Repeat DFS for every unvisited node.
+
+---
+
+# Dry Run (Example 1)
+
+Graph
+
+```text
+0 ----- 1
+
+|       |
+
+|       |
+
+3 ----- 2
+```
+
+Initially
+
+```text
+color
+
+[-1,-1,-1,-1]
+```
+
+---
+
+Start
+
+```text
+0
+```
+
+Assign
+
+```text
+Red
+```
+
+```text
+color
+
+[0,-1,-1,-1]
+```
+
+---
+
+Visit
+
+```text
+1
+```
+
+Assign
+
+```text
+Blue
+```
+
+```text
+color
+
+[0,1,-1,-1]
+```
+
+---
+
+Visit
+
+```text
+2
+```
+
+Assign
+
+```text
+Red
+```
+
+```text
+color
+
+[0,1,0,-1]
+```
+
+---
+
+Visit
+
+```text
+3
+```
+
+Assign
+
+```text
+Blue
+```
+
+```text
+color
+
+[0,1,0,1]
+```
+
+---
+
+Visit neighbors
+
+Everything matches.
+
+Answer
+
+```text
+True
+```
+
+---
+
+# Dry Run (Triangle)
+
+Graph
+
+```text
+0
+
+/ \
+
+1---2
+```
+
+Initially
+
+```text
+[-1,-1,-1]
+```
+
+---
+
+Color
+
+```text
+0 = Red
+```
+
+---
+
+Neighbor
+
+```text
+1 = Blue
+```
+
+---
+
+Neighbor
+
+```text
+2 = Red
+```
+
+Now
+
+Neighbor
+
+```text
+0
+```
+
+Already Red.
+
+Current node
+
+```text
+2
+```
+
+also Red.
+
+Conflict
+
+```text
+Red —— Red
+```
+
+Return
+
+```text
+False
+```
+
+---
+
+# Python Solution (DFS)
+
+```python
+from typing import List
+
+class Solution:
+    def isBipartite(self, graph: List[List[int]]) -> bool:
+
+        n = len(graph)
+
+        color = [-1] * n
+
+        def dfs(node):
+
+            for neighbor in graph[node]:
+
+                # Neighbor is not colored
+                if color[neighbor] == -1:
+
+                    color[neighbor] = 1 - color[node]
+
+                    if not dfs(neighbor):
+                        return False
+
+                # Neighbor already has same color
+                elif color[neighbor] == color[node]:
+
+                    return False
+
+            return True
+
+        # Handle disconnected graphs
+        for node in range(n):
+
+            if color[node] == -1:
+
+                color[node] = 0
+
+                if not dfs(node):
+                    return False
+
+        return True
+```
+
+---
+
+# Line-by-Line Explanation
+
+## Initialize Color Array
+
+```python
+color = [-1] * n
+```
+
+Every node starts
+
+```text
+Unvisited
+```
+
+---
+
+## DFS Function
+
+```python
+def dfs(node):
+```
+
+Visit
+
+Current Node.
+
+---
+
+## Visit Every Neighbor
+
+```python
+for neighbor in graph[node]:
+```
+
+Explore all connected nodes.
+
+---
+
+## Neighbor Not Colored
+
+```python
+if color[neighbor] == -1:
+```
+
+Assign opposite color.
+
+```python
+color[neighbor] = 1 - color[node]
+```
+
+Then
+
+Continue DFS.
+
+---
+
+## Neighbor Already Colored
+
+```python
+elif color[neighbor] == color[node]:
+```
+
+Both endpoints
+
+have same color.
+
+Impossible.
+
+Return
+
+```text
+False
+```
+
+---
+
+## Connected Components
+
+```python
+for node in range(n):
+```
+
+Why?
+
+Graph may look like
+
+```text
+0 ----- 1
+
+2 ----- 3
+```
+
+If we start only from
+
+```text
+0
+```
+
+We'll never visit
+
+```text
+2
+```
+
+So we start DFS
+
+from every unvisited node.
+
+---
+
+# Time Complexity
+
+Each node visited once.
+
+Each edge visited twice.
+
+```text
+O(V + E)
+```
+
+where
+
+```text
+V
+
+=
+
+Vertices
+```
+
+```text
+E
+
+=
+
+Edges
+```
+
+---
+
+# Space Complexity
+
+Color Array
+
+```text
+O(V)
+```
+
+Recursion Stack
+
+Worst Case
+
+```text
+O(V)
+```
+
+Overall
+
+```text
+O(V)
+```
+
+---
+
+# Common Mistakes
+
+❌ Using a visited array **and** a color array.
+
+Only color array is enough.
+
+---
+
+❌ Detecting cycles.
+
+Cycle detection is unnecessary.
+
+Color conflict is enough.
+
+---
+
+❌ Forgetting disconnected graphs.
+
+Always
+
+```python
+for node in range(n)
+```
+
+---
+
+❌ Coloring neighbor with the same color.
+
+Correct
+
+```python
+color[neighbor] = 1 - color[node]
+```
+
+---
+
+❌ Revisiting colored nodes.
+
+Already colored?
+
+Only compare.
+
+Don't recurse again.
+
+---
+
+# Pattern Recognition
+
+Whenever you see
+
+- Two Teams
+- Two Groups
+- Alternate Colors
+- No adjacent nodes together
+- Graph Coloring
+- Odd Cycle Detection
+
+Think
+
+```text
+Graph
+
+↓
+
+DFS / BFS
+
+↓
+
+2 Coloring
+
+↓
+
+Color Array
+
+↓
+
+Conflict Check
+```
+
+---
+
+# Interview Tips
+
+Ask yourself
+
+### Question 1
+
+Can I divide nodes into two groups?
+
+↓
+
+Graph Coloring.
+
+---
+
+### Question 2
+
+What information should I store?
+
+↓
+
+Color.
+
+---
+
+### Question 3
+
+Need visited array?
+
+↓
+
+No.
+
+Color array already tells
+
+Visited or Not.
+
+---
+
+### Question 4
+
+Need cycle detection?
+
+↓
+
+No.
+
+Color conflict automatically detects odd cycles.
+
+---
+
+# Key Takeaways
+
+- Bipartite means every edge connects two different groups.
+- Solve it using **2-coloring**.
+- Color one node, then color every neighbor with the opposite color.
+- If two adjacent nodes ever have the same color, return `False`.
+- The color array acts as both a **visited marker** and a **group assignment**.
+- Always start DFS/BFS from every unvisited node because the graph may be disconnected.
+- **No explicit cycle detection is required**—odd cycles naturally cause a color conflict during DFS.
