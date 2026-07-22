@@ -8,7 +8,7 @@ Welcome to the graph problems section! Here you will find various data structure
 - [797. All Paths From Source to Target](#797-all-paths-from-source-to-target)
 - [1557. Minimum Number of Vertices to Reach All Nodes](#1557-minimum-number-of-vertices-to-reach-all-nodes)
 - [841. Keys and Rooms](#841-keys-and-rooms)
-- [🧠 Topological Sort (DFS & BFS Implementations)](#🧠-topological-sort-dfs--bfs-implementations)
+- [🧠 Topological Sort (DFS & BFS Implementations)](#topological-sort-dfs--bfs-implementations)
 - [1334. Find the City With the Smallest Number of Neighbors at a Threshold Distance](#1334-find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance)
 - [994. Rotting Oranges](#994-rotting-oranges)
 - [547. Number of Provinces](#547-number-of-provinces)
@@ -24,6 +24,7 @@ Welcome to the graph problems section! Here you will find various data structure
 - [743. Network Delay Time](#743-network-delay-time)
 - [787. Cheapest Flights Within K Stops](#787-cheapest-flights-within-k-stops)
 - [785. Is Graph Bipartite?](#785-is-graph-bipartite)
+- [851. Loud and Rich (LeetCode)](#851-loud-and-rich-leetcode)
 
 <br><br><br><br><br>
 
@@ -32,6 +33,7 @@ Welcome to the graph problems section! Here you will find various data structure
 # 1791. Find Center of Star Graph
 
 ## Difficulty
+
 Easy
 
 ---
@@ -1505,10 +1507,10 @@ O(n + P × L)
 
 ---
 
-
 # 1557. Minimum Number of Vertices to Reach All Nodes
 
 > How to Think About Graph Problems (Using LeetCode 1557)
+
 ---
 
 # Before Anything Else...
@@ -2038,9 +2040,9 @@ Process
 
 Final indegree array
 
-| Node | 0 | 1 | 2 | 3 | 4 | 5 |
-|------|---|---|---|---|---|---|
-| Indegree | 0 | 1 | 2 | 0 | 1 | 1 |
+| Node     | 0   | 1   | 2   | 3   | 4   | 5   |
+| -------- | --- | --- | --- | --- | --- | --- |
+| Indegree | 0   | 1   | 2   | 0   | 1   | 1   |
 
 Nodes having indegree 0
 
@@ -2186,16 +2188,16 @@ Instead of memorizing algorithms,
 
 classify problems first.
 
-| If the problem asks... | Think about... |
-|-------------------------|----------------|
-| Can I reach a node? | DFS / BFS |
-| Number of connected components | DFS / BFS |
-| Detect cycles | DFS or Kahn's Algorithm |
-| Shortest path (unweighted) | BFS |
-| Shortest path (weighted) | Dijkstra |
-| Valid task ordering | Topological Sort |
-| Minimum starting vertices | Indegree |
-| Course prerequisites | Topological Sort |
+| If the problem asks...         | Think about...          |
+| ------------------------------ | ----------------------- |
+| Can I reach a node?            | DFS / BFS               |
+| Number of connected components | DFS / BFS               |
+| Detect cycles                  | DFS or Kahn's Algorithm |
+| Shortest path (unweighted)     | BFS                     |
+| Shortest path (weighted)       | Dijkstra                |
+| Valid task ordering            | Topological Sort        |
+| Minimum starting vertices      | Indegree                |
+| Course prerequisites           | Topological Sort        |
 
 This habit is what experienced programmers develop.
 
@@ -2290,6 +2292,7 @@ Once you answer that question, the right algorithm—or sometimes no traversal a
 # 841. Keys and Rooms
 
 ## Difficulty
+
 Medium
 
 ---
@@ -3039,7 +3042,7 @@ BFS
 - Treat every room as a **graph node**.
 - Treat every key as a **directed edge**.
 - The question becomes:
-  > "Starting from node 0, can I reach every node?"
+   > "Starting from node 0, can I reach every node?"
 - This is a **graph traversal** problem.
 - Both **DFS** and **BFS** solve it.
 - Your solution is correct, but storing room numbers in the queue is a cleaner and more standard approach.
@@ -3084,7 +3087,7 @@ def dfs(node):
     for neighbour in adj[node]:
         if seen[neighbour] == 0:
             dfs(neighbour)
-    
+
     # Push to stack only after visiting all children
     stack.append(node)
 
@@ -3100,7 +3103,8 @@ print("DFS Topological Sort:", topological_order)
 
 ## 2. BFS Method (Kahn's Algorithm)
 
-Kahn's Algorithm uses BFS and relies on the concept of **In-degree** (the number of incoming edges to a node). 
+Kahn's Algorithm uses BFS and relies on the concept of **In-degree** (the number of incoming edges to a node).
+
 1. We first compute the in-degree of all nodes.
 2. Nodes with an in-degree of `0` have no prerequisites, so we add them to a queue.
 3. We process the queue, appending each node to our result and decrementing the in-degree of its neighbors.
@@ -3137,11 +3141,11 @@ ans = []
 while queue:
     node = queue.popleft()
     ans.append(node)
-    
+
     for neighbour in adj[node]:
         # Remove the edge logically by decrementing in-degree
         indegree[neighbour] -= 1
-        
+
         # If it has no more dependencies, add to queue
         if indegree[neighbour] == 0:
             queue.append(neighbour)
@@ -3152,7 +3156,6 @@ print("BFS (Kahn's) Topological Sort:", ans)
 <br><br><br><br><br>
 
 ---
-
 
 # 1334. Find the City With the Smallest Number of Neighbors at a Threshold Distance
 
@@ -4037,6 +4040,7 @@ If you practice following this flow on every graph problem, you'll quickly ident
 # 994. Rotting Oranges
 
 ## Difficulty
+
 Medium
 
 ---
@@ -4698,7 +4702,7 @@ class Solution:
         directions = [
             (-1, 0),
             (1, 0),
-            (0, -1), 
+            (0, -1),
             (0, 1)
         ]
         while queue:
@@ -4791,6 +4795,7 @@ This problem is one of the classic introductions to recognizing and applying Mul
 # 547. Number of Provinces
 
 ## Difficulty
+
 Medium
 
 ---
@@ -5687,6 +5692,7 @@ This is one of the classic **Connected Components** problems and is often the fi
 # 207. Course Schedule
 
 ## Difficulty
+
 Medium
 
 ---
@@ -6854,6 +6860,7 @@ Possible
 **Difficulty:** Medium
 
 **Topics**
+
 - Graph
 - Minimum Spanning Tree (MST)
 - Greedy
@@ -7754,6 +7761,7 @@ If you can explain this chain during an interview, you're demonstrating understa
 **Difficulty:** Medium
 
 **Topics**
+
 - Graph
 - DFS
 - BFS
@@ -8659,6 +8667,7 @@ Restore temporary marks (if using in-place marking)
 **Difficulty:** Medium
 
 **Topics**
+
 - Graph
 - DFS
 - BFS
@@ -9358,14 +9367,14 @@ No extra visited matrix is used.
 
 This exact thinking appears in many interview questions.
 
-| Problem | Idea |
-|----------|------|
-| Number of Islands | DFS on connected components |
-| Surrounded Regions | Boundary DFS |
-| Number of Enclaves | Boundary DFS |
+| Problem                     | Idea                        |
+| --------------------------- | --------------------------- |
+| Number of Islands           | DFS on connected components |
+| Surrounded Regions          | Boundary DFS                |
+| Number of Enclaves          | Boundary DFS                |
 | Pacific Atlantic Water Flow | Reverse DFS from boundaries |
-| Flood Fill | DFS/BFS |
-| Max Area of Island | DFS |
+| Flood Fill                  | DFS/BFS                     |
+| Max Area of Island          | DFS                         |
 
 ---
 
@@ -9446,6 +9455,7 @@ This **reverse-thinking + boundary DFS** pattern is one of the most common graph
 **Difficulty:** Medium
 
 **Topics**
+
 - Tree
 - DFS
 - Postorder Traversal
@@ -10406,14 +10416,14 @@ Return subtree size to parent
 
 # Similar Problems
 
-| Problem | Pattern |
-|---------|---------|
-| Subtree of Another Tree | Postorder DFS |
-| Count Complete Tree Nodes | Subtree information |
-| Diameter of Binary Tree | Postorder DFS |
-| Binary Tree Maximum Path Sum | Postorder DFS |
-| Sum of Distances in Tree | Tree DP |
-| Count Good Nodes | Postorder + Subtree Size |
+| Problem                      | Pattern                  |
+| ---------------------------- | ------------------------ |
+| Subtree of Another Tree      | Postorder DFS            |
+| Count Complete Tree Nodes    | Subtree information      |
+| Diameter of Binary Tree      | Postorder DFS            |
+| Binary Tree Maximum Path Sum | Postorder DFS            |
+| Sum of Distances in Tree     | Tree DP                  |
+| Count Good Nodes             | Postorder + Subtree Size |
 
 ---
 
@@ -10468,6 +10478,7 @@ Once you identify what each recursive call should return, the implementation bec
 **Difficulty:** Medium
 
 **Topics**
+
 - Graph
 - DFS
 - BFS
@@ -11319,14 +11330,14 @@ One Group
 
 # Similar Problems
 
-| Problem | Pattern |
-|----------|----------|
-| Number of Islands | Connected Components |
+| Problem            | Pattern              |
+| ------------------ | -------------------- |
+| Number of Islands  | Connected Components |
 | Max Area of Island | Connected Components |
-| Surrounded Regions | Boundary DFS |
-| Number of Enclaves | Boundary DFS |
-| Flood Fill | DFS/BFS |
-| Rotting Oranges | Multi-source BFS |
+| Surrounded Regions | Boundary DFS         |
+| Number of Enclaves | Boundary DFS         |
+| Flood Fill         | DFS/BFS              |
+| Rotting Oranges    | Multi-source BFS     |
 
 ---
 
@@ -11445,6 +11456,7 @@ Number of Islands.
 **Difficulty:** Medium
 
 **Topics**
+
 - Graph
 - Topological Sort
 - BFS (Kahn's Algorithm)
@@ -12631,13 +12643,13 @@ Continue until all courses processed
 
 # Similar Problems
 
-| Problem | Pattern |
-|----------|---------|
-| Course Schedule I | Cycle Detection |
-| Course Schedule II | Topological Sort |
-| Alien Dictionary | Topological Sort |
-| Parallel Courses | Topological Sort |
-| Sequence Reconstruction | Topological Sort |
+| Problem                        | Pattern          |
+| ------------------------------ | ---------------- |
+| Course Schedule I              | Cycle Detection  |
+| Course Schedule II             | Topological Sort |
+| Alien Dictionary               | Topological Sort |
+| Parallel Courses               | Topological Sort |
+| Sequence Reconstruction        | Topological Sort |
 | Build System / Package Manager | Topological Sort |
 
 ---
@@ -12661,6 +12673,7 @@ Continue until all courses processed
 ---
 
 # 310. Minimum Height Trees (MHT)
+
 # Complete Beginner to Interview Guide
 
 > **Difficulty:** Medium  
@@ -13852,6 +13865,7 @@ O(n)
 ---
 
 # 399. Evaluate Division
+
 # Complete Beginner to Interview Guide
 
 > **Difficulty:** Medium  
@@ -17534,6 +17548,7 @@ Stops.
 ---
 
 # 785. Is Graph Bipartite?
+
 # Complete Beginner to Interview Guide (DFS Approach)
 
 > **Difficulty:** Medium  
@@ -18684,3 +18699,1143 @@ Color conflict automatically detects odd cycles.
 - The color array acts as both a **visited marker** and a **group assignment**.
 - Always start DFS/BFS from every unvisited node because the graph may be disconnected.
 - **No explicit cycle detection is required**—odd cycles naturally cause a color conflict during DFS.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 851. Loud and Rich (LeetCode)
+
+- **Difficulty:** Medium
+- **Topics:** Graph, DFS, Memoization (DP on DAG)
+
+---
+
+# What is the Problem Asking?
+
+Let's forget graphs and algorithms.
+
+Imagine there are **N people**.
+
+Each person has two properties:
+
+- 💰 Money
+- 🤫 Quietness
+
+Example
+
+| Person | Money       | Quiet |
+| ------ | ----------- | ----- |
+| 0      | Low         | 3     |
+| 1      | More than 0 | 2     |
+| 2      | More than 1 | 5     |
+| 3      | More than 1 | 4     |
+| 4      | More than 3 | 6     |
+| 5      | More than 3 | 1     |
+
+We don't know the exact amount of money.
+
+We only know relationships like
+
+```
+1 is richer than 0
+
+3 is richer than 1
+
+5 is richer than 3
+```
+
+The question asks:
+
+> For every person,
+>
+> among everyone who is **at least as rich** as them,
+>
+> who is the **quietest**?
+
+Notice
+
+We are NOT finding
+
+- richest person
+- poorest person
+- quietest person overall
+
+We are finding
+
+> **Quietest person among everyone richer than me (including me).**
+
+---
+
+# Understanding "Richer"
+
+Suppose
+
+```
+5 > 3 > 1 > 0
+```
+
+means
+
+```
+5 richer than 3
+
+3 richer than 1
+
+1 richer than 0
+```
+
+Then automatically
+
+```
+5 richer than 1
+
+5 richer than 0
+
+3 richer than 0
+```
+
+This is called **transitivity**.
+
+Just like
+
+```
+A > B
+
+B > C
+
+↓
+
+A > C
+```
+
+---
+
+# Understanding Quiet
+
+Given
+
+```python
+quiet = [3,2,5,4,6,1]
+```
+
+means
+
+| Person | Quiet |
+| ------ | ----: |
+| 0      |     3 |
+| 1      |     2 |
+| 2      |     5 |
+| 3      |     4 |
+| 4      |     6 |
+| 5      |     1 |
+
+Smaller number
+
+↓
+
+More quiet
+
+```
+quiet = 1
+
+↓
+
+Very quiet
+```
+
+---
+
+# Common Man Analogy
+
+Imagine a company.
+
+Every employee has
+
+- salary
+- noise level
+
+Manager tells you
+
+```
+Alice earns more than Bob
+
+Bob earns more than Charlie
+
+David earns more than Alice
+```
+
+Now manager asks
+
+For every employee
+
+> Among everyone who earns **at least as much** as them,
+
+Who is the **quietest employee**?
+
+That's exactly this problem.
+
+---
+
+# Example
+
+Suppose
+
+```
+5
+
+↓
+
+3
+
+↓
+
+1
+
+↓
+
+0
+```
+
+Quiet values
+
+```
+0 : 3
+
+1 : 2
+
+3 : 4
+
+5 : 1
+```
+
+Question
+
+Who is answer for person 0?
+
+People richer than 0
+
+```
+5
+
+3
+
+1
+```
+
+Include himself
+
+```
+0
+```
+
+Candidates
+
+```
+0
+
+1
+
+3
+
+5
+```
+
+Quiet values
+
+```
+3
+
+2
+
+4
+
+1
+```
+
+Minimum
+
+```
+1
+```
+
+belongs to
+
+```
+Person 5
+```
+
+Therefore
+
+```
+answer[0] = 5
+```
+
+---
+
+# Understanding the Graph
+
+Input
+
+```python
+richer = [[1,0],[2,1],[3,1],[4,3],[5,3]]
+```
+
+means
+
+```
+1 richer than 0
+
+2 richer than 1
+
+3 richer than 1
+
+4 richer than 3
+
+5 richer than 3
+```
+
+Graph becomes
+
+```
+0 → 1
+
+1 → 2
+  → 3
+
+3 → 4
+  → 5
+```
+
+Notice
+
+Edge points
+
+```
+Poorer
+
+↓
+
+Richer
+```
+
+Why?
+
+Because starting from a person,
+
+we want to visit
+
+everyone richer than them.
+
+---
+
+# First Thought (Brute Force)
+
+Suppose we want answer for person 0.
+
+We can
+
+```
+DFS
+
+from
+
+0
+```
+
+Visit
+
+```
+0
+
+1
+
+2
+
+3
+
+4
+
+5
+```
+
+Compare quiet values
+
+Return quietest.
+
+Works.
+
+---
+
+Now do the same
+
+for
+
+```
+1
+
+2
+
+3
+
+4
+
+5
+```
+
+Works again.
+
+---
+
+# Problem with Brute Force
+
+Imagine
+
+```
+0
+
+↓
+
+1
+
+↓
+
+3
+
+↓
+
+5
+```
+
+Later
+
+```
+7
+
+↓
+
+3
+
+↓
+
+5
+```
+
+Notice
+
+```
+dfs(3)
+```
+
+is executed
+
+again.
+
+And again.
+
+Same answer.
+
+Same work.
+
+This is
+
+## Overlapping Subproblems
+
+Exactly like
+
+Unique Paths.
+
+---
+
+# Key Observation
+
+For every person,
+
+the answer
+
+never changes.
+
+Example
+
+```
+dfs(3)
+```
+
+always returns
+
+```
+Person 5
+```
+
+No matter who calls it.
+
+So
+
+Compute once.
+
+Store it.
+
+Reuse it.
+
+This is
+
+## Memoization
+
+---
+
+# The Thinking Pattern
+
+Whenever you see
+
+```
+For every node
+
+find something
+```
+
+ask
+
+> Can two different DFS paths reach the same node?
+
+If YES
+
+↓
+
+Memoization.
+
+---
+
+# How to Think
+
+Instead of thinking
+
+```
+Carry minimum while travelling
+```
+
+Think
+
+```
+Every node answers one question.
+```
+
+Question
+
+```
+Who is the quietest richer person
+for me?
+```
+
+Once every node can answer this,
+
+parents can use it.
+
+---
+
+# DFS Meaning
+
+Our DFS means
+
+```
+dfs(person)
+
+↓
+
+returns
+
+the quietest person
+
+among
+
+person
+
++
+
+everyone richer than person
+```
+
+That is the entire recursion.
+
+---
+
+# Logic
+
+Suppose
+
+```
+Person 3
+```
+
+Initially
+
+best answer
+
+is
+
+```
+3
+```
+
+Now
+
+visit
+
+```
+4
+
+5
+```
+
+Suppose
+
+```
+dfs(4)
+
+returns
+
+4
+```
+
+Compare
+
+```
+quiet[4]
+
+vs
+
+quiet[3]
+```
+
+Take minimum.
+
+Now
+
+visit
+
+```
+5
+```
+
+Suppose
+
+```
+dfs(5)
+
+returns
+
+5
+```
+
+Again compare.
+
+Return quieter person.
+
+---
+
+# Mathematical Recurrence
+
+Let
+
+```
+F(node)
+```
+
+=
+
+quietest richer person.
+
+Initially
+
+```
+F(node)=node
+```
+
+For every richer neighbour
+
+```
+candidate = F(neighbour)
+```
+
+If
+
+```
+quiet[candidate]
+
+<
+
+quiet[F(node)]
+```
+
+update answer.
+
+Finally
+
+```
+return F(node)
+```
+
+This is exactly
+
+Dynamic Programming on Graph.
+
+---
+
+# Dry Run
+
+Input
+
+```python
+richer = [
+[1,0],
+[2,1],
+[3,1],
+[4,3],
+[5,3]
+]
+
+quiet =
+
+[3,2,5,4,6,1]
+```
+
+Graph
+
+```
+0
+
+↓
+
+1
+
+↙ ↘
+
+2   3
+
+   ↙ ↘
+
+  4   5
+```
+
+---
+
+## dfs(5)
+
+No richer people
+
+Return
+
+```
+5
+```
+
+Memo
+
+```
+5 → 5
+```
+
+---
+
+## dfs(4)
+
+Return
+
+```
+4
+```
+
+Memo
+
+```
+4 → 4
+```
+
+---
+
+## dfs(3)
+
+Initially
+
+```
+answer=3
+```
+
+Visit
+
+```
+4
+```
+
+returns
+
+```
+4
+```
+
+Compare
+
+```
+quiet[4]=6
+
+quiet[3]=4
+```
+
+Keep
+
+```
+3
+```
+
+Visit
+
+```
+5
+```
+
+returns
+
+```
+5
+```
+
+Compare
+
+```
+quiet[5]=1
+
+quiet[3]=4
+```
+
+Update
+
+```
+answer=5
+```
+
+Return
+
+```
+5
+```
+
+Memo
+
+```
+3 → 5
+```
+
+---
+
+## dfs(1)
+
+Initially
+
+```
+answer=1
+```
+
+Visit
+
+```
+2
+```
+
+returns
+
+```
+2
+```
+
+Compare
+
+```
+5
+
+vs
+
+2
+```
+
+Keep
+
+```
+1
+```
+
+Visit
+
+```
+3
+```
+
+Already computed.
+
+Immediately returns
+
+```
+5
+```
+
+Compare
+
+```
+quiet[5]=1
+
+quiet[1]=2
+```
+
+Update
+
+```
+answer=5
+```
+
+Return
+
+```
+5
+```
+
+Memo
+
+```
+1 → 5
+```
+
+---
+
+## dfs(0)
+
+Initially
+
+```
+answer=0
+```
+
+Visit
+
+```
+1
+```
+
+returns
+
+```
+5
+```
+
+Compare
+
+```
+quiet[5]=1
+
+quiet[0]=3
+```
+
+Update
+
+```
+answer=5
+```
+
+Return
+
+```
+5
+```
+
+---
+
+# Final Answers
+
+```
+0 → 5
+
+1 → 5
+
+2 → 2
+
+3 → 5
+
+4 → 4
+
+5 → 5
+```
+
+---
+
+# Why Memoization Works
+
+Without cache
+
+```
+dfs(3)
+
+called
+
+from
+
+dfs(1)
+
+and
+
+dfs(7)
+
+and
+
+dfs(10)
+```
+
+Many times.
+
+With cache
+
+First call
+
+```
+dfs(3)
+```
+
+stores
+
+```
+3 → 5
+```
+
+Next time
+
+```
+return memo[3]
+```
+
+Instantly.
+
+---
+
+# Time Complexity
+
+Building graph
+
+```
+O(E)
+```
+
+Each node
+
+computed once
+
+```
+O(V)
+```
+
+Each edge
+
+visited once
+
+```
+O(E)
+```
+
+Overall
+
+```
+O(V+E)
+```
+
+Space
+
+```
+O(V+E)
+```
+
+---
+
+# My Solution
+
+```python
+class Solution:
+    def loudAndRich(self, richer: List[List[int]], quiet: List[int]) -> List[int]:
+        n = len(quiet)
+        adj = defaultdict(list)
+        for u, v in richer:
+            adj[v].append(u)
+
+
+        @cache
+        def dfs(node, miniNode, quietness, mini):
+            if mini >= quietness:
+                mini = quietness
+                miniNode = node
+            for nei in adj[node]:
+                m, mnode = dfs(nei, miniNode, quiet[nei], mini)
+                if m <= mini:
+                    mini = m
+                    miniNode = mnode
+            return (mini, miniNode)
+
+        ans = []
+        for i in range(n):
+            ans.append(dfs(i, i, quiet[i], quiet[i])[1])
+        return ans
+```
+
+# Cleaner Python Solution
+
+```python
+from collections import defaultdict
+from functools import cache
+from typing import List
+
+class Solution:
+    def loudAndRich(self, richer: List[List[int]], quiet: List[int]) -> List[int]:
+
+        graph = defaultdict(list)
+
+        # poorer -> richer
+        for rich, poor in richer:
+            graph[poor].append(rich)
+
+        @cache
+        def dfs(person):
+
+            # Assume current person is the quietest
+            answer = person
+
+            # Explore everyone richer
+            for richer_person in graph[person]:
+
+                candidate = dfs(richer_person)
+
+                if quiet[candidate] < quiet[answer]:
+                    answer = candidate
+
+            return answer
+
+        return [dfs(i) for i in range(len(quiet))]
+```
+
+---
+
+# Pattern Recognition
+
+Whenever a graph problem asks:
+
+- "For every node, find the best reachable node."
+- "For every node, compute the same property."
+- "Different DFS traversals revisit the same nodes."
+
+Think:
+
+```
+Graph
+
++
+
+DFS
+
++
+
+Memoization
+```
+
+This pattern is often called **DFS on a DAG with Dynamic Programming**, and it appears frequently in graph interview problems.

@@ -29,6 +29,7 @@ Welcome to the sliding window problems section! Here you will find various data 
 - [1016. Binary String With Substrings Representing 1 To N](#1016-binary-string-with-substrings-representing-1-to-n)
 - [1031. Maximum Sum of Two Non-Overlapping Subarrays](#1031-maximum-sum-of-two-non-overlapping-subarrays)
 - [1156. Swap For Longest Repeated Character Substring](#1156-swap-for-longest-repeated-character-substring)
+- [2841. Maximum Sum of Almost Unique Subarray](#2841-maximum-sum-of-almost-unique-subarray)
 
 <br><br><br><br><br>
 
@@ -1095,10 +1096,10 @@ Window Size - Something Good <= k
 
 Examples:
 
-| Problem | Formula |
-|----------|---------|
-| 1004. Max Consecutive Ones III | `window_size - ones <= k` (equivalent to zeros ≤ k) |
-| 424. Longest Repeating Character Replacement | `window_size - max_frequency <= k` |
+| Problem                                      | Formula                                             |
+| -------------------------------------------- | --------------------------------------------------- |
+| 1004. Max Consecutive Ones III               | `window_size - ones <= k` (equivalent to zeros ≤ k) |
+| 424. Longest Repeating Character Replacement | `window_size - max_frequency <= k`                  |
 
 ---
 
@@ -3571,13 +3572,13 @@ This inversion is the key idea behind minimum window problems.
 
 # Connection to Other Sliding Window Problems
 
-| Problem | Pattern |
-|----------|---------|
-| 1004. Max Consecutive Ones III | Longest valid window |
+| Problem                                      | Pattern                             |
+| -------------------------------------------- | ----------------------------------- |
+| 1004. Max Consecutive Ones III               | Longest valid window                |
 | 424. Longest Repeating Character Replacement | Longest valid window with frequency |
-| 930. Binary Subarrays With Sum | Count exact using AtMost |
-| 992. Subarrays with K Different Integers | Count exact using AtMost |
-| 76. Minimum Window Substring | Minimum valid window |
+| 930. Binary Subarrays With Sum               | Count exact using AtMost            |
+| 992. Subarrays with K Different Integers     | Count exact using AtMost            |
+| 76. Minimum Window Substring                 | Minimum valid window                |
 
 ---
 
@@ -4612,11 +4613,11 @@ Expand Around Center
 
 # Related Problems
 
-| Problem | Technique |
-|----------|-----------|
+| Problem                          | Technique            |
+| -------------------------------- | -------------------- |
 | 5. Longest Palindromic Substring | Expand Around Center |
-| 647. Palindromic Substrings | Expand Around Center |
-| 131. Palindrome Partitioning | Expand / DP |
+| 647. Palindromic Substrings      | Expand Around Center |
+| 131. Palindrome Partitioning     | Expand / DP          |
 
 ---
 
@@ -4664,8 +4665,8 @@ and is the standard approach for palindrome substring problems.
 
 - Every palindrome grows from a center.
 - There are two kinds of centers:
-  - Odd-length (`i, i`)
-  - Even-length (`i, i+1`)
+   - Odd-length (`i, i`)
+   - Even-length (`i, i+1`)
 - Expand while characters match.
 - Every successful expansion contributes one palindrome.
 - Time Complexity:
@@ -5221,8 +5222,8 @@ Treat them independently, then combine the answers.
 # 📝 Key Takeaways
 
 - The problem has **two independent phases**:
-  1. Generate the **k-th next permutation**.
-  2. Compute the **minimum adjacent swaps**.
+   1. Generate the **k-th next permutation**.
+   2. Compute the **minimum adjacent swaps**.
 - Generate the target by applying **Next Permutation** exactly `k` times.
 - Use a greedy bubble strategy to move each required digit into its correct position.
 - Every adjacent swap reduces the distance by one, ensuring the minimum number of swaps.
@@ -5724,9 +5725,9 @@ Store answer and move diagonally.
 - Model the function values as a sorted 2D matrix.
 - Apply staircase search using two pointers.
 - Move:
-  - **Down (`x += 1`)** if the value is too small.
-  - **Left (`y -= 1`)** if the value is too large.
-  - **Diagonally** after finding a valid pair.
+   - **Down (`x += 1`)** if the value is too small.
+   - **Left (`y -= 1`)** if the value is too large.
+   - **Diagonally** after finding a valid pair.
 - Time Complexity:
 
 ```text
@@ -6152,8 +6153,8 @@ AtMost(k-1)
 ```
 
 - Maintain:
-  - `odd_count` → current odd numbers in the window.
-  - `ans` → total valid subarrays.
+   - `odd_count` → current odd numbers in the window.
+   - `ans` → total valid subarrays.
 - Every valid window contributes:
 
 ```text
@@ -6517,10 +6518,10 @@ Only three character frequencies are maintained.
 
 # Comparison of Approaches
 
-| Approach | Works | Notes |
-|----------|-------|-------|
-| `AtMost(3) - AtMost(2)` | ✅ | Correct after fixing the counting bug |
-| Shrink While Valid | ✅ | Simpler and more natural for this problem |
+| Approach                | Works | Notes                                     |
+| ----------------------- | ----- | ----------------------------------------- |
+| `AtMost(3) - AtMost(2)` | ✅    | Correct after fixing the counting bug     |
+| Shrink While Valid      | ✅    | Simpler and more natural for this problem |
 
 ---
 
@@ -7111,10 +7112,10 @@ O(26)
 
 # Comparison of Both Approaches
 
-| Approach | Idea | Notes |
-|----------|------|-------|
-| Divide & Conquer | Split around invalid characters | Conceptually elegant |
-| Sliding Window | Fix the number of distinct characters | Iterative and interview-friendly |
+| Approach         | Idea                                  | Notes                            |
+| ---------------- | ------------------------------------- | -------------------------------- |
+| Divide & Conquer | Split around invalid characters       | Conceptually elegant             |
+| Sliding Window   | Fix the number of distinct characters | Iterative and interview-friendly |
 
 Both approaches achieve approximately:
 
@@ -7202,13 +7203,13 @@ Both viewpoints solve the same problem from different angles.
 
 - The condition depends on **every character's frequency**, so the standard sliding window template does not directly apply.
 - **Divide & Conquer**:
-  - Characters with frequency `< k` act as separators.
-  - Split the string and solve recursively.
+   - Characters with frequency `< k` act as separators.
+   - Split the string and solve recursively.
 - **Sliding Window**:
-  - Iterate over every possible number of distinct characters (1–26).
-  - Track:
-    - Number of distinct characters.
-    - Number of characters whose frequency is at least `k`.
+   - Iterate over every possible number of distinct characters (1–26).
+   - Track:
+      - Number of distinct characters.
+      - Number of characters whose frequency is at least `k`.
 - A window is valid when:
 
 ```text
@@ -7233,7 +7234,7 @@ O(26)
 
 <br/><br/><br/><br/><br/>
 
-----
+---
 
 # 1343. Number of Sub-arrays of Size K and Average Greater than or Equal to Threshold
 
@@ -7579,12 +7580,12 @@ No shrinking logic is required.
 
 # Sliding Window Categories
 
-| Problem Type | Pattern |
-|-------------|---------|
-| Fixed size `k` | Fixed Size Sliding Window |
-| Longest valid window | Expand and shrink when invalid |
-| Exactly `k` condition | `atMost(k) - atMost(k-1)` |
-| Minimum valid window | Expand until valid, then shrink |
+| Problem Type          | Pattern                                                      |
+| --------------------- | ------------------------------------------------------------ |
+| Fixed size `k`        | Fixed Size Sliding Window                                    |
+| Longest valid window  | Expand and shrink when invalid                               |
+| Exactly `k` condition | `atMost(k) - atMost(k-1)`                                    |
+| Minimum valid window  | Expand until valid, then shrink                              |
 | Frequency constraints | Sliding Window / Divide & Conquer (depending on the problem) |
 
 ---
@@ -7802,8 +7803,8 @@ at most k "bad" characters.
 
 This is exactly the same pattern as:
 
-- 1004. Max Consecutive Ones III
-- 424. Longest Repeating Character Replacement
+-  1004. Max Consecutive Ones III
+-  424. Longest Repeating Character Replacement
 
 Sliding window template:
 
@@ -8104,11 +8105,11 @@ Update maximum
 
 # Similar Problems
 
-| Problem | Pattern |
-|---------|---------|
-| 1004. Max Consecutive Ones III | Longest window with at most `k` bad elements |
+| Problem                                      | Pattern                                               |
+| -------------------------------------------- | ----------------------------------------------------- |
+| 1004. Max Consecutive Ones III               | Longest window with at most `k` bad elements          |
 | 424. Longest Repeating Character Replacement | Longest window after replacing at most `k` characters |
-| 2024. Maximize the Confusion of an Exam | Longest window after flipping at most `k` answers |
+| 2024. Maximize the Confusion of an Exam      | Longest window after flipping at most `k` answers     |
 
 ---
 
@@ -8139,8 +8140,8 @@ Longest valid window
 # 📝 Key Takeaways
 
 - Solve the problem twice:
-  - Make everything `'T'`
-  - Make everything `'F'`
+   - Make everything `'T'`
+   - Make everything `'F'`
 - Use a sliding window with at most `k` bad characters.
 - Alternative one-pass solution tracks counts of both `'T'` and `'F'`.
 - Complexity:
@@ -8550,11 +8551,11 @@ Answer = Total Ones - Maximum Ones in Window
 
 # Similar Problems
 
-| Problem | Pattern |
-|---------|---------|
-| 1151. Minimum Swaps to Group All 1's Together | Fixed-size sliding window |
+| Problem                                          | Pattern                                    |
+| ------------------------------------------------ | ------------------------------------------ |
+| 1151. Minimum Swaps to Group All 1's Together    | Fixed-size sliding window                  |
 | 2134. Minimum Swaps to Group All 1's Together II | Fixed-size sliding window + Circular array |
-| Fixed-size window problems | Maintain window statistics while sliding |
+| Fixed-size window problems                       | Maintain window statistics while sliding   |
 
 ---
 
@@ -9111,12 +9112,12 @@ Running Pair Count
 
 # Similar Problems
 
-| Problem | Pattern |
-|---------|---------|
-| 2537. Count the Number of Good Subarrays | Sliding window + running pair count |
-| 1358. Number of Substrings Containing All Three Characters | Shrink while valid |
-| Minimum Window Substring | Shrink while valid |
-| Count subarrays with at least K | Sliding window counting |
+| Problem                                                    | Pattern                             |
+| ---------------------------------------------------------- | ----------------------------------- |
+| 2537. Count the Number of Good Subarrays                   | Sliding window + running pair count |
+| 1358. Number of Substrings Containing All Three Characters | Shrink while valid                  |
+| Minimum Window Substring                                   | Shrink while valid                  |
+| Count subarrays with at least K                            | Sliding window counting             |
 
 ---
 
@@ -9778,11 +9779,11 @@ for every next position:
 
 # Similar Problems
 
-- 567. Permutation in String
-- 1456. Maximum Number of Vowels in a Substring of Given Length
-- 1343. Number of Subarrays of Size K and Average Greater Than or Equal to Threshold
-- 643. Maximum Average Subarray I
-- 3254. Find the Power of K-Size Subarrays I
+-  567. Permutation in String
+-  1456. Maximum Number of Vowels in a Substring of Given Length
+-  1343. Number of Subarrays of Size K and Average Greater Than or Equal to Threshold
+-  643. Maximum Average Subarray I
+-  3254. Find the Power of K-Size Subarrays I
 
 ---
 
@@ -10553,12 +10554,12 @@ new subarrays.
 
 # Similar Problems
 
-- 209. Minimum Size Subarray Sum
-- 1004. Max Consecutive Ones III
-- 2024. Maximize the Confusion of an Exam
-- 424. Longest Repeating Character Replacement
-- 904. Fruit Into Baskets
-- 1493. Longest Subarray of 1's After Deleting One Element
+-  209. Minimum Size Subarray Sum
+-  1004. Max Consecutive Ones III
+-  2024. Maximize the Confusion of an Exam
+-  424. Longest Repeating Character Replacement
+-  904. Fruit Into Baskets
+-  1493. Longest Subarray of 1's After Deleting One Element
 
 ---
 
@@ -12269,11 +12270,11 @@ If **yes**, you usually don't need a variable-size sliding window. Just move the
 
 # Similar Problems
 
-- 438. Find All Anagrams in a String
-- 567. Permutation in String
-- 30. Substring with Concatenation of All Words
-- 219. Contains Duplicate II
-- 187. Repeated DNA Sequences
+-  438. Find All Anagrams in a String
+-  567. Permutation in String
+-  30.   Substring with Concatenation of All Words
+-  219. Contains Duplicate II
+-  187. Repeated DNA Sequences
 
 ---
 
@@ -12301,9 +12302,9 @@ Before implementing a sliding window, always ask:
 
 2. **What should always remain true?**
    - In this problem:
-     ```
-     Window Length = 10
-     ```
+      ```
+      Window Length = 10
+      ```
 
 3. **Can Python slicing simplify the implementation?**
    - If the window size is small and constant, slicing is often the cleanest solution.
@@ -13202,6 +13203,7 @@ The important information is the **relationship** between neighbors, not the num
 ✅ The problem is really about alternating **comparison signs**, not values.
 
 ✅ You can solve it in **O(n)** using either:
+
 - Sliding Window (comparison-based), or
 - Dynamic Programming (`up` / `down`), which is usually simpler in interviews.
 
@@ -13234,10 +13236,10 @@ n = 3
 Numbers from `1` to `3`
 
 | Decimal | Binary |
-|----------|--------|
-| 1 | 1 |
-| 2 | 10 |
-| 3 | 11 |
+| ------- | ------ |
+| 1       | 1      |
+| 2       | 10     |
+| 3       | 11     |
 
 Now look at the string
 
@@ -13286,11 +13288,11 @@ n = 4
 Need
 
 | Decimal | Binary |
-|----------|--------|
-|1|1|
-|2|10|
-|3|11|
-|4|100|
+| ------- | ------ |
+| 1       | 1      |
+| 2       | 10     |
+| 3       | 11     |
+| 4       | 100    |
 
 Check
 
@@ -14068,7 +14070,7 @@ So iterating over all numbers is impossible.
 
 ---
 
-### Step 3: Look for the *small* constraint
+### Step 3: Look for the _small_ constraint
 
 Whenever one constraint is huge, another is often surprisingly small.
 
@@ -14129,8 +14131,8 @@ You are given:
 
 - An integer array `nums`
 - Two integers:
-  - `firstLen`
-  - `secondLen`
+   - `firstLen`
+   - `secondLen`
 
 You need to choose:
 
@@ -16143,6 +16145,7 @@ Many hard interview problems become easier once you compress the input into mean
 When you encounter a new problem:
 
 ### Step 1
+
 Ask:
 
 ```
@@ -16160,6 +16163,7 @@ Not replacement.
 ---
 
 ### Step 2
+
 Ask:
 
 ```
@@ -16171,6 +16175,7 @@ A single block of identical characters.
 ---
 
 ### Step 3
+
 Ask:
 
 ```
@@ -16182,6 +16187,7 @@ The characters between them.
 ---
 
 ### Step 4
+
 Notice:
 
 ```
@@ -16195,3 +16201,1011 @@ Can eliminate only ONE blocking character.
 Therefore, only groups separated by **exactly one** different character are candidates for merging.
 
 This observation is the heart of the solution.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 2841. Maximum Sum of Almost Unique Subarray
+
+**Difficulty:** Medium
+
+**Pattern:** Fixed Size Sliding Window + HashMap + Running Sum
+
+---
+
+# 1. Understand the Problem Like a Common Man
+
+Forget programming.
+
+Imagine you have a row of boxes.
+
+```
+2   6   7   3   1   7
+```
+
+You are allowed to pick **exactly `k` consecutive boxes**.
+
+Example
+
+```
+k = 4
+```
+
+So your hand can only cover
+
+```
+2 6 7 3
+```
+
+or
+
+```
+6 7 3 1
+```
+
+or
+
+```
+7 3 1 7
+```
+
+Nothing else.
+
+You **cannot** pick
+
+```
+2 7 3 1
+```
+
+because they are not consecutive.
+
+---
+
+# But there is one more condition
+
+Your chosen window must contain
+
+```
+at least m different numbers.
+```
+
+Suppose
+
+```
+m = 3
+```
+
+Window
+
+```
+2 6 7 3
+```
+
+Different numbers
+
+```
+2
+
+6
+
+7
+
+3
+```
+
+Total distinct
+
+```
+4
+```
+
+Good.
+
+---
+
+Window
+
+```
+7 7 7 3
+```
+
+Different numbers
+
+```
+7
+
+3
+```
+
+Only
+
+```
+2
+```
+
+Not enough.
+
+Reject it.
+
+---
+
+Among all valid windows,
+
+return
+
+```
+Largest Sum.
+```
+
+---
+
+# Example
+
+```
+nums = [2,6,7,3,1,7]
+
+m = 3
+
+k = 4
+```
+
+Possible windows
+
+```
+2 6 7 3
+```
+
+Distinct
+
+```
+4
+```
+
+Sum
+
+```
+18
+```
+
+Good.
+
+---
+
+```
+6 7 3 1
+```
+
+Distinct
+
+```
+4
+```
+
+Sum
+
+```
+17
+```
+
+Good.
+
+---
+
+```
+7 3 1 7
+```
+
+Distinct
+
+```
+3
+```
+
+Sum
+
+```
+18
+```
+
+Good.
+
+Maximum
+
+```
+18
+```
+
+Answer
+
+```
+18
+```
+
+---
+
+# 2. First Thought (Brute Force)
+
+Suppose
+
+```
+n = 100000
+```
+
+For every window
+
+Calculate
+
+- Sum
+- Distinct elements
+
+from scratch.
+
+Example
+
+```
+2 6 7 3
+```
+
+Then
+
+```
+6 7 3 1
+```
+
+Again calculate everything.
+
+Again.
+
+Again.
+
+Again.
+
+Very slow.
+
+---
+
+# 3. Observe Something
+
+Look carefully.
+
+Window 1
+
+```
+2 6 7 3
+```
+
+Window 2
+
+```
+6 7 3 1
+```
+
+What changed?
+
+Only
+
+```
+2
+```
+
+went out.
+
+Only
+
+```
+1
+```
+
+came in.
+
+Everything else stayed the same.
+
+So why calculate everything again?
+
+---
+
+# 4. This is the Sliding Window Idea
+
+Instead of rebuilding the window,
+
+just update it.
+
+```
+Old Window
+
+2 6 7 3
+```
+
+↓
+
+Remove
+
+```
+2
+```
+
+↓
+
+Add
+
+```
+1
+```
+
+↓
+
+New Window
+
+```
+6 7 3 1
+```
+
+Only **two numbers changed**.
+
+---
+
+# 5. What Information Do We Need?
+
+Every window needs
+
+### 1. Sum
+
+```
+2+6+7+3
+```
+
+---
+
+### 2. Number of distinct elements
+
+```
+2
+
+6
+
+7
+
+3
+
+=
+
+4
+```
+
+So we maintain
+
+```
+window_sum
+```
+
+and
+
+```
+frequency map
+```
+
+---
+
+# 6. Why Frequency Map?
+
+Suppose
+
+Current window
+
+```
+2 6 7 3
+```
+
+Store
+
+```
+2 :1
+
+6 :1
+
+7 :1
+
+3 :1
+```
+
+Number of distinct
+
+```
+len(freq)
+
+=
+
+4
+```
+
+Easy.
+
+---
+
+Suppose
+
+Next window
+
+```
+6 7 3 1
+```
+
+Remove
+
+```
+2
+```
+
+Frequency
+
+```
+2 becomes 0
+```
+
+Delete it.
+
+Now
+
+```
+6 :1
+
+7 :1
+
+3 :1
+```
+
+Add
+
+```
+1
+```
+
+```
+6 :1
+
+7 :1
+
+3 :1
+
+1 :1
+```
+
+Distinct
+
+```
+4
+```
+
+Done.
+
+No need for
+
+```python
+set(window)
+```
+
+every time.
+
+---
+
+# 7. Running Sum
+
+Current window
+
+```
+2 6 7 3
+```
+
+Sum
+
+```
+18
+```
+
+Next window
+
+```
+6 7 3 1
+```
+
+Instead of
+
+```
+6+7+3+1
+```
+
+do
+
+```
+18
+
+-
+
+2
+
++
+
+1
+
+=
+
+17
+```
+
+Only
+
+O(1)
+
+---
+
+# 8. Dry Run
+
+Input
+
+```
+nums=[2,6,7,3,1,7]
+
+m=3
+
+k=4
+```
+
+---
+
+## Initial Window
+
+```
+2 6 7 3
+```
+
+Frequency
+
+```
+2:1
+
+6:1
+
+7:1
+
+3:1
+```
+
+Distinct
+
+```
+4
+```
+
+Sum
+
+```
+18
+```
+
+Answer
+
+```
+18
+```
+
+---
+
+## Move Window
+
+Remove
+
+```
+2
+```
+
+Frequency
+
+```
+6:1
+
+7:1
+
+3:1
+```
+
+Add
+
+```
+1
+```
+
+Frequency
+
+```
+6:1
+
+7:1
+
+3:1
+
+1:1
+```
+
+Window
+
+```
+6 7 3 1
+```
+
+Sum
+
+```
+18
+
+-
+
+2
+
++
+
+1
+
+=
+
+17
+```
+
+Distinct
+
+```
+4
+```
+
+Answer
+
+```
+18
+```
+
+---
+
+## Move Again
+
+Remove
+
+```
+6
+```
+
+Add
+
+```
+7
+```
+
+Window
+
+```
+7 3 1 7
+```
+
+Frequency
+
+```
+7:2
+
+3:1
+
+1:1
+```
+
+Distinct
+
+```
+3
+```
+
+Sum
+
+```
+17
+
+-
+
+6
+
++
+
+7
+
+=
+
+18
+```
+
+Answer
+
+```
+18
+```
+
+Finished.
+
+---
+
+# 9. Your Solution Review
+
+Your solution:
+
+```python
+window = deque(nums[:k])
+
+...
+
+len(set(window))
+```
+
+This works.
+
+But
+
+```python
+len(set(window))
+```
+
+is expensive.
+
+Every time it creates
+
+```
+A brand new set.
+```
+
+Suppose
+
+```
+k = 10000
+```
+
+Then
+
+```
+set(window)
+```
+
+takes
+
+```
+O(k)
+```
+
+every window.
+
+Total
+
+```
+O(n*k)
+```
+
+Worst case.
+
+---
+
+Instead
+
+Maintain frequency.
+
+```
+Add one number
+
+Remove one number
+```
+
+Both
+
+```
+O(1)
+```
+
+Distinct
+
+```
+len(freq)
+```
+
+also
+
+```
+O(1)
+```
+
+Now total
+
+```
+O(n)
+```
+
+---
+
+# My Approch and Solution
+
+```python
+class Solution:
+    def maxSum(self, nums: List[int], m: int, k: int) -> int:
+        n = len(nums)
+        window = deque(nums[:k])
+        window_sum = sum(window)
+        ans = 0
+        if len(set(window)) >= m:
+            ans = window_sum
+        for i in range(k, n):
+            window.append(nums[i])
+            window.popleft()
+            window_sum += nums[i]
+            window_sum -= nums[i-k]
+            if len(set(window)) >= m:
+                ans = max(ans, window_sum)
+        return ans
+```
+
+# 10. Better Python Solution
+
+```python
+from collections import defaultdict
+
+class Solution:
+    def maxSum(self, nums, m, k):
+
+        freq = defaultdict(int)
+
+        window_sum = 0
+
+        ans = 0
+
+        left = 0
+
+        for right in range(len(nums)):
+
+            window_sum += nums[right]
+
+            freq[nums[right]] += 1
+
+            # Keep window size exactly k
+            if right - left + 1 > k:
+
+                window_sum -= nums[left]
+
+                freq[nums[left]] -= 1
+
+                if freq[nums[left]] == 0:
+                    del freq[nums[left]]
+
+                left += 1
+
+            # Check answer
+            if right - left + 1 == k:
+
+                if len(freq) >= m:
+
+                    ans = max(ans, window_sum)
+
+        return ans
+```
+
+---
+
+# 11. Time Complexity
+
+Every element
+
+- enters once
+- leaves once
+
+Total
+
+```
+O(n)
+```
+
+---
+
+# Space Complexity
+
+Frequency map
+
+Worst case
+
+```
+O(k)
+```
+
+---
+
+# 12. Intuition Building (How a Good Problem Solver Thinks)
+
+When you first read the problem, don't think:
+
+> "How do I code this?"
+
+Instead ask these questions.
+
+### Question 1
+
+What am I selecting?
+
+```
+A window of exactly k elements.
+```
+
+That immediately suggests
+
+```
+Fixed Size Sliding Window
+```
+
+---
+
+### Question 2
+
+What do I need from each window?
+
+```
+1. Sum
+
+2. Distinct Count
+```
+
+So maintain exactly those two things.
+
+---
+
+### Question 3
+
+Can I update them instead of recomputing?
+
+```
+Sum
+
+↓
+
+Subtract outgoing
+
+Add incoming
+```
+
+```
+Distinct
+
+↓
+
+Frequency Map
+```
+
+No need to rebuild a set every time.
+
+---
+
+# Mental Pattern to Remember
+
+Whenever a problem says:
+
+- Fixed length subarray
+- Maximum / Minimum
+- Sum
+- Distinct elements
+
+Think immediately:
+
+```
+Fixed Sliding Window
+        +
+Running Sum
+        +
+Frequency Map
+```
+
+This combination appears in many interview problems, including:
+
+-  2461. Maximum Sum of Distinct Subarrays With Length K
+-  1456. Maximum Number of Vowels in a Substring of Given Length
+-  567. Permutation in String
+-  438. Find All Anagrams in a String
+-  904. Fruit Into Baskets
+
+Recognizing this pattern quickly is what separates someone who memorizes solutions from someone who can solve new problems in interviews.

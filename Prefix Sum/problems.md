@@ -11,6 +11,8 @@ Welcome to the prefix sum problems section! Here you will find various data stru
 - [2121. Intervals Between Identical Elements](#2121-intervals-between-identical-elements)
 - [3381. Maximum Subarray Sum With Length Divisible by K](#3381-maximum-subarray-sum-with-length-divisible-by-k)
 - [1124. Longest Well-Performing Interval](#1124-longest-well-performing-interval)
+- [238. Product of Array Except Self](#238-product-of-array-except-self)
+- [304. Range Sum Query 2D — Immutable](#304-range-sum-query-2d--immutable)
 
 <br><br><br><br><br>
 
@@ -67,12 +69,12 @@ This reduces each vowel to **two possible states**.
 Parity has only two values.
 
 | Count | Parity |
-|--------|--------|
-| 0 | Even |
-| 1 | Odd |
-| 2 | Even |
-| 3 | Odd |
-| 4 | Even |
+| ----- | ------ |
+| 0     | Even   |
+| 1     | Odd    |
+| 2     | Even   |
+| 3     | Odd    |
+| 4     | Even   |
 
 Represent parity using one bit.
 
@@ -88,12 +90,12 @@ Represent parity using one bit.
 Assign one bit to each vowel.
 
 | Vowel | Bit Position |
-|--------|--------------|
-| a | 0 |
-| e | 1 |
-| i | 2 |
-| o | 3 |
-| u | 4 |
+| ----- | ------------ |
+| a     | 0            |
+| e     | 1            |
+| i     | 2            |
+| o     | 3            |
+| u     | 4            |
 
 The current parity of all vowels can now be stored in a **5-bit integer**.
 
@@ -189,13 +191,13 @@ As we traverse the string, this mask changes whenever a vowel is encountered.
 
 Example
 
-| Character | Mask |
-|------------|------|
-| Start | 00000 |
-| a | 00001 |
-| e | 00011 |
-| a | 00010 |
-| i | 00110 |
+| Character | Mask  |
+| --------- | ----- |
+| Start     | 00000 |
+| a         | 00001 |
+| e         | 00011 |
+| a         | 00010 |
+| i         | 00110 |
 
 This mask represents the parity of every vowel up to the current index.
 
@@ -1581,6 +1583,7 @@ Use Rectangle Formula
       ▼
 Answer Each Query in O(1)
 ```
+
 <br/><br/><br/><br/><br/>
 
 ---
@@ -2635,11 +2638,11 @@ Not Special
 
 # Similar Problems
 
-- 303. Range Sum Query
-- 304. Range Sum Query 2D
-- 724. Find Pivot Index
-- 560. Subarray Sum Equals K
-- 525. Contiguous Array
+-  303. Range Sum Query
+-  304. Range Sum Query 2D
+-  724. Find Pivot Index
+-  560. Subarray Sum Equals K
+-  525. Contiguous Array
 - Range Query Problems using Prefix Sum
 
 ---
@@ -5379,13 +5382,13 @@ prefix[0] = 0
 Compute prefix sums.
 
 | Prefix Index | Prefix Sum |
-|-------------|-----------:|
-| 0 | 0 |
-| 1 | -5 |
-| 2 | -4 |
-| 3 | -2 |
-| 4 | -5 |
-| 5 | -1 |
+| ------------ | ---------: |
+| 0            |          0 |
+| 1            |         -5 |
+| 2            |         -4 |
+| 3            |         -2 |
+| 4            |         -5 |
+| 5            |         -1 |
 
 ---
 
@@ -5404,13 +5407,13 @@ prefix_index % 2
 ```
 
 | Prefix Index | Prefix Sum | Index % 2 |
-|-------------|-----------:|----------:|
-|0|0|0|
-|1|-5|1|
-|2|-4|0|
-|3|-2|1|
-|4|-5|0|
-|5|-1|1|
+| ------------ | ---------: | --------: |
+| 0            |          0 |         0 |
+| 1            |         -5 |         1 |
+| 2            |         -4 |         0 |
+| 3            |         -2 |         1 |
+| 4            |         -5 |         0 |
+| 5            |         -1 |         1 |
 
 ---
 
@@ -6078,8 +6081,8 @@ Prefix Sum % K
 
 Examples:
 
-- 974. Subarray Sums Divisible by K
-- 523. Continuous Subarray Sum
+-  974. Subarray Sums Divisible by K
+-  523. Continuous Subarray Sum
 
 ---
 
@@ -6095,7 +6098,7 @@ Prefix Index % K
 
 Example:
 
-- 3381. Maximum Subarray Sum With Length Divisible by K
+-  3381. Maximum Subarray Sum With Length Divisible by K
 
 ---
 
@@ -6349,16 +6352,16 @@ Start
 prefix = 0
 ```
 
-|Index|Value|Prefix|
-|------|-----|------|
-|-1|—|0|
-|0|+1|1|
-|1|+1|2|
-|2|-1|1|
-|3|-1|0|
-|4|-1|-1|
-|5|-1|-2|
-|6|+1|-1|
+| Index | Value | Prefix |
+| ----- | ----- | ------ |
+| -1    | —     | 0      |
+| 0     | +1    | 1      |
+| 1     | +1    | 2      |
+| 2     | -1    | 1      |
+| 3     | -1    | 0      |
+| 4     | -1    | -1     |
+| 5     | -1    | -2     |
+| 6     | +1    | -1     |
 
 So
 
@@ -7090,11 +7093,11 @@ HashMap
 
 This thinking is used in many interview problems such as
 
-- 1124. Longest Well-Performing Interval
-- 525. Contiguous Array
-- 560. Subarray Sum Equals K
-- 974. Subarray Sums Divisible by K
-- 1590. Make Sum Divisible by P
+-  1124. Longest Well-Performing Interval
+-  525. Contiguous Array
+-  560. Subarray Sum Equals K
+-  974. Subarray Sums Divisible by K
+-  1590. Make Sum Divisible by P
 
 ---
 
@@ -7157,3 +7160,3778 @@ depending on the condition.
 - Prefix Sum converts subarray problems into prefix comparisons.
 - Store the **first occurrence** of each prefix sum to maximize interval length.
 - The transformation is more important than memorizing the code.
+
+<br/><br/><br/><br/><br>
+
+---
+
+# 238. Product of Array Except Self
+
+> **Difficulty:** Medium  
+> **Pattern:** Prefix Product + Suffix Product  
+> **Time Complexity:** `O(n)`  
+> **Extra Space:** `O(1)` excluding the output array
+
+---
+
+# Problem
+
+Given an integer array `nums`, create an array `answer` where:
+
+```text
+answer[i]
+```
+
+contains the product of **all elements except `nums[i]`**.
+
+You are **not allowed to use division**, and the solution must run in:
+
+```text
+O(n)
+```
+
+---
+
+## Example
+
+Input:
+
+```text
+nums = [1, 2, 3, 4]
+```
+
+For index `0`:
+
+```text
+Ignore 1
+
+2 × 3 × 4 = 24
+```
+
+For index `1`:
+
+```text
+Ignore 2
+
+1 × 3 × 4 = 12
+```
+
+For index `2`:
+
+```text
+Ignore 3
+
+1 × 2 × 4 = 8
+```
+
+For index `3`:
+
+```text
+Ignore 4
+
+1 × 2 × 3 = 6
+```
+
+Output:
+
+```text
+[24, 12, 8, 6]
+```
+
+---
+
+# Key Observation
+
+The most important phrase in the problem is:
+
+```text
+Product of all elements EXCEPT nums[i]
+```
+
+Suppose we are at index `i`.
+
+The array can be imagined as:
+
+```text
+[ Everything Before i ] [ nums[i] ] [ Everything After i ]
+
+          LEFT             SELF              RIGHT
+```
+
+If we don't want to include `nums[i]`, then:
+
+```text
+answer[i]
+
+=
+
+Product of everything LEFT of i
+
+×
+
+Product of everything RIGHT of i
+```
+
+This is the entire intuition behind the solution.
+
+---
+
+# Step 1 — How Would a Common Person Think?
+
+Suppose:
+
+```text
+nums = [1, 2, 3, 4]
+```
+
+You want the answer for every number.
+
+The most natural approach is:
+
+```text
+For 1 → multiply 2 × 3 × 4
+
+For 2 → multiply 1 × 3 × 4
+
+For 3 → multiply 1 × 2 × 4
+
+For 4 → multiply 1 × 2 × 3
+```
+
+This works.
+
+But notice how much work we repeat.
+
+For example:
+
+```text
+1 × 2
+```
+
+is calculated multiple times.
+
+```text
+3 × 4
+```
+
+is also useful multiple times.
+
+So we should ask:
+
+> Can we calculate these repeated products once and reuse them?
+
+This is the first step toward the optimized solution.
+
+---
+
+# Step 2 — Understand the Brute Force Approach
+
+For every index `i`:
+
+1. Traverse the entire array.
+2. Multiply every number except `nums[i]`.
+
+Pseudo logic:
+
+```text
+for every i:
+
+    product = 1
+
+    for every j:
+
+        if i != j:
+
+            product *= nums[j]
+```
+
+Example:
+
+```text
+nums = [1, 2, 3, 4]
+```
+
+For index `0`:
+
+```text
+2 × 3 × 4
+```
+
+For index `1`:
+
+```text
+1 × 3 × 4
+```
+
+And so on.
+
+---
+
+## Time Complexity
+
+For every element:
+
+```text
+O(n)
+```
+
+we traverse the entire array:
+
+```text
+O(n)
+```
+
+Therefore:
+
+```text
+O(n²)
+```
+
+But the problem requires:
+
+```text
+O(n)
+```
+
+So brute force is not enough.
+
+---
+
+# Step 3 — The Division Idea
+
+The next natural thought might be:
+
+> Why don't we calculate the total product once?
+
+Example:
+
+```text
+nums = [1, 2, 3, 4]
+```
+
+Total:
+
+```text
+1 × 2 × 3 × 4 = 24
+```
+
+Then:
+
+```text
+answer[0] = 24 / 1 = 24
+
+answer[1] = 24 / 2 = 12
+
+answer[2] = 24 / 3 = 8
+
+answer[3] = 24 / 4 = 6
+```
+
+This would be:
+
+```text
+O(n)
+```
+
+But the problem explicitly says:
+
+```text
+Without using division
+```
+
+Also, zero causes complications.
+
+Example:
+
+```text
+[1, 2, 0, 4]
+```
+
+Total product:
+
+```text
+0
+```
+
+Now division is problematic.
+
+So we need another way.
+
+---
+
+# Step 4 — Break the Problem Around the Current Index
+
+This is the most important thinking step.
+
+Suppose:
+
+```text
+nums = [1, 2, 3, 4]
+```
+
+We want:
+
+```text
+answer[2]
+```
+
+Current element:
+
+```text
+3
+```
+
+Visualize:
+
+```text
+[1, 2]    [3]    [4]
+
+  LEFT    SELF   RIGHT
+```
+
+We want everything except:
+
+```text
+3
+```
+
+So simply combine:
+
+```text
+LEFT PRODUCT
+
+×
+
+RIGHT PRODUCT
+```
+
+That gives:
+
+```text
+(1 × 2) × (4)
+
+=
+
+8
+```
+
+Therefore:
+
+```text
+answer[2] = 8
+```
+
+This gives us the main formula:
+
+```text
+answer[i]
+
+=
+
+left_product[i]
+
+×
+
+right_product[i]
+```
+
+---
+
+# Step 5 — What Is Left Product?
+
+`left_product[i]` means:
+
+> Product of every element strictly before index `i`.
+
+Example:
+
+```text
+nums = [1, 2, 3, 4]
+```
+
+For every index:
+
+```text
+Index 0:
+
+Nothing before 1
+
+Left = 1
+```
+
+```text
+Index 1:
+
+1
+
+Left = 1
+```
+
+```text
+Index 2:
+
+1 × 2
+
+Left = 2
+```
+
+```text
+Index 3:
+
+1 × 2 × 3
+
+Left = 6
+```
+
+So:
+
+```text
+LEFT
+
+[1, 1, 2, 6]
+```
+
+---
+
+# Step 6 — Why Is the First Left Product 1?
+
+For index `0`:
+
+```text
+[1, 2, 3, 4]
+ ↑
+```
+
+There is nothing before it.
+
+So why do we use:
+
+```text
+1
+```
+
+instead of:
+
+```text
+0
+```
+
+Because `1` is the identity value of multiplication.
+
+```text
+x × 1 = x
+```
+
+If we used:
+
+```text
+0
+```
+
+then:
+
+```text
+x × 0 = 0
+```
+
+which would destroy the result.
+
+So whenever there are no elements to multiply, we use:
+
+```text
+1
+```
+
+---
+
+# Step 7 — What Is Right Product?
+
+`right_product[i]` means:
+
+> Product of every element strictly after index `i`.
+
+For:
+
+```text
+nums = [1, 2, 3, 4]
+```
+
+We get:
+
+```text
+Index 0:
+
+2 × 3 × 4
+
+= 24
+```
+
+```text
+Index 1:
+
+3 × 4
+
+= 12
+```
+
+```text
+Index 2:
+
+4
+
+= 4
+```
+
+```text
+Index 3:
+
+Nothing after it
+
+= 1
+```
+
+Therefore:
+
+```text
+RIGHT
+
+[24, 12, 4, 1]
+```
+
+---
+
+# Step 8 — Combine Left and Right
+
+Now we have:
+
+```text
+nums
+
+[1, 2, 3, 4]
+```
+
+Left products:
+
+```text
+[1, 1, 2, 6]
+```
+
+Right products:
+
+```text
+[24, 12, 4, 1]
+```
+
+For every index:
+
+```text
+answer[i]
+
+=
+
+left[i] × right[i]
+```
+
+So:
+
+```text
+Index 0:
+
+1 × 24 = 24
+```
+
+```text
+Index 1:
+
+1 × 12 = 12
+```
+
+```text
+Index 2:
+
+2 × 4 = 8
+```
+
+```text
+Index 3:
+
+6 × 1 = 6
+```
+
+Final:
+
+```text
+[24, 12, 8, 6]
+```
+
+---
+
+# Mathematical Logic
+
+Suppose:
+
+```text
+nums = [a, b, c, d, e]
+```
+
+We want the answer for:
+
+```text
+c
+```
+
+That means:
+
+```text
+answer[2]
+```
+
+Everything except `c` is:
+
+```text
+a × b × d × e
+```
+
+We can split this as:
+
+```text
+(a × b)
+
+×
+
+(d × e)
+```
+
+Where:
+
+```text
+a × b
+```
+
+is the prefix product before `c`.
+
+And:
+
+```text
+d × e
+```
+
+is the suffix product after `c`.
+
+Therefore:
+
+```text
+answer[i]
+
+=
+
+(nums[0] × ... × nums[i-1])
+
+×
+
+(nums[i+1] × ... × nums[n-1])
+```
+
+Notice:
+
+```text
+nums[i]
+```
+
+never appears in the formula.
+
+So the current element is automatically excluded.
+
+---
+
+# Step 9 — First Solution Using Separate Left and Right Arrays
+
+The easiest optimized version to understand is:
+
+```python
+class Solution:
+    def productExceptSelf(self, nums: List[int]) -> List[int]:
+
+        n = len(nums)
+
+        left = [1] * n
+        right = [1] * n
+
+        for i in range(1, n):
+            left[i] = left[i - 1] * nums[i - 1]
+
+        for i in range(n - 2, -1, -1):
+            right[i] = right[i + 1] * nums[i + 1]
+
+        answer = [1] * n
+
+        for i in range(n):
+            answer[i] = left[i] * right[i]
+
+        return answer
+```
+
+This runs in:
+
+```text
+O(n)
+```
+
+but uses:
+
+```text
+O(n)
+```
+
+extra space for `left` and `right`.
+
+We can improve it further.
+
+---
+
+# Step 10 — How Do We Reach O(1) Extra Space?
+
+We don't actually need separate:
+
+```text
+left[]
+```
+
+and:
+
+```text
+right[]
+```
+
+arrays.
+
+The problem says:
+
+> The output array does not count as extra space.
+
+So we can use:
+
+```text
+answer[]
+```
+
+to temporarily store the left products.
+
+First:
+
+```text
+answer = LEFT products
+```
+
+Then traverse backwards and multiply the right products directly into it.
+
+---
+
+# Step 11 — Build Left Products Directly in Answer
+
+Start:
+
+```text
+nums = [1, 2, 3, 4]
+
+answer = [1, 1, 1, 1]
+
+left = 1
+```
+
+We move:
+
+```text
+LEFT → RIGHT
+```
+
+At every index:
+
+```text
+answer[i] = left
+```
+
+Then:
+
+```text
+left *= nums[i]
+```
+
+The important idea is:
+
+```text
+Use the current left product first.
+
+Then include nums[i] for the next index.
+```
+
+---
+
+# Why Do We Store Before Updating?
+
+Look at:
+
+```python
+answer[i] = left
+left *= nums[i]
+```
+
+Why not:
+
+```python
+left *= nums[i]
+answer[i] = left
+```
+
+Because we need:
+
+```text
+Product BEFORE current index
+```
+
+not:
+
+```text
+Product including current index
+```
+
+Example:
+
+```text
+nums = [1, 2, 3, 4]
+```
+
+At index `2`:
+
+```text
+nums[2] = 3
+```
+
+We want:
+
+```text
+1 × 2 = 2
+```
+
+We do NOT want:
+
+```text
+1 × 2 × 3 = 6
+```
+
+So the order must be:
+
+```text
+STORE
+
+↓
+
+THEN UPDATE
+```
+
+Mental rule:
+
+> **Give the current index the information from before it, then include the current element for the next index.**
+
+---
+
+# Step 12 — Add the Right Product
+
+Now traverse:
+
+```text
+RIGHT → LEFT
+```
+
+Maintain:
+
+```text
+right = 1
+```
+
+At every index:
+
+```python
+answer[i] *= right
+```
+
+Then:
+
+```python
+right *= nums[i]
+```
+
+Again:
+
+```text
+USE first
+
+↓
+
+UPDATE second
+```
+
+Because `right` must represent everything strictly after the current index.
+
+---
+
+# Algorithm
+
+1. Create `answer` filled with `1`.
+2. Initialize `left = 1`.
+3. Traverse from left to right.
+4. Store the current `left` product in `answer[i]`.
+5. Multiply `left` by `nums[i]`.
+6. Initialize `right = 1`.
+7. Traverse from right to left.
+8. Multiply `answer[i]` by `right`.
+9. Multiply `right` by `nums[i]`.
+10.   Return `answer`.
+
+---
+
+# Dry Run — Example 1
+
+Input:
+
+```text
+nums = [1, 2, 3, 4]
+```
+
+Initial:
+
+```text
+answer = [1, 1, 1, 1]
+
+left = 1
+```
+
+---
+
+## First Pass — Left Products
+
+### Index 0
+
+```text
+nums[0] = 1
+```
+
+Current:
+
+```text
+left = 1
+```
+
+Store:
+
+```text
+answer[0] = 1
+```
+
+Answer:
+
+```text
+[1, 1, 1, 1]
+```
+
+Update:
+
+```text
+left = 1 × 1
+
+= 1
+```
+
+---
+
+### Index 1
+
+Current:
+
+```text
+left = 1
+```
+
+Store:
+
+```text
+answer[1] = 1
+```
+
+Answer:
+
+```text
+[1, 1, 1, 1]
+```
+
+Update:
+
+```text
+left = 1 × 2
+
+= 2
+```
+
+---
+
+### Index 2
+
+Current:
+
+```text
+left = 2
+```
+
+This represents:
+
+```text
+1 × 2
+```
+
+Store:
+
+```text
+answer[2] = 2
+```
+
+Answer:
+
+```text
+[1, 1, 2, 1]
+```
+
+Update:
+
+```text
+left = 2 × 3
+
+= 6
+```
+
+---
+
+### Index 3
+
+Current:
+
+```text
+left = 6
+```
+
+This represents:
+
+```text
+1 × 2 × 3
+```
+
+Store:
+
+```text
+answer[3] = 6
+```
+
+Answer:
+
+```text
+[1, 1, 2, 6]
+```
+
+Update:
+
+```text
+left = 6 × 4
+
+= 24
+```
+
+After the first pass:
+
+```text
+answer = [1, 1, 2, 6]
+```
+
+Each position now contains:
+
+```text
+Product of everything LEFT of that position.
+```
+
+---
+
+# Second Pass — Right Products
+
+Initialize:
+
+```text
+right = 1
+```
+
+Move:
+
+```text
+RIGHT → LEFT
+```
+
+---
+
+### Index 3
+
+```text
+nums[3] = 4
+```
+
+Current:
+
+```text
+answer[3] = 6
+
+right = 1
+```
+
+Calculate:
+
+```text
+answer[3]
+
+=
+
+6 × 1
+
+=
+
+6
+```
+
+Answer:
+
+```text
+[1, 1, 2, 6]
+```
+
+Update right:
+
+```text
+right = 1 × 4
+
+= 4
+```
+
+---
+
+### Index 2
+
+Current:
+
+```text
+answer[2] = 2
+```
+
+This is the left product:
+
+```text
+1 × 2
+```
+
+Current right:
+
+```text
+4
+```
+
+Multiply:
+
+```text
+2 × 4 = 8
+```
+
+Answer:
+
+```text
+[1, 1, 8, 6]
+```
+
+Update:
+
+```text
+right = 4 × 3
+
+= 12
+```
+
+---
+
+### Index 1
+
+Current left product:
+
+```text
+1
+```
+
+Current right product:
+
+```text
+12
+```
+
+Multiply:
+
+```text
+1 × 12 = 12
+```
+
+Answer:
+
+```text
+[1, 12, 8, 6]
+```
+
+Update:
+
+```text
+right = 12 × 2
+
+= 24
+```
+
+---
+
+### Index 0
+
+Current left:
+
+```text
+1
+```
+
+Current right:
+
+```text
+24
+```
+
+Multiply:
+
+```text
+1 × 24 = 24
+```
+
+Answer:
+
+```text
+[24, 12, 8, 6]
+```
+
+Final answer:
+
+```text
+[24, 12, 8, 6]
+```
+
+---
+
+# Dry Run Summary
+
+```text
+nums
+
+[1, 2, 3, 4]
+```
+
+After left pass:
+
+```text
+[1, 1, 2, 6]
+```
+
+Meaning:
+
+```text
+Product before each index
+```
+
+Right products conceptually are:
+
+```text
+[24, 12, 4, 1]
+```
+
+Combine:
+
+```text
+[1, 1, 2, 6]
+
+×
+
+[24, 12, 4, 1]
+
+=
+
+[24, 12, 8, 6]
+```
+
+---
+
+# Dry Run — Example 2
+
+Input:
+
+```text
+nums = [-1, 1, 0, -3, 3]
+```
+
+Expected:
+
+```text
+[0, 0, 9, 0, 0]
+```
+
+---
+
+## Understand It Manually First
+
+For index `0`:
+
+```text
+Ignore -1
+
+1 × 0 × -3 × 3
+
+= 0
+```
+
+For index `1`:
+
+```text
+Ignore 1
+
+-1 × 0 × -3 × 3
+
+= 0
+```
+
+For index `2`:
+
+```text
+Ignore 0
+
+-1 × 1 × -3 × 3
+```
+
+Calculate:
+
+```text
+-1 × 1 = -1
+
+-1 × -3 = 3
+
+3 × 3 = 9
+```
+
+So:
+
+```text
+answer[2] = 9
+```
+
+For index `3`:
+
+```text
+Remaining elements contain 0
+
+↓
+
+answer = 0
+```
+
+For index `4`:
+
+```text
+Remaining elements contain 0
+
+↓
+
+answer = 0
+```
+
+Final:
+
+```text
+[0, 0, 9, 0, 0]
+```
+
+The Prefix + Suffix solution handles zero automatically.
+
+No special zero handling is required.
+
+---
+
+# Python Solution
+
+```python
+class Solution:
+    def productExceptSelf(self, nums: List[int]) -> List[int]:
+
+        n = len(nums)
+
+        answer = [1] * n
+
+        left = 1
+
+        # Store product of everything before each index
+        for i in range(n):
+
+            answer[i] = left
+
+            left *= nums[i]
+
+        right = 1
+
+        # Multiply product of everything after each index
+        for i in range(n - 1, -1, -1):
+
+            answer[i] *= right
+
+            right *= nums[i]
+
+        return answer
+```
+
+---
+
+# Code Explanation
+
+### Step 1
+
+```python
+n = len(nums)
+```
+
+Get the size of the array.
+
+---
+
+### Step 2
+
+```python
+answer = [1] * n
+```
+
+Create the output array.
+
+Initially:
+
+```text
+[1, 1, 1, ...]
+```
+
+We use `1` because it is the identity value for multiplication.
+
+---
+
+### Step 3
+
+```python
+left = 1
+```
+
+`left` stores:
+
+```text
+Product of everything before the current index.
+```
+
+Initially there is nothing before index `0`, so:
+
+```text
+left = 1
+```
+
+---
+
+### Step 4
+
+```python
+for i in range(n):
+```
+
+Traverse:
+
+```text
+LEFT → RIGHT
+```
+
+---
+
+### Step 5
+
+```python
+answer[i] = left
+```
+
+Store the product of everything before the current index.
+
+---
+
+### Step 6
+
+```python
+left *= nums[i]
+```
+
+Now include the current number.
+
+This updated value will be used by the next index.
+
+Mental model:
+
+```text
+Give current index what came BEFORE it
+
+↓
+
+Then include current element
+
+↓
+
+Move forward
+```
+
+---
+
+### Step 7
+
+```python
+right = 1
+```
+
+Now prepare to calculate suffix products.
+
+Nothing exists after the last index, so:
+
+```text
+right = 1
+```
+
+---
+
+### Step 8
+
+```python
+for i in range(n - 1, -1, -1):
+```
+
+Traverse:
+
+```text
+RIGHT → LEFT
+```
+
+---
+
+### Step 9
+
+```python
+answer[i] *= right
+```
+
+`answer[i]` already contains:
+
+```text
+LEFT PRODUCT
+```
+
+`right` contains:
+
+```text
+RIGHT PRODUCT
+```
+
+Therefore:
+
+```text
+answer[i]
+
+=
+
+LEFT × RIGHT
+```
+
+which is exactly:
+
+```text
+Product of everything except nums[i]
+```
+
+---
+
+### Step 10
+
+```python
+right *= nums[i]
+```
+
+Include the current number so it becomes part of the right product for the next index to the left.
+
+---
+
+# Complexity Analysis
+
+## Time Complexity
+
+First traversal:
+
+```text
+O(n)
+```
+
+Second traversal:
+
+```text
+O(n)
+```
+
+Therefore:
+
+```text
+O(n) + O(n)
+
+=
+
+O(n)
+```
+
+---
+
+## Space Complexity
+
+We use:
+
+```text
+left
+
+right
+```
+
+which are constant variables.
+
+The `answer` array does not count as extra space according to the problem.
+
+Therefore:
+
+```text
+O(1)
+```
+
+extra space.
+
+---
+
+# Interview Thought Process
+
+Do not try to magically recognize:
+
+```text
+Prefix Product + Suffix Product
+```
+
+Start from the problem.
+
+```text
+What does answer[i] need?
+
+↓
+
+Everything except nums[i]
+
+↓
+
+Brute force scans everything for every index
+
+↓
+
+O(n²) — too much repeated work
+
+↓
+
+Can I use total product?
+
+↓
+
+Would require division
+
+↓
+
+Division is forbidden
+
+↓
+
+Can I break "everything except me"
+into smaller pieces?
+
+↓
+
+YES
+
+↓
+
+Everything LEFT of me
++
+Everything RIGHT of me
+
+↓
+
+Since operation is multiplication:
+
+LEFT PRODUCT × RIGHT PRODUCT
+
+↓
+
+Can these be calculated incrementally?
+
+↓
+
+YES
+
+↓
+
+Prefix Product + Suffix Product
+```
+
+That is how you should arrive at the solution.
+
+---
+
+# Recognition Pattern
+
+Whenever a problem asks:
+
+```text
+For every index,
+calculate something using
+all elements except the current element
+```
+
+think about splitting the array:
+
+```text
+LEFT | CURRENT | RIGHT
+```
+
+Then ask:
+
+```text
+Can I combine information from LEFT and RIGHT?
+```
+
+Possible patterns include:
+
+- Prefix Sum + Suffix Sum
+- Prefix Product + Suffix Product
+- Prefix Maximum + Suffix Maximum
+- Prefix Minimum + Suffix Minimum
+
+The broader pattern is:
+
+```text
+Precompute information from both directions.
+```
+
+---
+
+# Key Takeaways
+
+- Start with the obvious brute-force solution first.
+- Identify what work is being repeated.
+- `"Except Self"` should make you visualize:
+
+```text
+LEFT | SELF | RIGHT
+```
+
+- The current element can be excluded naturally by combining only the left and right sides.
+- For this problem:
+
+```text
+answer[i]
+
+=
+
+LEFT PRODUCT × RIGHT PRODUCT
+```
+
+- Prefix does not always mean Prefix **Sum**.
+- Prefix can store any cumulative information:
+
+```text
+Prefix Sum
+Prefix Product
+Prefix XOR
+Prefix Maximum
+Prefix Minimum
+Prefix State
+```
+
+- Use:
+
+```text
+STORE first → UPDATE second
+```
+
+to ensure the current element is not included.
+
+---
+
+# Mental Formula
+
+```text
+Need Product Except Self
+          │
+          ▼
+Try Brute Force
+          │
+          ▼
+O(n²) — Repeated Work
+          │
+          ▼
+Can Total Product Help?
+          │
+          ▼
+Requires Division ❌
+          │
+          ▼
+Break Around Current Index
+          │
+     ┌────┴────┐
+     ▼         ▼
+   LEFT       RIGHT
+     │         │
+     ▼         ▼
+ Prefix      Suffix
+ Product     Product
+     │         │
+     └────┬────┘
+          ▼
+   LEFT × RIGHT
+          │
+          ▼
+      answer[i]
+          │
+          ▼
+Optimize Storage
+          │
+          ▼
+Use answer[] for LEFT
++
+One variable for RIGHT
+          │
+          ▼
+O(n) Time
+O(1) Extra Space
+```
+
+<br/><br/><br/><br/><br>
+
+---
+
+# 304. Range Sum Query 2D — Immutable
+
+> **Difficulty:** Medium  
+> **Pattern:** 2D Prefix Sum  
+> **Core Idea:** Precompute once → Answer every rectangle query in `O(1)`
+
+---
+
+# Problem
+
+We are given a **2D matrix**.
+
+Example:
+
+```text
+3  0  1  4  2
+5  6  3  2  1
+1  2  0  1  5
+4  1  0  1  7
+1  0  3  0  5
+```
+
+We will receive many queries.
+
+Each query gives:
+
+```text
+row1, col1, row2, col2
+```
+
+These represent two corners of a rectangle:
+
+```text
+(row1, col1) → Top-Left
+
+(row2, col2) → Bottom-Right
+```
+
+Our job is to return the **sum of every number inside that rectangle**.
+
+The important requirement is:
+
+```text
+sumRegion() must work in O(1)
+```
+
+So we cannot loop through the rectangle every time.
+
+---
+
+# First — Understand What a Query Means
+
+Suppose:
+
+```text
+sumRegion(1, 1, 2, 2)
+```
+
+That means:
+
+```text
+Top-left     = (1,1)
+
+Bottom-right = (2,2)
+```
+
+Original matrix:
+
+```text
+      c0 c1 c2 c3 c4
+
+r0     3  0  1  4  2
+
+r1     5 [6  3] 2  1
+          ↑     ↑
+r2     1 [2  0] 1  5
+          ↑     ↑
+
+r3     4  1  0  1  7
+
+r4     1  0  3  0  5
+```
+
+The selected rectangle is:
+
+```text
+6  3
+2  0
+```
+
+Sum:
+
+```text
+6 + 3 + 2 + 0
+
+=
+
+11
+```
+
+Therefore:
+
+```text
+sumRegion(1,1,2,2)
+
+=
+
+11
+```
+
+That's all the problem is asking.
+
+The difficulty is making every query:
+
+```text
+O(1)
+```
+
+---
+
+# Key Observation
+
+The problem says:
+
+```text
+At most 10⁴ calls will be made to sumRegion()
+```
+
+Imagine calculating every rectangle manually.
+
+For every query:
+
+```text
+Visit every row
+
+↓
+
+Visit every column
+
+↓
+
+Add every element
+```
+
+We would repeatedly calculate sums over overlapping regions.
+
+That should make us ask:
+
+> Can we calculate cumulative information once and reuse it for every query?
+
+This is exactly the idea behind:
+
+```text
+2D Prefix Sum
+```
+
+---
+
+# Step 1 — Start With the Brute Force Thinking
+
+Suppose the query asks for:
+
+```text
+row1 = 1
+col1 = 1
+
+row2 = 2
+col2 = 2
+```
+
+We could simply do:
+
+```python
+total = 0
+
+for r in range(row1, row2 + 1):
+
+    for c in range(col1, col2 + 1):
+
+        total += matrix[r][c]
+```
+
+This works.
+
+But if the rectangle is large, one query may take:
+
+```text
+O(m × n)
+```
+
+And we may have:
+
+```text
+10⁴ queries
+```
+
+Too much repeated work.
+
+---
+
+# Step 2 — Remember Normal 1D Prefix Sum
+
+Before understanding 2D Prefix Sum, remember the 1D idea.
+
+Suppose:
+
+```text
+nums = [2, 4, 3, 5]
+```
+
+We can create:
+
+```text
+prefix = [0, 2, 6, 9, 14]
+```
+
+Notice the extra leading `0`.
+
+```text
+prefix[0] = 0
+
+prefix[1] = 2
+
+prefix[2] = 2 + 4 = 6
+
+prefix[3] = 2 + 4 + 3 = 9
+
+prefix[4] = 2 + 4 + 3 + 5 = 14
+```
+
+To find the sum from index `1` to `3`:
+
+```text
+4 + 3 + 5
+```
+
+we calculate:
+
+```text
+prefix[4] - prefix[1]
+
+=
+
+14 - 2
+
+=
+
+12
+```
+
+Mental idea:
+
+```text
+Everything until the end
+
+-
+
+Everything before the start
+```
+
+2D Prefix Sum uses the same idea.
+
+But now we have:
+
+```text
+ROWS + COLUMNS
+```
+
+So instead of removing one unwanted prefix, we must remove unwanted **rectangular regions**.
+
+---
+
+# Step 3 — What Does 2D Prefix Sum Store?
+
+We create:
+
+```text
+prefix
+```
+
+where:
+
+```text
+prefix[r][c]
+```
+
+stores the sum of the rectangle from the **top-left of the matrix** up to that position.
+
+Conceptually:
+
+```text
+(0,0)
+  ┌───────────────┐
+  │               │
+  │   EVERYTHING  │
+  │               │
+  │           (r,c)
+  └───────────────┘
+```
+
+So every prefix cell remembers:
+
+> The sum of everything above me and to my left, including the corresponding matrix region.
+
+---
+
+# Step 4 — Why Create an Extra Row and Column?
+
+Instead of creating:
+
+```text
+m × n
+```
+
+prefix matrix,
+
+we create:
+
+```text
+(m + 1) × (n + 1)
+```
+
+Example:
+
+Original:
+
+```text
+1 2
+3 4
+```
+
+Prefix structure:
+
+```text
+0 0 0
+0 ? ?
+0 ? ?
+```
+
+The first row and first column contain zeros.
+
+This makes formulas much easier.
+
+We don't need special cases such as:
+
+```text
+if row == 0
+
+if col == 0
+```
+
+The extra zero boundary handles them automatically.
+
+---
+
+# Step 5 — Understand How to Build One Prefix Cell
+
+Suppose we have this small matrix:
+
+```text
+1  2
+3  4
+```
+
+We want the prefix sum containing the whole matrix:
+
+```text
+1 + 2 + 3 + 4 = 10
+```
+
+Think about the current cell:
+
+```text
+4
+```
+
+To calculate everything up to `4`, we need:
+
+```text
+TOP region
+
++
+
+LEFT region
+
++
+
+CURRENT cell
+```
+
+But there is a problem.
+
+The top and left regions overlap.
+
+So we must subtract that overlap once.
+
+This gives:
+
+```text
+Prefix
+
+=
+
+TOP
+
++
+
+LEFT
+
+-
+
+OVERLAP
+
++
+
+CURRENT
+```
+
+This is the fundamental 2D Prefix Sum formula.
+
+---
+
+# Mathematical Formula for Building Prefix
+
+Using the extra row and column:
+
+```python
+prefix[r][c] = (
+    matrix[r - 1][c - 1]
+    + prefix[r - 1][c]
+    + prefix[r][c - 1]
+    - prefix[r - 1][c - 1]
+)
+```
+
+Or visually:
+
+```text
+Current Prefix
+
+=
+
+Top Prefix
+
++
+
+Left Prefix
+
+-
+
+Top-Left Overlap
+
++
+
+Current Matrix Value
+```
+
+---
+
+# Step 6 — Why Do We Subtract the Overlap?
+
+This is one of the most important concepts.
+
+Imagine:
+
+```text
+TOP
+```
+
+already contains some area.
+
+And:
+
+```text
+LEFT
+```
+
+also contains some area.
+
+When we do:
+
+```text
+TOP + LEFT
+```
+
+their common region gets counted:
+
+```text
+TWICE
+```
+
+Example:
+
+```text
+Common region
+
+↓
+
+counted in TOP
+
++
+
+counted in LEFT
+```
+
+So:
+
+```text
+2 times
+```
+
+But we only want it:
+
+```text
+1 time
+```
+
+Therefore:
+
+```text
+TOP + LEFT - OVERLAP
+```
+
+This is called:
+
+```text
+Inclusion-Exclusion
+```
+
+Mental rule:
+
+> Add what you need, then subtract anything counted twice.
+
+---
+
+# Step 7 — Build a Small 2D Prefix Sum From Scratch
+
+Take:
+
+```text
+matrix =
+
+1  2
+3  4
+```
+
+Create:
+
+```text
+prefix =
+
+0  0  0
+0  0  0
+0  0  0
+```
+
+---
+
+## Process matrix[0][0] = 1
+
+Corresponding prefix position:
+
+```text
+prefix[1][1]
+```
+
+Formula:
+
+```text
+current
++
+top
++
+left
+-
+overlap
+```
+
+```text
+1 + 0 + 0 - 0
+
+=
+
+1
+```
+
+Now:
+
+```text
+0  0  0
+0  1  0
+0  0  0
+```
+
+---
+
+## Process matrix[0][1] = 2
+
+```text
+prefix[1][2]
+
+=
+
+2
++
+prefix[0][2]
++
+prefix[1][1]
+-
+prefix[0][1]
+```
+
+```text
+=
+
+2 + 0 + 1 - 0
+
+=
+
+3
+```
+
+Now:
+
+```text
+0  0  0
+0  1  3
+0  0  0
+```
+
+Meaning:
+
+```text
+prefix[1][2]
+
+=
+
+1 + 2
+
+=
+
+3
+```
+
+---
+
+## Process matrix[1][0] = 3
+
+```text
+prefix[2][1]
+
+=
+
+3 + 1
+
+=
+
+4
+```
+
+Now:
+
+```text
+0  0  0
+0  1  3
+0  4  0
+```
+
+Meaning:
+
+```text
+1 + 3
+
+=
+
+4
+```
+
+---
+
+## Process matrix[1][1] = 4
+
+We calculate:
+
+```text
+prefix[2][2]
+
+=
+
+4
++
+prefix[1][2]
++
+prefix[2][1]
+-
+prefix[1][1]
+```
+
+Substitute:
+
+```text
+=
+
+4 + 3 + 4 - 1
+
+=
+
+10
+```
+
+Why subtract `1`?
+
+Because:
+
+```text
+3
+```
+
+represented:
+
+```text
+1 + 2
+```
+
+And:
+
+```text
+4
+```
+
+represented:
+
+```text
+1 + 3
+```
+
+So `1` was counted twice.
+
+Subtract it once.
+
+Final:
+
+```text
+prefix =
+
+0  0   0
+0  1   3
+0  4  10
+```
+
+---
+
+# Step 8 — Now the Real Challenge: Getting Any Rectangle
+
+Suppose we want some rectangle inside a larger matrix.
+
+Imagine:
+
+```text
+┌──────────────────────────┐
+│                          │
+│      EVERYTHING          │
+│                          │
+│       ┌──────────┐       │
+│       │  TARGET  │       │
+│       │          │       │
+│       └──────────┘       │
+└──────────────────────────┘
+```
+
+Our prefix gives us:
+
+```text
+Everything from the top-left
+```
+
+But we only want:
+
+```text
+TARGET
+```
+
+So we need to remove unwanted areas.
+
+---
+
+# Step 9 — The Rectangle Sum Formula
+
+For query:
+
+```text
+(row1, col1)
+
+to
+
+(row2, col2)
+```
+
+Using our extra-row/column prefix matrix:
+
+```python
+total = (
+    prefix[row2 + 1][col2 + 1]
+    - prefix[row1][col2 + 1]
+    - prefix[row2 + 1][col1]
+    + prefix[row1][col1]
+)
+```
+
+At first this formula looks scary.
+
+Don't memorize it.
+
+Understand where it comes from.
+
+---
+
+# Step 10 — Think Like a Common Person: Take Too Much First
+
+Suppose the target is:
+
+```text
+        col1           col2
+          ↓              ↓
+
+       ┌─────────────────┐
+row1 → │      TARGET     │
+       │                 │
+row2 → │                 │
+       └─────────────────┘
+```
+
+First take:
+
+```text
+Everything from (0,0) to (row2,col2)
+```
+
+This contains our target.
+
+But it also contains unwanted cells:
+
+```text
+ABOVE the target
+
+LEFT of the target
+```
+
+So:
+
+```text
+TARGET
+
+=
+
+BIG PREFIX
+
+-
+
+TOP
+
+-
+
+LEFT
+```
+
+But there's one problem.
+
+The top-left corner region belongs to:
+
+```text
+TOP
+
+and
+
+LEFT
+```
+
+So we subtracted it twice.
+
+We must add it back once.
+
+Therefore:
+
+```text
+TARGET
+
+=
+
+BIG
+
+-
+
+TOP
+
+-
+
+LEFT
+
++
+
+OVERLAP
+```
+
+This is the most important formula in 2D Prefix Sum.
+
+---
+
+# Rectangle Sum Mental Formula
+
+```text
+ANSWER
+
+=
+
+WHOLE PREFIX
+
+-
+
+TOP
+
+-
+
+LEFT
+
++
+
+TOP-LEFT OVERLAP
+```
+
+Or simply:
+
+```text
+BIG - TOP - LEFT + OVERLAP
+```
+
+---
+
+# Why Do We Add the Overlap Back?
+
+Suppose some region has value:
+
+```text
+10
+```
+
+It exists inside both:
+
+```text
+TOP
+
+and
+
+LEFT
+```
+
+When we calculate:
+
+```text
+BIG - TOP - LEFT
+```
+
+that region gets removed:
+
+```text
+TWICE
+```
+
+But it was originally inside `BIG` only once.
+
+So its final contribution becomes:
+
+```text
+1 - 1 - 1
+
+=
+
+-1
+```
+
+We removed too much.
+
+Add it once:
+
+```text
+1 - 1 - 1 + 1
+
+=
+
+0
+```
+
+Now it is correctly removed.
+
+This is the mathematical reason for:
+
+```text
++ overlap
+```
+
+---
+
+# Mathematical Logic
+
+Let:
+
+```text
+A = Big prefix rectangle
+
+B = Area above target
+
+C = Area left of target
+
+D = Overlap between B and C
+```
+
+We want:
+
+```text
+Target
+```
+
+Start with:
+
+```text
+A
+```
+
+Remove top:
+
+```text
+A - B
+```
+
+Remove left:
+
+```text
+A - B - C
+```
+
+But:
+
+```text
+D
+```
+
+was inside both `B` and `C`.
+
+Therefore it was removed twice.
+
+Add it once:
+
+```text
+A - B - C + D
+```
+
+Therefore:
+
+```text
+Rectangle Sum
+
+=
+
+Big
+
+-
+
+Top
+
+-
+
+Left
+
++
+
+Overlap
+```
+
+---
+
+# Algorithm
+
+## Constructor — `NumMatrix(matrix)`
+
+1. Get `m` and `n`.
+2. Create a `(m+1) × (n+1)` prefix matrix filled with zeros.
+3. Traverse every matrix cell.
+4. Build its 2D prefix using:
+
+```text
+current value
+
++
+
+top
+
++
+
+left
+
+-
+
+overlap
+```
+
+---
+
+## Query — `sumRegion()`
+
+For every query:
+
+```text
+(row1,col1)
+
+to
+
+(row2,col2)
+```
+
+Return:
+
+```text
+BIG
+
+-
+
+TOP
+
+-
+
+LEFT
+
++
+
+OVERLAP
+```
+
+Since all these values are already stored:
+
+```text
+O(1)
+```
+
+---
+
+# Dry Run — Given Test Case
+
+Matrix:
+
+```text
+3  0  1  4  2
+5  6  3  2  1
+1  2  0  1  5
+4  1  0  1  7
+1  0  3  0  5
+```
+
+The built prefix matrix with an extra zero row and column is:
+
+```text
+0   0   0   0   0   0
+0   3   3   4   8  10
+0   8  14  18  24  27
+0   9  17  21  28  36
+0  13  22  26  34  49
+0  14  23  30  38  58
+```
+
+---
+
+# Query 1
+
+```text
+sumRegion(2, 1, 4, 3)
+```
+
+Target rectangle:
+
+```text
+2  0  1
+1  0  1
+0  3  0
+```
+
+Manual sum:
+
+```text
+2 + 0 + 1
+
++
+
+1 + 0 + 1
+
++
+
+0 + 3 + 0
+
+=
+
+8
+```
+
+Now use prefix.
+
+Formula:
+
+```text
+prefix[row2+1][col2+1]
+
+-
+
+prefix[row1][col2+1]
+
+-
+
+prefix[row2+1][col1]
+
++
+
+prefix[row1][col1]
+```
+
+Substitute:
+
+```text
+prefix[5][4]
+
+-
+
+prefix[2][4]
+
+-
+
+prefix[5][1]
+
++
+
+prefix[2][1]
+```
+
+Values:
+
+```text
+38 - 24 - 14 + 8
+```
+
+Calculate:
+
+```text
+38 - 24 = 14
+
+14 - 14 = 0
+
+0 + 8 = 8
+```
+
+Answer:
+
+```text
+8
+```
+
+---
+
+# Query 2
+
+```text
+sumRegion(1, 1, 2, 2)
+```
+
+Target:
+
+```text
+6  3
+2  0
+```
+
+Manual:
+
+```text
+6 + 3 + 2 + 0
+
+=
+
+11
+```
+
+Prefix formula:
+
+```text
+prefix[3][3]
+
+-
+
+prefix[1][3]
+
+-
+
+prefix[3][1]
+
++
+
+prefix[1][1]
+```
+
+Values:
+
+```text
+21 - 4 - 9 + 3
+```
+
+Calculate:
+
+```text
+21 - 4 = 17
+
+17 - 9 = 8
+
+8 + 3 = 11
+```
+
+Answer:
+
+```text
+11
+```
+
+---
+
+# Query 3
+
+```text
+sumRegion(1, 2, 2, 4)
+```
+
+Target:
+
+```text
+3  2  1
+0  1  5
+```
+
+Manual:
+
+```text
+3 + 2 + 1 + 0 + 1 + 5
+
+=
+
+12
+```
+
+Prefix formula:
+
+```text
+prefix[3][5]
+
+-
+
+prefix[1][5]
+
+-
+
+prefix[3][2]
+
++
+
+prefix[1][2]
+```
+
+Values:
+
+```text
+36 - 10 - 17 + 3
+```
+
+Calculate:
+
+```text
+36 - 10 = 26
+
+26 - 17 = 9
+
+9 + 3 = 12
+```
+
+Answer:
+
+```text
+12
+```
+
+---
+
+# Python Solution
+
+```python
+class NumMatrix:
+
+    def __init__(self, matrix: List[List[int]]):
+
+        m = len(matrix)
+        n = len(matrix[0])
+
+        self.prefix = [
+            [0] * (n + 1)
+            for _ in range(m + 1)
+        ]
+
+        for r in range(1, m + 1):
+
+            for c in range(1, n + 1):
+
+                self.prefix[r][c] = (
+                    matrix[r - 1][c - 1]
+                    + self.prefix[r - 1][c]
+                    + self.prefix[r][c - 1]
+                    - self.prefix[r - 1][c - 1]
+                )
+
+
+    def sumRegion(
+        self,
+        row1: int,
+        col1: int,
+        row2: int,
+        col2: int
+    ) -> int:
+
+        return (
+            self.prefix[row2 + 1][col2 + 1]
+            - self.prefix[row1][col2 + 1]
+            - self.prefix[row2 + 1][col1]
+            + self.prefix[row1][col1]
+        )
+```
+
+---
+
+# Code Explanation
+
+### Step 1
+
+```python
+m = len(matrix)
+n = len(matrix[0])
+```
+
+Get:
+
+```text
+Number of rows
+
+Number of columns
+```
+
+---
+
+### Step 2
+
+```python
+self.prefix = [
+    [0] * (n + 1)
+    for _ in range(m + 1)
+]
+```
+
+Create an extra:
+
+```text
+zero row
+
++
+
+zero column
+```
+
+So if matrix is:
+
+```text
+m × n
+```
+
+prefix becomes:
+
+```text
+(m+1) × (n+1)
+```
+
+This avoids boundary-condition code.
+
+---
+
+### Step 3
+
+```python
+for r in range(1, m + 1):
+
+    for c in range(1, n + 1):
+```
+
+Traverse every prefix position corresponding to an original matrix cell.
+
+Because of the extra row and column:
+
+```text
+matrix[r-1][c-1]
+```
+
+corresponds to:
+
+```text
+prefix[r][c]
+```
+
+---
+
+### Step 4
+
+```python
+self.prefix[r][c] = (
+    matrix[r - 1][c - 1]
+    + self.prefix[r - 1][c]
+    + self.prefix[r][c - 1]
+    - self.prefix[r - 1][c - 1]
+)
+```
+
+Mental formula:
+
+```text
+CURRENT
+
++
+
+TOP
+
++
+
+LEFT
+
+-
+
+OVERLAP
+```
+
+Why subtract overlap?
+
+Because:
+
+```text
+TOP + LEFT
+```
+
+counts it twice.
+
+---
+
+### Step 5
+
+For the query:
+
+```python
+self.prefix[row2 + 1][col2 + 1]
+```
+
+Take the entire big prefix ending at the bottom-right of our target.
+
+---
+
+### Step 6
+
+```python
+- self.prefix[row1][col2 + 1]
+```
+
+Remove everything above the target.
+
+---
+
+### Step 7
+
+```python
+- self.prefix[row2 + 1][col1]
+```
+
+Remove everything to the left of the target.
+
+---
+
+### Step 8
+
+```python
++ self.prefix[row1][col1]
+```
+
+Add back the top-left overlap because we removed it twice.
+
+Final mental formula:
+
+```text
+BIG
+
+-
+
+TOP
+
+-
+
+LEFT
+
++
+
+OVERLAP
+```
+
+---
+
+# Complexity Analysis
+
+## Building the Prefix Matrix
+
+We visit every matrix cell once.
+
+```text
+O(m × n)
+```
+
+---
+
+## sumRegion()
+
+Only four prefix values are accessed.
+
+```text
+BIG
+
+TOP
+
+LEFT
+
+OVERLAP
+```
+
+Therefore:
+
+```text
+O(1)
+```
+
+This is exactly what the problem requires.
+
+---
+
+## Space Complexity
+
+Prefix matrix:
+
+```text
+(m+1) × (n+1)
+```
+
+Therefore:
+
+```text
+O(m × n)
+```
+
+---
+
+# Interview Thought Process
+
+Don't start by trying to remember the 2D Prefix Sum formula.
+
+Start from the problem.
+
+```text
+What is being asked?
+
+↓
+
+Rectangle Sum
+
+↓
+
+How often?
+
+↓
+
+Many queries
+
+↓
+
+Brute force scans every rectangle repeatedly
+
+↓
+
+Repeated work
+
+↓
+
+Can I precompute cumulative information?
+
+↓
+
+Yes
+
+↓
+
+2D Prefix Sum
+```
+
+Then derive the query:
+
+```text
+Start with a big prefix containing target
+
+↓
+
+Remove area ABOVE
+
+↓
+
+Remove area LEFT
+
+↓
+
+Oops — top-left overlap removed twice
+
+↓
+
+Add overlap back once
+
+↓
+
+BIG - TOP - LEFT + OVERLAP
+```
+
+This is much better than memorizing four random array accesses.
+
+---
+
+# Recognition Pattern
+
+Whenever you see:
+
+- Multiple rectangle sum queries
+- Submatrix sum
+- Sum of a rectangular region
+- Matrix is not changing
+- Many queries on the same matrix
+- Query must be very fast
+
+Think:
+
+```text
+2D Prefix Sum
+```
+
+Especially when the problem says:
+
+```text
+Matrix is Immutable
+```
+
+That means:
+
+```text
+Matrix does not change
+```
+
+So it is perfect for:
+
+```text
+Precompute once
+
+↓
+
+Reuse many times
+```
+
+---
+
+# Key Takeaways
+
+- 2D Prefix Sum is the matrix version of normal Prefix Sum.
+- Preprocessing takes:
+
+```text
+O(m × n)
+```
+
+- Every rectangle query becomes:
+
+```text
+O(1)
+```
+
+- Use an extra zero row and column to simplify boundary handling.
+
+To build prefix:
+
+```text
+CURRENT + TOP + LEFT - OVERLAP
+```
+
+To query a rectangle:
+
+```text
+BIG - TOP - LEFT + OVERLAP
+```
+
+The `+ overlap` is not a trick to memorize.
+
+It comes from **inclusion-exclusion**:
+
+```text
+We subtract TOP
+
+We subtract LEFT
+
+Overlap belonged to both
+
+So overlap was subtracted twice
+
+Therefore add it back once
+```
+
+---
+
+# Mental Formula
+
+```text
+Many Rectangle Sum Queries
+             │
+             ▼
+Brute Force Repeats Work
+             │
+             ▼
+Can We Precompute?
+             │
+             ▼
+       2D Prefix Sum
+             │
+      ┌──────┴───────┐
+      ▼              ▼
+BUILD PREFIX      QUERY RECTANGLE
+      │              │
+      ▼              ▼
+TOP + LEFT        Start with BIG
++ CURRENT             │
+- OVERLAP              ▼
+                   Remove TOP
+                       │
+                       ▼
+                   Remove LEFT
+                       │
+                       ▼
+               Overlap Removed Twice
+                       │
+                       ▼
+                 Add It Back
+                       │
+                       ▼
+             BIG - TOP - LEFT
+                 + OVERLAP
+                       │
+                       ▼
+                   O(1) Query
+```
+
+---
+
+# One-Line Memory Trick
+
+```text
+Building 2D Prefix:
+
+CURRENT + TOP + LEFT - OVERLAP
+
+
+Getting Rectangle:
+
+BIG - TOP - LEFT + OVERLAP
+```
+
+But remember:
+
+> **Understand the overlap logic instead of blindly memorizing the formulas.**
+
+If you forget the formula during an interview, draw the rectangles and ask:
+
+```text
+What did I include?
+
+What should I remove?
+
+What did I accidentally remove twice?
+```
+
+You can derive the formula again from scratch.

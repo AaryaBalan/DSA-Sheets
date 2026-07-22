@@ -7,6 +7,7 @@ These problems focus on understanding the hidden mathematical structure behind a
 
 - [264. Ugly Number II](#264-ugly-number-ii)
 - [769. Max Chunks To Make Sorted](#769-max-chunks-to-make-sorted)
+- [640. Solve the Equation](#640-Solve-the-Equation)
 
 <br><br><br><br><br>
 
@@ -1874,3 +1875,934 @@ Greedy
 - Convert the safety condition into a mathematical property.
 - For permutations, **`max_seen == current_index`** means every required value for that chunk has already appeared.
 - Once you recognize the safety condition, the greedy solution becomes a simple one-pass algorithm.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 640. Solve the Equation
+
+---
+
+# 1. Understanding the Problem Like a Normal Person
+
+Suppose someone gives you an equation
+
+```
+x + 5 - 3 + x = 6 + x - 2
+```
+
+and asks
+
+> "What is the value of x?"
+
+Normally in mathematics, what do we do?
+
+We move every **x** to one side.
+
+We move every **number** to the other side.
+
+Then solve.
+
+This problem is asking us to make a computer do exactly that.
+
+---
+
+## Example
+
+```
+x + 5 - 3 + x = 6 + x - 2
+```
+
+Simplify each side.
+
+Left
+
+```
+x + x + 5 - 3
+= 2x + 2
+```
+
+Right
+
+```
+6 + x - 2
+= x + 4
+```
+
+Now
+
+```
+2x + 2 = x + 4
+```
+
+Move x to left.
+
+```
+x + 2 = 4
+```
+
+Move numbers to right.
+
+```
+x = 2
+```
+
+Answer
+
+```
+x=2
+```
+
+---
+
+# 2. What Makes This Problem Difficult?
+
+The equation is given as a string.
+
+Instead of
+
+```
+2x + 5 = 9
+```
+
+we get
+
+```
+"2x+5=9"
+```
+
+The computer only sees characters.
+
+```
+'2'
+'x'
+'+'
+'5'
+'='
+'9'
+```
+
+So we first need to understand the string.
+
+---
+
+# 3. How Should a Human Think?
+
+Forget coding.
+
+Imagine you're reading the equation.
+
+```
+2x+5-x+7=9+x
+```
+
+What do you naturally do?
+
+You mentally separate things into two groups.
+
+### Group 1
+
+Terms containing x
+
+```
+2x
+-x
++x
+```
+
+### Group 2
+
+Normal numbers
+
+```
+5
+7
+9
+```
+
+That's literally all we need.
+
+---
+
+# 4. The Biggest Observation
+
+Every equation can be written as
+
+```
+(ax + b) = (cx + d)
+```
+
+For example
+
+```
+3x + 7 = 5x - 2
+```
+
+Here
+
+```
+a = 3
+b = 7
+
+c = 5
+d = -2
+```
+
+We don't actually care about the original expression.
+
+We only care about
+
+* total x coefficient
+* total constant
+
+---
+
+# 5. What Information Do We Need?
+
+Only two numbers.
+
+```
+Total coefficient of x
+
+Total constant number
+```
+
+For example
+
+```
+2x+5-3+x
+```
+
+becomes
+
+```
+3x + 2
+```
+
+Store
+
+```
+xCoefficient = 3
+
+constant = 2
+```
+
+That's it.
+
+---
+
+# 6. The Main Trick
+
+Instead of simplifying each side separately,
+
+we move everything to the left while reading.
+
+Suppose
+
+```
+2x+5=x+9
+```
+
+Move everything to left.
+
+```
+2x+5-x-9=0
+
+x-4=0
+```
+
+Now we only need
+
+```
+x coefficient = 1
+
+constant = -4
+```
+
+Then
+
+```
+x = 4
+```
+
+---
+
+# 7. How Do We Read the String?
+
+Look at
+
+```
+2x+5-x+7
+```
+
+Read character by character.
+
+```
+2
+
+2x
+
++
+
+5
+
+-
+
+x
+
++
+
+7
+```
+
+Whenever a term finishes,
+
+store it.
+
+Exactly like reading words in a sentence.
+
+---
+
+# 8. Understanding Every Possible Term
+
+There are only four possibilities.
+
+### Case 1
+
+```
+2x
+```
+
+Coefficient
+
+```
+2
+```
+
+---
+
+### Case 2
+
+```
+x
+```
+
+Means
+
+```
+1x
+```
+
+Coefficient
+
+```
+1
+```
+
+---
+
+### Case 3
+
+```
+-x
+```
+
+Means
+
+```
+-1x
+```
+
+Coefficient
+
+```
+-1
+```
+
+---
+
+### Case 4
+
+```
+15
+```
+
+Just a number.
+
+Add to constant.
+
+---
+
+# 9. Why Do We Flip Signs After '='?
+
+Suppose
+
+```
+2x+5=x+9
+```
+
+Normally
+
+```
+2x+5=x+9
+```
+
+Move right side left.
+
+```
+2x+5-x-9=0
+```
+
+Notice
+
+```
++x
+```
+
+became
+
+```
+-x
+```
+
+and
+
+```
++9
+```
+
+became
+
+```
+-9
+```
+
+So after crossing '='
+
+every sign changes.
+
+That's why your code does
+
+```python
+lhsAns = -lhsAns
+xCoff = -xCoff
+```
+
+Very clever.
+
+It makes every future value automatically act like it's moving to the left.
+
+---
+
+# 10. Dry Run
+
+Equation
+
+```
+x+5-3+x=6+x-2
+```
+
+Initially
+
+```
+xCoeff = 0
+
+constant = 0
+
+sign = +
+```
+
+---
+
+Read
+
+```
+x
+```
+
+Means
+
+```
+1x
+```
+
+```
+xCoeff = 1
+```
+
+---
+
+Read
+
+```
++
+```
+
+Nothing happens.
+
+---
+
+Read
+
+```
+5
+```
+
+Store number
+
+```
+constant = 5
+```
+
+---
+
+Read
+
+```
+-
+```
+
+Next sign becomes negative.
+
+---
+
+Read
+
+```
+3
+```
+
+Store
+
+```
+constant = 2
+```
+
+because
+
+```
+5-3
+```
+
+---
+
+Read
+
+```
++
+```
+
+---
+
+Read
+
+```
+x
+```
+
+```
+xCoeff = 2
+```
+
+Current equation
+
+```
+2x+2
+```
+
+---
+
+Read
+
+```
+=
+```
+
+Everything after '=' should move left.
+
+So
+
+```
+constant = -2
+
+xCoeff = -2
+```
+
+---
+
+Now read
+
+```
+6
+```
+
+```
+constant = 4
+```
+
+because
+
+```
+-2+6
+```
+
+---
+
+Read
+
+```
++x
+```
+
+```
+xCoeff = -1
+```
+
+because
+
+```
+-2+1
+```
+
+---
+
+Read
+
+```
+-2
+```
+
+```
+constant = 2
+```
+
+Final
+
+```
+-1x + 2 = 0
+```
+
+Solve
+
+```
+-x + 2 = 0
+
+-x = -2
+
+x = 2
+```
+
+Correct.
+
+---
+
+# 11. The Mathematics
+
+Every equation eventually becomes
+
+```
+ax+b=0
+```
+
+Move b
+
+```
+ax=-b
+```
+
+Divide by a
+
+```
+x=-b/a
+```
+
+So if
+
+```
+xCoeff = a
+
+constant = b
+```
+
+Answer
+
+```python
+x = -constant // xCoeff
+```
+
+Exactly what your code does.
+
+---
+
+# 12. Special Cases
+
+## Infinite Solutions
+
+Example
+
+```
+x=x
+```
+
+Move left
+
+```
+0x+0=0
+```
+
+Means
+
+```
+0=0
+```
+
+Always true.
+
+Answer
+
+```
+Infinite solutions
+```
+
+---
+
+## No Solution
+
+Example
+
+```
+x=x+5
+```
+
+Move left
+
+```
+0x-5=0
+```
+
+Means
+
+```
+-5=0
+```
+
+Impossible.
+
+Answer
+
+```
+No solution
+```
+
+---
+
+## Normal Solution
+
+Example
+
+```
+2x=x
+```
+
+Move left
+
+```
+x=0
+```
+
+Answer
+
+```
+x=0
+```
+
+---
+
+# 13. Building the Algorithm From Scratch
+
+```
+Start
+
+↓
+
+Read equation from left to right
+
+↓
+
+Keep current sign
+
+↓
+
+Whenever a number or x finishes
+
+↓
+
+If it has x
+    add coefficient
+
+Else
+    add constant
+
+↓
+
+When '=' appears
+
+Flip both totals
+
+↓
+
+Continue
+
+↓
+
+End
+
+↓
+
+Equation becomes
+
+ax+b=0
+
+↓
+
+Solve
+
+x=-b/a
+```
+
+---
+
+# My Solution
+
+```python
+class Solution:
+    def solveEquation(self, equation: str) -> str:
+        num = ""
+        sign = 1
+        xCoff = 0
+        lhsAns = 0
+        for i in equation:
+            if i == "=":
+                if  num != "":
+                    lhsAns += int(num) * sign
+                    num = ''
+                lhsAns = -lhsAns
+                xCoff = -xCoff
+                sign = 1
+            if not i.isdigit():
+                if num != "" and i != 'x':
+                    lhsAns += int(num) * sign
+                if i == '-':
+                    sign = -1
+                if i == '+':
+                    sign = 1
+                if num != "" and i == 'x':
+                    xCoff += sign * int(num)
+                if num == "" and i == 'x':
+                    xCoff += sign
+                num = ""
+            if i.isdigit():
+                num += i
+        if num != "":
+            lhsAns += int(num) * sign
+        
+
+        if xCoff == 0 and lhsAns == 0:
+            return "Infinite solutions"
+        if xCoff == 0:
+            return "No solution"
+        ans = lhsAns//xCoff * -1
+        return "x=" + str(ans)
+        
+
+```
+
+# 14. Cleaner Python Solution
+
+A common interview approach is to write a helper that parses one side of the equation and returns `(x_coefficient, constant)`.
+
+```python
+class Solution:
+    def solveEquation(self, equation: str) -> str:
+
+        def parse(expr):
+            i = 0
+            xCoeff = 0
+            constant = 0
+            sign = 1
+
+            while i < len(expr):
+
+                if expr[i] == '+':
+                    sign = 1
+                    i += 1
+
+                elif expr[i] == '-':
+                    sign = -1
+                    i += 1
+
+                else:
+                    num = 0
+                    hasNum = False
+
+                    while i < len(expr) and expr[i].isdigit():
+                        num = num * 10 + int(expr[i])
+                        hasNum = True
+                        i += 1
+
+                    if i < len(expr) and expr[i] == 'x':
+                        if not hasNum:
+                            num = 1
+                        xCoeff += sign * num
+                        i += 1
+                    else:
+                        constant += sign * num
+
+            return xCoeff, constant
+
+        left, right = equation.split('=')
+
+        leftX, leftConst = parse(left)
+        rightX, rightConst = parse(right)
+
+        xCoeff = leftX - rightX
+        constant = leftConst - rightConst
+
+        if xCoeff == 0 and constant == 0:
+            return "Infinite solutions"
+
+        if xCoeff == 0:
+            return "No solution"
+
+        return f"x={-constant // xCoeff}"
+```
+
+---
+
+# 15. How to Develop This Intuition in Future Problems
+
+Many beginners immediately think:
+
+> "How do I parse this complicated string?"
+
+Experienced problem solvers first ask:
+
+> "What information do I actually need?"
+
+In this problem, you don't need to preserve the entire equation. You only need two accumulated values:
+
+* the total coefficient of `x`
+* the total constant
+
+Once you recognize that, the parsing becomes much simpler because every term contributes to exactly one of those two totals.
+
+A useful way to build this intuition for similar problems is to follow this sequence:
+
+1. **Forget the string.** Solve the problem on paper as you learned in school.
+2. **Identify what changes.** Here, terms with `x` and plain numbers are treated differently.
+3. **Ask what information must be remembered.** Only two running totals are needed.
+4. **Design the parser** so that every token updates one of those totals.
+5. **Apply the mathematical formula** (`ax + b = 0` ⇒ `x = -b / a`) at the end.
+
+This approach—reducing a seemingly complex input into a few key state variables—is a common pattern in parsing, simulation, and many interview problems.
