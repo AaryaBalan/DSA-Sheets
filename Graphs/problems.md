@@ -25,6 +25,8 @@ Welcome to the graph problems section! Here you will find various data structure
 - [787. Cheapest Flights Within K Stops](#787-cheapest-flights-within-k-stops)
 - [785. Is Graph Bipartite?](#785-is-graph-bipartite)
 - [851. Loud and Rich (LeetCode)](#851-loud-and-rich-leetcode)
+- [947. Most Stones Removed with Same Row or Column](#947-most-stones-removed-with-same-row-or-column)
+- [990. Satisfiability of Equality Equations](#990-satisfiability-of-equality-equations)
 
 <br><br><br><br><br>
 
@@ -19839,3 +19841,2181 @@ Memoization
 ```
 
 This pattern is often called **DFS on a DAG with Dynamic Programming**, and it appears frequently in graph interview problems.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 947. Most Stones Removed with Same Row or Column
+
+- **Difficulty:** Medium
+- **Topics:** Graph, DFS, Connected Components, Union Find
+
+---
+
+# Problem Statement
+
+You are given some stones placed on a 2D plane.
+
+Each stone is located at a unique coordinate.
+
+```
+(x, y)
+```
+
+A stone **can be removed** if there is **at least one other stone** in
+
+- the same **row**, or
+- the same **column**.
+
+Your task is to remove the **maximum number of stones**.
+
+---
+
+# Understanding the Problem
+
+Let's ignore algorithms.
+
+Imagine these stones.
+
+```
+(0,0)   (0,1)
+
+(1,0)
+
+(2,0)
+```
+
+Visualize them.
+
+```
+      Col0   Col1
+
+Row0   ●------●
+
+Row1   ●
+
+Row2   ●
+```
+
+Question
+
+Can we remove stones?
+
+Yes.
+
+Why?
+
+Because every stone has another stone in the same row or column.
+
+---
+
+# Wrong Way of Thinking
+
+Most people immediately think
+
+> Which stone should I remove first?
+
+Should I remove
+
+```
+Top?
+
+Bottom?
+
+Left?
+
+Right?
+```
+
+This quickly becomes confusing.
+
+---
+
+# Correct Way of Thinking
+
+Instead ask
+
+> **Which stones must remain?**
+
+This question makes the problem much easier.
+
+---
+
+# Observation 1
+
+Suppose we have only one stone.
+
+```
+●
+```
+
+Can we remove it?
+
+No.
+
+There is no other stone.
+
+Answer
+
+```
+0
+```
+
+---
+
+# Observation 2
+
+Suppose
+
+```
+● ●
+```
+
+Same row.
+
+Remove one.
+
+Remaining
+
+```
+●
+```
+
+Last stone cannot be removed.
+
+So
+
+```
+2 stones
+
+↓
+
+1 survives
+```
+
+---
+
+# Observation 3
+
+Suppose
+
+```
+● ● ●
+```
+
+Same row.
+
+Remove
+
+```
+Stone3
+```
+
+↓
+
+```
+● ●
+```
+
+Remove
+
+```
+Stone2
+```
+
+↓
+
+```
+●
+```
+
+Again
+
+```
+3 stones
+
+↓
+
+1 survives
+```
+
+---
+
+# Observation 4
+
+Suppose
+
+```
+● ● ● ●
+```
+
+Eventually
+
+```
+4
+
+↓
+
+3
+
+↓
+
+2
+
+↓
+
+1
+```
+
+Again
+
+Only one survives.
+
+---
+
+# Important Observation
+
+Whenever stones are connected,
+
+they can always be reduced to
+
+```
+ONE
+```
+
+remaining stone.
+
+Never zero.
+
+---
+
+# Why?
+
+Imagine friends holding hands.
+
+```
+A ---- B ---- C ---- D
+```
+
+As long as
+
+someone
+
+is connected
+
+to someone,
+
+you can remove one.
+
+Eventually
+
+```
+One friend remains.
+```
+
+The last friend has nobody connected.
+
+Cannot remove.
+
+---
+
+# The Real Problem
+
+The question is NOT
+
+> Which stone should I remove?
+
+The real question is
+
+> **How many connected groups of stones exist?**
+
+---
+
+# What is a Connected Group?
+
+Two stones are connected if
+
+- Same row
+- Same column
+
+Example
+
+```
+A
+
+B
+```
+
+Same column
+
+↓
+
+Connected
+
+---
+
+Example
+
+```
+A ----- B
+```
+
+Same row
+
+↓
+
+Connected
+
+---
+
+Indirect connections also count.
+
+```
+A
+
+|
+
+B ----- C
+
+      |
+
+      D
+```
+
+All four stones belong to one connected component.
+
+---
+
+# Example 1
+
+Input
+
+```python
+stones = [
+[0,0],
+[0,1],
+[1,0],
+[1,2],
+[2,1],
+[2,2]
+]
+```
+
+Draw it.
+
+```
+(0,0) ---- (0,1)
+
+  |
+
+(1,0)      (1,2)
+
+            |
+
+         (2,2)
+
+          |
+
+        (2,1)
+```
+
+Everything is connected.
+
+One connected component.
+
+Total stones
+
+```
+6
+```
+
+Connected components
+
+```
+1
+```
+
+Remaining stones
+
+```
+1
+```
+
+Removed
+
+```
+6-1=5
+```
+
+Answer
+
+```
+5
+```
+
+---
+
+# Example 2
+
+```
+(0,0)
+
+(0,2)
+
+(1,1)
+
+(2,0)
+
+(2,2)
+```
+
+Picture
+
+```
+(0,0)     (0,2)
+
+   |         |
+
+(2,0)----(2,2)
+
+
+(1,1)
+```
+
+Notice
+
+```
+(1,1)
+```
+
+is isolated.
+
+We have
+
+```
+Component 1
+
++
+
+Component 2
+```
+
+Component 1
+
+```
+4 stones
+```
+
+Leaves
+
+```
+1
+```
+
+Component 2
+
+```
+1 stone
+```
+
+Leaves
+
+```
+1
+```
+
+Total survivors
+
+```
+2
+```
+
+Removed
+
+```
+5-2=3
+```
+
+Answer
+
+```
+3
+```
+
+---
+
+# Example 3
+
+```
+●
+```
+
+Only one stone.
+
+No connections.
+
+Cannot remove.
+
+Answer
+
+```
+0
+```
+
+---
+
+# The Big Intuition
+
+Instead of asking
+
+> Which stones should I remove?
+
+Ask
+
+> How many connected components exist?
+
+Because
+
+Every connected component always leaves exactly
+
+```
+ONE
+```
+
+stone.
+
+---
+
+# Mathematical Proof
+
+Suppose one connected component contains
+
+```
+k stones
+```
+
+We can always remove
+
+```
+k-1
+```
+
+stones.
+
+Exactly one survives.
+
+Suppose there are
+
+```
+Component 1 → k₁ stones
+
+Component 2 → k₂ stones
+
+...
+
+Component C → kₙ stones
+```
+
+Total stones
+
+```
+N = k₁+k₂+...+kₙ
+```
+
+Each component leaves
+
+```
+1
+```
+
+stone.
+
+Remaining
+
+```
+C
+```
+
+Therefore
+
+Maximum removed
+
+```
+N - C
+```
+
+---
+
+# Graph Representation
+
+Each stone becomes one node.
+
+Suppose
+
+```python
+stones = [
+[0,0],
+[0,1],
+[1,0]
+]
+```
+
+Index them.
+
+| Index | Coordinate |
+| ----- | ---------- |
+| 0     | (0,0)      |
+| 1     | (0,1)      |
+| 2     | (1,0)      |
+
+---
+
+Compare every pair.
+
+Stone 0
+
+```
+(0,0)
+```
+
+Stone 1
+
+```
+(0,1)
+```
+
+Same row.
+
+Connect.
+
+```
+0 ----- 1
+```
+
+---
+
+Stone 0
+
+```
+(0,0)
+```
+
+Stone 2
+
+```
+(1,0)
+```
+
+Same column.
+
+Connect.
+
+```
+0
+
+|
+
+2
+```
+
+Final graph
+
+```
+      1
+
+     /
+
+0
+
+|
+
+2
+```
+
+---
+
+# Algorithm
+
+### Step 1
+
+Build graph.
+
+Every stone is a node.
+
+If two stones share
+
+- row
+- column
+
+Connect them.
+
+---
+
+### Step 2
+
+Maintain
+
+```python
+visited
+```
+
+---
+
+### Step 3
+
+Run DFS.
+
+Whenever an unvisited node is found,
+
+start DFS.
+
+Increase
+
+```
+components +=1
+```
+
+---
+
+### Step 4
+
+Finally
+
+```
+answer
+
+=
+
+stones
+
+-
+
+components
+```
+
+---
+
+# Python Solution
+
+```python
+from collections import defaultdict
+from typing import List
+
+class Solution:
+    def removeStones(self, stones: List[List[int]]) -> int:
+
+        n = len(stones)
+
+        graph = defaultdict(list)
+
+        # Build graph
+        for i in range(n):
+
+            x1, y1 = stones[i]
+
+            for j in range(i + 1, n):
+
+                x2, y2 = stones[j]
+
+                if x1 == x2 or y1 == y2:
+
+                    graph[i].append(j)
+                    graph[j].append(i)
+
+        visited = set()
+
+        def dfs(node):
+
+            visited.add(node)
+
+            for nei in graph[node]:
+
+                if nei not in visited:
+                    dfs(nei)
+
+        components = 0
+
+        for i in range(n):
+
+            if i not in visited:
+
+                components += 1
+                dfs(i)
+
+        return n - components
+```
+
+---
+
+# Dry Run
+
+Input
+
+```python
+stones = [
+[0,0],
+[0,1],
+[1,0],
+[1,2],
+[2,1],
+[2,2]
+]
+```
+
+Assign indices.
+
+| Index | Stone |
+| ----- | ----- |
+| 0     | (0,0) |
+| 1     | (0,1) |
+| 2     | (1,0) |
+| 3     | (1,2) |
+| 4     | (2,1) |
+| 5     | (2,2) |
+
+---
+
+## Build Graph
+
+Stone 0
+
+```
+(0,0)
+```
+
+Same row as
+
+```
+(0,1)
+```
+
+Edge
+
+```
+0 ----- 1
+```
+
+Same column as
+
+```
+(1,0)
+```
+
+Edge
+
+```
+0
+
+|
+
+2
+```
+
+---
+
+Stone 2
+
+```
+(1,0)
+```
+
+Same row as
+
+```
+(1,2)
+```
+
+Edge
+
+```
+2 ----- 3
+```
+
+---
+
+Stone 3
+
+```
+(1,2)
+```
+
+Same column as
+
+```
+(2,2)
+```
+
+Edge
+
+```
+3 ----- 5
+```
+
+---
+
+Stone 5
+
+```
+(2,2)
+```
+
+Same row as
+
+```
+(2,1)
+```
+
+Edge
+
+```
+5 ----- 4
+```
+
+Final graph
+
+```
+      1
+
+     /
+
+0
+
+|
+
+2
+
+|
+
+3
+
+|
+
+5
+
+|
+
+4
+```
+
+Everything belongs to one connected component.
+
+---
+
+## DFS
+
+Start
+
+```
+0
+```
+
+Visited
+
+```
+0
+```
+
+Visit
+
+```
+1
+```
+
+Visited
+
+```
+0 1
+```
+
+Back
+
+Visit
+
+```
+2
+```
+
+Visited
+
+```
+0 1 2
+```
+
+Visit
+
+```
+3
+```
+
+Visited
+
+```
+0 1 2 3
+```
+
+Visit
+
+```
+5
+```
+
+Visited
+
+```
+0 1 2 3 5
+```
+
+Visit
+
+```
+4
+```
+
+Visited
+
+```
+0 1 2 3 4 5
+```
+
+DFS complete.
+
+Connected Components
+
+```
+1
+```
+
+---
+
+# Final Calculation
+
+Total stones
+
+```
+6
+```
+
+Connected components
+
+```
+1
+```
+
+Maximum removable
+
+```
+6-1=5
+```
+
+Answer
+
+```
+5
+```
+
+---
+
+# Time Complexity
+
+Building graph
+
+```
+O(N²)
+```
+
+DFS
+
+```
+O(V+E)
+```
+
+Overall
+
+```
+O(N²)
+```
+
+Since
+
+```
+N ≤ 1000
+```
+
+this easily passes.
+
+---
+
+# Space Complexity
+
+Graph
+
+```
+O(N²)
+```
+
+Visited
+
+```
+O(N)
+```
+
+---
+
+# Pattern Recognition
+
+Whenever a problem says
+
+- Remove objects until impossible
+- Objects are connected by some relationship
+- Order of removals does not matter
+
+Think
+
+```
+Graph
+
+↓
+
+Connected Components
+
+↓
+
+Answer = Total Nodes - Connected Components
+```
+
+This is a very common interview pattern.
+
+---
+
+# Key Takeaways
+
+- Don't simulate removing stones.
+- Think about **what must remain**.
+- Every connected component always leaves **exactly one stone**.
+- Convert stones into graph nodes.
+- Connect stones sharing the same row or column.
+- Count connected components using DFS/BFS.
+- Final answer is
+
+```
+Number of Stones - Number of Connected Components
+```
+
+This change in perspective—from simulating operations to identifying connected components—is the key intuition for solving this problem efficiently.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 990. Satisfiability of Equality Equations
+
+- **Difficulty:** Medium
+- **Topics:** Graph, DFS, Union Find (Disjoint Set Union)
+
+---
+
+# Problem Statement
+
+You are given an array of equations.
+
+Each equation is one of the following forms:
+
+```
+a==b
+```
+
+or
+
+```
+a!=b
+```
+
+where every variable is a lowercase English letter (`a` to `z`).
+
+Your task is to determine whether it is possible to assign integer values to all variables such that **every equation is satisfied**.
+
+Return
+
+- `True` if all equations can be satisfied.
+- `False` otherwise.
+
+---
+
+# Understanding the Problem
+
+Suppose we have
+
+```python
+["a==b", "b==c", "a!=c"]
+```
+
+The first equation says
+
+```
+a = b
+```
+
+The second equation says
+
+```
+b = c
+```
+
+Therefore
+
+```
+a = b = c
+```
+
+Now the third equation says
+
+```
+a != c
+```
+
+This is impossible.
+
+Answer
+
+```
+False
+```
+
+---
+
+# Common Man's Analogy
+
+Imagine every variable is a person.
+
+```
+Alice
+Bob
+Charlie
+David
+```
+
+If someone says
+
+```
+Alice == Bob
+```
+
+they belong to the same team.
+
+If someone says
+
+```
+Bob == Charlie
+```
+
+then
+
+```
+Alice
+Bob
+Charlie
+```
+
+all belong to one team.
+
+Now another person says
+
+```
+Alice != Charlie
+```
+
+This means
+
+```
+Alice
+
+and
+
+Charlie
+
+must belong to different teams.
+```
+
+But they are already in the same team.
+
+Impossible.
+
+---
+
+# First Observation
+
+Equality creates groups.
+
+Suppose
+
+```
+a==b
+
+b==c
+
+c==d
+```
+
+Then
+
+```
+a
+
+|
+
+b
+
+|
+
+c
+
+|
+
+d
+```
+
+All four variables belong to one connected component.
+
+---
+
+# Second Observation
+
+Inequality simply asks
+
+> Are these two variables already connected?
+
+If yes
+
+```
+False
+```
+
+Otherwise
+
+```
+True
+```
+
+---
+
+# Graph Intuition
+
+Think of every variable as a graph node.
+
+For every
+
+```
+==
+```
+
+draw an edge.
+
+Example
+
+```
+a==b
+
+b==c
+
+d==e
+```
+
+Graph
+
+```
+a ----- b ----- c
+
+
+d ----- e
+```
+
+Notice
+
+```
+a,b,c
+```
+
+are one connected component.
+
+```
+d,e
+```
+
+are another.
+
+---
+
+# The Idea
+
+## Step 1
+
+Build graph using only
+
+```
+==
+```
+
+Ignore
+
+```
+!=
+```
+
+because they don't create connections.
+
+---
+
+## Step 2
+
+For every
+
+```
+!=
+```
+
+Run DFS.
+
+Question
+
+> Can I reach the target?
+
+If yes
+
+Both variables belong to the same connected component.
+
+Contradiction.
+
+Return
+
+```
+False
+```
+
+Otherwise continue.
+
+---
+
+# My Initial Approach
+
+I wrote
+
+```python
+graph = defaultdict(list)
+
+for s in equations:
+
+    if s[1] == '=':
+
+        graph[u].append(v)
+        graph[v].append(u)
+```
+
+Then
+
+For every equation
+
+I performed DFS.
+
+My DFS tried to answer
+
+```
+Equality
+
+and
+
+Inequality
+```
+
+using
+
+```python
+relation
+```
+
+parameter.
+
+Although this idea is close to correct,
+
+it results in **Time Limit Exceeded (TLE)** and may also produce incorrect answers.
+
+Let's understand why.
+
+---
+
+# Mistake 1
+
+## Parent is not enough
+
+Initially I wrote
+
+```python
+dfs(node,parent,target)
+```
+
+Thinking
+
+```
+parent
+```
+
+would prevent cycles.
+
+Unfortunately,
+
+this only works in **trees**.
+
+Graphs can contain cycles.
+
+Example
+
+```
+a
+
+/ \
+
+b--c
+```
+
+DFS
+
+```
+a
+
+↓
+
+b
+
+↓
+
+c
+
+↓
+
+a
+
+↓
+
+b
+
+↓
+
+...
+```
+
+The DFS keeps revisiting nodes.
+
+This causes infinite recursion or TLE.
+
+---
+
+# Solution
+
+Always maintain
+
+```python
+visited
+```
+
+Example
+
+```python
+visited.add(node)
+```
+
+Now every node is explored only once during a DFS.
+
+---
+
+# Mistake 2
+
+## Using @cache
+
+I tried
+
+```python
+visited = set()
+
+@cache
+def dfs(node,target):
+```
+
+This looks like an optimization.
+
+But it is actually incorrect.
+
+---
+
+## Why?
+
+The cache remembers results only using
+
+```
+(node,target)
+```
+
+It does **not** remember
+
+```
+visited
+```
+
+Suppose
+
+First DFS
+
+```
+visited = {a,b}
+```
+
+returns
+
+```
+False
+```
+
+Cache stores
+
+```
+dfs(a,d)=False
+```
+
+Later
+
+Another DFS starts
+
+```
+visited = {}
+```
+
+But cache immediately returns
+
+```
+False
+```
+
+without exploring.
+
+The DFS result depends on
+
+```
+visited
+```
+
+Therefore
+
+```
+DFS + Cache
+
+❌ Wrong
+```
+
+---
+
+# Rule
+
+Never use
+
+```python
+@cache
+```
+
+when your DFS depends on
+
+- visited
+- path
+- recursion state
+- mutable variables
+
+Caching is only safe when the function is **pure**, meaning its result depends **only on its arguments**.
+
+---
+
+# Mistake 3
+
+## Overwriting the answer
+
+I wrote
+
+```python
+state = dfs(...)
+```
+
+inside
+
+```python
+for nei in graph[node]:
+```
+
+Example
+
+```
+a
+
+/ \
+
+b  c
+```
+
+Searching
+
+```
+a → c
+```
+
+Suppose
+
+```
+dfs(c)
+
+↓
+
+True
+```
+
+Then
+
+```
+state=True
+```
+
+Next neighbor
+
+```
+dfs(b)
+
+↓
+
+False
+```
+
+Now
+
+```
+state=False
+```
+
+The previous success is lost.
+
+---
+
+# Correct DFS Pattern
+
+Instead
+
+```python
+if dfs(nei,target):
+    return True
+```
+
+As soon as one child finds the target,
+
+stop immediately.
+
+After checking every neighbor
+
+```
+return False
+```
+
+---
+
+# Mistake 4
+
+## Removing visited
+
+I wrote
+
+```python
+visited.remove(node)
+```
+
+This is **backtracking**.
+
+Backtracking is useful when we want
+
+```
+All Possible Paths
+```
+
+Here
+
+we only want
+
+```
+Can I reach the target?
+```
+
+Once a node is visited,
+
+there is no need to visit it again.
+
+Removing it causes unnecessary work.
+
+Simply do
+
+```python
+visited.add(node)
+```
+
+and never remove it.
+
+---
+
+# Mistake 5
+
+## DFS for every equation
+
+Initially I checked
+
+```
+==
+```
+
+also.
+
+Example
+
+```
+a==b
+```
+
+But why?
+
+The graph itself already guarantees equality.
+
+The only equations that need checking are
+
+```
+!=
+```
+
+---
+
+# Correct DFS Contract
+
+A DFS should answer **only one question**.
+
+```
+Can I reach the target?
+```
+
+Nothing more.
+
+Pseudo-code
+
+```python
+dfs(node):
+
+    if node==target:
+        return True
+
+    visited.add(node)
+
+    for neighbor:
+
+        if neighbor not in visited:
+
+            if dfs(neighbor):
+                return True
+
+    return False
+```
+
+---
+
+# My Solution
+
+```python
+class Solution:
+    def equationsPossible(self, equations: List[str]) -> bool:
+        graph = defaultdict(list)
+        for s in equations:
+            if s[1] == '=':
+                u = s[0]
+                v = s[-1]
+                graph[u].append(v)
+                graph[v].append(u)
+
+        visited = set()
+
+        def dfs(start, target):
+            if start == target:
+                return False
+            visited.add(start)
+            for nei in graph[start]:
+                if nei not in visited:
+                    if not dfs(nei, target):
+                        return False
+            visited.remove(start)
+            return True
+
+        for s in equations:
+            start = s[0]
+            target = s[-1]
+            if s[1] == '!':
+                if not dfs(start, target):
+                    return False
+        return True
+```
+
+---
+
+# Cleaner Python Solution (DFS)
+
+```python
+from collections import defaultdict
+
+class Solution:
+    def equationsPossible(self, equations):
+
+        graph = defaultdict(list)
+
+        # Build graph using only ==
+        for eq in equations:
+
+            if eq[1] == '=':
+
+                u = eq[0]
+                v = eq[3]
+
+                graph[u].append(v)
+                graph[v].append(u)
+
+        def dfs(node,target,visited):
+
+            if node == target:
+                return True
+
+            visited.add(node)
+
+            for nei in graph[node]:
+
+                if nei not in visited:
+
+                    if dfs(nei,target,visited):
+                        return True
+
+            return False
+
+        # Check only != equations
+        for eq in equations:
+
+            if eq[1] == '!':
+
+                visited = set()
+
+                if dfs(eq[0],eq[3],visited):
+                    return False
+
+        return True
+```
+
+---
+
+# Dry Run
+
+Input
+
+```python
+equations = [
+"a==b",
+"b==c",
+"a!=c"
+]
+```
+
+---
+
+## Step 1
+
+Build graph
+
+```
+a ----- b ----- c
+```
+
+---
+
+## Step 2
+
+Process
+
+```
+a!=c
+```
+
+Run
+
+```
+dfs(a,c)
+```
+
+Visited
+
+```
+a
+```
+
+↓
+
+Visit
+
+```
+b
+```
+
+↓
+
+Visit
+
+```
+c
+```
+
+Target found.
+
+DFS returns
+
+```
+True
+```
+
+Since
+
+```
+a
+
+and
+
+c
+```
+
+are connected,
+
+```
+a!=c
+```
+
+cannot be satisfied.
+
+Return
+
+```
+False
+```
+
+---
+
+# Time Complexity
+
+There are at most
+
+```
+26
+```
+
+variables.
+
+Building graph
+
+```
+O(E)
+```
+
+Each DFS
+
+```
+O(V+E)
+```
+
+Overall
+
+```
+O(E × (V+E))
+```
+
+Since
+
+```
+V = 26
+```
+
+this easily passes.
+
+---
+
+# Space Complexity
+
+Graph
+
+```
+O(V+E)
+```
+
+Visited
+
+```
+O(V)
+```
+
+---
+
+# Pattern Recognition
+
+Whenever a problem asks
+
+- Are two nodes connected?
+- Equality relationships
+- Friendship groups
+- Connected components
+
+Think
+
+```
+Graph
+
+↓
+
+DFS / BFS
+
+or
+
+Union Find
+```
+
+---
+
+# Interview Insight
+
+Although the DFS solution is correct and passes because there are only **26 variables**, the **intended interview solution** is **Union-Find (Disjoint Set Union)**.
+
+Why?
+
+Union-Find is specifically designed to answer the question:
+
+> **Do two variables belong to the same connected component?**
+
+The DSU solution is simpler and more efficient:
+
+1. Union all variables connected by `==`.
+2. For every `!=`, check if both variables belong to the same set.
+3. If they do, return `False`.
+4. Otherwise, return `True`.
+
+---
+
+# Key Takeaways
+
+- Build the graph using only equality equations.
+- Ignore inequality while building the graph.
+- For every inequality, check if both variables are connected.
+- Use a `visited` set in DFS to avoid cycles.
+- Do **not** use `@cache` with DFS that depends on mutable state.
+- Do **not** overwrite recursive results; return immediately when the target is found.
+- Do **not** remove nodes from `visited` unless you're solving a backtracking problem.
+- In interviews, recognize this as a classic **Union-Find** problem.
+
+```
+
+```
