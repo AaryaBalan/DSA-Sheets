@@ -28,6 +28,7 @@ Welcome to the graph problems section! Here you will find various data structure
 - [947. Most Stones Removed with Same Row or Column](#947-most-stones-removed-with-same-row-or-column)
 - [990. Satisfiability of Equality Equations](#990-satisfiability-of-equality-equations)
 - [695. Max Area of Island](#695-max-area-of-island)
+- [1311. Get Watched Videos by Your Friends](#1311-get-watched-videos-by-your-friends)
 
 <br><br><br><br><br>
 
@@ -23237,6 +23238,1254 @@ Return the area of the current island.
 - Always use a `visited` set (or mark cells in-place) to avoid revisiting cells.
 - Avoid using global counters when recursion can naturally return the required value.
 - Recognizing "connected regions" is the key intuition that turns many matrix problems into straightforward DFS/BFS solutions.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 1311. Get Watched Videos by Your Friends
+
+- **Difficulty:** Medium
+- **Topics:** Graph, BFS, Hash Map, Sorting
+- **Pattern:** BFS by Level + Frequency Counting
+
+---
+
+# Problem Statement
+
+You are given a social network.
+
+Each person has
+
+- A unique ID
+- A list of friends
+- A list of videos they have watched
+
+You are also given
+
+- Your ID
+- A friendship level
+
+Your task is to return the videos watched by **people exactly at that friendship level**, sorted by
+
+1. Increasing frequency
+2. Alphabetically if frequencies are equal
+
+---
+
+# Step 1 : Understand the Problem Like a Common Man
+
+Forget programming.
+
+Imagine Facebook.
+
+You are
+
+```
+Person 0
+```
+
+Your friends are
+
+```
+1
+
+2
+```
+
+Their friends are
+
+```
+3
+
+4
+
+5
+```
+
+Suppose someone asks
+
+> Tell me the most common movies watched by your friends.
+
+You first ask
+
+```
+Who are my friends?
+```
+
+After finding them,
+
+you check
+
+```
+What movies have they watched?
+```
+
+Then
+
+```
+Count how many people watched each movie.
+```
+
+Finally
+
+```
+Sort them.
+```
+
+That is literally this problem.
+
+---
+
+# Step 2 : What does "Level" Mean?
+
+Suppose
+
+```
+        3
+
+        |
+
+1 ------0------2
+
+        |
+
+        4
+```
+
+You are
+
+```
+0
+```
+
+Level 1 means
+
+```
+Direct Friends
+
+↓
+
+1
+
+2
+
+3
+
+4
+```
+
+---
+
+Suppose
+
+```
+0
+
+|
+
+1
+
+|
+
+5
+```
+
+Now
+
+```
+5
+```
+
+is
+
+```
+Level 2
+```
+
+because
+
+Shortest path
+
+```
+0
+
+↓
+
+1
+
+↓
+
+5
+```
+
+contains
+
+```
+2 edges.
+```
+
+---
+
+# Very Important Observation
+
+The question says
+
+```
+Shortest path exactly equal to level.
+```
+
+Not
+
+```
+Less than level.
+```
+
+Not
+
+```
+Greater than level.
+```
+
+Exactly
+
+```
+level
+```
+
+---
+
+# Step 3 : Why is this a Graph Problem?
+
+Every person
+
+↓
+
+becomes
+
+```
+Node
+```
+
+Friendship
+
+↓
+
+becomes
+
+```
+Edge
+```
+
+Example
+
+```
+0 ----1
+
+|
+
+2
+
+|
+
+3
+```
+
+This is simply an
+
+```
+Undirected Graph
+```
+
+because
+
+If
+
+```
+0
+```
+
+is friend of
+
+```
+1
+```
+
+then
+
+```
+1
+```
+
+is also friend of
+
+```
+0
+```
+
+---
+
+# Step 4 : Which Graph Algorithm?
+
+Question
+
+How do we find
+
+```
+People exactly 2 friendships away?
+```
+
+DFS?
+
+No.
+
+DFS goes deep.
+
+We need
+
+```
+Level by Level.
+```
+
+Which algorithm explores
+
+```
+Level 0
+
+↓
+
+Level 1
+
+↓
+
+Level 2
+
+↓
+
+Level 3
+```
+
+?
+
+Exactly
+
+```
+Breadth First Search (BFS)
+```
+
+---
+
+# Step 5 : Why BFS?
+
+Imagine ripples in water.
+
+```
+You
+
+↓
+
+Friends
+
+↓
+
+Friends of Friends
+
+↓
+
+Friends of Friends of Friends
+```
+
+BFS naturally explores in this order.
+
+That is exactly what "level" means.
+
+---
+
+# Step 6 : Visualizing BFS
+
+Suppose
+
+```
+        3
+
+      /   \
+
+1 ----0----2
+
+      |
+
+      4
+```
+
+Start
+
+```
+Queue
+
+↓
+
+0
+```
+
+Distance
+
+```
+0
+```
+
+Remove
+
+```
+0
+```
+
+Push
+
+```
+1
+
+2
+
+4
+```
+
+Distance
+
+```
+1
+```
+
+Next
+
+Remove
+
+```
+1
+```
+
+Push
+
+its friends.
+
+Continue.
+
+Notice
+
+BFS automatically discovers people in increasing friendship distance.
+
+---
+
+# Step 7 : What Are We Actually Looking For?
+
+Many beginners think
+
+```
+Find videos.
+```
+
+Wrong.
+
+First
+
+Find
+
+```
+People
+```
+
+Then
+
+Collect
+
+```
+Videos
+```
+
+Think in two phases.
+
+```
+BFS
+
+↓
+
+People at required level
+
+↓
+
+Collect Videos
+
+↓
+
+Count Frequency
+
+↓
+
+Sort
+```
+
+---
+
+# Step 8 : How Do We Count Videos?
+
+Suppose level-1 people watched
+
+```
+A
+
+B
+
+C
+
+A
+
+B
+
+A
+```
+
+Frequency
+
+```
+A → 3
+
+B → 2
+
+C → 1
+```
+
+Now the problem says
+
+Sort by
+
+```
+Frequency
+```
+
+Smallest first.
+
+So
+
+```
+C
+
+↓
+
+B
+
+↓
+
+A
+```
+
+---
+
+# Step 9 : If Frequency is Same?
+
+Suppose
+
+```
+A →2
+
+B →2
+
+C →1
+```
+
+C comes first.
+
+Now
+
+A and B
+
+have same frequency.
+
+Problem says
+
+Alphabetically.
+
+Result
+
+```
+C
+
+A
+
+B
+```
+
+---
+
+# Step 10 : Complete Algorithm
+
+## Phase 1
+
+Run BFS.
+
+---
+
+## Phase 2
+
+Stop when you reach
+
+```
+Required Level.
+```
+
+---
+
+## Phase 3
+
+Collect every video watched by those people.
+
+---
+
+## Phase 4
+
+Store frequency.
+
+```
+Counter
+
+↓
+
+Movie
+
+↓
+
+Count
+```
+
+---
+
+## Phase 5
+
+Sort
+
+```
+(count,
+
+movie name)
+```
+
+---
+
+## Phase 6
+
+Return only movie names.
+
+---
+
+# Dry Run
+
+Input
+
+```python
+watchedVideos =
+
+[
+["A","B"],
+["C"],
+["B","C"],
+["D"]
+]
+
+friends =
+
+[
+[1,2],
+[0,3],
+[0,3],
+[1,2]
+]
+
+id = 0
+
+level = 1
+```
+
+---
+
+Graph
+
+```
+      1
+
+     / \
+
+    0   3
+
+     \ /
+
+      2
+```
+
+Videos
+
+```
+0
+
+A B
+
+------------
+
+1
+
+C
+
+------------
+
+2
+
+B C
+
+------------
+
+3
+
+D
+```
+
+---
+
+# BFS Starts
+
+Queue
+
+```
+[(0,0)]
+```
+
+Visited
+
+```
+{0}
+```
+
+---
+
+Remove
+
+```
+(0,0)
+```
+
+Current level
+
+```
+0
+```
+
+Neighbors
+
+```
+1
+
+2
+```
+
+Push
+
+```
+(1,1)
+
+(2,1)
+```
+
+Visited
+
+```
+0
+
+1
+
+2
+```
+
+---
+
+Queue
+
+```
+(1,1)
+
+(2,1)
+```
+
+---
+
+Pop
+
+```
+(1,1)
+```
+
+Level
+
+```
+1
+```
+
+Matches required level.
+
+Collect videos
+
+```
+C
+```
+
+Frequency
+
+```
+C →1
+```
+
+---
+
+Pop
+
+```
+(2,1)
+```
+
+Collect
+
+```
+B
+
+C
+```
+
+Frequency
+
+```
+B→1
+
+C→2
+```
+
+Done.
+
+---
+
+Frequency Table
+
+```
+B →1
+
+C →2
+```
+
+Sorting
+
+```
+Frequency
+
+↓
+
+B
+
+↓
+
+C
+```
+
+Answer
+
+```
+["B","C"]
+```
+
+---
+
+# Example 2
+
+Same graph
+
+Need
+
+```
+Level = 2
+```
+
+BFS
+
+```
+Level0
+
+↓
+
+0
+```
+
+↓
+
+```
+Level1
+
+↓
+
+1
+
+2
+```
+
+↓
+
+```
+Level2
+
+↓
+
+3
+```
+
+Collect videos
+
+```
+D
+```
+
+Frequency
+
+```
+D→1
+```
+
+Answer
+
+```
+["D"]
+```
+
+---
+
+# Python Solution
+
+```python
+from collections import deque, Counter
+from typing import List
+
+class Solution:
+    def watchedVideosByFriends(
+        self,
+        watchedVideos: List[List[str]],
+        friends: List[List[int]],
+        id: int,
+        level: int
+    ) -> List[str]:
+
+        queue = deque([(id, 0)])
+        visited = {id}
+
+        freq = Counter()
+
+        while queue:
+
+            person, dist = queue.popleft()
+
+            if dist == level:
+
+                for video in watchedVideos[person]:
+                    freq[video] += 1
+
+                continue
+
+            for friend in friends[person]:
+
+                if friend not in visited:
+
+                    visited.add(friend)
+                    queue.append((friend, dist + 1))
+
+        result = sorted(freq.items(), key=lambda x: (x[1], x[0]))
+
+        return [video for video, count in result]
+```
+
+---
+
+# Why Does This Work?
+
+Think about BFS.
+
+BFS guarantees
+
+```
+First time
+
+you visit a node
+
+↓
+
+Shortest distance
+```
+
+So when
+
+```
+dist == level
+```
+
+we know
+
+that person is exactly
+
+```
+level friendships away.
+```
+
+No person will later appear with a shorter distance.
+
+That is the mathematical guarantee provided by BFS.
+
+---
+
+# Time Complexity
+
+Let
+
+```
+n
+
+=
+
+Number of people
+```
+
+Suppose total watched videos
+
+```
+V
+```
+
+### BFS
+
+Visits every person once.
+
+```
+O(n)
+```
+
+---
+
+### Counting Videos
+
+Every collected video is processed once.
+
+```
+O(V)
+```
+
+---
+
+### Sorting
+
+Suppose there are
+
+```
+k
+```
+
+different videos.
+
+Sorting
+
+```
+O(k log k)
+```
+
+---
+
+## Total
+
+```
+O(n + V + k log k)
+```
+
+---
+
+# Space Complexity
+
+Visited
+
+```
+O(n)
+```
+
+Queue
+
+```
+O(n)
+```
+
+Counter
+
+```
+O(k)
+```
+
+Overall
+
+```
+O(n + k)
+```
+
+---
+
+# Pattern Recognition
+
+Whenever a problem says
+
+- Friend
+- Distance
+- Level
+- Exactly K hops
+- Social Network
+- Minimum friendship
+
+Immediately think
+
+```
+Graph
+
+↓
+
+BFS
+```
+
+---
+
+Whenever the problem says
+
+```
+Frequency
+```
+
+Think
+
+```
+Counter
+```
+
+---
+
+Whenever the problem says
+
+```
+Sort by
+
+A
+
+then
+
+B
+```
+
+Think
+
+```python
+sorted(data, key=lambda x: (A, B))
+```
+
+---
+
+# Interview Thinking Process
+
+Whenever you see a graph problem, train yourself to ask these questions in order:
+
+### Question 1
+
+**What are the nodes?**
+
+Here:
+
+```
+People
+```
+
+---
+
+### Question 2
+
+**What are the edges?**
+
+Here:
+
+```
+Friendships
+```
+
+---
+
+### Question 3
+
+**What am I trying to find?**
+
+People exactly
+
+```
+level
+```
+
+friendships away.
+
+---
+
+### Question 4
+
+**Which algorithm naturally explores by level?**
+
+```
+BFS
+```
+
+---
+
+### Question 5
+
+**Once I find those people, what should I do?**
+
+Collect
+
+```
+Videos
+```
+
+---
+
+### Question 6
+
+**What does the output require?**
+
+Not the videos directly.
+
+It requires
+
+```
+Frequency
+
+↓
+
+Sorting
+
+↓
+
+Movie names
+```
+
+---
+
+# Key Takeaways
+
+- Treat each person as a graph node and friendships as undirected edges.
+- "Level" in a graph means the shortest-path distance from the starting node.
+- BFS is the natural choice because it explores nodes level by level.
+- Solve the problem in two phases:
+  1. Find all people exactly at the required friendship level.
+  2. Count and sort their watched videos.
+- Use a `Counter` to maintain frequencies.
+- Use `sorted(freq.items(), key=lambda x: (x[1], x[0]))` to satisfy both sorting rules.
+- Always separate **graph traversal** from **data processing**—this mental model helps solve many interview problems efficiently.
 
 <br/><br/><br/><br/><br/>
 
