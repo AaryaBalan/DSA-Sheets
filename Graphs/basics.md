@@ -1,58 +1,58 @@
-# 📚 Graphs for Beginners — The Complete Foundation
+# Graphs for Beginners The Complete Foundation
 
 
 ---
 
-# 📚 Table of Contents
+# Table of Contents
 
-1. [🤔 Are Graphs Really Difficult?](#are-graphs-really-difficult)
-2. [🌳 The Most Important Realization](#the-most-important-realization)
-3. [🧠 Don't Think Like This](#dont-think-like-this)
-4. [🌍 Real Life Examples](#real-life-examples)
-5. [⭐ The Biggest Beginner Mistake](#the-biggest-beginner-mistake)
-6. [🧭 Think Like This](#think-like-this)
-7. [📖 Step 1 — Learn Graph Representation](#step-1-learn-graph-representation)
-8. [📖 Step 2 — BFS and DFS Are Not New](#step-2-bfs-and-dfs-are-not-new)
-9. [🔥 The Challenge](#the-challenge)
-10. [✅ Solution](#solution)
-11. [🧠 Step 3 — Every Graph Problem Belongs to a Pattern](#step-3-every-graph-problem-belongs-to-a-pattern)
-12. [Pattern 1 — Traverse Everything](#pattern-1-traverse-everything)
-13. [Pattern 2 — Can I Reach?](#pattern-2-can-i-reach)
-14. [Pattern 3 — Shortest Path](#pattern-3-shortest-path)
-15. [Pattern 4 — Cycle Detection](#pattern-4-cycle-detection)
-16. [Pattern 5 — Connected Components](#pattern-5-connected-components)
-17. [Pattern 6 — Topological Ordering](#pattern-6-topological-ordering)
-18. [Pattern 7 — Minimum Cost Connection](#pattern-7-minimum-cost-connection)
-19. [🧠 The Graph Thinking Process](#the-graph-thinking-process)
-20. [📚 Recommended Learning Order](#recommended-learning-order)
-21. [🎯 Interview Thinking Framework](#interview-thinking-framework)
-22. [📈 How to Practice Graphs](#how-to-practice-graphs)
-23. [🚀 Final Advice](#final-advice)
-24. [💡 The Golden Rule](#the-golden-rule)
-25. [🏆 Remember](#remember)
-26. [📚 Types of Graphs — Complete Beginner Guide](#types-of-graphs-complete-beginner-guide)
-27. [📖 Classification of Graphs](#classification-of-graphs)
-28. [1️⃣ Undirected Graph](#1-undirected-graph)
-29. [2️⃣ Directed Graph (Digraph)](#2-directed-graph-digraph)
-30. [3️⃣ Weighted Graph](#3-weighted-graph)
-31. [4️⃣ Unweighted Graph](#4-unweighted-graph)
-32. [5️⃣ Connected Graph](#5-connected-graph)
-33. [6️⃣ Disconnected Graph](#6-disconnected-graph)
-34. [7️⃣ Cyclic Graph](#7-cyclic-graph)
-35. [8️⃣ Acyclic Graph](#8-acyclic-graph)
-36. [9️⃣ Directed Acyclic Graph (DAG)](#9-directed-acyclic-graph-dag)
-37. [🔟 Tree](#tree)
-38. [1️⃣1️⃣ Forest](#11-forest)
-39. [1️⃣2️⃣ Complete Graph](#12-complete-graph)
-40. [1️⃣3️⃣ Simple Graph](#13-simple-graph)
-41. [1️⃣4️⃣ Multigraph](#14-multigraph)
-42. [1️⃣5️⃣ Pseudograph](#15-pseudograph)
-43. [1️⃣6️⃣ Bipartite Graph ⭐](#16-bipartite-graph)
-44. [1️⃣7️⃣ Dense Graph](#17-dense-graph)
-45. [1️⃣8️⃣ Sparse Graph](#18-sparse-graph)
-46. [📊 Summary Table](#summary-table)
-47. [🎯 Interview Trick](#interview-trick)
-48. [💡 Golden Rule](#golden-rule)
+1. [Are Graphs Really Difficult?](#are-graphs-really-difficult)
+2. [The Most Important Realization](#the-most-important-realization)
+3. [Don't Think Like This](#dont-think-like-this)
+4. [Real Life Examples](#real-life-examples)
+5. [The Biggest Beginner Mistake](#the-biggest-beginner-mistake)
+6. [Think Like This](#think-like-this)
+7. [Step 1 Learn Graph Representation](#step-1-learn-graph-representation)
+8. [Step 2 BFS and DFS Are Not New](#step-2-bfs-and-dfs-are-not-new)
+9. [The Challenge](#the-challenge)
+10. [Solution](#solution)
+11. [Step 3 Every Graph Problem Belongs to a Pattern](#step-3-every-graph-problem-belongs-to-a-pattern)
+12. [Pattern 1 Traverse Everything](#pattern-1-traverse-everything)
+13. [Pattern 2 Can I Reach?](#pattern-2-can-i-reach)
+14. [Pattern 3 Shortest Path](#pattern-3-shortest-path)
+15. [Pattern 4 Cycle Detection](#pattern-4-cycle-detection)
+16. [Pattern 5 Connected Components](#pattern-5-connected-components)
+17. [Pattern 6 Topological Ordering](#pattern-6-topological-ordering)
+18. [Pattern 7 Minimum Cost Connection](#pattern-7-minimum-cost-connection)
+19. [The Graph Thinking Process](#the-graph-thinking-process)
+20. [Recommended Learning Order](#recommended-learning-order)
+21. [Interview Thinking Framework](#interview-thinking-framework)
+22. [How to Practice Graphs](#how-to-practice-graphs)
+23. [Final Advice](#final-advice)
+24. [The Golden Rule](#the-golden-rule)
+25. [Remember](#remember)
+26. [Types of Graphs Complete Beginner Guide](#types-of-graphs-complete-beginner-guide)
+27. [Classification of Graphs](#classification-of-graphs)
+28. [1 Undirected Graph](#1-undirected-graph)
+29. [2 Directed Graph (Digraph)](#2-directed-graph-digraph)
+30. [3 Weighted Graph](#3-weighted-graph)
+31. [4 Unweighted Graph](#4-unweighted-graph)
+32. [5 Connected Graph](#5-connected-graph)
+33. [6 Disconnected Graph](#6-disconnected-graph)
+34. [7 Cyclic Graph](#7-cyclic-graph)
+35. [8 Acyclic Graph](#8-acyclic-graph)
+36. [9 Directed Acyclic Graph (DAG)](#9-directed-acyclic-graph-dag)
+37. [Tree](#tree)
+38. [1 1 Forest](#1-1-forest)
+39. [1 2 Complete Graph](#1-2-complete-graph)
+40. [1 3 Simple Graph](#1-3-simple-graph)
+41. [1 4 Multigraph](#1-4-multigraph)
+42. [1 5 Pseudograph](#1-5-pseudograph)
+43. [1 6 Bipartite Graph](#1-6-bipartite-graph)
+44. [1 7 Dense Graph](#1-7-dense-graph)
+45. [1 8 Sparse Graph](#1-8-sparse-graph)
+46. [Summary Table](#summary-table)
+47. [Interview Trick](#interview-trick)
+48. [Golden Rule](#golden-rule)
 
 ---
 
@@ -60,7 +60,7 @@
 
 ---
 
-# 🤔 Are Graphs Really Difficult?
+# Are Graphs Really Difficult?
 
 Most beginners hear:
 
@@ -80,7 +80,7 @@ If you first understand **what a graph actually is**, the entire topic becomes m
 
 ---
 
-# 🌳 The Most Important Realization
+# The Most Important Realization
 
 A graph is simply:
 
@@ -125,7 +125,7 @@ That's a graph.
 
 ---
 
-# 🧠 Don't Think Like This
+# Don't Think Like This
 
 ```
 Graph = Complicated Data Structure
@@ -141,9 +141,9 @@ That's all.
 
 ---
 
-# 🌍 Real Life Examples
+# Real Life Examples
 
-## Example 1 — Instagram
+## Example 1 Instagram
 
 ```
 Alice ----- Bob
@@ -157,7 +157,7 @@ Charlie ---- David
 
 ---
 
-## Example 2 — Google Maps
+## Example 2 Google Maps
 
 ```
 Chennai ------ Bangalore
@@ -171,7 +171,7 @@ Chennai ------ Bangalore
 
 ---
 
-## Example 3 — Internet
+## Example 3 Internet
 
 ```
 Computer ---- Router ---- Server
@@ -182,7 +182,7 @@ Computer ---- Router ---- Server
 
 ---
 
-## Example 4 — Flight Network
+## Example 4 Flight Network
 
 ```
 Delhi ------ Mumbai
@@ -198,7 +198,7 @@ Again,
 
 ---
 
-# ⭐ The Biggest Beginner Mistake
+# The Biggest Beginner Mistake
 
 Many students immediately ask:
 
@@ -214,7 +214,7 @@ Every graph problem is about moving through connections.
 
 ---
 
-# 🧭 Think Like This
+# Think Like This
 
 Suppose someone gives:
 
@@ -244,7 +244,7 @@ Graphs are movement problems.
 
 ---
 
-# 📖 Step 1 — Learn Graph Representation
+# Step 1 Learn Graph Representation
 
 Before learning any algorithm, understand how graphs are stored.
 
@@ -266,7 +266,7 @@ Simple but inefficient for traversal.
 
 ---
 
-## 2. Adjacency List ⭐ (Most Important)
+## 2. Adjacency List (Most Important)
 
 ```
 1 → 2,4
@@ -308,7 +308,7 @@ Consumes **O(V²)** memory.
 
 ---
 
-# 📖 Step 2 — BFS and DFS Are Not New
+# Step 2 BFS and DFS Are Not New
 
 If you've already learned Trees:
 
@@ -323,7 +323,7 @@ Graphs only add **one new challenge**.
 
 ---
 
-# 🔥 The Challenge
+# The Challenge
 
 Trees don't have cycles.
 
@@ -372,7 +372,7 @@ Infinite Loop.
 
 ---
 
-# ✅ Solution
+# Solution
 
 Use a **visited array**.
 
@@ -384,7 +384,7 @@ This single idea prevents revisiting the same node.
 
 ---
 
-# 🧠 Step 3 — Every Graph Problem Belongs to a Pattern
+# Step 3 Every Graph Problem Belongs to a Pattern
 
 This is the biggest secret.
 
@@ -394,7 +394,7 @@ Most interview questions belong to a few standard patterns.
 
 ---
 
-# Pattern 1 — Traverse Everything
+# Pattern 1 Traverse Everything
 
 Typical Questions
 
@@ -416,7 +416,7 @@ BFS
 
 ---
 
-# Pattern 2 — Can I Reach?
+# Pattern 2 Can I Reach?
 
 Questions like:
 
@@ -436,7 +436,7 @@ BFS
 
 ---
 
-# Pattern 3 — Shortest Path
+# Pattern 3 Shortest Path
 
 Questions:
 
@@ -464,7 +464,7 @@ Dijkstra
 
 ---
 
-# Pattern 4 — Cycle Detection
+# Pattern 4 Cycle Detection
 
 Question:
 
@@ -479,7 +479,7 @@ Different algorithms are used depending on:
 
 ---
 
-# Pattern 5 — Connected Components
+# Pattern 5 Connected Components
 
 Typical Problems
 
@@ -503,7 +503,7 @@ Count++
 
 ---
 
-# Pattern 6 — Topological Ordering
+# Pattern 6 Topological Ordering
 
 Questions
 
@@ -523,7 +523,7 @@ Topological Sort
 
 ---
 
-# Pattern 7 — Minimum Cost Connection
+# Pattern 7 Minimum Cost Connection
 
 Questions:
 
@@ -547,7 +547,7 @@ Kruskal
 
 ---
 
-# 🧠 The Graph Thinking Process
+# The Graph Thinking Process
 
 Whenever you read a graph problem, don't immediately start coding.
 
@@ -656,7 +656,7 @@ Dijkstra
 
 ---
 
-# 📚 Recommended Learning Order
+# Recommended Learning Order
 
 Don't jump randomly.
 
@@ -664,7 +664,7 @@ Follow this roadmap.
 
 ---
 
-## Stage 1 — Fundamentals
+## Stage 1 Fundamentals
 
 - Graph Terminology
 - Types of Graphs
@@ -672,7 +672,7 @@ Follow this roadmap.
 
 ---
 
-## Stage 2 — Traversal
+## Stage 2 Traversal
 
 - BFS
 - DFS
@@ -680,7 +680,7 @@ Follow this roadmap.
 
 ---
 
-## Stage 3 — Grid Based Graphs
+## Stage 3 Grid Based Graphs
 
 - Flood Fill
 - Number of Islands
@@ -688,21 +688,21 @@ Follow this roadmap.
 
 ---
 
-## Stage 4 — Cycles
+## Stage 4 Cycles
 
 - Cycle Detection (Undirected)
 - Cycle Detection (Directed)
 
 ---
 
-## Stage 5 — DAG
+## Stage 5 DAG
 
 - Topological Sort
 - Course Schedule
 
 ---
 
-## Stage 6 — Shortest Path
+## Stage 6 Shortest Path
 
 - BFS Shortest Path
 - Dijkstra
@@ -711,7 +711,7 @@ Follow this roadmap.
 
 ---
 
-## Stage 7 — Advanced Graphs
+## Stage 7 Advanced Graphs
 
 - Minimum Spanning Tree
 - Prim
@@ -721,7 +721,7 @@ Follow this roadmap.
 
 ---
 
-# 🎯 Interview Thinking Framework
+# Interview Thinking Framework
 
 Before writing any code, answer these seven questions.
 
@@ -745,7 +745,7 @@ If you can answer these, you've already solved half the problem.
 
 ---
 
-# 📈 How to Practice Graphs
+# How to Practice Graphs
 
 After every lecture:
 
@@ -783,7 +783,7 @@ Which Graph Pattern did I just learn?
 
 ---
 
-# 🚀 Final Advice
+# Final Advice
 
 Since you've recently completed learning **Heaps**, this is the perfect time to start Graphs.
 
@@ -793,7 +793,7 @@ So learning Graphs now will actually strengthen your understanding of Heaps as w
 
 ---
 
-# 💡 The Golden Rule
+# The Golden Rule
 
 Never memorize graph algorithms.
 
@@ -817,7 +817,7 @@ Once this thinking becomes automatic, graph problems will no longer feel difficu
 
 ---
 
-# 🏆 Remember
+# Remember
 
 > **Great graph problem solvers don't memorize algorithms.**
 >
@@ -825,13 +825,13 @@ Once this thinking becomes automatic, graph problems will no longer feel difficu
 
 ---
 
-# 📚 Types of Graphs — Complete Beginner Guide
+# Types of Graphs Complete Beginner Guide
 
 > **Goal:** Understand every type of graph clearly before learning graph algorithms. Most graph problems first ask you to identify the graph type, because the type determines which algorithm to use.
 
 ---
 
-# 📖 Classification of Graphs
+# Classification of Graphs
 
 Graphs can be classified based on several properties:
 
@@ -856,7 +856,7 @@ Let's understand each one.
 
 ---
 
-# 1️⃣ Undirected Graph
+# 1 Undirected Graph
 
 ## Definition
 
@@ -915,7 +915,7 @@ Bob is also Alice's friend.
 
 ---
 
-# 2️⃣ Directed Graph (Digraph)
+# 2 Directed Graph (Digraph)
 
 ## Definition
 
@@ -968,7 +968,7 @@ Bob may not follow Alice.
 
 ---
 
-# 3️⃣ Weighted Graph
+# 3 Weighted Graph
 
 ## Definition
 
@@ -1026,7 +1026,7 @@ A ------- B
 
 ---
 
-# 4️⃣ Unweighted Graph
+# 4 Unweighted Graph
 
 ## Definition
 
@@ -1069,7 +1069,7 @@ NOT Dijkstra.
 
 ---
 
-# 5️⃣ Connected Graph
+# 5 Connected Graph
 
 ## Definition
 
@@ -1110,7 +1110,7 @@ Number of Components = 1
 
 ---
 
-# 6️⃣ Disconnected Graph
+# 6 Disconnected Graph
 
 Some nodes cannot reach others.
 
@@ -1151,7 +1151,7 @@ Total = 2
 
 ---
 
-# 7️⃣ Cyclic Graph
+# 7 Cyclic Graph
 
 Contains at least one cycle.
 
@@ -1201,7 +1201,7 @@ You can come back to where you started.
 
 ---
 
-# 8️⃣ Acyclic Graph
+# 8 Acyclic Graph
 
 Contains NO cycle.
 
@@ -1245,7 +1245,7 @@ No loops.
 
 ---
 
-# 9️⃣ Directed Acyclic Graph (DAG)
+# 9 Directed Acyclic Graph (DAG)
 
 One of the most important graph types.
 
@@ -1307,7 +1307,7 @@ You cannot come back.
 
 ---
 
-# 🔟 Tree
+# Tree
 
 A Tree is a special graph.
 
@@ -1340,7 +1340,7 @@ Not every Graph is a Tree.
 
 ---
 
-# 1️⃣1️⃣ Forest
+# 1 1 Forest
 
 A collection of Trees.
 
@@ -1364,7 +1364,7 @@ Disconnected Trees.
 
 ---
 
-# 1️⃣2️⃣ Complete Graph
+# 1 2 Complete Graph
 
 Every node is connected to every other node.
 
@@ -1405,7 +1405,7 @@ n(n-1)
 
 ---
 
-# 1️⃣3️⃣ Simple Graph
+# 1 3 Simple Graph
 
 Rules
 
@@ -1425,7 +1425,7 @@ Most interview questions use Simple Graphs.
 
 ---
 
-# 1️⃣4️⃣ Multigraph
+# 1 4 Multigraph
 
 Multiple edges between same nodes.
 
@@ -1444,7 +1444,7 @@ Two roads between same cities.
 
 ---
 
-# 1️⃣5️⃣ Pseudograph
+# 1 5 Pseudograph
 
 Contains Self Loop.
 
@@ -1465,7 +1465,7 @@ Rare in interviews.
 
 ---
 
-# 1️⃣6️⃣ Bipartite Graph ⭐
+# 1 6 Bipartite Graph
 
 One of the most important interview topics.
 
@@ -1526,7 +1526,7 @@ Can be colored using only **2 colors**.
 
 ---
 
-# 1️⃣7️⃣ Dense Graph
+# 1 7 Dense Graph
 
 Very large number of edges.
 
@@ -1554,7 +1554,7 @@ Edges ≈ V²
 
 ---
 
-# 1️⃣8️⃣ Sparse Graph
+# 1 8 Sparse Graph
 
 Very few edges.
 
@@ -1570,7 +1570,7 @@ Most real interview graphs are Sparse.
 
 ---
 
-# 📊 Summary Table
+# Summary Table
 
 | Graph Type | Meaning | Example | Common Algorithm |
 |------------|---------|---------|------------------|
@@ -1592,7 +1592,7 @@ Most real interview graphs are Sparse.
 
 ---
 
-# 🎯 Interview Trick
+# Interview Trick
 
 Whenever you read a graph problem, immediately ask:
 
@@ -1620,7 +1620,7 @@ Once you identify the graph type, **the choice of algorithm becomes much easier.
 
 ---
 
-# 💡 Golden Rule
+# Golden Rule
 
 > **Don't memorize graph algorithms first.**
 >

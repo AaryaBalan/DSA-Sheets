@@ -25,10 +25,10 @@ Smaller    Smaller       Greater       Greater
 3. [2️⃣ Next Smaller Element (NSE)](#2️⃣-next-smaller-element-nse)
 4. [3️⃣ Previous Greater Element (PGE)](#3️⃣-previous-greater-element-pge)
 5. [4️⃣ Next Greater Element (NGE)](#4️⃣-next-greater-element-nge)
-6. [🎯 Why These Four?](#🎯-why-these-four)
-7. [🧠 How to Remember the Traversal Direction](#🧠-how-to-remember-the-traversal-direction)
-8. [🧠 How to Remember the Pop Conditions](#🧠-how-to-remember-the-pop-conditions)
-9. [🔥 The Universal Mental Process](#🔥-the-universal-mental-process)
+6. [🎯 Why These Four?](#-why-these-four)
+7. [🧠 How to Remember the Traversal Direction](#-how-to-remember-the-traversal-direction)
+8. [🧠 How to Remember the Pop Conditions](#-how-to-remember-the-pop-conditions)
+9. [🔥 The Universal Mental Process](#-the-universal-mental-process)
 
 ---
 
