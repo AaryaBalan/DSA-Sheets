@@ -27,6 +27,7 @@ Welcome to the graph problems section! Here you will find various data structure
 - [851. Loud and Rich (LeetCode)](#851-loud-and-rich-leetcode)
 - [947. Most Stones Removed with Same Row or Column](#947-most-stones-removed-with-same-row-or-column)
 - [990. Satisfiability of Equality Equations](#990-satisfiability-of-equality-equations)
+- [695. Max Area of Island](#695-max-area-of-island)
 
 <br><br><br><br><br>
 
@@ -22016,6 +22017,1227 @@ The DSU solution is simpler and more efficient:
 - Do **not** remove nodes from `visited` unless you're solving a backtracking problem.
 - In interviews, recognize this as a classic **Union-Find** problem.
 
+<br/><br/><br/><br/><br/>
+
+---
+
+# 695. Max Area of Island
+
+- **Difficulty:** Medium
+- **Topics:** Graph, DFS, BFS, Matrix Traversal
+
+---
+
+# Problem Statement
+
+You are given a matrix containing only
+
+```
+0
+```
+
+and
+
+```
+1
+```
+
+where
+
+- `1` represents **Land**
+- `0` represents **Water**
+
+An **island** is formed by connecting land cells **horizontally** or **vertically**.
+
+Diagonal cells **do not** belong to the same island.
+
+Your task is to find the **maximum area** of any island.
+
+Area means
+
+```
+Number of land cells
+```
+
+inside one connected island.
+
+If there are no islands,
+
+return
+
+```
+0
+```
+
+---
+
+# Step 1 — Understand the Problem Like a Common Man
+
+Forget programming.
+
+Imagine you are looking at a satellite image.
+
+Green blocks are land.
+
+Blue blocks are water.
+
+Example
+
+```
+🌊 🌊 🌊 🌊
+
+🌊 🟩 🟩 🌊
+
+🌊 🟩 🌊 🌊
+
+🌊 🌊 🌊 🟩
+```
+
+Question:
+
+How many pieces of land exist?
+
+There are
+
+```
+Island 1
+
+🟩 🟩
+🟩
+```
+
+Area
+
+```
+3
+```
+
+Island 2
+
+```
+🟩
+```
+
+Area
+
+```
+1
+```
+
+Largest area
+
+```
+3
+```
+
+Nothing more.
+
+---
+
+# Step 2 — What is an Island?
+
+Suppose
+
+```
+1 1
+
+1 0
+```
+
+Picture
+
+```
+🟩 🟩
+
+🟩 🌊
+```
+
+All three lands touch each other.
+
+Therefore
+
+Area
+
+```
+3
+```
+
+---
+
+Suppose
+
+```
+1 0
+
+0 1
+```
+
+Picture
+
+```
+🟩 🌊
+
+🌊 🟩
+```
+
+Diagonal touching
+
+does NOT count.
+
+These are
+
+```
+Two islands
+```
+
+Area
+
+```
+1
+
+1
+```
+
+Maximum
+
+```
+1
+```
+
+---
+
+# Step 3 — First Intuition
+
+Imagine you are standing on one land cell.
+
+Question
+
+How can you count the entire island?
+
+You must walk
+
+- Up
+- Down
+- Left
+- Right
+
+until there is nowhere left to go.
+
+This is exactly what
+
+```
+DFS
+```
+
+or
+
+```
+BFS
+```
+
+does.
+
+---
+
+# Step 4 — Why is this a Graph Problem?
+
+Many beginners think
+
+```
+This is a Matrix Problem.
+```
+
+Actually
+
+Every land cell
+
+is a graph node.
+
+Example
+
+```
+1 1
+
+1 0
+```
+
+Coordinates
+
+```
+(0,0)
+
+(0,1)
+
+(1,0)
+```
+
+Think of them as
+
+```
+A
+
+B
+
+C
+```
+
+Connections
+
+```
+A ---- B
+
+|
+
+C
+```
+
+Now the problem becomes
+
+```
+Find the size of every connected component.
+```
+
+Does this sound familiar?
+
+Exactly!
+
+This is a graph problem hidden inside a matrix.
+
+---
+
+# Step 5 — How Do We Find One Island?
+
+Suppose
+
+```
+1 1
+
+1 0
+```
+
+Start
+
+```
+(0,0)
+```
+
+Count
+
+```
+1
+```
+
+Go Right
+
+```
+(0,1)
+```
+
+Count
+
+```
+2
+```
+
+Go Down
+
+```
+No land
+```
+
+Back
+
+Go Down from original
+
+```
+(1,0)
+```
+
+Count
+
+```
+3
+```
+
+Finished.
+
+Island area
+
+```
+3
+```
+
+---
+
+# Step 6 — Biggest Observation
+
+Whenever DFS visits one land,
+
+it should visit
+
+ALL
+
+connected lands.
+
+Therefore
+
+One DFS
+
+↓
+
+One Island
+
+---
+
+# Step 7 — How Many DFS Calls?
+
+Suppose
+
+```
+1 1 0
+
+0 0 0
+
+1 1 1
+```
+
+First island
+
+```
+🟩 🟩
+```
+
+Run one DFS.
+
+Everything becomes visited.
+
+Second island
+
+```
+🟩 🟩 🟩
+```
+
+Run second DFS.
+
+Done.
+
+Notice
+
+```
+One DFS
+
+=
+
+One Island
+```
+
+---
+
+# Step 8 — What Should DFS Return?
+
+Many beginners create
+
+```
+global count
+```
+
+Instead think
+
+Question
+
+> "What should one DFS return?"
+
+Answer
+
+```
+Area of this island.
+```
+
+Nothing else.
+
+---
+
+# Step 9 — Why does DFS return Area?
+
+Suppose
+
+```
+🟩
+
+↓
+
+🟩
+
+↓
+
+🟩
+```
+
+Bottom cell
+
+returns
+
+```
+1
+```
+
+Middle
+
+```
+Myself
+
++
+
+Child
 ```
 
 ```
+1+1=2
+```
+
+Top
+
+```
+1+2=3
+```
+
+Notice
+
+Area naturally flows upward.
+
+---
+
+# Step 10 — Mathematical Thinking
+
+Suppose current cell is
+
+```
+(x,y)
+```
+
+Area contributed by this cell
+
+```
+1
+```
+
+Area from neighbors
+
+```
+DFS(up)
+
++
+
+DFS(down)
+
++
+
+DFS(left)
+
++
+
+DFS(right)
+```
+
+Total
+
+```
+Area
+
+=
+
+1
+
++
+
+Area of all connected neighbors
+```
+
+This is the recursive formula.
+
+---
+
+# Recursive Formula
+
+If
+
+```
+Cell is invalid
+```
+
+↓
+
+Return
+
+```
+0
+```
+
+Otherwise
+
+```
+Area(x,y)
+
+=
+
+1
+
++
+
+Area(up)
+
++
+
+Area(down)
+
++
+
+Area(left)
+
++
+
+Area(right)
+```
+
+This is exactly how recursion works.
+
+---
+
+# Step 11 — Algorithm
+
+### Step 1
+
+Loop through every cell.
+
+---
+
+### Step 2
+
+If
+
+```
+Land
+
+AND
+
+Not visited
+```
+
+Start DFS.
+
+---
+
+### Step 3
+
+DFS returns
+
+```
+Area
+```
+
+---
+
+### Step 4
+
+Update
+
+```
+Maximum Area
+```
+
+---
+
+# My Solution
+
+```python
+class Solution:
+    def maxAreaOfIsland(self, grid: List[List[int]]) -> int:
+        m = len(grid)
+        n = len(grid[0])
+        distance = [
+            (-1, 0),
+            (1, 0),
+            (0, -1),
+            (0, 1)
+        ]
+
+        visited = set()
+        count = 0
+        @cache
+        def dfs(x, y):
+            nonlocal count
+            visited.add((x, y))
+            count+=1
+            for dx, dy in distance:
+                nx = x + dx
+                ny = y + dy
+                if (
+                    0 <= nx < m and 
+                    0 <= ny < n and 
+                    grid[nx][ny] == 1 and
+                    (nx, ny) not in visited
+                ):
+                    dfs(nx, ny)
+            return count
+
+        maxAns = 0
+        for i in range(m):
+            for j in range(n):
+                if (i, j) not in visited and grid[i][j] == 1:
+                    area = dfs(i, j)
+                    maxAns = max(maxAns, area)
+                    count = 0
+        return maxAns
+```
+
+# Python Solution
+
+```python
+from typing import List
+
+class Solution:
+    def maxAreaOfIsland(self, grid: List[List[int]]) -> int:
+
+        rows = len(grid)
+        cols = len(grid[0])
+
+        visited = set()
+
+        directions = [
+            (-1,0),
+            (1,0),
+            (0,-1),
+            (0,1)
+        ]
+
+        def dfs(r,c):
+
+            visited.add((r,c))
+
+            area = 1
+
+            for dr,dc in directions:
+
+                nr = r + dr
+                nc = c + dc
+
+                if (
+                    0 <= nr < rows and
+                    0 <= nc < cols and
+                    grid[nr][nc] == 1 and
+                    (nr,nc) not in visited
+                ):
+
+                    area += dfs(nr,nc)
+
+            return area
+
+        answer = 0
+
+        for r in range(rows):
+
+            for c in range(cols):
+
+                if grid[r][c] == 1 and (r,c) not in visited:
+
+                    answer = max(answer, dfs(r,c))
+
+        return answer
+```
+
+---
+
+# Dry Run
+
+Input
+
+```python
+grid =
+
+[
+[1,1,0],
+[1,0,0],
+[0,1,1]
+]
+```
+
+Picture
+
+```
+🟩 🟩 🌊
+
+🟩 🌊 🌊
+
+🌊 🟩 🟩
+```
+
+There are
+
+```
+Island A
+
+🟩 🟩
+🟩
+```
+
+Area
+
+```
+3
+```
+
+Island B
+
+```
+🟩 🟩
+```
+
+Area
+
+```
+2
+```
+
+Answer
+
+```
+3
+```
+
+---
+
+## Initial State
+
+Visited
+
+```
+{}
+```
+
+Maximum
+
+```
+0
+```
+
+---
+
+## Loop starts
+
+Cell
+
+```
+(0,0)
+```
+
+Land
+
+Not visited
+
+Start DFS.
+
+---
+
+## DFS(0,0)
+
+Visited
+
+```
+(0,0)
+```
+
+Area
+
+```
+1
+```
+
+Explore
+
+Up
+
+```
+Outside
+```
+
+Ignore.
+
+Down
+
+```
+(1,0)
+
+Land
+```
+
+Call DFS.
+
+---
+
+## DFS(1,0)
+
+Visited
+
+```
+(0,0)
+
+(1,0)
+```
+
+Area
+
+```
+1
+```
+
+Neighbors
+
+Everywhere water
+
+Return
+
+```
+1
+```
+
+Back to parent.
+
+Parent
+
+```
+Area
+
+=
+
+1
+
++
+
+1
+
+=
+
+2
+```
+
+---
+
+Next neighbor
+
+Right
+
+```
+(0,1)
+```
+
+DFS.
+
+Visited
+
+```
+(0,0)
+
+(1,0)
+
+(0,1)
+```
+
+Area
+
+```
+1
+```
+
+Returns
+
+```
+1
+```
+
+Back.
+
+Parent
+
+```
+Area
+
+=
+
+2
+
++
+
+1
+
+=
+
+3
+```
+
+No more neighbors.
+
+Return
+
+```
+3
+```
+
+Maximum
+
+```
+3
+```
+
+---
+
+Continue scanning.
+
+Cells
+
+```
+(0,1)
+
+(1,0)
+```
+
+Already visited.
+
+Skip.
+
+---
+
+Reach
+
+```
+(2,1)
+```
+
+New island.
+
+DFS
+
+Area
+
+```
+2
+```
+
+Maximum
+
+```
+max(3,2)
+
+=
+
+3
+```
+
+Done.
+
+Return
+
+```
+3
+```
+
+---
+
+# Why Do We Mark Visited?
+
+Suppose
+
+```
+🟩 🟩
+```
+
+Without visited
+
+DFS
+
+```
+Left
+
+↓
+
+Right
+
+↓
+
+Left
+
+↓
+
+Right
+
+↓
+
+...
+```
+
+Infinite recursion.
+
+Visited guarantees
+
+```
+Every land
+
+visited
+
+exactly once.
+```
+
+---
+
+# Time Complexity
+
+Suppose
+
+```
+Rows = M
+
+Columns = N
+```
+
+Every cell is visited once.
+
+Therefore
+
+```
+O(M × N)
+```
+
+---
+
+# Space Complexity
+
+Visited
+
+```
+O(M × N)
+```
+
+Recursion Stack
+
+Worst case
+
+```
+O(M × N)
+```
+
+when the entire grid is one large island.
+
+---
+
+# Pattern Recognition
+
+Whenever a problem says
+
+- Island
+- Connected land
+- Number of islands
+- Largest island
+- Flood fill
+- Surrounded regions
+- Count connected cells
+
+Immediately think
+
+```
+Matrix
+
+↓
+
+Graph
+
+↓
+
+Connected Components
+
+↓
+
+DFS / BFS
+```
+
+---
+
+# Thinking Pattern to Learn
+
+Whenever you see a matrix problem, ask yourself these questions:
+
+### Question 1
+
+Can I move from one cell to another?
+
+If **Yes**, then every cell can be treated as a **graph node**.
+
+---
+
+### Question 2
+
+What defines a connection?
+
+Here
+
+```
+Up
+
+Down
+
+Left
+
+Right
+```
+
+These become the graph edges.
+
+---
+
+### Question 3
+
+What is one DFS supposed to discover?
+
+Not the whole answer.
+
+Just
+
+```
+One Connected Component
+
+=
+
+One Island
+```
+
+---
+
+### Question 4
+
+What should my DFS return?
+
+Always ask:
+
+> **What is this recursive function responsible for?**
+
+Here the answer is simple:
+
+```
+Return the area of the current island.
+```
+
+---
+
+# Key Takeaways
+
+- A matrix can often be viewed as a graph.
+- Each land cell (`1`) is a graph node.
+- Adjacent land cells form edges.
+- One DFS explores exactly one connected component (one island).
+- The area of an island is the number of cells visited during that DFS.
+- The final answer is the maximum area returned by any DFS.
+- Always use a `visited` set (or mark cells in-place) to avoid revisiting cells.
+- Avoid using global counters when recursion can naturally return the required value.
+- Recognizing "connected regions" is the key intuition that turns many matrix problems into straightforward DFS/BFS solutions.
+
+<br/><br/><br/><br/><br/>
+
+---
