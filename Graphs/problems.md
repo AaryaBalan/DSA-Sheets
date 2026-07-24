@@ -31,6 +31,7 @@ Welcome to the graph problems section! Here you will find various data structure
 - [1311. Get Watched Videos by Your Friends](#1311-get-watched-videos-by-your-friends)
 - [79. Word Search](#79-word-search)
 - [2435. Paths in Matrix Whose Sum Is Divisible by K](#2435-paths-in-matrix-whose-sum-is-divisible-by-k)
+- [1319. Number of Operations to Make Network Connected](#1319-number-of-operations-to-make-network-connected)
 
 <br><br><br><br><br>
 
@@ -26796,3 +26797,969 @@ The most important insight is that **divisibility depends only on the remainder,
 <br/><br/><br/><br/><br/>
 
 ---
+
+# 1319. Number of Operations to Make Network Connected
+
+- **Difficulty:** Medium
+- **Topics:** Graph, Depth-First Search (DFS), Breadth-First Search (BFS), Connected Components
+- **Pattern:** Connected Components, Graph Traversal, Greedy Observation
+
+---
+
+# Step 1: Understand the Problem Like a Normal Person
+
+Imagine you have **n houses**.
+
+Some houses are connected with **internet cables**.
+
+Example:
+
+```
+0 ---- 1
+|      |
+2      3
+```
+
+A cable connects exactly **two computers**.
+
+Now suppose one computer is completely isolated.
+
+You are allowed to:
+
+* Remove an existing cable.
+* Connect that cable somewhere else.
+
+The question is:
+
+> **How many cable moves are needed to make every computer connected?**
+
+If it is impossible, return **-1**.
+
+---
+
+# What does "connected" mean?
+
+Every computer should be able to reach every other computer.
+
+For example,
+
+```
+0 ---- 1 ---- 2 ---- 3
+```
+
+Everyone can communicate.
+
+But
+
+```
+0 ---- 1
+
+2 ---- 3
+```
+
+There are **two separate groups**.
+
+These are called **connected components**.
+
+---
+
+# First Observation
+
+Suppose there are
+
+```
+n = 6
+```
+
+Computers.
+
+How many cables are required **at minimum**?
+
+Let's think.
+
+### One computer
+
+```
+0
+```
+
+Needs
+
+```
+0 cables
+```
+
+---
+
+### Two computers
+
+```
+0 ---- 1
+```
+
+Needs
+
+```
+1 cable
+```
+
+---
+
+### Three computers
+
+```
+0 ---- 1 ---- 2
+```
+
+Needs
+
+```
+2 cables
+```
+
+---
+
+### Four computers
+
+```
+0 - 1 - 2 - 3
+```
+
+Needs
+
+```
+3 cables
+```
+
+Notice the pattern?
+
+| Computers | Minimum cables |
+| --------- | -------------- |
+| 1         | 0              |
+| 2         | 1              |
+| 3         | 2              |
+| 4         | 3              |
+| 5         | 4              |
+
+So,
+
+> **For n computers, minimum required cables = n−1**
+
+This is one of the most important graph facts.
+
+---
+
+# Why n−1?
+
+Every new cable can connect **at most one new computer**.
+
+Example
+
+Start
+
+```
+0
+```
+
+Need to connect
+
+```
+1
+```
+
+Need one cable.
+
+Now
+
+```
+0--1
+```
+
+Need to connect
+
+```
+2
+```
+
+Need another cable.
+
+Now
+
+```
+0--1--2
+```
+
+Need another cable for 3.
+
+So every cable increases the connected computers by at most one.
+
+Therefore,
+
+```
+Need n-1 cables.
+```
+
+---
+
+# First Check
+
+Suppose
+
+```
+n = 6
+```
+
+Connections
+
+```
+4 cables
+```
+
+Can we connect all 6?
+
+No.
+
+Because
+
+```
+Need at least 5 cables.
+```
+
+So immediately
+
+```python
+if len(connections) < n-1:
+    return -1
+```
+
+This single line saves lots of work.
+
+---
+
+# Second Observation
+
+Suppose
+
+```
+0----1
+ \  /
+  2
+```
+
+There are three cables.
+
+```
+0-1
+0-2
+1-2
+```
+
+Do we really need all three?
+
+No.
+
+Remove one cable.
+
+Still connected.
+
+Example
+
+Remove
+
+```
+1-2
+```
+
+Still
+
+```
+0
+/ \
+1 2
+```
+
+Everything is connected.
+
+So that removed cable is **extra**.
+
+Extra cables can be reused.
+
+---
+
+# What is really important?
+
+Instead of counting cables,
+
+we should count
+
+> **How many disconnected groups exist?**
+
+Example
+
+```
+0---1---2
+
+3---4
+
+5
+```
+
+Groups:
+
+```
+Group 1
+0 1 2
+
+Group 2
+3 4
+
+Group 3
+5
+```
+
+There are
+
+```
+3 connected components.
+```
+
+---
+
+# How many cables are needed to connect these groups?
+
+Imagine
+
+```
+A
+
+B
+
+C
+```
+
+Need
+
+```
+A--B
+```
+
+One cable.
+
+Then
+
+```
+A--B--C
+```
+
+One more cable.
+
+Total
+
+```
+2 cables.
+```
+
+Notice
+
+```
+3 groups
+Need 2 cables
+```
+
+Similarly,
+
+```
+4 groups
+Need 3 cables
+```
+
+General formula
+
+```
+components - 1
+```
+
+---
+
+# So the entire problem becomes
+
+1. Check if total cables are enough.
+
+```
+edges >= n-1
+```
+
+If not
+
+```
+return -1
+```
+
+2. Count connected components.
+
+3. Answer
+
+```
+components-1
+```
+
+---
+
+# How do we count connected components?
+
+We need Graph Traversal.
+
+Two popular methods:
+
+* DFS
+* BFS
+
+Both work.
+
+We'll use DFS.
+
+---
+
+# Build the Graph
+
+Connections
+
+```
+[[0,1],[0,2],[3,4]]
+```
+
+Create
+
+```
+0 -> 1,2
+1 -> 0
+2 -> 0
+3 -> 4
+4 -> 3
+```
+
+Adjacency List
+
+```python
+graph = defaultdict(list)
+
+for u, v in connections:
+    graph[u].append(v)
+    graph[v].append(u)
+```
+
+---
+
+# DFS
+
+Suppose
+
+```
+0
+|
+1
+|
+2
+
+3
+|
+4
+```
+
+Start from
+
+```
+0
+```
+
+Visit
+
+```
+0
+```
+
+Then
+
+```
+1
+```
+
+Then
+
+```
+2
+```
+
+Finished.
+
+Entire first component explored.
+
+Later
+
+```
+3
+```
+
+starts another DFS.
+
+That means
+
+Another connected component.
+
+---
+
+# Dry Run
+
+Example
+
+```
+n = 6
+
+connections =
+[
+[0,1],
+[0,2],
+[0,3],
+[1,2],
+[1,3]
+]
+```
+
+---
+
+## Step 1
+
+Number of edges
+
+```
+5
+```
+
+Need
+
+```
+n-1 = 5
+```
+
+Enough.
+
+Continue.
+
+---
+
+## Step 2 Build Graph
+
+```
+0 -> 1 2 3
+
+1 -> 0 2 3
+
+2 -> 0 1
+
+3 -> 0 1
+
+4
+
+5
+```
+
+---
+
+Visited
+
+```
+{}
+```
+
+Components
+
+```
+0
+```
+
+---
+
+### i = 0
+
+Not visited.
+
+Start DFS.
+
+Visit
+
+```
+0
+```
+
+From 0
+
+Visit
+
+```
+1
+```
+
+From 1
+
+Visit
+
+```
+2
+```
+
+Already
+
+```
+0
+```
+
+Back.
+
+Visit
+
+```
+3
+```
+
+Done.
+
+Visited
+
+```
+0 1 2 3
+```
+
+Components
+
+```
+1
+```
+
+---
+
+### i = 1
+
+Already visited.
+
+Skip.
+
+---
+
+### i = 2
+
+Skip.
+
+---
+
+### i = 3
+
+Skip.
+
+---
+
+### i = 4
+
+Not visited.
+
+New DFS.
+
+Only
+
+```
+4
+```
+
+Components
+
+```
+2
+```
+
+---
+
+### i = 5
+
+Not visited.
+
+New DFS.
+
+Only
+
+```
+5
+```
+
+Components
+
+```
+3
+```
+
+---
+
+Answer
+
+```
+components-1
+
+3-1
+
+2
+```
+
+Correct.
+
+---
+
+# Another Dry Run
+
+Example
+
+```
+n=4
+
+connections
+
+[
+[0,1],
+[0,2],
+[1,2]
+]
+```
+
+Graph
+
+```
+0
+/\
+1-2
+
+3
+```
+
+Components
+
+```
+{0,1,2}
+
+{3}
+```
+
+Two groups.
+
+Need
+
+```
+2-1=1
+```
+
+One cable.
+
+Where does it come from?
+
+Triangle
+
+```
+0
+/\
+1-2
+```
+
+One cable is redundant.
+
+Remove it.
+
+Connect
+
+```
+2----3
+```
+
+Done.
+
+---
+
+# Why does components−1 always work?
+
+Suppose
+
+```
+A
+
+B
+
+C
+
+D
+```
+
+Need
+
+```
+A-B
+```
+
+Now
+
+```
+AB
+
+C
+
+D
+```
+
+Need
+
+```
+AB-C
+```
+
+Now
+
+```
+ABC
+
+D
+```
+
+Need
+
+```
+ABC-D
+```
+
+Total
+
+```
+3
+```
+
+Which equals
+
+```
+4-1
+```
+
+Always.
+
+---
+
+# Time Complexity
+
+Building graph
+
+```
+O(E)
+```
+
+DFS
+
+```
+O(V+E)
+```
+
+Overall
+
+```
+O(V+E)
+```
+
+Since
+
+```
+V ≤ 100000
+E ≤ 100000
+```
+
+This is efficient.
+
+---
+
+# Space Complexity
+
+Graph
+
+```
+O(V+E)
+```
+
+Visited
+
+```
+O(V)
+```
+
+Overall
+
+```
+O(V+E)
+```
+
+---
+
+# Python Solution
+
+```python
+from collections import defaultdict
+
+class Solution:
+    def makeConnected(self, n: int, connections: list[list[int]]) -> int:
+        # Not enough cables to connect all computers
+        if len(connections) < n - 1:
+            return -1
+
+        # Build adjacency list
+        graph = defaultdict(list)
+        for u, v in connections:
+            graph[u].append(v)
+            graph[v].append(u)
+
+        visited = set()
+
+        def dfs(node):
+            visited.add(node)
+            for neighbor in graph[node]:
+                if neighbor not in visited:
+                    dfs(neighbor)
+
+        components = 0
+
+        # Count connected components
+        for node in range(n):
+            if node not in visited:
+                dfs(node)
+                components += 1
+
+        return components - 1
+```
+
+---
+
+# How to Build the Intuition for Problems Like This
+
+When you encounter a graph problem, train yourself to ask these questions in order:
+
+1. **Can I model this as a graph?**
+
+   * Here, computers are **nodes** and cables are **edges**.
+
+2. **Is there a minimum requirement?**
+
+   * A connected graph with `n` nodes needs at least `n - 1` edges.
+
+3. **What is the actual goal?**
+
+   * Not to maximize or minimize cables, but to make all nodes reachable from one another.
+
+4. **Can I break the graph into connected groups?**
+
+   * Count the connected components using DFS, BFS, or Union-Find.
+
+5. **How many connections are needed between groups?**
+
+   * If there are `k` components, exactly `k - 1` new connections are needed to join them into one.
+
+A useful mental model is to imagine **islands connected by bridges**. Each connected component is an island. To merge `k` islands into one landmass, you need `k - 1` bridges. If you also have enough total cables (at least `n - 1`), any redundant cables inside cycles can be repurposed as those bridges.
+
+This pattern—**check the minimum resource requirement first, then count connected components**—appears frequently in graph interview problems and is a powerful way to approach them.

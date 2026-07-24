@@ -22,6 +22,7 @@ Welcome to the tree problems section! Here you will find various data structure 
 - [107. Binary Tree Level Order Traversal II](#107-binary-tree-level-order-traversal-ii)
 - [437. Path Sum III](#437-path-sum-iii)
 - [95. Unique Binary Search Trees II](#95-unique-binary-search-trees-ii)
+- [2096. Step-By-Step Directions From a Binary Tree Node to Another](#2096-step-by-step-directions-from-a-binary-tree-node-to-another)
 
 <br><br><br><br><br>
 
@@ -12684,3 +12685,1328 @@ That is the intuition behind the entire problem.
 
 ---
 
+# 2096. Step-By-Step Directions From a Binary Tree Node to Another
+
+**Difficulty:** Medium
+
+---
+
+# ⭐ Goal
+
+You are given:
+
+- A Binary Tree
+- A starting node
+- A destination node
+
+You have to return the **shortest path** from the start node to the destination node.
+
+You can move in only three directions:
+
+```
+L → Left Child
+
+R → Right Child
+
+U → Parent
+```
+
+---
+
+# Example
+
+```
+            5
+          /   \
+         1     2
+        /     / \
+       3     6   4
+```
+
+```
+start = 3
+destination = 6
+```
+
+Answer
+
+```
+UURL
+```
+
+Because
+
+```
+3
+↑
+1
+↑
+5
+↓
+2
+↓
+6
+```
+
+becomes
+
+```
+U U R L
+```
+
+---
+
+# Before Thinking About Coding
+
+Whenever you solve a problem, ask
+
+> **"What exactly is happening in real life?"**
+
+Forget recursion.
+
+Forget DFS.
+
+Forget coding.
+
+Imagine this as a real road.
+
+---
+
+Suppose this is a city.
+
+```
+            Home
+           /    \
+      Area A    Area B
+```
+
+You are standing here
+
+```
+Area A
+```
+
+and want to go here
+
+```
+Area B
+```
+
+Would you
+
+1. Go to the city entrance?
+2. Or go only until the roads meet?
+
+Obviously,
+
+you only go until the roads meet.
+
+That meeting point is called
+
+# Lowest Common Ancestor (LCA)
+
+---
+
+# Understanding the LCA
+
+Consider
+
+```
+              A
+            /   \
+           B     C
+         /   \
+        D     E
+```
+
+Suppose
+
+Start
+
+```
+D
+```
+
+Destination
+
+```
+E
+```
+
+What is the shortest route?
+
+```
+D
+
+↓
+
+B
+
+↓
+
+E
+```
+
+You never visit
+
+```
+A
+```
+
+Why?
+
+Because
+
+```
+B
+```
+
+is already the common point.
+
+That common point is
+
+```
+Lowest Common Ancestor
+```
+
+---
+
+# Biggest Observation
+
+Every shortest path between two nodes is
+
+```
+Start
+
+↑
+
+Lowest Common Ancestor
+
+↓
+
+Destination
+```
+
+Everything revolves around finding
+
+```
+LCA
+```
+
+---
+
+# How do we find the LCA?
+
+There are many methods.
+
+But here's the easiest.
+
+---
+
+Instead of finding
+
+```
+LCA
+```
+
+directly,
+
+find
+
+```
+Root
+
+↓
+
+Start
+```
+
+and
+
+```
+Root
+
+↓
+
+Destination
+```
+
+---
+
+Suppose
+
+```
+Root → Start
+
+LLRRL
+```
+
+Root → Destination
+
+```
+LLRRR
+```
+
+Notice something?
+
+```
+LLRR
+```
+
+is common.
+
+That means
+
+```
+Root
+
+↓
+
+LLRR
+
+↓
+
+LCA
+```
+
+Everything before they split is
+
+the path to LCA.
+
+---
+
+# Why?
+
+Imagine two people leaving home.
+
+```
+Home
+
+↓
+
+School
+
+↓
+
+College
+
+↓
+
+Office
+```
+
+One goes
+
+```
+Office
+
+↓
+
+Gym
+```
+
+Another goes
+
+```
+Office
+
+↓
+
+Mall
+```
+
+Their paths are identical until
+
+```
+Office
+```
+
+That's exactly how root paths work.
+
+---
+
+# The Whole Solution
+
+Step 1
+
+Find
+
+```
+Root
+
+↓
+
+Start
+```
+
+Example
+
+```
+LLRRL
+```
+
+---
+
+Step 2
+
+Find
+
+```
+Root
+
+↓
+
+Destination
+```
+
+Example
+
+```
+LLRRRR
+```
+
+---
+
+Step 3
+
+Find the longest common prefix.
+
+```
+LLRR
+```
+
+This is
+
+```
+Root
+
+↓
+
+LCA
+```
+
+---
+
+Step 4
+
+Remove it.
+
+Start remaining
+
+```
+L
+```
+
+Destination remaining
+
+```
+RR
+```
+
+---
+
+Step 5
+
+Replace every remaining move of Start with
+
+```
+U
+```
+
+because we must go upward.
+
+```
+L
+
+↓
+
+U
+```
+
+Now append destination path.
+
+```
+U
+
++
+
+RR
+
+=
+
+URR
+```
+
+Done.
+
+---
+
+# Why Does This Always Work?
+
+Suppose
+
+```
+Root
+
+↓
+
+A
+
+↓
+
+B
+
+↓
+
+C
+
+↓
+
+Start
+```
+
+Destination
+
+```
+Root
+
+↓
+
+A
+
+↓
+
+B
+
+↓
+
+D
+
+↓
+
+Destination
+```
+
+Common path
+
+```
+Root
+
+↓
+
+A
+
+↓
+
+B
+```
+
+That is exactly
+
+```
+Lowest Common Ancestor
+```
+
+Everything after
+
+```
+B
+```
+
+is different.
+
+---
+
+# How do we find Root → Node Path?
+
+Use DFS.
+
+Suppose
+
+```
+Current Node
+```
+
+Ask
+
+```
+Is this my target?
+```
+
+If yes
+
+Return True.
+
+Otherwise
+
+Try
+
+```
+Left
+```
+
+If left succeeds
+
+Keep
+
+```
+L
+```
+
+Otherwise remove it.
+
+Then
+
+Try
+
+```
+Right
+```
+
+If it succeeds
+
+Keep
+
+```
+R
+```
+
+Otherwise remove it.
+
+This is called
+
+# Backtracking
+
+---
+
+# Understanding Backtracking
+
+Suppose you're inside a maze.
+
+```
+        A
+      /   \
+     B     C
+```
+
+Looking for
+
+```
+C
+```
+
+Go left
+
+```
+A
+
+↓
+
+B
+```
+
+Not found.
+
+Come back.
+
+Go right.
+
+```
+A
+
+↓
+
+C
+```
+
+Found.
+
+That's exactly what
+
+```
+append()
+
+pop()
+```
+
+does.
+
+---
+
+# Dry Run
+
+Tree
+
+```
+              5
+            /   \
+           1     2
+          /     / \
+         3     6   4
+```
+
+Start
+
+```
+3
+```
+
+Destination
+
+```
+6
+```
+
+---
+
+## Finding Start Path
+
+Start
+
+```
+[]
+```
+
+Visit
+
+```
+5
+```
+
+Go left
+
+```
+[L]
+```
+
+Visit
+
+```
+1
+```
+
+Go left
+
+```
+[L,L]
+```
+
+Visit
+
+```
+3
+```
+
+Found.
+
+Return.
+
+Start Path
+
+```
+LL
+```
+
+---
+
+## Destination Path
+
+Visit
+
+```
+5
+```
+
+Go right
+
+```
+R
+```
+
+Visit
+
+```
+2
+```
+
+Go left
+
+```
+RL
+```
+
+Visit
+
+```
+6
+```
+
+Found.
+
+Destination Path
+
+```
+RL
+```
+
+---
+
+Compare
+
+```
+LL
+
+RL
+```
+
+Common prefix
+
+```
+(empty)
+```
+
+No common letters.
+
+Therefore
+
+```
+UU
+
++
+
+RL
+
+=
+
+UURL
+```
+
+Correct.
+
+---
+
+# Another Dry Run
+
+```
+        6
+      /
+     2
+    / \
+   1   4
+      / \
+     3   5
+```
+
+Start
+
+```
+3
+```
+
+Destination
+
+```
+5
+```
+
+---
+
+Start path
+
+```
+RL
+```
+
+Destination path
+
+```
+RR
+```
+
+Common prefix
+
+```
+R
+```
+
+Remove it.
+
+Remaining
+
+```
+L
+
+R
+```
+
+Answer
+
+```
+U
+
++
+
+R
+
+=
+
+UR
+```
+
+Correct.
+
+---
+
+# DFS Code
+
+```python
+class Solution:
+    def getDirections(self, root: Optional[TreeNode], startValue: int, destValue: int) -> str:
+
+        def findPath(node, target, path):
+
+            if not node:
+                return False
+
+            if node.val == target:
+                return True
+
+            path.append("L")
+            if findPath(node.left, target, path):
+                return True
+            path.pop()
+
+            path.append("R")
+            if findPath(node.right, target, path):
+                return True
+            path.pop()
+
+            return False
+
+        startPath = []
+        destPath = []
+
+        findPath(root, startValue, startPath)
+        findPath(root, destValue, destPath)
+
+        i = 0
+
+        while (
+            i < len(startPath)
+            and i < len(destPath)
+            and startPath[i] == destPath[i]
+        ):
+            i += 1
+
+        return "U" * (len(startPath) - i) + "".join(destPath[i:])
+```
+
+---
+
+# Complexity
+
+Finding Start Path
+
+```
+O(n)
+```
+
+Finding Destination Path
+
+```
+O(n)
+```
+
+Comparing Paths
+
+```
+O(h)
+```
+
+where
+
+```
+h = height of tree
+```
+
+Overall
+
+```
+Time : O(n)
+
+Space : O(h)
+```
+
+---
+
+# How Should You Think During Interviews?
+
+Don't immediately think:
+
+```
+DFS
+
+BFS
+
+Recursion
+```
+
+Instead ask:
+
+### Question 1
+
+What is the shortest path between two nodes?
+
+↓
+
+```
+They must meet somewhere.
+```
+
+---
+
+### Question 2
+
+Where do they meet?
+
+↓
+
+```
+Lowest Common Ancestor
+```
+
+---
+
+### Question 3
+
+How can I find the LCA?
+
+↓
+
+```
+Find Root→Start
+
+Find Root→Destination
+```
+
+---
+
+### Question 4
+
+How do I identify the LCA?
+
+↓
+
+```
+Longest Common Prefix
+```
+
+---
+
+### Question 5
+
+How do I build the answer?
+
+↓
+
+```
+Remaining Start
+
+↓
+
+Convert to U
+
++
+
+Remaining Destination
+```
+
+---
+
+# Pattern Recognition
+
+Whenever a problem says
+
+```
+Two Nodes
+
+↓
+
+Shortest Path
+```
+
+your brain should immediately think
+
+```
+Lowest Common Ancestor (LCA)
+```
+
+Whenever a problem says
+
+```
+Find Root → Node
+```
+
+think
+
+```
+DFS + Backtracking
+```
+
+Whenever a problem says
+
+```
+Find common part of two paths
+```
+
+think
+
+```
+Longest Common Prefix
+```
+
+---
+
+# Mental Checklist
+
+When solving similar problems, ask yourself:
+
+1. Is this asking for a path between two nodes?
+2. Where do those two paths meet?
+3. Can I represent each path from the root?
+4. What is common between those paths?
+5. How do I transform that information into the required answer?
+
+If you train yourself to ask these questions before coding, you'll start discovering the key insight first, and the implementation will become much more straightforward.
+
+---
+
+## Why Does Using a String Cause Memory Limit Exceeded?
+
+### ❌ Using String
+
+Suppose the current path is:
+
+```python
+path = "LR"
+```
+
+Now you go left.
+
+```python
+dfs(node.left, path + "L")
+```
+
+Python **cannot modify** `"LR"` because strings are **immutable**.
+
+Instead, it creates a **new string**.
+
+```
+Old String           New String
+
+"LR"       ----->    "LRL"
+```
+
+The old string still exists until Python removes it later.
+
+Now go left again.
+
+```
+"LRL"  ----->  "LRLL"
+```
+
+Again, Python creates another new string.
+
+So during DFS, memory looks like this:
+
+```
+""
+
+↓
+
+"L"
+
+↓
+
+"LR"
+
+↓
+
+"LRL"
+
+↓
+
+"LRLL"
+
+↓
+
+"LRLLR"
+
+...
+```
+
+Every recursive call creates a **new string**, and the previous characters are copied again.
+
+---
+
+### Why is this expensive?
+
+Suppose the path becomes:
+
+```
+"LRLLR"
+```
+
+To create it, Python copies:
+
+```
+L
+R
+L
+L
+```
+
+and then adds
+
+```
+R
+```
+
+So every concatenation costs **O(length of path)**.
+
+For a deep tree, thousands of such strings are created, consuming a lot of memory.
+
+---
+
+## ✅ Using List
+
+Instead of a string:
+
+```python
+path = []
+```
+
+Go left:
+
+```python
+path.append("L")
+```
+
+```
+[]
+↓
+
+[L]
+```
+
+Go right:
+
+```python
+path.append("R")
+```
+
+```
+[L]
+↓
+
+[L, R]
+```
+
+Go left:
+
+```python
+path.append("L")
+```
+
+```
+[L, R]
+↓
+
+[L, R, L]
+```
+
+Notice that **the same list is being updated**.
+
+Python does **not** create a new list every time.
+
+When DFS returns:
+
+```python
+path.pop()
+```
+
+```
+[L, R, L]
+↓
+
+[L, R]
+```
+
+Again, the same list is reused.
+
+---
+
+## Comparison
+
+### String
+
+```
+""
+
+↓
+
+"L"
+
+↓
+
+"LR"
+
+↓
+
+"LRL"
+
+↓
+
+"LRLL"
+```
+
+❌ New object created every recursive call.
+
+---
+
+### List
+
+```
+[]
+
+↓
+
+[L]
+
+↓
+
+[L, R]
+
+↓
+
+[L, R, L]
+
+↓
+
+pop()
+
+↓
+
+[L, R]
+```
+
+✅ Same object reused throughout DFS.
+
+---
+
+## Rule to Remember
+
+- **String (`path + "L"`)** → Creates a **new string** every time → More memory + slower.
+- **List (`append()` / `pop()`)** → Reuses the **same list** → Less memory + faster.
+
+👉 **In DFS and Backtracking, always use a list to build paths and convert it to a string at the end using `''.join(path)`.**
