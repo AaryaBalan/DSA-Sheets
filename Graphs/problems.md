@@ -29,6 +29,8 @@ Welcome to the graph problems section! Here you will find various data structure
 - [990. Satisfiability of Equality Equations](#990-satisfiability-of-equality-equations)
 - [695. Max Area of Island](#695-max-area-of-island)
 - [1311. Get Watched Videos by Your Friends](#1311-get-watched-videos-by-your-friends)
+- [79. Word Search](#79-word-search)
+- [2435. Paths in Matrix Whose Sum Is Divisible by K](#2435-paths-in-matrix-whose-sum-is-divisible-by-k)
 
 <br><br><br><br><br>
 
@@ -24486,6 +24488,2310 @@ Movie names
 - Use a `Counter` to maintain frequencies.
 - Use `sorted(freq.items(), key=lambda x: (x[1], x[0]))` to satisfy both sorting rules.
 - Always separate **graph traversal** from **data processing**—this mental model helps solve many interview problems efficiently.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 79. Word Search
+
+- **Difficulty:** Medium
+- **Topics:** Matrix, Graph, DFS, Backtracking
+- **Pattern:** Backtracking + DFS on Grid
+
+---
+
+# Problem Statement
+
+You are given a matrix of characters and a word.
+
+Your task is to determine whether the given word can be formed by moving through adjacent cells.
+
+Movement is allowed only in
+
+- Up
+- Down
+- Left
+- Right
+
+You **cannot**
+
+- Move diagonally
+- Visit the same cell twice
+
+If the complete word can be formed,
+
+return
+
+```
+True
+```
+
+otherwise
+
+```
+False
+```
+
+---
+
+# Step 1 : Understand the Problem Like a Common Man
+
+Forget programming.
+
+Imagine someone gives you a crossword puzzle.
+
+```
+A B C E
+
+S F C S
+
+A D E E
+```
+
+Now they ask you
+
+```
+Can you trace
+
+ABCCED
+```
+
+using your finger?
+
+Rules
+
+- You can move only one step.
+- You cannot jump.
+- You cannot reuse the same box.
+
+Can you do it?
+
+Let's try.
+
+```
+A
+
+↓
+
+B
+
+↓
+
+C
+
+↓
+
+C
+
+↓
+
+E
+
+↓
+
+D
+```
+
+Yes.
+
+Answer
+
+```
+True
+```
+
+Nothing more.
+
+---
+
+# Step 2 : What Makes This Problem Difficult?
+
+Many beginners think
+
+```
+Just find letters.
+```
+
+Wrong.
+
+Suppose
+
+```
+A B C
+
+D E F
+```
+
+Need
+
+```
+ABF
+```
+
+Although
+
+```
+A
+
+B
+
+F
+```
+
+exist,
+
+they are not connected.
+
+So
+
+Finding letters
+
+≠
+
+Finding the word.
+
+We must find
+
+```
+A valid path.
+```
+
+---
+
+# Step 3 : Think Like a Human
+
+Imagine standing on
+
+```
+A
+```
+
+Question
+
+Can I reach
+
+```
+B
+```
+
+Yes.
+
+Now
+
+Can I reach
+
+```
+C
+```
+
+Yes.
+
+Now
+
+Can I reach
+
+```
+C
+```
+
+Again?
+
+Maybe.
+
+Continue.
+
+Suppose suddenly
+
+Next letter doesn't exist.
+
+What would a human do?
+
+```
+Go Back.
+```
+
+Try another path.
+
+This
+
+```
+Move
+
+↓
+
+Fail
+
+↓
+
+Come Back
+
+↓
+
+Try Another Path
+```
+
+is exactly
+
+```
+Backtracking
+```
+
+---
+
+# Step 4 : Why is this a Graph Problem?
+
+Every cell
+
+becomes
+
+```
+Node
+```
+
+Movement
+
+becomes
+
+```
+Edges
+```
+
+Example
+
+```
+A B
+
+C D
+```
+
+Actually means
+
+```
+A ---- B
+
+|
+
+C ---- D
+```
+
+Now the problem becomes
+
+```
+Can I find a path that spells the word?
+```
+
+---
+
+# Step 5 : Why DFS?
+
+Suppose we start from
+
+```
+A
+```
+
+We don't know which direction is correct.
+
+We try
+
+```
+Up
+
+↓
+
+Fail
+
+Back
+
+↓
+
+Down
+
+↓
+
+Fail
+
+Back
+
+↓
+
+Right
+
+↓
+
+Continue
+```
+
+DFS naturally performs
+
+```
+Choose
+
+↓
+
+Explore
+
+↓
+
+Backtrack
+```
+
+Exactly what we need.
+
+---
+
+# Step 6 : Why Can't BFS Work Easily?
+
+BFS explores many paths simultaneously.
+
+Here
+
+every path has its own
+
+```
+Visited cells.
+```
+
+Different paths
+
+have different visited states.
+
+Managing this in BFS becomes complicated.
+
+DFS naturally handles
+
+```
+One path at a time.
+```
+
+---
+
+# Step 7 : Biggest Observation
+
+The problem is NOT asking
+
+```
+Can I reach every cell?
+```
+
+It asks
+
+```
+Can I build the word?
+```
+
+Therefore
+
+our recursive function should answer
+
+```
+Can I build
+
+word[index:]
+
+starting from
+
+(row,col)?
+```
+
+This is called the
+
+```
+Recursive Contract
+```
+
+---
+
+# Step 8 : Designing the Recursive Function
+
+Suppose
+
+```
+dfs(r,c,index)
+```
+
+Question answered by DFS
+
+```
+Can I construct
+
+word[index:]
+
+starting from
+
+(r,c)?
+```
+
+If YES
+
+Return
+
+```
+True
+```
+
+Else
+
+```
+False
+```
+
+Notice
+
+Each DFS has exactly one responsibility.
+
+---
+
+# Step 9 : Base Cases
+
+## Base Case 1
+
+Current character doesn't match.
+
+Example
+
+Need
+
+```
+C
+```
+
+Current cell
+
+```
+F
+```
+
+Impossible.
+
+Return
+
+```
+False
+```
+
+---
+
+## Base Case 2
+
+Current character is the last character.
+
+Example
+
+Need
+
+```
+D
+```
+
+Current cell
+
+```
+D
+```
+
+Entire word matched.
+
+Return
+
+```
+True
+```
+
+---
+
+# Step 10 : What Happens Next?
+
+Suppose current letter matches.
+
+Now
+
+temporarily mark this cell
+
+as visited.
+
+Why?
+
+Because
+
+the same cell
+
+cannot be reused.
+
+Then
+
+search
+
+```
+Up
+
+Down
+
+Left
+
+Right
+```
+
+If any direction succeeds,
+
+return
+
+```
+True
+```
+
+Otherwise
+
+restore the cell
+
+(backtracking)
+
+and return
+
+```
+False
+```
+
+---
+
+# Step 11 : Why Backtracking?
+
+Suppose
+
+```
+A B C
+
+D E F
+```
+
+Need
+
+```
+ABE
+```
+
+Path
+
+```
+A
+
+↓
+
+B
+
+↓
+
+E
+```
+
+works.
+
+Now imagine
+
+Need
+
+```
+ABF
+```
+
+Try
+
+```
+A
+
+↓
+
+B
+
+↓
+
+Right
+
+No
+```
+
+Go back.
+
+Try
+
+```
+Down
+```
+
+Again.
+
+This
+
+```
+Undo
+
+↓
+
+Try another path
+```
+
+is
+
+```
+Backtracking.
+```
+
+---
+
+# Step 12 : Visualizing the Search
+
+Need
+
+```
+ABCCED
+```
+
+Board
+
+```
+A B C E
+
+S F C S
+
+A D E E
+```
+
+Start
+
+```
+A
+```
+
+Need
+
+```
+B
+```
+
+Move Right
+
+```
+A B
+```
+
+Need
+
+```
+C
+```
+
+Move Right
+
+```
+A B C
+```
+
+Need
+
+```
+C
+```
+
+Move Down
+
+```
+A B C
+
+    C
+```
+
+Need
+
+```
+E
+```
+
+Move Down
+
+```
+A B C
+
+    C
+
+    E
+```
+
+Need
+
+```
+D
+```
+
+Move Left
+
+```
+A B C
+
+    C
+
+D   E
+```
+
+Entire word found.
+
+---
+
+# Algorithm
+
+For every cell
+
+```
+If first character matches
+
+↓
+
+Start DFS
+```
+
+DFS
+
+```
+Character matches?
+
+↓
+
+Yes
+
+↓
+
+Mark visited
+
+↓
+
+Try all four directions
+
+↓
+
+Undo visit
+
+↓
+
+Return result
+```
+
+---
+
+# My Solution
+
+```python
+class Solution:
+    def exist(self, board: List[List[str]], word: str) -> bool:
+        m = len(board)
+        n = len(board[0])
+
+        distance = [
+            (-1, 0),
+            (1, 0),
+            (0, -1),
+            (0, 1)
+        ]
+
+        visited = set()
+
+        def dfs(x, y, lev):
+            if board[x][y] != word[lev]:
+                return False
+            if lev + 1 == len(word) and board[x][y] == word[lev]:
+                return True
+            visited.add((x, y))
+            for dx, dy in distance:
+                nx = x + dx
+                ny = y + dy
+                if (
+                    0 <= nx < m and
+                    0 <= ny < n and
+                    (nx, ny) not in visited
+                ):
+                    if dfs(nx, ny, lev + 1):
+                        return True
+            visited.remove((x, y))
+            return False
+        
+
+        for i in range(m):
+            for j in range(n):
+                if board[i][j] == word[0]:
+                    if dfs(i, j, 0):
+                        return True
+        return False
+```
+
+# Cleaner Python Solution
+
+```python
+from typing import List
+
+class Solution:
+    def exist(self, board: List[List[str]], word: str) -> bool:
+
+        rows = len(board)
+        cols = len(board[0])
+
+        directions = [
+            (-1,0),
+            (1,0),
+            (0,-1),
+            (0,1)
+        ]
+
+        def dfs(r, c, index):
+
+            # Current character must match
+            if board[r][c] != word[index]:
+                return False
+
+            # Entire word matched
+            if index == len(word) - 1:
+                return True
+
+            temp = board[r][c]
+            board[r][c] = "#"
+
+            for dr, dc in directions:
+
+                nr = r + dr
+                nc = c + dc
+
+                if (
+                    0 <= nr < rows and
+                    0 <= nc < cols and
+                    board[nr][nc] != "#"
+                ):
+
+                    if dfs(nr, nc, index + 1):
+                        board[r][c] = temp
+                        return True
+
+            board[r][c] = temp
+            return False
+
+        for r in range(rows):
+
+            for c in range(cols):
+
+                if board[r][c] == word[0]:
+
+                    if dfs(r, c, 0):
+                        return True
+
+        return False
+```
+
+---
+
+# Dry Run
+
+Input
+
+```python
+board =
+
+[
+["A","B","C","E"],
+["S","F","C","S"],
+["A","D","E","E"]
+]
+
+word = "ABCCED"
+```
+
+---
+
+## Initial Search
+
+Loop starts
+
+```
+(0,0)
+
+A
+```
+
+Matches first letter.
+
+Start DFS.
+
+---
+
+## DFS(A)
+
+Current word index
+
+```
+0
+```
+
+Need
+
+```
+A
+```
+
+Correct.
+
+Mark
+
+```
+#
+```
+
+Board
+
+```
+# B C E
+
+S F C S
+
+A D E E
+```
+
+Need
+
+```
+B
+```
+
+---
+
+## Explore Right
+
+```
+B
+```
+
+Matches.
+
+DFS.
+
+Board
+
+```
+# # C E
+
+S F C S
+
+A D E E
+```
+
+Need
+
+```
+C
+```
+
+---
+
+## Explore Right
+
+```
+C
+```
+
+Matches.
+
+DFS.
+
+Board
+
+```
+# # # E
+
+S F C S
+
+A D E E
+```
+
+Need
+
+```
+C
+```
+
+---
+
+## Explore Down
+
+```
+C
+```
+
+Matches.
+
+Board
+
+```
+# # # E
+
+S F # S
+
+A D E E
+```
+
+Need
+
+```
+E
+```
+
+---
+
+## Explore Down
+
+```
+E
+```
+
+Matches.
+
+Need
+
+```
+D
+```
+
+---
+
+## Explore Left
+
+```
+D
+```
+
+Matches.
+
+Current index
+
+```
+Last Character
+```
+
+Return
+
+```
+True
+```
+
+Every recursive call
+
+returns
+
+```
+True
+```
+
+Final Answer
+
+```
+True
+```
+
+---
+
+# Why Do We Restore the Cell?
+
+Suppose
+
+```
+A B
+
+A B
+```
+
+Need
+
+```
+AB
+```
+
+First search
+
+marks
+
+```
+A
+```
+
+If we never restore
+
+```
+#
+```
+
+Second search
+
+can never use it.
+
+Wrong.
+
+Therefore
+
+```
+Choose
+
+↓
+
+Mark
+
+↓
+
+Explore
+
+↓
+
+Restore
+```
+
+Always.
+
+---
+
+# Mathematical Logic
+
+Suppose
+
+```
+dfs(r,c,index)
+```
+
+means
+
+```
+Can I construct
+
+word[index:]
+```
+
+The recursive relation is
+
+```
+Current letter matches
+
+AND
+
+Any neighbor can construct
+
+remaining word.
+```
+
+Mathematically
+
+```
+DFS(r,c,index)
+
+=
+
+CurrentCharacterMatches
+
+AND
+
+(
+
+DFS(up)
+
+OR
+
+DFS(down)
+
+OR
+
+DFS(left)
+
+OR
+
+DFS(right)
+
+)
+```
+
+If all four fail
+
+Return
+
+```
+False
+```
+
+---
+
+# Time Complexity
+
+Suppose
+
+```
+Board
+
+=
+
+M × N
+```
+
+Word length
+
+```
+L
+```
+
+Each cell
+
+can become
+
+starting point.
+
+```
+M × N
+```
+
+From one cell
+
+First move
+
+```
+4 choices
+```
+
+Every next move
+
+cannot go back
+
+```
+3 choices
+```
+
+Worst case
+
+```
+O(M × N × 3^L)
+```
+
+---
+
+# Space Complexity
+
+Recursion depth
+
+equals
+
+```
+Length of Word
+```
+
+Therefore
+
+```
+O(L)
+```
+
+No extra visited set
+
+because
+
+we modify the board
+
+temporarily.
+
+---
+
+# Search Pruning (Follow-up)
+
+The problem asks if we can make it faster.
+
+Yes.
+
+One useful optimization is:
+
+Count the frequency of each character in the board and the word.
+
+If the word contains a character more times than the board does, it is impossible to form the word.
+
+Example:
+
+Board:
+
+```
+A B C
+```
+
+Word:
+
+```
+AAA
+```
+
+The board has only one `A`, so we can immediately return `False` without starting DFS.
+
+Another common optimization:
+
+If the first letter of the word appears many times but the last letter appears only a few times, reverse the word and search from the rarer letter. This reduces the number of DFS starting points on larger boards.
+
+---
+
+# Pattern Recognition
+
+Whenever you see:
+
+- Find a path
+- Cannot reuse a cell
+- Try all possibilities
+- Undo a choice if it fails
+
+Think immediately:
+
+```
+Backtracking
+```
+
+The standard template is:
+
+```
+Choose
+
+↓
+
+Mark as used
+
+↓
+
+Explore recursively
+
+↓
+
+Undo (Backtrack)
+
+↓
+
+Try next option
+```
+
+---
+
+# Interview Thinking Process
+
+Before writing code, ask yourself:
+
+### Question 1
+
+What are the nodes?
+
+```
+Cells
+```
+
+---
+
+### Question 2
+
+What are the edges?
+
+```
+Up
+
+Down
+
+Left
+
+Right
+```
+
+---
+
+### Question 3
+
+What does my recursive function answer?
+
+```
+Can I build
+
+word[index:]
+
+from
+
+(r,c)?
+```
+
+---
+
+### Question 4
+
+When do I stop?
+
+- Character mismatch → `False`
+- Entire word matched → `True`
+
+---
+
+### Question 5
+
+What must I undo before returning?
+
+Restore the current cell so other search paths can use it.
+
+---
+
+# Key Takeaways
+
+- Treat the grid as a graph where each cell is a node.
+- Use DFS because you need to explore one possible path at a time.
+- Use backtracking because one failed path should not affect another.
+- Define a clear recursive contract: **"Can I build the remaining suffix of the word from this cell?"**
+- Always **Choose → Mark → Explore → Undo**.
+- Recognize backtracking problems by the presence of path constraints and "cannot reuse" rules.
+- Think about pruning before brute force when the search space can become large.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 2435. Paths in Matrix Whose Sum Is Divisible by K
+
+- **Difficulty:** Medium
+- **Topics:** Matrix, Graph, DFS, Backtracking
+- **Pattern:** Backtracking + DFS on Grid
+
+---
+
+# 1. Understanding the Problem Like a Common Person
+
+Imagine you're walking inside a city arranged as a grid.
+
+* You **start** at the top-left house.
+* You **want to reach** the bottom-right house.
+* At every house, you collect some coins (the value inside the cell).
+* You can only move:
+
+  * Right →
+  * Down ↓
+
+At the end of your journey, you add all collected coins.
+
+Your task is:
+
+> **Count how many different paths have a total sum divisible by `k`.**
+
+Since the number of paths can become extremely large, return the answer modulo **10⁹+7**.
+
+---
+
+## Example
+
+```
+grid =
+[
+ [5,2,4],
+ [3,0,5],
+ [0,7,2]
+]
+
+k = 3
+```
+
+One path is
+
+```
+5 → 2 → 4
+          ↓
+          5
+          ↓
+          2
+```
+
+Sum
+
+```
+5+2+4+5+2 = 18
+
+18 % 3 = 0
+```
+
+So this path is valid.
+
+We must count all such valid paths.
+
+---
+
+# 2. First Thought (Brute Force)
+
+Whenever we are at a cell,
+
+we have two choices
+
+```
+Go Right
+Go Down
+```
+
+So our recursion looks like
+
+```
+            Start
+           /     \
+      Right      Down
+      /   \      /   \
+   R      D    R      D
+```
+
+Eventually every root-to-leaf path is one possible path.
+
+For each path
+
+* compute total sum
+* check divisibility.
+
+---
+
+## Why doesn't this work?
+
+Suppose
+
+```
+100 x 100 grid
+```
+
+Number of paths is roughly
+
+```
+C(198,99)
+
+≈ 10^58
+```
+
+Impossible.
+
+We need something smarter.
+
+---
+
+# 3. What Are We Recomputing?
+
+Let's observe.
+
+Suppose we already reached
+
+```
+cell (2,3)
+```
+
+with
+
+```
+current sum = 17
+```
+
+Later another path also reaches
+
+```
+cell (2,3)
+
+current sum = 20
+```
+
+Do we really care about **17** and **20**?
+
+No.
+
+The future only needs to know
+
+```
+Is the final sum divisible by k?
+```
+
+Divisibility depends only on the **remainder**.
+
+---
+
+Example
+
+Suppose
+
+```
+k = 5
+```
+
+Then
+
+```
+17 % 5 = 2
+
+20 % 5 = 0
+
+32 % 5 = 2
+
+47 % 5 = 2
+```
+
+Notice
+
+```
+17
+32
+47
+```
+
+all behave exactly the same.
+
+They all leave remainder **2**.
+
+So instead of storing
+
+```
+current sum
+```
+
+store
+
+```
+current sum % k
+```
+
+Huge idea!
+
+---
+
+# 4. The Important Math
+
+Suppose
+
+Current remainder
+
+```
+r
+```
+
+Current cell value
+
+```
+x
+```
+
+New sum
+
+```
+sum + x
+```
+
+New remainder
+
+```
+(sum+x)%k
+```
+
+Since
+
+```
+sum % k = r
+```
+
+we can write
+
+```
+new remainder
+
+= (r+x)%k
+```
+
+That's why our transition is
+
+```python
+new_rem = (rem + grid[nx][ny]) % k
+```
+
+---
+
+## Example
+
+```
+k = 5
+
+Current sum = 17
+
+17 % 5 = 2
+
+Next value = 8
+
+New sum
+
+17+8=25
+
+25%5=0
+```
+
+Formula
+
+```
+(2+8)%5
+
+10%5=0
+```
+
+Exactly same answer.
+
+---
+
+# 5. What Should Be Our State?
+
+Whenever solving DP, ask
+
+> **What information is needed to solve the remaining problem?**
+
+If we're standing at
+
+```
+(x,y)
+```
+
+we need
+
+* current row
+* current column
+* current remainder
+
+That's it.
+
+So state is
+
+```
+(x,y,remainder)
+```
+
+---
+
+Meaning
+
+```
+dfs(x,y,rem)
+```
+
+returns
+
+> Number of valid paths from `(x,y)` to destination,
+> assuming current path sum has remainder `rem`.
+
+---
+
+# 6. Base Case
+
+When do we stop?
+
+When we reach
+
+```
+bottom-right
+```
+
+Now check
+
+```
+Is current remainder 0?
+```
+
+If yes
+
+```
+return 1
+```
+
+Otherwise
+
+```
+return 0
+```
+
+Exactly what the code does.
+
+```python
+if x==m-1 and y==n-1:
+    return rem==0
+```
+
+---
+
+# 7. Recursive Choices
+
+From every cell
+
+```
+Right
+
+or
+
+Down
+```
+
+So
+
+```
+answer
+
+=
+
+right answer
+
++
+
+down answer
+```
+
+Nothing more.
+
+---
+
+Pseudo
+
+```
+answer = 0
+
+move right
+
+answer += dfs(...)
+
+move down
+
+answer += dfs(...)
+```
+
+---
+
+# 8. Why Memoization?
+
+Suppose
+
+```
+      A
+     / \
+    B   C
+     \ /
+      D
+```
+
+Cell D can be reached from two directions.
+
+Without memoization
+
+```
+Solve D
+
+again
+
+and again
+
+and again
+```
+
+With memoization
+
+```
+Solve once
+
+Store answer
+
+Reuse forever
+```
+
+---
+
+State count
+
+```
+m*n*k
+```
+
+Maximum
+
+```
+50000 * 50
+
+= 2.5 million states
+```
+
+Acceptable.
+
+---
+
+# 9. Dry Run
+
+Grid
+
+```
+5 2 4
+3 0 5
+0 7 2
+
+k=3
+```
+
+Start
+
+```
+sum=5
+
+remainder
+
+5%3=2
+```
+
+Call
+
+```
+dfs(0,0,2)
+```
+
+---
+
+## Move Right
+
+Cell
+
+```
+2
+```
+
+New remainder
+
+```
+(2+2)%3
+
+=1
+```
+
+Call
+
+```
+dfs(0,1,1)
+```
+
+---
+
+Again Right
+
+Cell
+
+```
+4
+```
+
+New remainder
+
+```
+(1+4)%3
+
+=2
+```
+
+Call
+
+```
+dfs(0,2,2)
+```
+
+---
+
+Down
+
+Cell
+
+```
+5
+```
+
+New remainder
+
+```
+(2+5)%3
+
+=1
+```
+
+Call
+
+```
+dfs(1,2,1)
+```
+
+---
+
+Down
+
+Cell
+
+```
+2
+```
+
+New remainder
+
+```
+(1+2)%3
+
+=0
+```
+
+Reached destination.
+
+Return
+
+```
+1
+```
+
+This is one valid path.
+
+---
+
+Now another branch
+
+Start
+
+↓
+
+Down
+
+```
+3
+```
+
+New remainder
+
+```
+(2+3)%3
+
+=2
+```
+
+↓
+
+Right
+
+```
+0
+
+(2+0)%3=2
+```
+
+↓
+
+Right
+
+```
+5
+
+(2+5)%3=1
+```
+
+↓
+
+Down
+
+```
+2
+
+(1+2)%3=0
+```
+
+Again valid.
+
+Eventually answer becomes
+
+```
+2
+```
+
+---
+
+# 10. Why Does This DP Work?
+
+Imagine every state as
+
+```
+(x,y,remainder)
+```
+
+Example
+
+```
+(1,2,0)
+
+(1,2,1)
+
+(1,2,2)
+```
+
+These are completely different states because
+
+future divisibility depends on remainder.
+
+But
+
+```
+(1,2,1)
+```
+
+reached from 10 different paths is still the same state.
+
+So compute once.
+
+---
+
+# 11. Time Complexity
+
+Number of states
+
+```
+m*n*k
+```
+
+Each state explores
+
+```
+2 directions
+```
+
+Time
+
+```
+O(m*n*k)
+```
+
+---
+
+Space
+
+Memoization
+
+```
+O(m*n*k)
+```
+
+---
+
+# 12. How to Build This Intuition for DP Problems
+
+Whenever you see a path problem, ask yourself these questions:
+
+### Question 1
+
+Can I make choices?
+
+Here:
+
+```
+Right
+
+Down
+```
+
+Yes.
+
+Think recursion.
+
+---
+
+### Question 2
+
+Am I solving the same subproblem repeatedly?
+
+Yes.
+
+Many paths reach the same cell.
+
+Think memoization.
+
+---
+
+### Question 3
+
+What information actually matters for the future?
+
+Not the whole sum.
+
+Only
+
+```
+sum % k
+```
+
+This is the key observation.
+
+Whenever a problem mentions
+
+* divisible
+* even/odd
+* modulo
+* remainder
+
+always think:
+
+> "Maybe I only need the remainder, not the entire number."
+
+This is a common optimization pattern in dynamic programming.
+
+---
+
+### Question 4
+
+Can I define a DP state?
+
+Here
+
+```
+(row,
+ column,
+ current remainder)
+```
+
+Once you can define the state, the transition usually follows naturally.
+
+---
+
+# 13. Python Solution
+
+```python
+class Solution:
+    def numberOfPaths(self, grid: List[List[int]], k: int) -> int:
+        m = len(grid)
+        n = len(grid[0])
+
+        movement = [
+            (0, 1),
+            (1, 0)
+        ]
+
+        @cache
+        def dfs(x, y, rem):
+            ans = 0
+            if x == m-1 and y == n-1 and rem == 0:
+                return 1
+            for dx, dy in movement:
+                nx = x + dx
+                ny = y + dy
+                if (
+                    0 <= nx < m and
+                    0 <= ny < n 
+                ):
+                    new_rem = (rem + grid[nx][ny]) % k
+                    ans += (dfs(nx, ny, new_rem)) 
+            return ans % (10 ** 9 + 7)
+        
+        return dfs(0, 0, grid[0][0] % k)
+```
+
+---
+
+# 14. The Core Idea to Remember
+
+For path DP problems, a useful thinking process is:
+
+1. **Can I recursively explore all paths?** → Yes.
+2. **Will different paths reach the same state?** → Yes, so use memoization.
+3. **What is the smallest information needed to continue?** → `(row, column, sum % k)`.
+4. **How does the state change?** → `new_remainder = (old_remainder + current_value) % k`.
+5. **What is the success condition?** → Reach the destination with remainder `0`.
+
+The most important insight is that **divisibility depends only on the remainder, not on the entire accumulated sum**. Recognizing when a large value can be replaced by its modulo is a common and powerful dynamic programming pattern.
 
 <br/><br/><br/><br/><br/>
 
