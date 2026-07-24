@@ -32,6 +32,7 @@ Welcome to the graph problems section! Here you will find various data structure
 - [79. Word Search](#79-word-search)
 - [2435. Paths in Matrix Whose Sum Is Divisible by K](#2435-paths-in-matrix-whose-sum-is-divisible-by-k)
 - [1319. Number of Operations to Make Network Connected](#1319-number-of-operations-to-make-network-connected)
+- [3286. Find a Safe Walk Through a Grid](#3286-find-a-safe-walk-through-a-grid)
 
 <br><br><br><br><br>
 
@@ -27763,3 +27764,1087 @@ When you encounter a graph problem, train yourself to ask these questions in ord
 A useful mental model is to imagine **islands connected by bridges**. Each connected component is an island. To merge `k` islands into one landmass, you need `k - 1` bridges. If you also have enough total cables (at least `n - 1`), any redundant cables inside cycles can be repurposed as those bridges.
 
 This pattern—**check the minimum resource requirement first, then count connected components**—appears frequently in graph interview problems and is a powerful way to approach them.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 3286. Find a Safe Walk Through a Grid
+
+> **Note:** This solution uses **DFS + Backtracking + Memoization**. Although an optimal solution uses **Dijkstra/0-1 BFS**, understanding this DFS approach builds strong recursion and backtracking intuition.
+
+---
+
+# Metadata
+
+- **Difficulty:** Medium
+- **Topics:** Graph, Matrix, DFS, Backtracking, Memoization
+- **Pattern:** DFS + Backtracking on Grid
+
+---
+
+# Step 1: Understand the Problem Like a Common Person
+
+Imagine you're inside a maze.
+
+Some rooms are **safe**.
+
+Some rooms contain **poison**.
+
+```
+0 = Safe Room
+
+1 = Poison Room
+```
+
+You start from
+
+```
+Top Left
+```
+
+Need to reach
+
+```
+Bottom Right
+```
+
+Every poison room decreases your health by **1**.
+
+Safe rooms do nothing.
+
+You can move
+
+- Up
+- Down
+- Left
+- Right
+
+Question:
+
+> **Is there ANY path where your health never becomes zero?**
+
+You don't need
+
+- shortest path
+- minimum moves
+
+You only need
+
+> "Can I survive until the destination?"
+
+---
+
+# Example
+
+```
+Health = 3
+
+Grid
+
+0 1 0
+0 1 0
+0 0 0
+```
+
+Possible path
+
+```
+↓
+
+↓
+
+→
+
+→
+```
+
+Visited
+
+```
+0
+0
+0
+0
+0
+```
+
+No poison.
+
+Health remains
+
+```
+3
+```
+
+Answer
+
+```
+True
+```
+
+---
+
+# First Intuition
+
+Whenever someone says
+
+> "Can I reach the destination?"
+
+our first thought should be
+
+> "Let's explore every possible path."
+
+How do we explore every path?
+
+Using
+
+```
+DFS
+```
+
+Exactly like solving a maze.
+
+---
+
+# What is DFS doing?
+
+Imagine standing here
+
+```
+S
+```
+
+You ask
+
+> Can I go left?
+
+If not,
+
+> Can I go right?
+
+If not,
+
+> Can I go up?
+
+If not,
+
+> Can I go down?
+
+Eventually,
+
+either
+
+```
+Destination found
+```
+
+or
+
+```
+No path exists.
+```
+
+This is exactly recursion.
+
+---
+
+# Step 2: Thinking Like a Human
+
+Suppose you're standing here
+
+```
+A
+```
+
+You don't know which direction is correct.
+
+You simply try
+
+```
+Left
+```
+
+If that fails
+
+Come back.
+
+Try
+
+```
+Right
+```
+
+Fails
+
+Come back.
+
+Try
+
+```
+Up
+```
+
+Fails
+
+Come back.
+
+Try
+
+```
+Down
+```
+
+This process of
+
+```
+Go
+
+Come Back
+
+Try Again
+```
+
+is called
+
+> **Backtracking**
+
+---
+
+# Why do we need a visited set?
+
+Imagine
+
+```
+0 0
+
+0 0
+```
+
+Without visited,
+
+You can keep moving
+
+```
+A
+
+↓
+
+B
+
+↑
+
+A
+
+↓
+
+B
+```
+
+Forever.
+
+Infinite loop.
+
+So we remember
+
+```
+Already visited.
+```
+
+Don't visit again.
+
+---
+
+# But wait...
+
+Suppose
+
+```
+A
+
+↓
+
+B
+
+↓
+
+C
+```
+
+doesn't reach destination.
+
+Should B remain visited forever?
+
+No.
+
+Because another path might later reach B.
+
+Example
+
+```
+A → X → B
+```
+
+That path should also be explored.
+
+Therefore after recursion finishes,
+
+remove B.
+
+This is called
+
+```
+Backtracking
+```
+
+---
+
+# Why remove from visited?
+
+Example
+
+```
+A
+|
+B
+|
+C
+```
+
+Suppose path
+
+```
+A → B → C
+```
+
+fails.
+
+If we never remove B,
+
+then another path
+
+```
+A → D → B
+```
+
+will never be explored.
+
+So
+
+```
+visited.add()
+
+Explore
+
+visited.remove()
+```
+
+is mandatory.
+
+---
+
+# Let's Understand the Code
+
+## Step 1
+
+```python
+m = len(grid)
+n = len(grid[0])
+```
+
+Store
+
+```
+Rows
+
+Columns
+```
+
+---
+
+## Directions
+
+```python
+distance = [
+    (-1,0),
+    (1,0),
+    (0,1),
+    (0,-1)
+]
+```
+
+These mean
+
+```
+Up
+
+Down
+
+Right
+
+Left
+```
+
+Whenever we are at
+
+```
+(x,y)
+```
+
+New position
+
+```
+(x+dx,
+ y+dy)
+```
+
+---
+
+## Visited
+
+```python
+visited = set()
+```
+
+Stores
+
+```
+Cells currently in recursion path.
+```
+
+---
+
+# DFS Function
+
+```python
+dfs(x,y,hel)
+```
+
+Meaning
+
+> Starting from
+
+```
+(x,y)
+```
+
+with
+
+```
+hel
+```
+
+health remaining,
+
+can I reach destination?
+
+---
+
+# Base Case 1
+
+```python
+if (x,y) in visited:
+    return
+```
+
+Already exploring this cell.
+
+Don't create a cycle.
+
+---
+
+# Base Case 2
+
+```python
+if hel == 0:
+    return False
+```
+
+Health became
+
+```
+0
+```
+
+Dead.
+
+Cannot continue.
+
+---
+
+# Base Case 3
+
+```python
+if x==m-1 and y==n-1:
+    return True
+```
+
+Reached destination.
+
+Success.
+
+---
+
+# Mark Current Cell
+
+```python
+visited.add((x,y))
+```
+
+Means
+
+```
+I'm standing here.
+
+Don't revisit me.
+```
+
+---
+
+# Explore Four Directions
+
+```python
+for dx,dy in distance:
+```
+
+Move
+
+```
+Up
+
+Down
+
+Left
+
+Right
+```
+
+---
+
+# Compute New Cell
+
+```python
+nx=x+dx
+
+ny=y+dy
+```
+
+---
+
+# Boundary Check
+
+```python
+0<=nx<m
+
+0<=ny<n
+```
+
+Stay inside grid.
+
+---
+
+# Calculate Health
+
+```python
+dec_score = 0 if grid[nx][ny]==0 else -1
+```
+
+If next cell
+
+```
+Safe
+
+Health doesn't change.
+```
+
+If unsafe
+
+```
+Health-1
+```
+
+---
+
+Then
+
+```python
+dfs(nx,ny,hel+dec_score)
+```
+
+Notice
+
+```
+dec_score
+
+is
+
+0
+
+or
+
+-1
+```
+
+So
+
+```
+hel+0
+
+or
+
+hel-1
+```
+
+---
+
+# If Any Path Works
+
+```python
+if dfs(...):
+    return True
+```
+
+One successful path is enough.
+
+Immediately stop.
+
+---
+
+# Backtracking
+
+```python
+visited.remove((x,y))
+```
+
+Very important.
+
+Means
+
+```
+Finished exploring from here.
+
+Other paths may use this cell.
+```
+
+---
+
+# Otherwise
+
+```python
+return False
+```
+
+No direction worked.
+
+---
+
+# Initial Health
+
+```python
+health = health-1 if grid[0][0]==1 else health
+```
+
+Why?
+
+Because
+
+The starting cell also counts.
+
+Suppose
+
+```
+Start
+
+=
+
+Unsafe
+```
+
+Health decreases immediately.
+
+Example
+
+```
+Health=3
+
+Start=1
+```
+
+Becomes
+
+```
+2
+```
+
+before moving.
+
+---
+
+# Complete Dry Run
+
+Example
+
+```
+grid
+
+0 1
+
+0 0
+
+health=2
+```
+
+Initial
+
+```
+dfs(0,0,2)
+```
+
+Visited
+
+```
+{(0,0)}
+```
+
+Try
+
+```
+Down
+```
+
+Safe
+
+```
+dfs(1,0,2)
+```
+
+Visited
+
+```
+(0,0)
+
+(1,0)
+```
+
+Try
+
+```
+Right
+```
+
+Safe
+
+```
+dfs(1,1,2)
+```
+
+Destination reached.
+
+Return
+
+```
+True
+```
+
+Entire recursion returns
+
+```
+True
+```
+
+---
+
+# Why Memoization (@cache)?
+
+Suppose
+
+```
+A
+
+↙ ↘
+
+B   C
+
+↘ ↙
+
+D
+```
+
+Without cache,
+
+```
+D
+```
+
+may be solved many times.
+
+With
+
+```python
+@cache
+```
+
+If
+
+```
+dfs(2,3,4)
+```
+
+has already been computed,
+
+next time Python returns the answer immediately.
+
+This avoids repeated work.
+
+---
+
+# Important Observation
+
+Notice the cache key is
+
+```
+(x,y,health)
+```
+
+because
+
+Being at
+
+```
+(2,3)
+```
+
+with
+
+```
+Health=5
+```
+
+is different from
+
+```
+Health=1
+```
+
+Different remaining health can produce different answers.
+
+---
+
+# Python Solution
+
+```python
+class Solution:
+    def findSafeWalk(self, grid: List[List[int]], health: int) -> bool:
+        m = len(grid)
+        n = len(grid[0])
+        distance = [
+            (-1, 0),
+            (1, 0),
+            (0, 1),
+            (0, -1)
+        ]
+
+        visited = set()
+
+        @cache
+        def dfs(x, y, hel):
+            if (x, y) in visited:
+                return
+            if hel == 0:
+                return False
+            if x == m-1 and y == n-1:
+                return True
+            visited.add((x, y))
+            for dx, dy in distance:
+                nx = x + dx
+                ny = y + dy
+                if (
+                    0 <= nx < m and
+                    0 <= ny < n and 
+                    (nx, ny) not in visited
+                ):
+                    dec_score = 0 if grid[nx][ny] == 0 else -1
+                    if dfs(nx, ny, hel + dec_score):
+                        return True
+            visited.remove((x, y))
+            return False
+        
+        health = health - 1 if grid[0][0] == 1 else health
+        return dfs(0, 0, health)
+```
+
+# Time Complexity
+
+Worst case
+
+Each state is
+
+```
+(row,
+column,
+health)
+```
+
+Total states
+
+```
+m × n × health
+```
+
+Each explores
+
+```
+4 directions
+```
+
+Overall
+
+```
+O(m × n × health)
+```
+
+Since
+
+```
+health ≤ m+n ≤100
+```
+
+Maximum states
+
+```
+50×50×100
+
+=
+
+250000
+```
+
+which is acceptable.
+
+---
+
+# Space Complexity
+
+Visited
+
+```
+O(m×n)
+```
+
+Cache
+
+```
+O(m×n×health)
+```
+
+Recursion
+
+```
+O(m×n)
+```
+
+Overall
+
+```
+O(m×n×health)
+```
+
+---
+
+# How to Build This Intuition
+
+Whenever you see a problem like this, ask yourself these questions:
+
+### 1. Can I try every path?
+
+If the question asks:
+
+> **"Does any valid path exist?"**
+
+Think **DFS**.
+
+---
+
+### 2. Can I revisit cells?
+
+If yes,
+
+Infinite loops are possible.
+
+Use
+
+```
+visited
+```
+
+---
+
+### 3. After exploring one path, can another path use the same cell?
+
+If yes,
+
+You must
+
+```
+visited.add()
+
+Explore
+
+visited.remove()
+```
+
+That's **Backtracking**.
+
+---
+
+### 4. Does the answer depend only on position?
+
+No.
+
+At the same cell, having different remaining health changes the future.
+
+So the state becomes
+
+```
+(row,
+column,
+remaining health)
+```
+
+---
+
+### 5. Can the same state repeat?
+
+Yes.
+
+That's when you add
+
+```
+@cache
+```
+
+to avoid recomputing identical recursive calls.
+
+---
+
+# One Small Issue in This Code
+
+This line:
+
+```python
+if (x, y) in visited:
+    return
+```
+
+works because `None` is treated as `False`, but it's clearer to write:
+
+```python
+if (x, y) in visited:
+    return False
+```
+
+This makes the function consistently return a boolean (`True` or `False`) in all cases, which is easier to understand and less error-prone.
+
+<br/><br/><br/><br/><br/>
+
+---
