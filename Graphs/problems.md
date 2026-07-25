@@ -33,6 +33,7 @@ Welcome to the graph problems section! Here you will find various data structure
 - [2435. Paths in Matrix Whose Sum Is Divisible by K](#2435-paths-in-matrix-whose-sum-is-divisible-by-k)
 - [1319. Number of Operations to Make Network Connected](#1319-number-of-operations-to-make-network-connected)
 - [3286. Find a Safe Walk Through a Grid](#3286-find-a-safe-walk-through-a-grid)
+- [127. Word Ladder](#127-word-ladder)
 
 <br><br><br><br><br>
 
@@ -28848,3 +28849,1081 @@ This makes the function consistently return a boolean (`True` or `False`) in all
 <br/><br/><br/><br/><br/>
 
 ---
+
+# 127. Word Ladder
+
+- **Difficulty:** Hard
+- **Topics:** Graph, Breadth-First Search (BFS), Hash Table, String
+- **Pattern:** Shortest Path in an Unweighted Graph (BFS)
+
+This is one of the most famous **BFS (Breadth First Search)** problems.
+
+Many beginners try **DFS**, recursion, or dynamic programming first. None of them naturally finds the **shortest path**.
+
+The biggest clue in this problem is the phrase:
+
+> **"Shortest transformation sequence"**
+
+Whenever you see **shortest path** and every move has the same cost, your brain should immediately think:
+
+> **BFS**
+
+---
+
+# Step 1: Understand the Problem Like a Normal Person
+
+Imagine you have a game.
+
+You start with
+
+```
+hit
+```
+
+You want to reach
+
+```
+cog
+```
+
+You are only allowed to change **one letter at a time**.
+
+Every intermediate word must exist inside the dictionary.
+
+Example:
+
+```
+hit
+ ↓
+hot
+ ↓
+dot
+ ↓
+dog
+ ↓
+cog
+```
+
+Answer = **5**
+
+because there are 5 words in this chain.
+
+---
+
+## Invalid Example
+
+```
+hit
+
+↓
+
+hat
+```
+
+Suppose `"hat"` is not inside `wordList`.
+
+Then this move is illegal.
+
+You can only step on words inside the dictionary.
+
+Think of it like stepping stones across a river.
+
+```
+Start
+
+hit
+
+Stone
+hot
+
+Stone
+dot
+
+Stone
+dog
+
+Stone
+cog
+```
+
+If one stone doesn't exist...
+
+You cannot jump there.
+
+---
+
+# Step 2: What are we actually searching?
+
+We are searching for
+
+> **minimum number of changes needed**
+
+Minimum...
+
+Minimum...
+
+Minimum...
+
+This is the keyword.
+
+---
+
+# Step 3: Why not DFS?
+
+Imagine this graph.
+
+```
+A
+
+├──B
+│   └──C
+│      └──D
+│         └──E
+
+└──F
+    └──G
+```
+
+Suppose destination is G.
+
+DFS may go
+
+```
+A
+B
+C
+D
+E
+```
+
+Then come back.
+
+Very slow.
+
+BFS does
+
+```
+Level 0
+
+A
+
+Level 1
+
+B
+F
+
+Level 2
+
+C
+G
+```
+
+Immediately finds G.
+
+That's why BFS is used for shortest path.
+
+---
+
+# Step 4: Think of words as graph nodes
+
+This is the hardest intuition.
+
+Don't think of words as strings.
+
+Think of each word as a **city**.
+
+```
+hit
+
+hot
+
+dot
+
+dog
+
+lot
+
+log
+
+cog
+```
+
+Every word is a node.
+
+Now connect two nodes if they differ by exactly one letter.
+
+```
+hit
+ |
+hot
+ / \
+dot lot
+ |   |
+dog log
+ \ /
+ cog
+```
+
+Now the question becomes
+
+> Find shortest path from hit to cog.
+
+That's just a graph problem.
+
+---
+
+# Step 5: How do we know neighbors?
+
+Suppose current word is
+
+```
+hot
+```
+
+Neighbors are words differing by exactly one character.
+
+Possible neighbors:
+
+```
+dot ✔
+
+lot ✔
+
+hog
+
+hut
+
+hat
+
+hop
+
+pot
+```
+
+Only keep those inside the dictionary.
+
+---
+
+# Step 6: How do we generate neighbors?
+
+Current word
+
+```
+hot
+```
+
+Length = 3
+
+We change one position at a time.
+
+Position 0
+
+```
+aot
+bot
+cot
+dot ✔
+eot
+...
+zot
+```
+
+Position 1
+
+```
+hat
+hbt
+hct
+...
+hot
+...
+hzt
+```
+
+Position 2
+
+```
+hoa
+hob
+hoc
+hod
+...
+hoz
+```
+
+There are only
+
+```
+Length × 26
+```
+
+possibilities.
+
+For length = 3
+
+```
+3 × 26 = 78
+```
+
+Very manageable.
+
+---
+
+# Step 7: Why convert wordList into a set?
+
+Suppose dictionary is
+
+```
+5000 words
+```
+
+Checking
+
+```
+newWord in wordList
+```
+
+inside a list
+
+takes
+
+```
+O(5000)
+```
+
+Checking inside a set
+
+takes
+
+```
+O(1)
+```
+
+Huge improvement.
+
+---
+
+# Step 8: BFS Process
+
+Queue stores
+
+```
+(word, level)
+```
+
+Initially
+
+```
+Queue
+
+(hit,0)
+```
+
+Visited
+
+```
+{hit}
+```
+
+---
+
+Pop
+
+```
+hit
+```
+
+Generate
+
+```
+ait
+bit
+...
+hot ✔
+...
+zit
+```
+
+Only
+
+```
+hot
+```
+
+exists.
+
+Queue
+
+```
+hot
+```
+
+Visited
+
+```
+hit
+hot
+```
+
+---
+
+Pop
+
+```
+hot
+```
+
+Generate
+
+```
+dot ✔
+
+lot ✔
+```
+
+Queue
+
+```
+dot
+
+lot
+```
+
+Visited
+
+```
+hit
+hot
+dot
+lot
+```
+
+---
+
+Pop
+
+```
+dot
+```
+
+Generate
+
+```
+dog ✔
+```
+
+Queue
+
+```
+lot
+
+dog
+```
+
+---
+
+Pop
+
+```
+lot
+```
+
+Generate
+
+```
+log ✔
+```
+
+Queue
+
+```
+dog
+
+log
+```
+
+---
+
+Pop
+
+```
+dog
+```
+
+Generate
+
+```
+cog ✔
+```
+
+Queue
+
+```
+log
+
+cog
+```
+
+---
+
+Pop
+
+```
+cog
+```
+
+Destination reached.
+
+Return
+
+```
+level + 1
+```
+
+because level starts from 0.
+
+Sequence
+
+```
+hit
+hot
+dot
+dog
+cog
+```
+
+Number of words
+
+```
+5
+```
+
+---
+
+# Step 9: Why do we need visited?
+
+Without visited
+
+Suppose
+
+```
+hot
+```
+
+creates
+
+```
+dot
+```
+
+Later
+
+```
+dot
+```
+
+creates
+
+```
+hot
+```
+
+Again
+
+```
+hot
+```
+
+creates
+
+```
+dot
+```
+
+Infinite loop.
+
+Visited prevents revisiting.
+
+---
+
+# Step 10: Understanding Your Code
+
+```python
+visited = set()
+visited.add(beginWord)
+```
+
+Don't visit same word twice.
+
+---
+
+```python
+wordList = set(wordList)
+```
+
+Fast lookup.
+
+---
+
+```python
+if endWord not in wordList:
+    return 0
+```
+
+If destination doesn't exist,
+
+Impossible.
+
+---
+
+```python
+q = deque([[beginWord,0]])
+```
+
+Start BFS.
+
+---
+
+```python
+word, lev = q.popleft()
+```
+
+Take current word.
+
+---
+
+```python
+if word == endWord:
+    return lev+1
+```
+
+Reached destination.
+
+---
+
+```python
+for i in range(n):
+```
+
+Change every position.
+
+---
+
+```python
+for j in range(97,123):
+```
+
+ASCII
+
+```
+97 = a
+
+98 = b
+
+...
+
+122 = z
+```
+
+Equivalent cleaner version:
+
+```python
+for ch in "abcdefghijklmnopqrstuvwxyz":
+```
+
+---
+
+```python
+newWord = word[:i] + chr(j) + word[i+1:]
+```
+
+Replace one character.
+
+Example
+
+```
+hot
+
+i=0
+
+dot
+
+cot
+
+lot
+
+...
+```
+
+---
+
+```python
+if newWord in wordList and newWord not in visited:
+```
+
+Legal move.
+
+---
+
+```python
+visited.add(newWord)
+```
+
+Never visit again.
+
+---
+
+```python
+q.append((newWord, lev+1))
+```
+
+Explore later.
+
+---
+
+# Complete Dry Run
+
+Input
+
+```text
+beginWord = hit
+
+endWord = cog
+
+wordList =
+hot
+dot
+dog
+lot
+log
+cog
+```
+
+Queue
+
+```
+(hit,0)
+```
+
+Visited
+
+```
+hit
+```
+
+---
+
+Pop
+
+```
+(hit,0)
+```
+
+Generate
+
+```
+hot
+```
+
+Queue
+
+```
+(hot,1)
+```
+
+Visited
+
+```
+hit hot
+```
+
+---
+
+Pop
+
+```
+(hot,1)
+```
+
+Generate
+
+```
+dot
+lot
+```
+
+Queue
+
+```
+(dot,2)
+
+(lot,2)
+```
+
+Visited
+
+```
+hit
+hot
+dot
+lot
+```
+
+---
+
+Pop
+
+```
+(dot,2)
+```
+
+Generate
+
+```
+dog
+```
+
+Queue
+
+```
+(lot,2)
+
+(dog,3)
+```
+
+---
+
+Pop
+
+```
+(lot,2)
+```
+
+Generate
+
+```
+log
+```
+
+Queue
+
+```
+(dog,3)
+
+(log,3)
+```
+
+---
+
+Pop
+
+```
+(dog,3)
+```
+
+Generate
+
+```
+cog
+```
+
+Queue
+
+```
+(log,3)
+
+(cog,4)
+```
+
+---
+
+Pop
+
+```
+(cog,4)
+```
+
+Reached.
+
+Return
+
+```
+4+1
+
+=
+
+5
+```
+
+---
+
+# Time Complexity
+
+Suppose
+
+```
+N = number of words
+
+L = length of each word
+```
+
+For every word we try
+
+```
+L positions
+
+×
+
+26 letters
+```
+
+So
+
+```
+Time = O(N × L × 26)
+```
+
+Since 26 is constant,
+
+```
+O(N × L)
+```
+
+---
+
+# Space Complexity
+
+Visited
+
+```
+O(N)
+```
+
+Queue
+
+```
+O(N)
+```
+
+Total
+
+```
+O(N)
+```
+
+---
+
+# How to Build the Intuition for Problems Like This
+
+When solving new problems, ask yourself these questions in order:
+
+### 1. What am I trying to optimize?
+
+* Minimum?
+* Maximum?
+* Count?
+* All possibilities?
+
+Here, the goal is **minimum transformations**.
+
+---
+
+### 2. Can I model this as a graph?
+
+Ask:
+
+* What are the nodes?
+* When are two nodes connected?
+
+Here:
+
+* **Node** = a word.
+* **Edge** = two words differ by exactly one letter.
+
+Once you see this, it becomes a graph problem.
+
+---
+
+### 3. What graph algorithm fits?
+
+Think of these patterns:
+
+* **Shortest path with equal edge cost** → **BFS**
+* **Reachability or cycle detection** → DFS/BFS
+* **Weighted shortest path** → Dijkstra
+* **Negative weights** → Bellman-Ford
+
+Since every transformation counts as one step, BFS is the natural choice.
+
+---
+
+### 4. How do I find neighbors efficiently?
+
+Instead of comparing the current word to every word in the dictionary (which would be expensive), generate all possible one-letter variations:
+
+* For each position in the word:
+
+  * Replace it with `'a'` to `'z'`.
+  * Check if the new word exists in the dictionary.
+
+This works because the word length is small (at most 10), making `26 × L` candidate words inexpensive to generate.
+
+---
+
+### 5. Prevent repeated work
+
+Whenever you're exploring states (words, positions, configurations), ask:
+
+> "Can I reach this same state again?"
+
+If yes, use a **visited** set. This prevents infinite loops and ensures each state is processed only once.
+
+---
+
+# Python Solution
+
+```python
+from collections import deque
+from typing import List
+
+class Solution:
+    def ladderLength(self, beginWord: str, endWord: str, wordList: List[str]) -> int:
+
+        n = len(beginWord)
+
+        def bfs():
+            nonlocal wordList
+            visited = set()
+            visited.add(beginWord)
+            wordList = set(wordList)
+
+            if endWord not in wordList:
+                return 0
+            q = deque([[beginWord, 0]])
+
+            while q:
+                word, lev = q.popleft()
+                if word == endWord:
+                    return lev + 1
+
+                for i in range(n):
+                    for j in range(97, 123):
+                        newWord = word[:i] + chr(j) + word[i+1:]
+                        if newWord in wordList and newWord not in visited:
+                            q.append([newWord, lev + 1])
+                            visited.add(newWord)
+            return 0
+        
+        return bfs()
+```
+
+---
+
+# Key Takeaways
+
+* Treat each **word as a graph node**.
+* Two words are connected if they differ by **exactly one letter**.
+* The problem asks for the **shortest sequence**, which is a strong signal to use **BFS**.
+* Generate neighbors by changing one character at a time (`26 × word_length` possibilities).
+* Store the dictionary in a **set** for `O(1)` membership checks.
+* Use a **visited** set so each word is processed only once, ensuring both correctness and efficiency.
