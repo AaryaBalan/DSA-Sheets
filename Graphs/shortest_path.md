@@ -11,6 +11,7 @@ This is a beginner-friendly guide to shortest path problems in graphs. It explai
 ## Problems
 - [1091. Shortest Path in Binary Matrix](#1091-shortest-path-in-binary-matrix)
 - [1631. Path With Minimum Effort](#1631-path-with-minimum-effort)
+- [787. Cheapest Flights Within K Stops](#787-cheapest-flights-within-k-stops)
 
 <br/><br/><br/>
 
@@ -4910,3 +4911,744 @@ newCost = oldProbability × edgeProbability
 The biggest intuition to learn is:
 
 > **Dijkstra is not just for addition. It works whenever you can define a path cost that only depends on the previous path cost and the current edge, and where reaching a node with a smaller cost is always better than reaching it with a larger one.**
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 787. Cheapest Flights Within K Stops
+
+**Difficulty:** Medium
+
+---
+
+# Problem Statement
+
+You are given:
+
+- `n` cities numbered from `0` to `n-1`
+- A list of flights
+
+Each flight is represented as:
+
+```python
+[from, to, price]
+```
+
+which means
+
+- You can travel from city `from`
+- To city `to`
+- By paying `price`
+
+You are also given
+
+- `src` → starting city
+- `dst` → destination city
+- `k` → maximum number of stops allowed
+
+Your task is to return the **minimum cost** to reach the destination.
+
+If no valid route exists, return **-1**.
+
+---
+
+# What is a Stop?
+
+This is the most confusing part.
+
+A **stop** means an intermediate city.
+
+For example
+
+```
+0 → 1 → 3
+```
+
+Flights taken = 2
+
+Intermediate cities =
+
+```
+1
+```
+
+Stops = **1**
+
+This is allowed if
+
+```text
+k = 1
+```
+
+---
+
+Now consider
+
+```
+0 → 1 → 2 → 3
+```
+
+Intermediate cities
+
+```
+1
+2
+```
+
+Stops = **2**
+
+This is NOT allowed if
+
+```text
+k = 1
+```
+
+---
+
+## Important Observation
+
+If maximum stops = `k`
+
+Then maximum flights allowed are
+
+```
+k + 1
+```
+
+---
+
+# Example
+
+Input
+
+```python
+n = 4
+
+flights = [
+    [0,1,100],
+    [1,2,100],
+    [2,0,100],
+    [1,3,600],
+    [2,3,200]
+]
+
+src = 0
+dst = 3
+k = 1
+```
+
+Graph
+
+```
+          100
+     0 --------->1
+      ^          | \
+      |100       |600
+      |          |
+      |          v
+      2--------->3
+        200
+```
+
+Possible routes
+
+```
+0 → 1 → 3
+
+Cost = 700
+Stops = 1
+```
+
+Valid ✅
+
+---
+
+Another route
+
+```
+0 → 1 → 2 → 3
+
+Cost = 400
+Stops = 2
+```
+
+Cheaper
+
+BUT
+
+Not valid ❌
+
+---
+
+Answer
+
+```
+700
+```
+
+---
+
+# How Should a Normal Person Think?
+
+Suppose someone asks
+
+> Find the cheapest route.
+
+What would you naturally do?
+
+You would
+
+- Start from the source
+- Explore all flights
+- Keep calculating costs
+- Ignore routes having more than `k` stops
+- Finally choose the cheapest one
+
+This is exactly what the algorithm does.
+
+---
+
+# Step 1: Identify the Type of Problem
+
+Whenever you see
+
+- cities
+- roads
+- flights
+- network
+- minimum cost
+
+Think
+
+```
+Graph Problem
+```
+
+---
+
+# Step 2: Build the Graph
+
+Flights
+
+```python
+[
+[0,1,100],
+[1,2,100],
+[2,0,100],
+[1,3,600],
+[2,3,200]
+]
+```
+
+Convert them into
+
+```
+0
+
+→ (1,100)
+
+1
+
+→ (2,100)
+
+→ (3,600)
+
+2
+
+→ (0,100)
+
+→ (3,200)
+```
+
+Python
+
+```python
+graph = defaultdict(list)
+
+for u, v, w in flights:
+    graph[u].append((v, w))
+```
+
+Now every city knows where it can go.
+
+---
+
+# Step 3: What Information Do We Need?
+
+Imagine you are currently traveling.
+
+What do you need to remember?
+
+Three things
+
+```
+Current city
+
+Current cost
+
+Number of flights taken
+```
+
+So one state becomes
+
+```
+(city, flights_taken, total_cost)
+```
+
+Example
+
+```
+(0,0,0)
+```
+
+means
+
+```
+At city 0
+
+Taken 0 flights
+
+Spent $0
+```
+
+---
+
+# Step 4: Why BFS?
+
+Normally BFS finds
+
+```
+Minimum number of edges
+```
+
+But here we are minimizing cost.
+
+So why use BFS?
+
+Because BFS explores
+
+```
+0 flights
+
+1 flight
+
+2 flights
+
+3 flights
+```
+
+level by level.
+
+Since we only care up to
+
+```
+k + 1 flights
+```
+
+BFS naturally limits our search.
+
+---
+
+# Step 5: Why Keep a Distance Array?
+
+Suppose you already reached city 2
+
+for
+
+```
+$200
+```
+
+Later another route reaches city 2
+
+for
+
+```
+$500
+```
+
+Would you continue exploring from the $500 route?
+
+No.
+
+Because it is already worse.
+
+So we store
+
+```python
+dist[node]
+```
+
+meaning
+
+```
+Cheapest cost found so far to reach this city
+```
+
+Initialize
+
+```python
+dist = [float("inf")] * n
+
+dist[src] = 0
+```
+
+---
+
+# Step 6: BFS Algorithm
+
+Start
+
+```
+Queue
+
+[(0,0,0)]
+```
+
+Meaning
+
+```
+(city,
+flights_taken,
+cost)
+```
+
+Remove it.
+
+Explore every neighboring city.
+
+Whenever
+
+```
+New Cost
+
+<
+
+Old Cost
+```
+
+Update the distance.
+
+Push the new state into the queue.
+
+Repeat.
+
+---
+
+# Step 7: Why This Condition?
+
+```python
+if cost + price < dist[neighbor] and flights_taken <= k:
+```
+
+Let's understand both parts.
+
+---
+
+## Part 1
+
+```python
+cost + price < dist[neighbor]
+```
+
+Means
+
+```
+Have we found a cheaper route?
+```
+
+If yes
+
+Update it.
+
+---
+
+## Part 2
+
+```python
+flights_taken <= k
+```
+
+Means
+
+```
+Can we still take another flight?
+```
+
+If yes
+
+Continue exploring.
+
+Otherwise
+
+Stop.
+
+---
+
+# Dry Run
+
+Input
+
+```python
+n = 4
+
+flights = [
+    [0,1,100],
+    [1,2,100],
+    [2,0,100],
+    [1,3,600],
+    [2,3,200]
+]
+
+src = 0
+dst = 3
+k = 1
+```
+
+---
+
+## Initial State
+
+Distance
+
+```
+[0,∞,∞,∞]
+```
+
+Queue
+
+```
+[(0,0,0)]
+```
+
+---
+
+## Pop
+
+```
+(0,0,0)
+```
+
+Neighbors
+
+```
+1
+
+Cost
+
+0+100=100
+```
+
+Update
+
+```
+dist
+
+[0,100,∞,∞]
+```
+
+Queue
+
+```
+[(1,1,100)]
+```
+
+---
+
+## Pop
+
+```
+(1,1,100)
+```
+
+Neighbor
+
+```
+2
+
+Cost
+
+200
+```
+
+Update
+
+```
+dist
+
+[0,100,200,∞]
+```
+
+Queue
+
+```
+[(2,2,200)]
+```
+
+---
+
+Second Neighbor
+
+```
+3
+
+Cost
+
+700
+```
+
+Update
+
+```
+dist
+
+[0,100,200,700]
+```
+
+Queue
+
+```
+[(2,2,200),
+ (3,2,700)]
+```
+
+---
+
+## Pop
+
+```
+(2,2,200)
+```
+
+Flights taken
+
+```
+2
+```
+
+Allowed?
+
+```
+2 <= 1
+
+False
+```
+
+Cannot continue.
+
+---
+
+## Pop
+
+```
+(3,2,700)
+```
+
+Destination reached.
+
+Answer
+
+```
+700
+```
+
+---
+
+# Time Complexity
+
+Building Graph
+
+```
+O(E)
+```
+
+where
+
+```
+E = Number of Flights
+```
+
+Traversal
+
+Approximately
+
+```
+O(E × K)
+```
+
+because every edge can be considered across the limited number of allowed flight levels.
+
+---
+
+# Space Complexity
+
+Graph
+
+```
+O(E)
+```
+
+Distance Array
+
+```
+O(V)
+```
+
+Queue
+
+```
+O(V)
+```
+
+Overall
+
+```
+O(V + E)
+```
+
+---
+
+# Python Solution (BFS)
+
+```python
+class Solution:
+    def findCheapestPrice(self, n: int, flights: List[List[int]], src: int, dst: int, k: int) -> int:
+        graph = defaultdict(list)
+        for u, v, w in flights:
+            graph[u].append((v, w))
+
+        def bfs():
+            dist = [float('inf')] * n
+            dist[src] = 0
+            q = deque()
+            q.append([src, 0, 0]) # node, level, cost
+
+            while q:
+                node, level, cost = q.popleft()
+                for nei, neiWeight in graph[node]:
+                    if cost + neiWeight < dist[nei] and level <= k:
+                        q.append([nei, level + 1, cost + neiWeight])
+                        dist[nei] = cost + neiWeight
+
+            if dist[dst] == float('inf'):
+                return -1
+            return dist[dst]
+        
+        return bfs()
+```
+
+---
+
+# Key Takeaways
+
+- Convert flights into an adjacency list.
+- Think in terms of **states**: `(city, flights_taken, total_cost)`.
+- BFS explores routes level by level, which naturally fits the flight limit.
+- Always track the cheapest cost found so far.
+- Always ask yourself:
+  1. What is the graph?
+  2. What am I minimizing?
+  3. What is the constraint?
+  4. What information defines my current state?
+  5. Can I safely ignore worse paths?
