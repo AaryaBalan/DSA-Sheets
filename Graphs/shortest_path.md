@@ -12,6 +12,7 @@ This is a beginner-friendly guide to shortest path problems in graphs. It explai
 - [1091. Shortest Path in Binary Matrix](#1091-shortest-path-in-binary-matrix)
 - [1631. Path With Minimum Effort](#1631-path-with-minimum-effort)
 - [787. Cheapest Flights Within K Stops](#787-cheapest-flights-within-k-stops)
+- [1976. Number of Ways to Arrive at Destination](#1976-number-of-ways-to-arrive-at-destination)
 
 <br/><br/><br/>
 
@@ -5652,3 +5653,1122 @@ class Solution:
   3. What is the constraint?
   4. What information defines my current state?
   5. Can I safely ignore worse paths?
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 1976. Number of Ways to Arrive at Destination
+
+**Difficulty:** Medium
+
+---
+
+# Problem Statement
+
+You are given:
+
+- `n` intersections (cities) numbered from `0` to `n-1`.
+- Roads connecting these intersections.
+- Each road has a travel time.
+
+Each road is represented as
+
+```python
+[u, v, time]
+```
+
+meaning
+
+- There is a road between `u` and `v`.
+- It takes `time` minutes to travel.
+- Roads are **bidirectional**, so you can travel both ways.
+
+Your task is:
+
+> Find **how many different shortest paths** exist from intersection **0** to intersection **n-1**.
+
+Since the answer can become very large, return it modulo
+
+```text
+10^9 + 7
+```
+
+---
+
+# Let's Understand the Problem Like a Common Person
+
+Imagine you're using Google Maps.
+
+You want to travel from your home to your office.
+
+Google tells you
+
+> Fastest time = **20 minutes**
+
+Now you ask another question:
+
+> "How many different routes also take exactly 20 minutes?"
+
+Not
+
+- How many total routes?
+- How many possible paths?
+
+Only
+
+> **How many routes have the minimum travel time?**
+
+That is exactly this problem.
+
+---
+
+# Example
+
+Input
+
+```python
+n = 2
+
+roads = [
+    [1,0,10]
+]
+```
+
+Graph
+
+```
+0 --------10-------- 1
+```
+
+Only one path
+
+```
+0 → 1
+```
+
+Shortest time
+
+```
+10
+```
+
+Number of shortest paths
+
+```
+1
+```
+
+Answer
+
+```
+1
+```
+
+---
+
+# Example 2
+
+```
+          2
+     0 --------1
+      \         \
+       \         3
+        5         \
+         \         \
+          4---------6
+```
+
+There are several different routes.
+
+Some take
+
+```
+7 minutes
+```
+
+Others take
+
+```
+9 minutes
+```
+
+Others take
+
+```
+12 minutes
+```
+
+We only count the routes whose total time equals the minimum possible time.
+
+---
+
+# Step 1 : Identify the Problem Type
+
+Whenever you see
+
+- cities
+- roads
+- minimum time
+- minimum distance
+- cheapest route
+
+Think immediately
+
+```
+Shortest Path Problem
+```
+
+---
+
+# Step 2 : Which Algorithm?
+
+There are many shortest path algorithms.
+
+| Algorithm | Used For |
+|------------|----------|
+| BFS | Equal edge weights |
+| DFS | Explore everything |
+| Dijkstra | Positive weights ✅ |
+| Bellman Ford | Negative weights |
+| Floyd Warshall | Every pair shortest path |
+
+Here
+
+Road times are always positive.
+
+```
+1 <= time <= 10^9
+```
+
+Therefore
+
+> **Dijkstra's Algorithm** is the correct choice.
+
+---
+
+# Step 3 : But There Is One Extra Requirement
+
+Normally Dijkstra finds
+
+```
+Shortest Distance
+```
+
+This problem asks
+
+```
+Shortest Distance
+
++
+
+Number of shortest paths
+```
+
+So we need one extra array.
+
+---
+
+# Step 4 : Build the Graph
+
+Input
+
+```python
+roads = [
+    [0,6,7],
+    [0,1,2],
+    [1,2,3]
+]
+```
+
+Convert into adjacency list.
+
+```
+0
+
+→ (6,7)
+
+→ (1,2)
+
+1
+
+→ (0,2)
+
+→ (2,3)
+
+6
+
+→ (0,7)
+```
+
+Python
+
+```python
+graph = defaultdict(list)
+
+for u, v, w in roads:
+    graph[u].append((v, w))
+    graph[v].append((u, w))
+```
+
+Because roads are bidirectional.
+
+---
+
+# Step 5 : What Information Should We Store?
+
+Normally Dijkstra stores
+
+```
+Shortest distance
+```
+
+Now we also need
+
+```
+How many shortest paths reach this node?
+```
+
+So we maintain two arrays.
+
+---
+
+## Distance Array
+
+```
+dist[i]
+```
+
+means
+
+> Shortest distance from source to node i.
+
+Initially
+
+```
+dist
+
+[0,∞,∞,∞...]
+```
+
+because
+
+Source distance is
+
+```
+0
+```
+
+Everything else
+
+```
+Unknown
+```
+
+---
+
+## Ways Array
+
+```
+ways[i]
+```
+
+means
+
+> Number of shortest paths reaching node i.
+
+Initially
+
+```
+ways
+
+[1,0,0,0...]
+```
+
+Why?
+
+Because
+
+There is exactly one way to stand at the source.
+
+Do nothing.
+
+---
+
+# Step 6 : Why Use a Min Heap?
+
+Imagine you have many cities waiting.
+
+```
+City A
+
+Distance = 4
+
+City B
+
+Distance = 10
+
+City C
+
+Distance = 2
+```
+
+Which city should we explore first?
+
+Obviously
+
+```
+City C
+```
+
+Because it has the smallest known distance.
+
+A Min Heap automatically gives us
+
+```
+Smallest distance first
+```
+
+---
+
+# Step 7 : The Main Logic
+
+Suppose we're at
+
+```
+Node u
+```
+
+Current shortest distance
+
+```
+dist[u]
+```
+
+Road
+
+```
+u ----5----> v
+```
+
+New distance
+
+```
+newDistance
+
+=
+
+dist[u] + weight
+```
+
+Now compare.
+
+---
+
+## Case 1
+
+```
+newDistance
+
+<
+
+dist[v]
+```
+
+Amazing!
+
+We found a shorter route.
+
+Update
+
+```
+dist[v]
+```
+
+Also
+
+All shortest paths to
+
+```
+v
+```
+
+must now come from
+
+```
+u
+```
+
+Therefore
+
+```
+ways[v]
+
+=
+
+ways[u]
+```
+
+---
+
+## Case 2
+
+Suppose
+
+```
+newDistance
+
+==
+
+dist[v]
+```
+
+Interesting.
+
+We found another shortest path.
+
+Old shortest path
+
+```
+0 → A → V
+```
+
+New shortest path
+
+```
+0 → B → V
+```
+
+Both take the same time.
+
+Therefore
+
+```
+ways[v]
+
++=
+
+ways[u]
+```
+
+Don't replace.
+
+Add.
+
+---
+
+## Case 3
+
+```
+newDistance
+
+>
+
+dist[v]
+```
+
+Ignore it.
+
+It is longer.
+
+---
+
+# The Mathematics Behind It
+
+Suppose
+
+```
+ways[A] = 3
+```
+
+Meaning
+
+There are
+
+```
+3 shortest ways
+```
+
+to reach
+
+```
+A
+```
+
+Now suppose
+
+```
+A → B
+```
+
+is part of a shortest route.
+
+Every shortest path reaching
+
+```
+A
+```
+
+can continue to
+
+```
+B
+```
+
+So
+
+```
+ways[B]
+
+=
+
+ways[A]
+```
+
+If another shortest path reaches
+
+```
+B
+```
+
+from somewhere else
+
+Then
+
+```
+ways[B]
+
+=
+
+ways[B]
+
++
+
+ways[other]
+```
+
+This is just counting combinations.
+
+---
+
+# Visual Example
+
+Suppose
+
+```
+      A
+     /
+0---<
+     \
+      B
+```
+
+Both
+
+```
+0→A
+```
+
+and
+
+```
+0→B
+```
+
+take
+
+```
+5
+```
+
+Now
+
+```
+A→C
+
+B→C
+```
+
+both take
+
+```
+2
+```
+
+Then
+
+```
+0→A→C
+
+7
+```
+
+and
+
+```
+0→B→C
+
+7
+```
+
+Both are shortest.
+
+Therefore
+
+```
+ways[C]
+
+=
+
+2
+```
+
+---
+
+# Dry Run
+
+Example
+
+```python
+n = 2
+
+roads = [
+    [1,0,10]
+]
+```
+
+---
+
+Initial
+
+Distance
+
+```
+[0,∞]
+```
+
+Ways
+
+```
+[1,0]
+```
+
+Heap
+
+```
+[(0,0)]
+```
+
+Meaning
+
+```
+(distance,node)
+```
+
+---
+
+## Pop Heap
+
+```
+(0,0)
+```
+
+Neighbor
+
+```
+1
+
+Weight = 10
+```
+
+New Distance
+
+```
+0+10=10
+```
+
+Compare
+
+```
+10<∞
+```
+
+Yes.
+
+Update
+
+Distance
+
+```
+[0,10]
+```
+
+Ways
+
+```
+ways[1]
+
+=
+
+ways[0]
+
+=
+
+1
+```
+
+Push
+
+```
+(10,1)
+```
+
+---
+
+## Pop
+
+```
+(10,1)
+```
+
+Nothing better found.
+
+Done.
+
+Answer
+
+```
+ways[1]
+
+=
+
+1
+```
+
+---
+
+# Dry Run of the Larger Example
+
+Input
+
+```python
+roads = [
+[0,6,7],
+[0,1,2],
+[1,2,3],
+[1,3,3],
+[6,3,3],
+[3,5,1],
+[6,5,1],
+[2,5,1],
+[0,4,5],
+[4,6,2]
+]
+```
+
+Initially
+
+```
+dist = [0,∞,∞,∞,∞,∞,∞]
+
+ways = [1,0,0,0,0,0,0]
+```
+
+Explore from node `0`:
+
+- `0 → 6` gives distance `7`
+- `0 → 1` gives distance `2`
+- `0 → 4` gives distance `5`
+
+```
+dist = [0,2,∞,∞,5,∞,7]
+
+ways = [1,1,0,0,1,0,1]
+```
+
+Next, process node `1` (distance `2`):
+
+- `1 → 2` gives `5`
+- `1 → 3` gives `5`
+
+```
+dist = [0,2,5,5,5,∞,7]
+
+ways = [1,1,1,1,1,0,1]
+```
+
+Next, process nodes with distance `5` (`2`, `3`, `4`):
+
+From `2`:
+
+```
+2 → 5 = 6
+
+ways[5] = ways[2] = 1
+```
+
+From `3`:
+
+```
+3 → 5 = 6
+
+Equal shortest distance
+
+ways[5] = 1 + 1 = 2
+```
+
+From `4`:
+
+```
+4 → 6 = 7
+
+Equal shortest distance
+
+ways[6] = 1 + 1 = 2
+```
+
+Current state
+
+```
+dist = [0,2,5,5,5,6,7]
+
+ways = [1,1,1,1,1,2,2]
+```
+
+Now process node `5` (distance `6`):
+
+```
+5 → 6 = 7
+
+Equal shortest distance
+
+ways[6]
+
+=
+
+2 + ways[5]
+
+=
+
+2 + 2
+
+=
+
+4
+```
+
+Final
+
+```
+dist[6] = 7
+
+ways[6] = 4
+```
+
+There are exactly **4 shortest paths**.
+
+---
+
+# Time Complexity
+
+Building Graph
+
+```
+O(E)
+```
+
+Dijkstra
+
+```
+O((V+E) log V)
+```
+
+where
+
+- `V` = Number of intersections
+- `E` = Number of roads
+
+---
+
+# Space Complexity
+
+Graph
+
+```
+O(E)
+```
+
+Distance Array
+
+```
+O(V)
+```
+
+Ways Array
+
+```
+O(V)
+```
+
+Heap
+
+```
+O(V)
+```
+
+Overall
+
+```
+O(V + E)
+```
+
+---
+
+# Python Solution
+
+```python
+from collections import defaultdict
+import heapq
+
+class Solution:
+    def countPaths(self, n, roads):
+
+        MOD = 10**9 + 7
+
+        graph = defaultdict(list)
+
+        # Build graph
+        for u, v, w in roads:
+            graph[u].append((v, w))
+            graph[v].append((u, w))
+
+        dist = [float("inf")] * n
+        ways = [0] * n
+
+        dist[0] = 0
+        ways[0] = 1
+
+        heap = [(0, 0)]   # (distance, node)
+
+        while heap:
+
+            currentDist, node = heapq.heappop(heap)
+
+            # Skip outdated entries
+            if currentDist > dist[node]:
+                continue
+
+            for neighbor, weight in graph[node]:
+
+                newDist = currentDist + weight
+
+                # Found a shorter path
+                if newDist < dist[neighbor]:
+
+                    dist[neighbor] = newDist
+                    ways[neighbor] = ways[node]
+
+                    heapq.heappush(
+                        heap,
+                        (newDist, neighbor)
+                    )
+
+                # Found another shortest path
+                elif newDist == dist[neighbor]:
+
+                    ways[neighbor] = (
+                        ways[neighbor] + ways[node]
+                    ) % MOD
+
+        return ways[n - 1]
+```
+
+---
+
+# Why This Works
+
+The algorithm combines **Dijkstra's shortest path** with **dynamic counting**.
+
+- `dist[]` always stores the minimum time needed to reach each node.
+- `ways[]` stores **how many different shortest paths** achieve that minimum time.
+- Whenever a strictly shorter path is found, we replace both the distance and the number of ways.
+- Whenever another path with the **same shortest distance** is found, we add its count to the existing count.
+- Dijkstra guarantees that when a node is processed with its minimum distance, no future path can improve that distance, making the counting correct.
+
+---
+
+# How to Build the Intuition
+
+Whenever you encounter a graph problem, ask yourself these questions:
+
+### 1. What is the graph?
+
+```
+Intersections
+
+Roads
+```
+
+---
+
+### 2. What am I optimizing?
+
+```
+Minimum travel time
+```
+
+---
+
+### 3. Are edge weights positive?
+
+```
+Yes
+
+→ Dijkstra
+```
+
+---
+
+### 4. Do I need only the shortest distance?
+
+No.
+
+I also need
+
+```
+How many shortest paths exist?
+```
+
+---
+
+### 5. What extra information should I maintain?
+
+```
+dist[]
+
++
+
+ways[]
+```
+
+---
+
+### 6. What happens when I discover a path?
+
+- **Shorter path?** Replace the distance and copy the number of ways.
+- **Equal shortest path?** Add the number of ways.
+- **Longer path?** Ignore it.
+
+---
+
+# Key Takeaways
+
+- Recognize **positive weighted graph → Dijkstra**.
+- Build the graph using an adjacency list.
+- Maintain two arrays:
+  - `dist[]` → shortest distance.
+  - `ways[]` → number of shortest paths.
+- If a **shorter** path is found, **replace** the distance and **copy** the path count.
+- If an **equally short** path is found, **add** the path count.
+- Always use a **min-heap** so the closest node is processed first.
+- Return `ways[n-1] % (10^9 + 7)`.
