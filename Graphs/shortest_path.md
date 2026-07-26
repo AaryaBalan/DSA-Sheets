@@ -10,6 +10,7 @@ This is a beginner-friendly guide to shortest path problems in graphs. It explai
 
 ## Problems
 - [1091. Shortest Path in Binary Matrix](#1091-shortest-path-in-binary-matrix)
+- [1631. Path With Minimum Effort](#1631-path-with-minimum-effort)
 
 <br/><br/><br/>
 
@@ -3791,3 +3792,1121 @@ Equal Edge Cost?
         ↓
        BFS
 ```
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 1631. Path With Minimum Effort
+
+**Difficulty:** Medium
+
+---
+
+# Problem Statement
+
+You are given a `rows × columns` grid called `heights`.
+
+Each cell represents the height of that position.
+
+You start at the **top-left corner `(0,0)`** and want to reach the **bottom-right corner `(rows-1, columns-1)`**.
+
+You can move only in four directions:
+
+- Up
+- Down
+- Left
+- Right
+
+The effort of moving between two adjacent cells is:
+
+```python
+abs(height1 - height2)
+```
+
+The effort of an entire path is **NOT the sum** of all efforts.
+
+Instead,
+
+> **The effort of a path is the maximum height difference between any two consecutive cells in that path.**
+
+Your goal is to find a path whose effort is as small as possible.
+
+---
+
+# Understanding the Problem Like a Common Man
+
+Imagine you're hiking on mountains.
+
+Each number is the height of the land.
+
+```
+1 2 2
+3 8 2
+5 3 5
+```
+
+Suppose you walk like this:
+
+```
+1 → 3 → 5 → 3 → 5
+```
+
+The jump at every step is
+
+```
+|1-3| = 2
+|3-5| = 2
+|5-3| = 2
+|3-5| = 2
+```
+
+The largest jump is
+
+```
+2
+```
+
+So the effort of this path is
+
+```
+2
+```
+
+---
+
+Now consider another path.
+
+```
+1 → 2 → 2 → 2 → 5
+```
+
+Step differences
+
+```
+1
+0
+0
+3
+```
+
+Largest jump
+
+```
+3
+```
+
+Even though most steps are easy,
+
+there is one difficult jump of **3**.
+
+So the effort becomes
+
+```
+3
+```
+
+We always care about
+
+> **the biggest jump in the entire path.**
+
+Not the total.
+
+---
+
+# Key Observation
+
+We are trying to
+
+```
+Minimize
+
+the Maximum
+
+difference
+```
+
+This is called a **Minimax Problem**.
+
+---
+
+# How Should We Think?
+
+Whenever you solve a graph problem, ask yourself:
+
+### Question 1
+
+What am I minimizing?
+
+Is it
+
+- Number of moves?
+- Sum of costs?
+- Maximum cost?
+- Minimum cost?
+
+Here,
+
+we are minimizing
+
+```
+Maximum Edge Difference
+```
+
+---
+
+### Question 2
+
+Can BFS solve it?
+
+No.
+
+Because every edge has different cost.
+
+Example
+
+```
+1 → 100
+
+cost = 99
+```
+
+Another edge
+
+```
+100 → 101
+
+cost = 1
+```
+
+Different edge weights mean BFS is not suitable.
+
+---
+
+### Question 3
+
+Can DFS solve it?
+
+Yes.
+
+But DFS explores every possible path.
+
+For a grid,
+
+the number of paths grows exponentially.
+
+Too slow.
+
+---
+
+# Why Dijkstra?
+
+Normally Dijkstra is used to find
+
+```
+Minimum Sum
+```
+
+For example
+
+```
+2 + 5 + 3 = 10
+```
+
+But here
+
+we don't care about the sum.
+
+We care about
+
+```
+Maximum Edge
+```
+
+Can Dijkstra still work?
+
+**Yes.**
+
+We only need to modify how we calculate the path cost.
+
+---
+
+# The Main Intuition
+
+Suppose you've already travelled.
+
+Current maximum effort is
+
+```
+4
+```
+
+Now the next edge has effort
+
+```
+7
+```
+
+Then the whole path effort becomes
+
+```
+max(4,7)=7
+```
+
+Another example
+
+Current effort
+
+```
+8
+```
+
+Next edge
+
+```
+2
+```
+
+Whole path
+
+```
+max(8,2)=8
+```
+
+Therefore,
+
+every time we move,
+
+our new effort is
+
+```python
+newEffort = max(currentEffort, edgeDifference)
+```
+
+This single line is the entire idea of this problem.
+
+---
+
+# Why Does Dijkstra Still Work?
+
+Suppose there are two ways to reach the same cell.
+
+First path
+
+```
+Effort = 2
+```
+
+Second path
+
+```
+Effort = 5
+```
+
+Clearly,
+
+the first one is always better.
+
+No matter where you go later,
+
+starting with effort **2** can never become worse than starting with **5**.
+
+This property makes Dijkstra work.
+
+---
+
+# Mathematical Logic
+
+Suppose
+
+```
+Current Path Effort = E
+```
+
+Next edge difference is
+
+```
+D
+```
+
+Then
+
+```
+New Path Effort
+
+=
+
+max(E,D)
+```
+
+Why?
+
+Because
+
+```
+Path Effort
+
+=
+
+Largest Edge Difference
+```
+
+If the largest difference so far is
+
+```
+6
+```
+
+and next edge is
+
+```
+2
+```
+
+Largest remains
+
+```
+6
+```
+
+If next edge is
+
+```
+10
+```
+
+Largest becomes
+
+```
+10
+```
+
+Hence
+
+```python
+newEffort = max(currentEffort, edgeDifference)
+```
+
+---
+
+# Building the Intuition
+
+Think of carrying a heavy backpack.
+
+Initially,
+
+```
+Weight = 0
+```
+
+Every time you walk,
+
+if the next jump is larger than every previous jump,
+
+your backpack becomes heavier.
+
+Otherwise,
+
+its weight stays the same.
+
+Example
+
+Current backpack
+
+```
+5
+```
+
+Next jump
+
+```
+2
+```
+
+Backpack
+
+```
+5
+```
+
+Next jump
+
+```
+9
+```
+
+Backpack
+
+```
+9
+```
+
+The backpack never becomes lighter.
+
+Exactly like
+
+```python
+max(previousMaximum, currentDifference)
+```
+
+---
+
+# Step-by-Step Algorithm
+
+## Step 1
+
+Create an effort matrix.
+
+```
+effort[i][j]
+
+=
+
+Minimum effort needed to reach cell (i,j)
+```
+
+Initially
+
+```
+0 INF INF
+INF INF INF
+INF INF INF
+```
+
+---
+
+## Step 2
+
+Use a Min Heap.
+
+The heap stores
+
+```
+(Current Effort, Row, Column)
+```
+
+Initially
+
+```
+(0,0,0)
+```
+
+---
+
+## Step 3
+
+Always remove the smallest effort cell.
+
+This guarantees
+
+we always process the currently best path first.
+
+---
+
+## Step 4
+
+For every neighbour
+
+calculate
+
+```python
+difference
+
+=
+
+abs(height[current]-height[next])
+```
+
+Then
+
+```python
+newEffort
+
+=
+
+max(currentEffort,difference)
+```
+
+---
+
+## Step 5
+
+If
+
+```
+newEffort
+
+<
+
+stored effort
+```
+
+update it
+
+and push into heap.
+
+---
+
+## Step 6
+
+When destination is removed from the heap,
+
+that answer is guaranteed to be minimum.
+
+---
+
+# Dry Run
+
+Grid
+
+```
+1 2 2
+3 8 2
+5 3 5
+```
+
+Initially
+
+Heap
+
+```
+[(0,(0,0))]
+```
+
+Effort Matrix
+
+```
+0 INF INF
+INF INF INF
+INF INF INF
+```
+
+---
+
+## Pop
+
+```
+(0,0)
+```
+
+Neighbours
+
+Right
+
+```
+1 → 2
+
+Difference
+
+1
+
+New Effort
+
+max(0,1)=1
+```
+
+Update
+
+Down
+
+```
+1 → 3
+
+Difference
+
+2
+
+New Effort
+
+2
+```
+
+Heap
+
+```
+(1,(0,1))
+
+(2,(1,0))
+```
+
+---
+
+## Pop
+
+```
+(1,(0,1))
+```
+
+Neighbours
+
+Right
+
+```
+2 → 2
+
+Difference
+
+0
+
+New Effort
+
+max(1,0)=1
+```
+
+Update
+
+Down
+
+```
+2 → 8
+
+Difference
+
+6
+
+New Effort
+
+6
+```
+
+Heap
+
+```
+(1,(0,2))
+
+(2,(1,0))
+
+(6,(1,1))
+```
+
+---
+
+## Pop
+
+```
+(1,(0,2))
+```
+
+Neighbour
+
+```
+2 → 2
+
+Difference
+
+0
+
+New Effort
+
+1
+```
+
+Heap
+
+```
+(1,(1,2))
+
+(2,(1,0))
+
+(6,(1,1))
+```
+
+---
+
+## Pop
+
+```
+(1,(1,2))
+```
+
+Neighbour
+
+```
+2 → 5
+
+Difference
+
+3
+
+New Effort
+
+3
+```
+
+Heap
+
+```
+(2,(1,0))
+
+(3,(2,2))
+
+(6,(1,1))
+```
+
+---
+
+## Pop
+
+```
+(2,(1,0))
+```
+
+Neighbour
+
+```
+3 → 5
+
+Difference
+
+2
+
+New Effort
+
+2
+```
+
+Eventually
+
+we reach
+
+```
+(2,2)
+```
+
+with effort
+
+```
+2
+```
+
+Answer
+
+```
+2
+```
+
+---
+
+# What's Wrong With Your Code?
+
+```python
+class Solution:
+    def minimumEffortPath(self, heights: List[List[int]]) -> int:
+        m = len(heights)
+        n = len(heights[0])
+        if m == 1 and n == 1:
+            return 0
+        pq = []
+        heapq.heappush(pq, (0, 0, 0, 0))
+        distance = [
+            (-1, 0),
+            (1, 0),
+            (0, -1),
+            (0, 1)
+        ]
+        visited = set()
+        visited.add((float('inf'),0,0))
+        while pq:
+            diff, x, y, ans = heapq.heappop(pq)
+            ans = max(ans, diff)
+            if x == m-1 and y == n-1:
+                return ans
+            for dx, dy in distance:
+                nx = x + dx
+                ny = y + dy
+                if (
+                    0 <= nx < m and
+                    0 <= ny < n
+                ):
+                    newVal = heights[nx][ny]
+                    oldVal = heights[x][y]
+                    change = abs(newVal - oldVal)
+                    if (change, nx, ny) not in visited:
+                        heapq.heappush(pq, (change, nx, ny, ans))
+                        visited.add((change, nx, ny))     
+```
+
+Your approach is very close.
+
+The idea of using a priority queue is correct.
+
+However, there are several mistakes.
+
+---
+
+## Mistake 1
+
+You push
+
+```python
+(change,nx,ny,ans)
+```
+
+where
+
+```
+change
+
+=
+
+current edge difference
+```
+
+But Dijkstra should prioritize
+
+```
+Entire Path Effort
+```
+
+Instead,
+
+push
+
+```python
+newEffort = max(ans,change)
+
+heapq.heappush(
+    pq,
+    (newEffort,nx,ny)
+)
+```
+
+---
+
+## Mistake 2
+
+Your visited set is
+
+```python
+(change,nx,ny)
+```
+
+This is incorrect.
+
+The same cell can be reached with different efforts.
+
+Example
+
+```
+Cell (2,2)
+
+Reached with effort 8
+
+Later reached with effort 3
+```
+
+The second path is better.
+
+But your visited set blocks it.
+
+---
+
+## Mistake 3
+
+You should maintain an effort matrix
+
+```python
+effort = [
+    [INF]*n
+    for _ in range(m)
+]
+```
+
+Instead of
+
+```python
+visited
+```
+
+---
+
+## Mistake 4
+
+The variable
+
+```python
+ans
+```
+
+is unnecessary.
+
+The heap itself already stores the best path effort.
+
+Simply store
+
+```
+(Current Effort,Row,Column)
+```
+
+---
+
+# Correct Python Solution
+
+```python
+import heapq
+
+class Solution:
+    def minimumEffortPath(self, heights):
+
+        m = len(heights)
+        n = len(heights[0])
+
+        effort = [[float("inf")] * n for _ in range(m)]
+        effort[0][0] = 0
+
+        pq = [(0, 0, 0)]
+
+        directions = [
+            (-1, 0),
+            (1, 0),
+            (0, -1),
+            (0, 1)
+        ]
+
+        while pq:
+
+            currentEffort, x, y = heapq.heappop(pq)
+
+            if currentEffort > effort[x][y]:
+                continue
+
+            if x == m - 1 and y == n - 1:
+                return currentEffort
+
+            for dx, dy in directions:
+
+                nx = x + dx
+                ny = y + dy
+
+                if 0 <= nx < m and 0 <= ny < n:
+
+                    difference = abs(
+                        heights[nx][ny] -
+                        heights[x][y]
+                    )
+
+                    newEffort = max(
+                        currentEffort,
+                        difference
+                    )
+
+                    if newEffort < effort[nx][ny]:
+
+                        effort[nx][ny] = newEffort
+
+                        heapq.heappush(
+                            pq,
+                            (newEffort, nx, ny)
+                        )
+
+        return 0
+```
+
+---
+
+# Time Complexity
+
+There are
+
+```
+V = m × n
+```
+
+vertices.
+
+Each cell has at most
+
+```
+4
+```
+
+edges.
+
+Dijkstra complexity
+
+```
+O(V log V)
+
+=
+
+O(mn log(mn))
+```
+
+---
+
+# Space Complexity
+
+```
+O(mn)
+```
+
+for
+
+- effort matrix
+- priority queue
+
+---
+
+# Pattern Recognition for Interviews
+
+Whenever you see
+
+```
+Minimum
+
+Maximum
+
+Minimum
+
+Maximum
+```
+
+Think
+
+> **Minimax Problem**
+
+Whenever you see
+
+```
+Grid
+
++
+
+Weighted Edges
+
++
+
+Best Path
+```
+
+Think
+
+> **Dijkstra**
+
+Whenever the path cost is **not the sum**, ask yourself:
+
+> **Can I redefine the path cost and replace `+` with another operation?**
+
+Examples:
+
+```
+Shortest Path
+
+newCost = oldCost + edge
+```
+
+```
+Minimum Effort Path
+
+newCost = max(oldCost, edge)
+```
+
+```
+Maximum Probability Path
+
+newCost = oldProbability × edgeProbability
+```
+
+The biggest intuition to learn is:
+
+> **Dijkstra is not just for addition. It works whenever you can define a path cost that only depends on the previous path cost and the current edge, and where reaching a node with a smaller cost is always better than reaching it with a larger one.**
