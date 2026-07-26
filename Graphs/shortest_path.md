@@ -2,11 +2,18 @@
 
 This is a beginner-friendly guide to shortest path problems in graphs. It explains how to solve shortest paths in a DAG using topological ordering and relaxation, why BFS works for unweighted graphs, and when Dijkstra is the right choice for weighted graphs with positive edge weights.
 
-## Intro Links
-
+## Concepts and Theories
 - [Shortest Path in Directed Acyclic Graph](#shortest-path-in-directed-acyclic-graph-dag)
 - [Shortest Path in Undirected Graph with Unit Weights](#shortest-path-in-undirected-graph-with-unit-weights)
 - [Dijkstra's Algorithm (Priority Queue)](#dijkstras-algorithm-priority-queue)
+- [Dijkstra's Algorithm Using (Set)](#dijkstras-algorithm-set)
+
+## Problems
+- [1091. Shortest Path in Binary Matrix](#1091-shortest-path-in-binary-matrix)
+
+<br/><br/><br/>
+
+# Theories and Concept
 
 # Shortest Path in Directed Acyclic Graph (DAG)
 
@@ -2222,3 +2229,1565 @@ Dijkstra's Algorithm
 # One-Line Interview Intuition
 
 > **Dijkstra's algorithm is a greedy shortest-path algorithm that always expands the node with the smallest known distance. Because all edge weights are non-negative, once a node is removed from the min-heap, no shorter path to that node can ever be found later.**
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# Dijkstra's Algorithm (Set)
+
+## Why do we use a `set` in Dijkstra's Algorithm?
+
+The main goal of Dijkstra's algorithm is to **always process the node with the smallest distance first**.
+
+When we implemented Dijkstra using a **priority queue (min-heap)**, we stored:
+
+```python
+(distance, node)
+```
+
+The priority queue automatically gave us the smallest distance first.
+
+A `set` can also achieve the same goal.
+
+---
+
+# Important Property of `set`
+
+In C++ (`std::set`):
+
+- Stores **unique** values.
+- Stores elements in **sorted order**.
+- Therefore, the **smallest element is always at the beginning**.
+
+Example:
+
+```cpp
+set<pair<int,int>> st;
+
+st.insert({5,4});
+st.insert({2,1});
+st.insert({8,3});
+```
+
+Internally:
+
+```
+(2,1)
+(5,4)
+(8,3)
+```
+
+The first element is always the smallest.
+
+---
+
+# How does Python do this?
+
+Python's built-in `set` is **NOT sorted**.
+
+```python
+s = {(5,4), (2,1), (8,3)}
+
+print(s)
+```
+
+Output could be
+
+```
+{(5,4), (8,3), (2,1)}
+```
+
+Notice:
+
+- Not sorted
+- Cannot get the minimum efficiently
+
+Therefore,
+
+**Python's built-in set CANNOT be used like C++ std::set for Dijkstra.**
+
+Instead, Python uses
+
+- `heapq` (recommended)
+- or a third-party package like `sortedcontainers.SortedSet`
+
+---
+
+# What is stored inside the set?
+
+We store
+
+```python
+(distance, node)
+```
+
+Example
+
+```
+(0,0)
+```
+
+Meaning
+
+```
+Distance = 0
+Node = 0
+```
+
+Later,
+
+```
+(4,1)
+(4,2)
+(7,3)
+(5,4)
+```
+
+The set automatically sorts them as
+
+```
+(4,1)
+(4,2)
+(5,4)
+(7,3)
+```
+
+The first element is always the minimum distance.
+
+---
+
+# Why does `(4,1)` come before `(4,2)`?
+
+Pairs are compared lexicographically.
+
+Python and C++ compare tuples/pairs like this:
+
+```
+(distance, node)
+```
+
+First compare
+
+```
+distance
+```
+
+If equal,
+
+compare
+
+```
+node
+```
+
+Example
+
+```
+(4,1)
+(4,2)
+```
+
+Distance is equal.
+
+Compare nodes
+
+```
+1 < 2
+```
+
+Therefore
+
+```
+(4,1)
+```
+
+comes first.
+
+---
+
+# Example Graph
+
+```
+        4
+    0 ------- 1
+    |         |
+ 4  |         | 2
+    |         |
+    2---------+
+      \
+       \3
+        \
+         3
+```
+
+Initially
+
+```
+Distance array
+
+0 : 0
+1 : INF
+2 : INF
+3 : INF
+```
+
+Set
+
+```
+{(0,0)}
+```
+
+---
+
+# Step 1
+
+Remove
+
+```
+(0,0)
+```
+
+Visit neighbors.
+
+Node 1
+
+```
+0 + 4 = 4
+```
+
+Update
+
+```
+dist[1]=4
+```
+
+Insert
+
+```
+(4,1)
+```
+
+Node 2
+
+```
+0+4=4
+```
+
+Insert
+
+```
+(4,2)
+```
+
+Now
+
+```
+{
+(4,1),
+(4,2)
+}
+```
+
+---
+
+# Step 2
+
+Take the smallest
+
+```
+(4,1)
+```
+
+Visit its neighbors.
+
+Suppose no shorter path is found.
+
+Nothing changes.
+
+Set
+
+```
+{
+(4,2)
+}
+```
+
+---
+
+# Step 3
+
+Remove
+
+```
+(4,2)
+```
+
+Now suppose
+
+```
+2 -> 5
+```
+
+cost
+
+```
+6
+```
+
+Current distance
+
+```
+4
+```
+
+New distance
+
+```
+10
+```
+
+Insert
+
+```
+(10,5)
+```
+
+Set becomes
+
+```
+{
+(10,5)
+}
+```
+
+---
+
+# Later...
+
+Suppose another node reaches node 5.
+
+```
+Current path
+
+Distance = 5
+```
+
+Edge weight
+
+```
+3
+```
+
+New distance
+
+```
+8
+```
+
+Now
+
+```
+8 < 10
+```
+
+We found a better path.
+
+---
+
+# Priority Queue Behavior
+
+Priority Queue contains
+
+```
+(10,5)
+```
+
+Insert
+
+```
+(8,5)
+```
+
+Now heap contains
+
+```
+(8,5)
+(10,5)
+```
+
+Eventually,
+
+```
+(8,5)
+```
+
+is processed.
+
+Later,
+
+```
+(10,5)
+```
+
+is also removed from the heap.
+
+But
+
+```
+10
+```
+
+is already outdated.
+
+So one unnecessary iteration occurs.
+
+---
+
+# Set Behavior
+
+Set contains
+
+```
+(10,5)
+```
+
+We discover
+
+```
+(8,5)
+```
+
+Instead of inserting directly,
+
+we first erase
+
+```
+(10,5)
+```
+
+Then insert
+
+```
+(8,5)
+```
+
+Final set
+
+```
+{
+(8,5)
+}
+```
+
+The outdated entry is removed immediately.
+
+No extra processing later.
+
+---
+
+# Why erase first?
+
+Because
+
+```
+10
+```
+
+is no longer the shortest distance.
+
+Keeping it wastes time.
+
+The set allows us to delete the old value.
+
+Priority queue does not.
+
+---
+
+# Code (C++)
+
+```cpp
+if(dist[v] != INF)
+{
+    st.erase({dist[v], v});
+}
+
+dist[v] = newDistance;
+
+st.insert({dist[v], v});
+```
+
+---
+
+# Python Equivalent (using SortedSet)
+
+```python
+from sortedcontainers import SortedSet
+
+st = SortedSet()
+
+dist = [float('inf')] * n
+dist[source] = 0
+
+st.add((0, source))
+
+while st:
+
+    d, node = st.pop(0)
+
+    for nxt, wt in graph[node]:
+
+        if d + wt < dist[nxt]:
+
+            if dist[nxt] != float('inf'):
+                st.discard((dist[nxt], nxt))
+
+            dist[nxt] = d + wt
+
+            st.add((dist[nxt], nxt))
+```
+
+---
+
+# Time Complexity
+
+For a balanced BST (`std::set`):
+
+| Operation | Complexity |
+|-----------|------------|
+| Insert | O(log V) |
+| Erase | O(log V) |
+| Find Minimum | O(1) (begin()) |
+| Remove Minimum | O(log V) |
+
+Overall Dijkstra complexity:
+
+```
+O((V + E) log V)
+```
+
+---
+
+# Priority Queue vs Set
+
+| Feature | Priority Queue | Set |
+|----------|---------------|-----|
+| Smallest element first | ✅ | ✅ |
+| Stores duplicates | ✅ | ❌ (same pair) |
+| Remove old distance | ❌ | ✅ |
+| Extra outdated entries | Yes | No |
+| Insert | O(log V) | O(log V) |
+| Delete | Not possible directly | O(log V) |
+| Recommended in Python | ✅ (`heapq`) | Only with `SortedSet` |
+
+---
+
+# Key Takeaways
+
+- Dijkstra always processes the node with the **smallest current distance**.
+- C++ `std::set` keeps `(distance, node)` pairs **sorted automatically**.
+- The biggest advantage of a `set` over a priority queue is that **you can erase an outdated `(distance, node)` pair** before inserting the updated one.
+- This avoids processing stale entries later, although both implementations have the same asymptotic time complexity: **O((V + E) log V)**.
+- In Python, the built-in `set` is **not sorted**, so the usual implementation uses `heapq`. To mimic C++ `std::set`, you need a sorted data structure such as `sortedcontainers.SortedSet`.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# Problems
+
+# 1091. Shortest Path in Binary Matrix
+
+## Problem Statement
+
+You are given an `n × n` binary matrix called `grid`.
+
+- `0` → Open (can walk)
+- `1` → Blocked (cannot walk)
+
+You start from the **top-left corner** `(0, 0)` and want to reach the **bottom-right corner** `(n - 1, n - 1)`.
+
+You can move in **8 directions**:
+
+```text
+↖   ↑   ↗
+←   •   →
+↙   ↓   ↘
+```
+
+Your task is to return the **length of the shortest clear path**.
+
+If no path exists, return `-1`.
+
+---
+
+# Example 1
+
+Input
+
+```text
+grid = [
+ [0,1],
+ [1,0]
+]
+```
+
+Visualization
+
+```text
+S  X
+X  E
+```
+
+Since diagonal movement is allowed,
+
+```text
+S → E
+```
+
+Cells visited:
+
+```text
+(0,0)
+(1,1)
+```
+
+Answer
+
+```text
+2
+```
+
+---
+
+# Example 2
+
+Input
+
+```text
+grid = [
+ [0,0,0],
+ [1,1,0],
+ [1,1,0]
+]
+```
+
+Visualization
+
+```text
+S  .  .
+X  X  .
+X  X  E
+```
+
+Shortest path
+
+```text
+S
+↓
+
+.
+↓
+
+.
+↓
+
+E
+```
+
+Length
+
+```text
+4
+```
+
+---
+
+# Example 3
+
+```text
+grid = [
+ [1,0,0],
+ [1,1,0],
+ [1,1,0]
+]
+```
+
+The starting cell is blocked.
+
+Answer
+
+```text
+-1
+```
+
+---
+
+# Step 1: Understand the Problem Like a Common Man
+
+Imagine you're inside a garden made of square tiles.
+
+Some tiles are safe.
+
+Some tiles are blocked.
+
+```text
+0 = Safe
+1 = Blocked
+```
+
+You stand here
+
+```text
+S
+```
+
+and want to reach
+
+```text
+E
+```
+
+You may walk in all eight directions.
+
+Your goal is **NOT** to find every possible path.
+
+Your goal is **ONLY** to find the shortest one.
+
+---
+
+# Step 2: Identify the Important Keywords
+
+Whenever solving coding problems, train your brain to search for keywords.
+
+Here the important words are
+
+```text
+Shortest Path
+Minimum
+Fewest Moves
+```
+
+Whenever you see these words,
+
+immediately think
+
+> **Graph Problem**
+
+Even though the input is a matrix.
+
+---
+
+# Step 3: Why is This a Graph?
+
+Many beginners think
+
+> "This is a matrix, not a graph."
+
+Actually,
+
+every matrix can be converted into a graph.
+
+Each cell becomes a node.
+
+For example,
+
+```text
+0 0
+
+0 0
+```
+
+becomes
+
+```text
+A ----- B
+| \   / |
+|  \ /  |
+|  / \  |
+| /   \ |
+C ----- D
+```
+
+Each neighboring cell has an edge.
+
+Therefore,
+
+this matrix is secretly a graph.
+
+---
+
+# Step 4: Which Graph Algorithm Should We Use?
+
+There are many graph algorithms.
+
+| Problem Type | Algorithm |
+|-------------|-----------|
+| Visit everything | DFS |
+| Shortest path (equal cost) | BFS |
+| Weighted shortest path | Dijkstra |
+| Negative weights | Bellman Ford |
+
+Now ask yourself
+
+> Does every movement cost the same?
+
+Yes.
+
+Each movement costs exactly **1 step**.
+
+Therefore,
+
+the correct algorithm is
+
+# Breadth First Search (BFS)
+
+---
+
+# Step 5: Why BFS?
+
+Imagine throwing a stone into a pond.
+
+The water spreads like this.
+
+Distance 0
+
+```text
+S
+```
+
+Distance 1
+
+```text
+***
+*S*
+***
+```
+
+Distance 2
+
+```text
+*******
+*******
+***S***
+*******
+*******
+```
+
+BFS spreads exactly like these waves.
+
+It first explores
+
+```text
+1 step away
+```
+
+then
+
+```text
+2 steps away
+```
+
+then
+
+```text
+3 steps away
+```
+
+and so on.
+
+Because of this,
+
+the **first time** BFS reaches the destination,
+
+it is guaranteed to be the shortest path.
+
+---
+
+# Step 6: Why Not DFS?
+
+DFS behaves differently.
+
+It says
+
+```text
+I'll keep walking...
+
+walking...
+
+walking...
+
+walking...
+```
+
+Maybe it finds a very long path.
+
+Example
+
+```text
+S
+
+↓
+
+↓
+
+↓
+
+↓
+
+↓
+
+↓
+
+↓
+
+E
+```
+
+But another path might be
+
+```text
+S → E
+```
+
+DFS does not know that until much later.
+
+BFS always checks the shorter paths first.
+
+---
+
+# Step 7: Building the Intuition
+
+Whenever solving a new problem,
+
+ask yourself these questions.
+
+## Question 1
+
+What is one state?
+
+Answer
+
+```text
+(row, column)
+```
+
+---
+
+## Question 2
+
+From one state,
+
+where can I move?
+
+Answer
+
+Eight neighboring cells.
+
+---
+
+## Question 3
+
+When do I stop?
+
+Answer
+
+When
+
+```python
+row == n - 1
+
+and
+
+col == n - 1
+```
+
+---
+
+## Question 4
+
+Can I visit the same place again?
+
+No.
+
+Otherwise,
+
+```text
+A → B
+
+↑   ↓
+
+←---
+```
+
+Infinite loop.
+
+Therefore,
+
+we need
+
+```text
+visited
+```
+
+---
+
+# Step 8: BFS Data Structure
+
+BFS always uses a queue.
+
+Initially,
+
+the queue contains only the starting cell.
+
+```text
+Queue
+
+[(0,0)]
+```
+
+But we also need distance.
+
+So store
+
+```text
+(row, column, distance)
+```
+
+Initially,
+
+```text
+[(0,0,1)]
+```
+
+Distance starts from **1**
+
+because the starting cell itself counts.
+
+---
+
+# Step 9: The Eight Directions
+
+Instead of writing
+
+```text
+Go Left
+
+Go Right
+
+Go Up
+
+Go Down
+
+Go Diagonal
+```
+
+Use loops.
+
+```python
+for dx in (-1, 0, 1):
+    for dy in (-1, 0, 1):
+```
+
+These generate
+
+```text
+(-1,-1)
+
+(-1,0)
+
+(-1,1)
+
+(0,-1)
+
+(0,0)
+
+(0,1)
+
+(1,-1)
+
+(1,0)
+
+(1,1)
+```
+
+Notice
+
+```text
+(0,0)
+```
+
+means
+
+"Stay where you are."
+
+That is not a move.
+
+So skip it.
+
+```python
+if dx == 0 and dy == 0:
+    continue
+```
+
+---
+
+# Step 10: Valid Neighbor
+
+Suppose we are at
+
+```text
+(x, y)
+```
+
+Neighbor
+
+```text
+(nx, ny)
+```
+
+is valid only if
+
+### 1. Inside the grid
+
+```python
+0 <= nx < n
+0 <= ny < n
+```
+
+---
+
+### 2. Cell is open
+
+```python
+grid[nx][ny] == 0
+```
+
+---
+
+### 3. Not already visited
+
+```python
+(nx, ny) not in visited
+```
+
+Only then push it into the queue.
+
+---
+
+# Step 11: Dry Run
+
+Input
+
+```text
+grid = [
+ [0,0,0],
+ [1,1,0],
+ [1,1,0]
+]
+```
+
+Visualization
+
+```text
+S  .  .
+X  X  .
+X  X  E
+```
+
+---
+
+## Initial State
+
+Queue
+
+```text
+[(0,0,1)]
+```
+
+Visited
+
+```text
+{(0,0)}
+```
+
+---
+
+## Pop
+
+```text
+(0,0,1)
+```
+
+Neighbors
+
+```text
+(-1,-1) ❌
+
+(-1,0) ❌
+
+(-1,1) ❌
+
+(0,-1) ❌
+
+(0,1) ✅
+
+(1,-1) ❌
+
+(1,0) Blocked
+
+(1,1) Blocked
+```
+
+Queue
+
+```text
+[(0,1,2)]
+```
+
+Visited
+
+```text
+(0,0)
+
+(0,1)
+```
+
+---
+
+## Pop
+
+```text
+(0,1,2)
+```
+
+Valid neighbors
+
+```text
+(0,2)
+
+(1,2)
+```
+
+Queue
+
+```text
+[(0,2,3),
+ (1,2,3)]
+```
+
+---
+
+## Pop
+
+```text
+(0,2,3)
+```
+
+Nothing useful.
+
+Queue
+
+```text
+[(1,2,3)]
+```
+
+---
+
+## Pop
+
+```text
+(1,2,3)
+```
+
+Neighbor
+
+```text
+(2,2)
+```
+
+Queue
+
+```text
+[(2,2,4)]
+```
+
+---
+
+## Pop
+
+```text
+(2,2,4)
+```
+
+Destination reached.
+
+Answer
+
+```text
+4
+```
+
+---
+
+# Step 12: Why BFS Always Gives the Shortest Path
+
+Suppose there are two paths.
+
+```text
+Path A = 4 steps
+
+Path B = 8 steps
+```
+
+BFS explores
+
+```text
+Distance 1
+
+↓
+
+Distance 2
+
+↓
+
+Distance 3
+
+↓
+
+Distance 4
+```
+
+before it ever starts
+
+```text
+Distance 5
+
+↓
+
+Distance 6
+
+↓
+
+Distance 7
+
+↓
+
+Distance 8
+```
+
+Therefore,
+
+the first time we reach the destination,
+
+it is guaranteed to be the shortest path.
+
+This property works because every edge has equal cost.
+
+---
+
+# My Python Code
+
+```python
+class Solution:
+    def shortestPathBinaryMatrix(self, grid: List[List[int]]) -> int:
+        n = len(grid)
+
+        if grid[0][0] == 1 or grid[n-1][n-1] == 1:
+            return -1
+
+        def bfs():
+            visited = set()
+            q = deque([[0, 0, 1]])
+
+            while q:
+                x, y, path = q.popleft()
+
+                if x == n-1 and y == n-1:
+                    return path
+
+                for dx in (-1, 0, 1):
+                    for dy in (-1, 0, 1):
+                        nx = x + dx
+                        ny = y + dy
+
+                        if (
+                            0 <= nx < n and
+                            0 <= ny < n and
+                            grid[nx][ny] == 0 and
+                            (nx, ny) not in visited
+                        ):
+                            q.append([nx, ny, path+1])
+                            visited.add((nx, ny))
+
+            return -1
+
+        return bfs()
+```
+
+---
+
+# Small Improvement
+
+Mark the starting node as visited immediately.
+
+```python
+visited = {(0,0)}
+```
+
+Otherwise,
+
+another node can push `(0,0)` into the queue again.
+
+---
+
+Also skip
+
+```python
+dx == 0 and dy == 0
+```
+
+because staying at the same position is not a move.
+
+---
+
+# Optimized Python Solution
+
+```python
+from collections import deque
+
+class Solution:
+    def shortestPathBinaryMatrix(self, grid):
+        n = len(grid)
+
+        # If start or destination is blocked
+        if grid[0][0] == 1 or grid[n - 1][n - 1] == 1:
+            return -1
+
+        visited = {(0, 0)}
+        queue = deque([(0, 0, 1)])
+
+        while queue:
+            row, col, distance = queue.popleft()
+
+            # Destination reached
+            if row == n - 1 and col == n - 1:
+                return distance
+
+            # Explore all 8 directions
+            for dx in (-1, 0, 1):
+                for dy in (-1, 0, 1):
+
+                    # Skip staying in the same cell
+                    if dx == 0 and dy == 0:
+                        continue
+
+                    nr = row + dx
+                    nc = col + dy
+
+                    if (
+                        0 <= nr < n
+                        and 0 <= nc < n
+                        and grid[nr][nc] == 0
+                        and (nr, nc) not in visited
+                    ):
+                        visited.add((nr, nc))
+                        queue.append((nr, nc, distance + 1))
+
+        return -1
+```
+
+---
+
+# Time Complexity
+
+There are at most
+
+```text
+n²
+```
+
+cells.
+
+Each cell is visited only once.
+
+Each visit checks at most
+
+```text
+8 neighbors
+```
+
+Therefore,
+
+```text
+Time Complexity = O(n²)
+```
+
+---
+
+# Space Complexity
+
+The queue and visited set can contain every cell.
+
+```text
+Space Complexity = O(n²)
+```
+
+---
+
+# How to Build the Intuition for Future Problems
+
+Whenever you see a new problem, ask yourself these questions:
+
+### 1. Am I looking for the shortest path?
+
+- Yes → Think Graph.
+
+---
+
+### 2. Can each state become a node?
+
+- Here, each open cell is a node.
+
+---
+
+### 3. What are the edges?
+
+- Moving to any of the 8 neighboring cells.
+
+---
+
+### 4. Does every move have the same cost?
+
+- Yes → BFS
+- No → Dijkstra
+
+---
+
+### 5. Can I revisit nodes?
+
+- No → Use a `visited` set (or mark cells in the grid).
+
+---
+
+# Key Takeaways
+
+- A matrix can often be treated as a graph.
+- Each cell is a graph node.
+- Neighboring cells form graph edges.
+- Since every move has equal cost, BFS guarantees the shortest path.
+- Always mark nodes as visited when you **enqueue** them.
+- The first time BFS reaches the destination is always the shortest path.
+- For grid shortest-path problems, remember the pattern:
+
+```text
+Shortest Path
+        ↓
+Graph
+        ↓
+Equal Edge Cost?
+        ↓
+      YES
+        ↓
+       BFS
+```
