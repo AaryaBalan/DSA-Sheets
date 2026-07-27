@@ -34,6 +34,7 @@ Welcome to the graph problems section! Here you will find various data structure
 - [1319. Number of Operations to Make Network Connected](#1319-number-of-operations-to-make-network-connected)
 - [3286. Find a Safe Walk Through a Grid](#3286-find-a-safe-walk-through-a-grid)
 - [127. Word Ladder](#127-word-ladder)
+- [2285. Maximum Total Importance of Roads](#2285-maximum-total-importance-of-roads)
 
 <br><br><br><br><br>
 
@@ -29927,3 +29928,1134 @@ class Solution:
 * Generate neighbors by changing one character at a time (`26 × word_length` possibilities).
 * Store the dictionary in a **set** for `O(1)` membership checks.
 * Use a **visited** set so each word is processed only once, ensuring both correctness and efficiency.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 2285. Maximum Total Importance of Roads
+
+---
+
+# Problem Statement
+
+There are `n` cities numbered from `0` to `n-1`.
+
+Each road connects two cities.
+
+You have to assign every city a unique value from
+
+```text
+1, 2, 3, ..., n
+```
+
+Each number can be used exactly once.
+
+The importance of one road is
+
+```text
+value(city1) + value(city2)
+```
+
+The total importance is
+
+```text
+sum of importance of all roads
+```
+
+Your goal is to assign the values so that the total importance becomes **maximum**.
+
+---
+
+# Example
+
+```text
+n = 5
+
+roads =
+
+[
+ [0,1],
+ [1,2],
+ [2,3],
+ [0,2],
+ [1,3],
+ [2,4]
+]
+```
+
+Graph
+
+```text
+      0
+      |\
+      | \
+      |  \
+      1---2---4
+       \ /
+        3
+```
+
+Output
+
+```text
+43
+```
+
+---
+
+# Understanding the Problem Like a Common Man
+
+Imagine there are five people.
+
+Each road represents a friendship.
+
+Every person receives a unique score.
+
+```text
+1
+
+2
+
+3
+
+4
+
+5
+```
+
+Whenever two friends meet,
+
+their happiness is
+
+```text
+score(person A)
+
++
+
+score(person B)
+```
+
+The total happiness is the sum over all friendships.
+
+Question:
+
+> Who should receive the biggest scores?
+
+---
+
+# First Intuition
+
+Suppose one person has
+
+```text
+100 friends
+```
+
+Another has
+
+```text
+2 friends
+```
+
+Who should receive the highest score?
+
+Obviously,
+
+the person with
+
+```text
+100 friends
+```
+
+Because
+
+their score contributes many more times.
+
+This is the key observation.
+
+---
+
+# Important Observation
+
+A city's value is added once for **every road connected to it**.
+
+Example
+
+City 2
+
+```text
+Degree = 4
+```
+
+Suppose
+
+```text
+Value = 5
+```
+
+Contribution
+
+```text
+5
+
++
+
+5
+
++
+
+5
+
++
+
+5
+
+=
+
+20
+```
+
+Now suppose
+
+```text
+Value = 1
+```
+
+Contribution
+
+```text
+1
+
++
+
+1
+
++
+
+1
+
++
+
+1
+
+=
+
+4
+```
+
+Huge difference.
+
+Therefore,
+
+cities connected to many roads should receive larger values.
+
+---
+
+# The Hidden Mathematics
+
+Suppose
+
+City A
+
+```text
+Degree = 5
+```
+
+City B
+
+```text
+Degree = 2
+```
+
+Suppose
+
+```text
+A gets value 2
+
+B gets value 5
+```
+
+Contribution
+
+```text
+5 × 2
+
++
+
+2 × 5
+
+=
+
+20
+```
+
+Now swap them.
+
+```text
+A gets 5
+
+B gets 2
+```
+
+Contribution
+
+```text
+5 × 5
+
++
+
+2 × 2
+
+=
+
+29
+```
+
+Much larger.
+
+Therefore
+
+Higher Degree
+
+↓
+
+Higher Value
+
+always increases (or keeps) the answer.
+
+This is why a **Greedy** strategy works.
+
+---
+
+# Mathematical Formula
+
+Suppose
+
+```text
+degree[i]
+```
+
+is the number of roads connected to city `i`.
+
+Suppose
+
+```text
+value[i]
+```
+
+is the assigned number.
+
+Total importance becomes
+
+```text
+Σ degree[i] × value[i]
+```
+
+Why?
+
+Because
+
+Every road
+
+```text
+(u,v)
+```
+
+adds
+
+```text
+value[u] + value[v]
+```
+
+If you collect all contributions,
+
+each city appears exactly
+
+```text
+degree[i]
+```
+
+times.
+
+Therefore
+
+```text
+Total
+
+=
+
+Σ degree[i] × value[i]
+```
+
+This formula is the heart of the problem.
+
+---
+
+# How Do We Maximize This Formula?
+
+We have
+
+```text
+Largest Degree
+
+↓
+
+Largest Value
+```
+
+Second largest degree
+
+↓
+
+Second largest value
+
+Third largest degree
+
+↓
+
+Third largest value
+
+...
+
+Exactly like matching
+
+```text
+Largest × Largest
+
+Second × Second
+```
+
+This is a classic Greedy strategy.
+
+---
+
+# Algorithm
+
+## Step 1
+
+Count degree of every city.
+
+Example
+
+```text
+City
+
+0 →2
+
+1 →3
+
+2 →4
+
+3 →2
+
+4 →1
+```
+
+---
+
+## Step 2
+
+Sort cities by degree.
+
+```text
+Degree
+
+1
+
+2
+
+2
+
+3
+
+4
+```
+
+---
+
+## Step 3
+
+Assign values
+
+```text
+1
+
+2
+
+3
+
+4
+
+5
+```
+
+to cities in increasing degree order.
+
+Equivalent to
+
+Largest degree gets
+
+```text
+5
+```
+
+Smallest degree gets
+
+```text
+1
+```
+
+---
+
+## Step 4
+
+Compute answer.
+
+---
+
+# Dry Run
+
+Input
+
+```text
+n = 5
+
+roads =
+
+[
+[0,1],
+[1,2],
+[2,3],
+[0,2],
+[1,3],
+[2,4]
+]
+```
+
+---
+
+## Step 1
+
+Count degrees.
+
+Road
+
+```text
+0-1
+```
+
+Degree
+
+```text
+0=1
+
+1=1
+```
+
+---
+
+Road
+
+```text
+1-2
+```
+
+Degree
+
+```text
+1=2
+
+2=1
+```
+
+---
+
+Road
+
+```text
+2-3
+```
+
+Degree
+
+```text
+2=2
+
+3=1
+```
+
+---
+
+Road
+
+```text
+0-2
+```
+
+Degree
+
+```text
+0=2
+
+2=3
+```
+
+---
+
+Road
+
+```text
+1-3
+```
+
+Degree
+
+```text
+1=3
+
+3=2
+```
+
+---
+
+Road
+
+```text
+2-4
+```
+
+Degree
+
+```text
+2=4
+
+4=1
+```
+
+Final
+
+| City | Degree |
+|------|--------|
+|0|2|
+|1|3|
+|2|4|
+|3|2|
+|4|1|
+
+---
+
+## Step 2
+
+Sort
+
+```text
+City 4
+
+Degree 1
+```
+
+↓
+
+Assign
+
+```text
+1
+```
+
+---
+
+Next
+
+City 0
+
+Degree 2
+
+↓
+
+Assign
+
+```text
+2
+```
+
+---
+
+Next
+
+City 3
+
+Degree 2
+
+↓
+
+Assign
+
+```text
+3
+```
+
+---
+
+Next
+
+City 1
+
+Degree 3
+
+↓
+
+Assign
+
+```text
+4
+```
+
+---
+
+Next
+
+City 2
+
+Degree 4
+
+↓
+
+Assign
+
+```text
+5
+```
+
+Assignment
+
+| City | Value |
+|------|-------|
+|0|2|
+|1|4|
+|2|5|
+|3|3|
+|4|1|
+
+---
+
+## Step 3
+
+Calculate importance.
+
+Road
+
+```text
+0-1
+
+2+4=6
+```
+
+---
+
+Road
+
+```text
+1-2
+
+4+5=9
+```
+
+---
+
+Road
+
+```text
+2-3
+
+5+3=8
+```
+
+---
+
+Road
+
+```text
+0-2
+
+2+5=7
+```
+
+---
+
+Road
+
+```text
+1-3
+
+4+3=7
+```
+
+---
+
+Road
+
+```text
+2-4
+
+5+1=6
+```
+
+Total
+
+```text
+6+9+8+7+7+6
+
+=
+
+43
+```
+
+Answer
+
+```text
+43
+```
+
+---
+
+# Understanding Your Solution
+
+You count degrees.
+
+```python
+indegree[u] += 1
+indegree[v] += 1
+```
+
+Correct.
+
+---
+
+You create a max heap.
+
+```python
+heapq.heappush(heap,-degree)
+```
+
+Python heap is min heap,
+
+so negative values simulate a max heap.
+
+---
+
+Then
+
+```python
+i = n
+```
+
+means
+
+largest available value.
+
+---
+
+Pop
+
+largest degree.
+
+Multiply
+
+```python
+degree × value
+```
+
+Exactly implementing
+
+```text
+Σ degree × value
+```
+
+Perfect.
+
+---
+
+# Small Improvement
+
+Instead of
+
+```python
+defaultdict(int)
+```
+
+use
+
+```python
+degree = [0]*n
+```
+
+Why?
+
+Because some cities may have
+
+```text
+Degree = 0
+```
+
+Your dictionary ignores them.
+
+Although multiplying
+
+```text
+0 × value = 0
+```
+
+doesn't change the answer,
+
+using an array is cleaner.
+
+---
+
+# My Python Solution
+
+```python
+class Solution:
+    def maximumImportance(self, n: int, roads: List[List[int]]) -> int:
+        indegree = defaultdict(int)
+        for u, v in roads:
+            indegree[u] += 1
+            indegree[v] += 1
+        
+        heap = []
+        for node, degree in indegree.items():
+            heapq.heappush(heap, -degree)
+
+        i = n
+        ans = 0
+        while heap:
+            deg = -heapq.heappop(heap)
+            ans += i * deg
+            i -= 1
+        
+        return ans
+```
+
+# Cleaner Solution (Sorting)
+
+```python
+class Solution:
+
+    def maximumImportance(self, n, roads):
+
+        degree = [0] * n
+
+        for u, v in roads:
+            degree[u] += 1
+            degree[v] += 1
+
+        degree.sort()
+
+        value = 1
+        answer = 0
+
+        for d in degree:
+            answer += d * value
+            value += 1
+
+        return answer
+```
+
+---
+
+# Time Complexity
+
+Counting degrees
+
+```text
+O(m)
+```
+
+Sorting
+
+```text
+O(n log n)
+```
+
+Final calculation
+
+```text
+O(n)
+```
+
+Overall
+
+```text
+O(n log n)
+```
+
+where
+
+```text
+m = number of roads
+```
+
+---
+
+# Space Complexity
+
+Degree array
+
+```text
+O(n)
+```
+
+Sorting
+
+```text
+O(n)
+```
+
+Total
+
+```text
+O(n)
+```
+
+---
+
+# How to Build the Intuition
+
+Whenever you encounter a problem like this, ask yourself:
+
+### Step 1
+
+What am I allowed to change?
+
+```text
+City values
+```
+
+---
+
+### Step 2
+
+What stays fixed?
+
+```text
+Roads
+```
+
+---
+
+### Step 3
+
+Which cities affect the answer the most?
+
+Cities connected to many roads.
+
+↓
+
+Think
+
+```text
+Degree
+```
+
+---
+
+### Step 4
+
+How many times does one city's value appear?
+
+Exactly
+
+```text
+degree
+```
+
+times.
+
+↓
+
+Contribution
+
+```text
+degree × value
+```
+
+---
+
+### Step 5
+
+How do we maximize the sum?
+
+Assign
+
+```text
+Largest value
+
+↓
+
+Largest degree
+```
+
+Greedy.
+
+---
+
+# Pattern Recognition
+
+Whenever you see problems involving:
+
+- Assign numbers optimally
+- Contribution of each element
+- Maximize total sum
+- Frequencies or counts
+
+Think about **Contribution Technique**.
+
+General pattern:
+
+```text
+Find contribution of every element
+        ↓
+Count how many times it contributes
+        ↓
+Give larger values to larger contributors
+        ↓
+Greedy
+```
+
+---
+
+# Mental Checklist
+
+```text
+Graph?
+      ↓
+Undirected
+      ↓
+Need shortest path?
+      ↓
+No
+      ↓
+Need maximum sum?
+      ↓
+What contributes repeatedly?
+      ↓
+Node Degree
+      ↓
+Contribution = Degree × Value
+      ↓
+Sort degrees
+      ↓
+Assign largest values to largest degrees
+      ↓
+Compute answer
+```
+
+---
+
+# Key Takeaways
+
+- The graph structure itself is simple; the challenge is recognizing the contribution of each city.
+- Every city's value is counted once for each incident road, so its total contribution is `degree × value`.
+- The optimization reduces to maximizing `Σ degree[i] × value[i]`.
+- A greedy strategy is optimal: assign the largest values to the cities with the largest degrees.
+- This is a classic example of the **Contribution Technique + Greedy Algorithm**, a pattern that appears frequently in interview problems.

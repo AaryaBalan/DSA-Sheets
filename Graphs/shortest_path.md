@@ -14,6 +14,7 @@ This is a beginner-friendly guide to shortest path problems in graphs. It explai
 - [787. Cheapest Flights Within K Stops](#787-cheapest-flights-within-k-stops)
 - [1976. Number of Ways to Arrive at Destination](#1976-number-of-ways-to-arrive-at-destination)
 - [1334. Find the City With the Smallest Number of Neighbors at a Threshold Distance](#1334-find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance)
+- [2359. Find Closest Node to Given Two Nodes](#2359-find-closest-node-to-given-two-nodes)
 
 <br/><br/><br/>
 
@@ -7766,3 +7767,1268 @@ Return the required result
   2. **Use those distances to answer the question**
 
 This way of thinking applies to many graph problems and helps build strong intuition for choosing the right algorithm.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 2359. Find Closest Node to Given Two Nodes
+
+---
+
+# Problem Statement
+
+You are given:
+
+- A **directed graph**.
+- The graph is represented using an array called `edges`.
+- Every node has **at most one outgoing edge**.
+
+```python
+edges[i] = j
+```
+
+means
+
+```text
+i ─────► j
+```
+
+If
+
+```python
+edges[i] = -1
+```
+
+then
+
+```text
+i
+
+(no outgoing edge)
+```
+
+You are also given two starting nodes:
+
+- `node1`
+- `node2`
+
+Your task is to find a node that
+
+- can be reached from **both** starting nodes.
+- minimizes
+
+```text
+max(distance from node1,
+    distance from node2)
+```
+
+If multiple nodes satisfy this condition,
+
+return the **smallest index**.
+
+If no such node exists,
+
+return **-1**.
+
+---
+
+# Understanding the Graph
+
+Unlike most graph problems,
+
+this graph is special.
+
+Every node has
+
+```text
+0 or 1 outgoing edge.
+```
+
+Example
+
+```text
+edges = [2,2,3,-1]
+```
+
+means
+
+```text
+0 ─────► 2
+1 ─────► 2
+2 ─────► 3
+3
+```
+
+Graph
+
+```text
+0 ----\
+       \
+        ► 2 ► 3
+
+1 ----/
+```
+
+Notice something important.
+
+A node can never branch into multiple paths.
+
+Each node has only one road going out.
+
+This observation makes the problem much easier.
+
+---
+
+# Understanding the Question Like a Common Man
+
+Imagine two friends start walking.
+
+Friend A starts from
+
+```text
+node1
+```
+
+Friend B starts from
+
+```text
+node2
+```
+
+Both follow the arrows.
+
+They cannot choose different roads because every city has only one outgoing road.
+
+Eventually
+
+- they may meet
+- or they may never meet.
+
+Among all possible meeting places,
+
+choose the one that is fairest.
+
+Fair means
+
+> Neither person should travel too much.
+
+Mathematically,
+
+we minimize
+
+```text
+maximum(distanceA, distanceB)
+```
+
+---
+
+# Why Do We Minimize the Maximum?
+
+Suppose there are two meeting points.
+
+Meeting Point A
+
+```text
+Friend 1 travels = 2
+
+Friend 2 travels = 10
+```
+
+Maximum distance
+
+```text
+10
+```
+
+Meeting Point B
+
+```text
+Friend 1 travels = 6
+
+Friend 2 travels = 6
+```
+
+Maximum distance
+
+```text
+6
+```
+
+Which is fairer?
+
+Obviously,
+
+Meeting Point B.
+
+Although Friend 1 walks more,
+
+Friend 2 walks much less.
+
+So we minimize the **maximum** distance.
+
+---
+
+# First Intuition
+
+Suppose
+
+```text
+node1 = 0
+
+node2 = 1
+```
+
+Friend A walks
+
+```text
+0
+
+↓
+
+2
+
+↓
+
+3
+```
+
+Friend B walks
+
+```text
+1
+
+↓
+
+2
+
+↓
+
+3
+```
+
+Friend A distances
+
+```text
+0 → 0 = 0
+
+2 = 1
+
+3 = 2
+```
+
+Friend B distances
+
+```text
+1 → 1 = 0
+
+2 = 1
+
+3 = 2
+```
+
+Now compare.
+
+Node
+
+```text
+2
+
+max(1,1)=1
+```
+
+Node
+
+```text
+3
+
+max(2,2)=2
+```
+
+Smaller maximum is
+
+```text
+1
+```
+
+Answer
+
+```text
+2
+```
+
+---
+
+# How Should We Think?
+
+Whenever you see
+
+```text
+Distance from node A
+
+Distance from node B
+```
+
+Think
+
+> We need the shortest distance from both sources.
+
+Then compare.
+
+This becomes
+
+```text
+Source 1
+↓
+
+Distances
+
++
+
+Source 2
+
+↓
+
+Distances
+
+↓
+
+Compare
+```
+
+---
+
+# Which Algorithm Should We Use?
+
+Normally,
+
+for shortest path,
+
+we think of
+
+- BFS
+- Dijkstra
+
+Which one?
+
+Notice
+
+Every edge has weight
+
+```text
+1
+```
+
+So
+
+BFS gives shortest distance.
+
+Even better,
+
+because every node has only one outgoing edge,
+
+our BFS is almost just walking along a single chain.
+
+---
+
+# Why BFS Works
+
+Every edge costs exactly
+
+```text
+1
+```
+
+BFS explores
+
+```text
+Distance 0
+
+↓
+
+Distance 1
+
+↓
+
+Distance 2
+```
+
+Therefore,
+
+the first time we visit a node,
+
+we have already found its shortest distance.
+
+---
+
+# Overall Algorithm
+
+## Step 1
+
+Start BFS from
+
+```text
+node1
+```
+
+Store
+
+```text
+distance from node1
+```
+
+Example
+
+```text
+{
+0:0,
+2:1,
+3:2
+}
+```
+
+---
+
+## Step 2
+
+Run BFS again
+
+from
+
+```text
+node2
+```
+
+Store
+
+```text
+distance from node2
+```
+
+Example
+
+```text
+{
+1:0,
+2:1,
+3:2
+}
+```
+
+---
+
+## Step 3
+
+Visit every node.
+
+If it exists in both maps,
+
+compute
+
+```python
+max(distance1,
+    distance2)
+```
+
+Keep the smallest one.
+
+---
+
+# Dry Run
+
+Input
+
+```python
+edges = [2,2,3,-1]
+
+node1 = 0
+
+node2 = 1
+```
+
+Graph
+
+```text
+0
+
+ \
+  ►2►3
+
+ /
+
+1
+```
+
+---
+
+## BFS from node1
+
+Initially
+
+```text
+Queue
+
+[(0,0)]
+```
+
+Map
+
+```text
+{
+0:0
+}
+```
+
+---
+
+Pop
+
+```text
+0
+```
+
+Neighbor
+
+```text
+2
+```
+
+Distance
+
+```text
+1
+```
+
+Queue
+
+```text
+[(2,1)]
+```
+
+Map
+
+```text
+{
+0:0,
+
+2:1
+}
+```
+
+---
+
+Pop
+
+```text
+2
+```
+
+Neighbor
+
+```text
+3
+```
+
+Distance
+
+```text
+2
+```
+
+Queue
+
+```text
+[(3,2)]
+```
+
+Map
+
+```text
+{
+0:0,
+
+2:1,
+
+3:2
+}
+```
+
+---
+
+Pop
+
+```text
+3
+```
+
+Neighbor
+
+```text
+-1
+```
+
+Stop.
+
+Final
+
+```text
+node1Map
+
+0 →0
+
+2 →1
+
+3 →2
+```
+
+---
+
+## BFS from node2
+
+Queue
+
+```text
+[(1,0)]
+```
+
+Map
+
+```text
+{
+1:0
+}
+```
+
+---
+
+Pop
+
+```text
+1
+```
+
+Neighbor
+
+```text
+2
+```
+
+Distance
+
+```text
+1
+```
+
+Queue
+
+```text
+[(2,1)]
+```
+
+Map
+
+```text
+{
+1:0,
+
+2:1
+}
+```
+
+---
+
+Pop
+
+```text
+2
+```
+
+Neighbor
+
+```text
+3
+```
+
+Distance
+
+```text
+2
+```
+
+Queue
+
+```text
+[(3,2)]
+```
+
+Map
+
+```text
+{
+1:0,
+
+2:1,
+
+3:2
+}
+```
+
+Stop.
+
+---
+
+Now compare every node.
+
+Node 0
+
+```text
+Only in node1Map
+
+Ignore
+```
+
+---
+
+Node 1
+
+```text
+Only in node2Map
+
+Ignore
+```
+
+---
+
+Node 2
+
+```text
+distance1 =1
+
+distance2 =1
+
+max=1
+```
+
+Current answer
+
+```text
+2
+```
+
+---
+
+Node 3
+
+```text
+distance1 =2
+
+distance2 =2
+
+max=2
+```
+
+Current minimum
+
+```text
+1
+```
+
+No improvement.
+
+Answer
+
+```text
+2
+```
+
+---
+
+# Another Example
+
+Input
+
+```python
+edges = [1,2,-1]
+
+node1 = 0
+
+node2 = 2
+```
+
+Graph
+
+```text
+0►1►2
+```
+
+Distances
+
+Friend A
+
+```text
+0
+
+1
+
+2
+```
+
+Distances
+
+```text
+0
+
+1
+
+2
+```
+
+Friend B
+
+```text
+2
+```
+
+Distances
+
+```text
+0
+```
+
+Common node
+
+```text
+2
+```
+
+Maximum
+
+```text
+max(2,0)=2
+```
+
+Answer
+
+```text
+2
+```
+
+---
+
+# Why Does This Algorithm Work?
+
+Suppose
+
+```text
+dist1[node]
+```
+
+is the shortest distance from
+
+```text
+node1
+```
+
+and
+
+```text
+dist2[node]
+```
+
+is the shortest distance from
+
+```text
+node2
+```
+
+If a node is reachable from both,
+
+its meeting cost is
+
+```text
+max(dist1,node,
+    dist2,node)
+```
+
+Why maximum?
+
+Because both people must arrive.
+
+The slower person determines the meeting time.
+
+Therefore,
+
+meeting cost
+
+```text
+=
+
+maximum distance
+```
+
+We simply choose
+
+```text
+minimum
+
+of
+
+maximums
+```
+
+This is a classic
+
+```text
+Min-Max Optimization
+```
+
+---
+
+# Time Complexity
+
+Each BFS visits every node at most once.
+
+Since each node has only one outgoing edge,
+
+Time
+
+```text
+O(n)
+```
+
+Two BFS
+
+```text
+O(2n)
+```
+
+Comparison
+
+```text
+O(n)
+```
+
+Overall
+
+```text
+O(n)
+```
+
+Space
+
+```text
+O(n)
+```
+
+---
+
+# Your Solution Explained
+
+```python
+def bfs(src, nodeMap):
+```
+
+Runs BFS from one source.
+
+---
+
+Queue
+
+```python
+q = deque([[src,0]])
+```
+
+Stores
+
+```text
+(node,distance)
+```
+
+---
+
+Visited map
+
+```python
+nodeMap[src] = 0
+```
+
+Stores shortest distance.
+
+---
+
+Move to neighbor
+
+```python
+nei = edges[node]
+```
+
+Remember
+
+There is only one neighbor.
+
+---
+
+Visit if unvisited
+
+```python
+if nei != -1 and nei not in nodeMap:
+```
+
+Update distance
+
+```python
+nodeMap[nei] = dist+1
+```
+
+Continue.
+
+---
+
+Finally
+
+```python
+for i in range(n):
+```
+
+Check every node.
+
+If
+
+```python
+i in node1Map
+
+and
+
+i in node2Map
+```
+
+Calculate
+
+```python
+max(node1Map[i],
+    node2Map[i])
+```
+
+Keep the minimum.
+
+Exactly matches the problem statement.
+
+---
+
+# Python Solution
+
+```python
+class Solution:
+    def closestMeetingNode(self, edges: List[int], node1: int, node2: int) -> int:
+
+        n = len(edges)
+        def bfs(src, nodeMap):
+            q = deque([[src, 0]])
+            nodeMap[src] = 0
+            while q:
+                node, dist = q.popleft()
+                nei = edges[node]
+                if nei != -1 and nei not in nodeMap:
+                    nodeMap[nei] = dist + 1
+                    q.append([nei, dist + 1])
+        
+        node1Map = {}
+        node2Map = {}
+
+        bfs(node1, node1Map)
+        bfs(node2, node2Map)
+
+        res = -1
+        minDist = float('inf')
+
+        for i in range(n):
+            if i in node1Map and i in node2Map:
+                maxDist = max(node1Map[i], node2Map[i])
+                if maxDist < minDist:
+                    minDist = maxDist
+                    res = i
+        return res
+```
+
+---
+
+# Even Simpler Observation (No Queue Needed)
+
+Because every node has **at most one outgoing edge**, there is never a branching choice.
+
+From any starting node, there is only one path to follow.
+
+So instead of BFS, you can simply keep walking until:
+
+- you reach `-1`, or
+- you revisit a node (cycle).
+
+```python
+def getDistance(start):
+    dist = {}
+    d = 0
+
+    while start != -1 and start not in dist:
+        dist[start] = d
+        d += 1
+        start = edges[start]
+
+    return dist
+```
+
+This is still **O(n)** and is arguably even more intuitive for this special graph.
+
+---
+
+# How to Build the Intuition
+
+Whenever you solve graph problems, ask these questions.
+
+## Step 1
+
+Is it a graph?
+
+```text
+Nodes
+
+Edges
+
+Connections
+```
+
+↓
+
+Graph.
+
+---
+
+## Step 2
+
+Directed or Undirected?
+
+Here
+
+```text
+A → B
+```
+
+Only one direction.
+
+↓
+
+Directed Graph.
+
+---
+
+## Step 3
+
+Weighted or Unweighted?
+
+Every edge costs
+
+```text
+1
+```
+
+↓
+
+Unweighted Graph.
+
+---
+
+## Step 4
+
+Need shortest distance?
+
+Words like
+
+```text
+Closest
+
+Nearest
+
+Minimum distance
+
+Reach
+```
+
+↓
+
+Think Shortest Path.
+
+---
+
+## Step 5
+
+How many sources?
+
+Two.
+
+↓
+
+Compute distances from both.
+
+---
+
+## Step 6
+
+How do we compare?
+
+Problem explicitly says
+
+```text
+minimize
+
+max(distance1,
+    distance2)
+```
+
+So compute
+
+```python
+max(dist1[node], dist2[node])
+```
+
+for every common node and choose the smallest.
+
+---
+
+# Mental Checklist
+
+```text
+Graph?
+      ↓
+Directed?
+      ↓
+Weighted?
+      ↓
+No (all weights = 1)
+      ↓
+Shortest Path
+      ↓
+BFS (or simple walk because out-degree ≤ 1)
+      ↓
+Distance from node1
++
+Distance from node2
+      ↓
+Common nodes
+      ↓
+Compute max(distance1, distance2)
+      ↓
+Choose minimum
+      ↓
+If tie → smallest index
+```
+
+---
+
+# Key Takeaways
+
+- This is a **shortest path** problem on a **special directed graph**.
+- Since each node has **at most one outgoing edge**, every start node follows a **single chain**.
+- Compute the shortest distance from both starting nodes independently.
+- Compare only the nodes reachable from both.
+- For each common node, the meeting cost is `max(distance1, distance2)`.
+- Return the node with the **minimum meeting cost**, breaking ties by choosing the **smallest index**.
+- Recognizing the graph's structure (out-degree ≤ 1) allows an even simpler implementation than general BFS.
