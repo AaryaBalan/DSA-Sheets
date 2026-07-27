@@ -13,6 +13,7 @@ This is a beginner-friendly guide to shortest path problems in graphs. It explai
 - [1631. Path With Minimum Effort](#1631-path-with-minimum-effort)
 - [787. Cheapest Flights Within K Stops](#787-cheapest-flights-within-k-stops)
 - [1976. Number of Ways to Arrive at Destination](#1976-number-of-ways-to-arrive-at-destination)
+- [1334. Find the City With the Smallest Number of Neighbors at a Threshold Distance](#1334-find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance)
 
 <br/><br/><br/>
 
@@ -6772,3 +6773,996 @@ ways[]
 - If an **equally short** path is found, **add** the path count.
 - Always use a **min-heap** so the closest node is processed first.
 - Return `ways[n-1] % (10^9 + 7)`.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 1334. Find the City With the Smallest Number of Neighbors at a Threshold Distance
+
+---
+
+# Problem Statement
+
+You are given:
+
+- `n` cities numbered from `0` to `n - 1`
+- A list of weighted, bidirectional roads:
+  ```python
+  edges[i] = [from, to, weight]
+  ```
+- A maximum allowed travel distance called `distanceThreshold`.
+
+For **every city**, find how many other cities can be reached using **any path** whose **total distance** is less than or equal to `distanceThreshold`.
+
+Finally,
+
+- Return the city that can reach the **fewest** cities.
+- If multiple cities have the same minimum count, return the **largest city number**.
+
+---
+
+# Example
+
+```text
+Input:
+
+n = 4
+
+edges =
+[
+ [0,1,3],
+ [1,2,1],
+ [1,3,4],
+ [2,3,1]
+]
+
+distanceThreshold = 4
+```
+
+Graph
+
+```text
+       3
+0 ------------ 1
+              / \
+            1/   \4
+            /     \
+           2-------3
+              1
+```
+
+Output
+
+```text
+3
+```
+
+---
+
+# Understanding the Problem Like a Common Man
+
+Imagine there are several cities connected by roads.
+
+Every road has a distance.
+
+Suppose someone asks:
+
+> "Starting from City 0, how many cities can I visit if I can travel at most 4 km?"
+
+You would naturally:
+
+- Walk through the roads.
+- Keep adding distances.
+- Stop whenever the total distance becomes greater than 4.
+
+Now repeat this process for **every city**.
+
+Finally,
+
+Choose the city that can reach the smallest number of cities.
+
+---
+
+# What is the Problem Really Asking?
+
+Many beginners misunderstand this question.
+
+It is **NOT** asking:
+
+> Which city has the fewest direct neighbors?
+
+Instead it asks:
+
+> Which city can reach the fewest cities through **any path** whose total distance is within the threshold?
+
+Notice the words:
+
+> through some path
+
+That means this is a **Shortest Path Problem**.
+
+---
+
+# First Intuition
+
+Suppose you start at city 0.
+
+There are many possible routes.
+
+```text
+0 → 1 → 2
+
+or
+
+0 → 3 → 5
+
+or
+
+0 → 4 → 6
+```
+
+Which one is shortest?
+
+You don't know.
+
+So we need an algorithm that always finds the shortest path.
+
+---
+
+# Which Algorithm Should We Use?
+
+Let's think.
+
+### Can we use BFS?
+
+No.
+
+BFS assumes every edge has equal weight.
+
+Example
+
+```text
+0 ----10---- 1
+
+0 ----1---- 2 ----1---- 1
+```
+
+BFS chooses
+
+```text
+0 → 1
+```
+
+because it uses only one edge.
+
+But the shortest distance is
+
+```text
+0 → 2 → 1
+
+1 + 1 = 2
+```
+
+Therefore,
+
+**BFS fails on weighted graphs.**
+
+---
+
+### Dijkstra Algorithm
+
+Dijkstra works perfectly because:
+
+- All edge weights are positive.
+- We need shortest distances.
+
+Exactly what Dijkstra is designed for.
+
+---
+
+# Building the Graph
+
+Input
+
+```python
+edges = [
+    [0,1,3],
+    [1,2,1],
+    [1,3,4],
+    [2,3,1]
+]
+```
+
+Adjacency List
+
+```text
+0
+↓
+[(1,3)]
+
+--------------------
+
+1
+↓
+[(0,3), (2,1), (3,4)]
+
+--------------------
+
+2
+↓
+[(1,1), (3,1)]
+
+--------------------
+
+3
+↓
+[(1,4), (2,1)]
+```
+
+---
+
+# Overall Idea
+
+For every city:
+
+1. Run Dijkstra.
+2. Compute shortest distance to every city.
+3. Count how many cities have distance ≤ threshold.
+4. Keep the city with the smallest count.
+
+---
+
+# Dijkstra Algorithm Explained
+
+Suppose we start from city **0**.
+
+Initially
+
+```text
+Distance
+
+0 = 0
+
+1 = ∞
+
+2 = ∞
+
+3 = ∞
+```
+
+Priority Queue
+
+```text
+[(0,0)]
+```
+
+Meaning
+
+```text
+(distance, city)
+```
+
+---
+
+## Step 1
+
+Pop
+
+```text
+(0,0)
+```
+
+Visit neighbors.
+
+Neighbor
+
+```text
+1
+
+new distance = 0 + 3 = 3
+```
+
+Update
+
+```text
+dist[1] = 3
+```
+
+Push
+
+```text
+(3,1)
+```
+
+Queue
+
+```text
+[(3,1)]
+```
+
+---
+
+## Step 2
+
+Pop
+
+```text
+(3,1)
+```
+
+Neighbors
+
+### City 0
+
+```text
+3 + 3 = 6
+
+Current distance = 0
+
+Ignore
+```
+
+### City 2
+
+```text
+3 + 1 = 4
+
+Update
+
+dist[2] = 4
+```
+
+Push
+
+```text
+(4,2)
+```
+
+### City 3
+
+```text
+3 + 4 = 7
+
+Update
+
+dist[3] = 7
+```
+
+Queue
+
+```text
+[(4,2), (7,3)]
+```
+
+---
+
+## Step 3
+
+Pop
+
+```text
+(4,2)
+```
+
+Neighbor
+
+```text
+3
+
+4 + 1 = 5
+```
+
+Current
+
+```text
+7
+```
+
+Better path found.
+
+Update
+
+```text
+dist[3] = 5
+```
+
+Push
+
+```text
+(5,3)
+```
+
+Queue
+
+```text
+[(5,3), (7,3)]
+```
+
+---
+
+## Step 4
+
+Pop
+
+```text
+(5,3)
+```
+
+Nothing improves.
+
+Done.
+
+Final distances
+
+```text
+City 0 → 0
+
+City 1 → 3
+
+City 2 → 4
+
+City 3 → 5
+```
+
+Threshold
+
+```text
+4
+```
+
+Reachable cities
+
+```text
+1
+
+2
+```
+
+Count
+
+```text
+2
+```
+
+---
+
+# Dry Run of Complete Example
+
+Threshold = 4
+
+## City 0
+
+Shortest distances
+
+```text
+0 → 0
+
+1 → 3
+
+2 → 4
+
+3 → 5
+```
+
+Reachable
+
+```text
+1
+
+2
+```
+
+Count = 2
+
+---
+
+## City 1
+
+Distances
+
+```text
+0 → 3
+
+1 → 0
+
+2 → 1
+
+3 → 2
+```
+
+Reachable
+
+```text
+0
+
+2
+
+3
+```
+
+Count = 3
+
+---
+
+## City 2
+
+Distances
+
+```text
+0 → 4
+
+1 → 1
+
+2 → 0
+
+3 → 1
+```
+
+Reachable
+
+```text
+0
+
+1
+
+3
+```
+
+Count = 3
+
+---
+
+## City 3
+
+Distances
+
+```text
+0 → 5
+
+1 → 2
+
+2 → 1
+
+3 → 0
+```
+
+Reachable
+
+```text
+1
+
+2
+```
+
+Count = 2
+
+---
+
+Summary
+
+| City | Reachable Cities | Count |
+|------|-----------------|------|
+| 0 | 1,2 | 2 |
+| 1 | 0,2,3 | 3 |
+| 2 | 0,1,3 | 3 |
+| 3 | 1,2 | 2 |
+
+Minimum count
+
+```text
+2
+```
+
+Cities
+
+```text
+0
+
+3
+```
+
+Tie-break rule
+
+Choose larger index.
+
+Answer
+
+```text
+3
+```
+
+---
+
+# Why Dijkstra Works
+
+Dijkstra always expands the city with the smallest known distance.
+
+Why?
+
+Suppose a city is removed from the priority queue.
+
+Since it has the minimum distance among all remaining cities, no shorter path can exist.
+
+Therefore,
+
+its distance is final.
+
+This property makes Dijkstra correct for graphs with **positive edge weights**.
+
+---
+
+# Time Complexity
+
+Let
+
+- V = Number of cities
+- E = Number of roads
+
+One Dijkstra
+
+```text
+O(E log V)
+```
+
+We run Dijkstra for every city.
+
+Total
+
+```text
+O(V × E log V)
+```
+
+Given
+
+```text
+n ≤ 100
+```
+
+This is completely acceptable.
+
+---
+
+# Improving Your Code
+
+## My python Solution
+
+```python
+class Solution:
+    def findTheCity(self, n: int, edges: List[List[int]], distanceThreshold: int) -> int:
+        graph = defaultdict(list)
+        inf = float('inf')
+        for u, v, w in edges:
+            graph[u].append((v, w))
+            graph[v].append((u, w))
+        
+        ansDict = defaultdict(set)
+
+        def count(node):
+            nonlocal n
+            pq = [(0, node)]
+            dist = [inf] * n
+            dist[node] = 0
+            while pq:
+                cost, city = heapq.heappop(pq)
+                if cost > distanceThreshold:
+                    break
+                if cost > dist[city]:
+                    continue
+                if cost <= distanceThreshold:
+                    ansDict[node].add(city)
+                for nei, neiCost in graph[city]:
+                    newCost = neiCost + cost
+                    if newCost < dist[nei]:
+                        dist[nei] = newCost
+                        heapq.heappush(pq, (newCost, nei))
+            
+        for i in range(n):
+            count(i)
+
+        for i in range(n):
+            if i not in ansDict:
+                ansDict[i] = {}
+
+        ans = []
+        for node, nei in ansDict.items():
+            heapq.heappush(ans, (len(nei), -node))
+        
+        return -ans[0][1]
+```
+
+## Good Parts
+
+✔ Correct graph representation
+
+✔ Correct use of priority queue
+
+✔ Correct shortest path logic
+
+---
+
+## Issue 1
+
+You count the starting city itself.
+
+```python
+ansDict[node].add(city)
+```
+
+But the problem asks for **neighboring cities**.
+
+Instead
+
+```python
+if city != node:
+    ansDict[node].add(city)
+```
+
+---
+
+## Issue 2
+
+Using a `set` is unnecessary.
+
+You only need a count.
+
+Instead of storing every city,
+
+just count them after Dijkstra.
+
+This saves memory.
+
+---
+
+## Issue 3
+
+This part
+
+```python
+if cost > distanceThreshold:
+    break
+```
+
+is actually safe.
+
+Since the priority queue always gives the smallest distance first,
+
+once the smallest distance exceeds the threshold,
+
+all remaining paths will also exceed it.
+
+---
+
+# Optimized Python Solution
+
+```python
+from collections import defaultdict
+import heapq
+
+
+class Solution:
+    def findTheCity(self, n, edges, distanceThreshold):
+
+        graph = defaultdict(list)
+
+        for u, v, w in edges:
+            graph[u].append((v, w))
+            graph[v].append((u, w))
+
+        INF = float("inf")
+
+        answer = -1
+        minimumReachable = float("inf")
+
+        for start in range(n):
+
+            dist = [INF] * n
+            dist[start] = 0
+
+            pq = [(0, start)]
+
+            while pq:
+
+                currentDistance, city = heapq.heappop(pq)
+
+                if currentDistance > dist[city]:
+                    continue
+
+                for neighbor, weight in graph[city]:
+
+                    newDistance = currentDistance + weight
+
+                    if newDistance < dist[neighbor]:
+                        dist[neighbor] = newDistance
+                        heapq.heappush(pq, (newDistance, neighbor))
+
+            reachable = 0
+
+            for city in range(n):
+                if city != start and dist[city] <= distanceThreshold:
+                    reachable += 1
+
+            if reachable <= minimumReachable:
+                minimumReachable = reachable
+                answer = start
+
+        return answer
+```
+
+---
+
+# Can We Solve This Using Floyd–Warshall?
+
+Yes.
+
+Since
+
+```text
+n ≤ 100
+```
+
+Floyd–Warshall runs in
+
+```text
+O(n³)
+```
+
+For
+
+```text
+100³ = 1,000,000
+```
+
+Only one million operations.
+
+Very fast.
+
+This problem is actually one of the classic applications of Floyd–Warshall because we need the shortest distance between **every pair of cities**.
+
+---
+
+# How to Build the Intuition
+
+Whenever you see a graph problem, ask these questions.
+
+## Step 1
+
+Is this a graph?
+
+```text
+Cities
+
+Roads
+
+Connections
+
+Network
+```
+
+If yes,
+
+think Graph.
+
+---
+
+## Step 2
+
+Are there weights?
+
+Words like
+
+```text
+Distance
+
+Cost
+
+Time
+
+Price
+
+Weight
+```
+
+Mean
+
+**Weighted Graph**
+
+---
+
+## Step 3
+
+Do we need the minimum distance?
+
+Words like
+
+```text
+Shortest
+
+Minimum
+
+Cheapest
+
+Least Cost
+
+Within Threshold
+```
+
+Mean
+
+**Shortest Path Problem**
+
+---
+
+## Step 4
+
+Choose the correct algorithm
+
+| Situation | Algorithm |
+|-----------|-----------|
+| Unweighted Graph | BFS |
+| Positive Weights | Dijkstra |
+| Negative Weights | Bellman-Ford |
+| All-Pairs Shortest Path (small `n`) | Floyd-Warshall |
+
+---
+
+## Step 5
+
+How many source nodes?
+
+If the question says
+
+```text
+For every city...
+
+For each node...
+
+Count reachable nodes from every vertex...
+```
+
+Then
+
+Run
+
+- Dijkstra from every node, **or**
+- Floyd-Warshall.
+
+---
+
+# Mental Checklist for Similar Problems
+
+```text
+Graph?
+        ↓
+Weighted?
+        ↓
+Need shortest path?
+        ↓
+Positive weights?
+        ↓
+Dijkstra
+        ↓
+Need answer for every node?
+        ↓
+Run Dijkstra for every node
+(or Floyd-Warshall if n is small)
+        ↓
+Process the shortest distances
+        ↓
+Return the required result
+```
+
+---
+
+# Key Takeaways
+
+- The problem is fundamentally a **shortest path problem**.
+- We need shortest distances from **every city**.
+- Dijkstra is suitable because all edge weights are **positive**.
+- After computing distances, simply count how many cities are within the threshold.
+- Apply the tie-break rule by choosing the **largest city index** when counts are equal.
+- Always separate the problem into two phases:
+  1. **Compute shortest distances**
+  2. **Use those distances to answer the question**
+
+This way of thinking applies to many graph problems and helps build strong intuition for choosing the right algorithm.
