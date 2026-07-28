@@ -5,6 +5,7 @@ Welcome to the heap problems section! Here you will find various data structure 
 ## Questions
 
 - [373. Find K Pairs with Smallest Sums](#373-find-k-pairs-with-smallest-sums)
+- [1642. Furthest Building You Can Reach](#1642-furthest-building-you-can-reach)
 
 <br><br><br><br><br>
 
@@ -909,3 +910,1162 @@ Instead think:
 3. **After using one candidate, generate only its next possible candidate.**
 
 This is the **K-Way Merge / Best First Search** pattern, and it appears in many advanced heap problems.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 1642. Furthest Building You Can Reach
+
+- **Difficulty:** Medium
+- **Pattern:** Greedy + Min Heap
+- **Data Structure:** Min Heap
+
+---
+
+# 🧠 Step 1: Understand the Problem Like a Common Man
+
+Imagine you are walking through a city.
+
+Every building has a different height.
+
+```
+4 → 2 → 7 → 6 → 9 → 14 → 12
+```
+
+You start from the first building.
+
+Your goal is simple:
+
+> Reach as far as possible.
+
+---
+
+Whenever you move,
+
+there are three possibilities.
+
+---
+
+## Case 1 : Next building is shorter
+
+```
+7 → 5
+```
+
+Easy.
+
+You simply walk down.
+
+Need
+
+```
+Nothing
+```
+
+---
+
+## Case 2 : Same height
+
+```
+7 → 7
+```
+
+Again
+
+Need
+
+```
+Nothing
+```
+
+---
+
+## Case 3 : Next building is taller
+
+```
+2 → 7
+```
+
+Need to climb
+
+```
+5 units
+```
+
+Now you have two resources.
+
+```
+Bricks
+
+or
+
+Ladder
+```
+
+---
+
+Bricks
+
+```
+Need exactly
+
+height difference
+```
+
+Example
+
+```
+2 → 7
+
+Need
+
+5 bricks
+```
+
+---
+
+Ladder
+
+Amazing thing about ladder
+
+Whether climb is
+
+```
+2
+
+or
+
+200
+
+or
+
+100000
+```
+
+Still
+
+```
+Only one ladder.
+```
+
+---
+
+# Step 2 : What is Actually Asked?
+
+The question is NOT
+
+```
+Can you reach the last building?
+```
+
+The question is
+
+```
+How far can you go
+if you use your resources wisely?
+```
+
+This word
+
+```
+wisely
+```
+
+is the biggest clue.
+
+---
+
+# Step 3 : First Thought (Brute Force)
+
+Suppose
+
+```
+Bricks = 5
+
+Ladders = 1
+```
+
+Climbs
+
+```
+5
+
+3
+
+8
+```
+
+At every climb,
+
+you have two choices.
+
+```
+Bricks
+
+or
+
+Ladder
+```
+
+Decision Tree
+
+```
+              Start
+
+          /             \
+
+      Bricks          Ladder
+
+      /    \          /     \
+
+   ...
+```
+
+If there are
+
+```
+20 climbs
+```
+
+Total possibilities
+
+```
+2^20
+```
+
+Impossible.
+
+---
+
+# Step 4 : Why This Problem Feels Hard
+
+Let's say
+
+```
+Bricks = 10
+
+Ladders = 1
+```
+
+Climbs
+
+```
+2
+
+8
+
+3
+```
+
+Question
+
+Where should ladder be used?
+
+```
+2 ?
+
+8 ?
+
+3 ?
+```
+
+Nobody knows.
+
+Because
+
+Future is unknown.
+
+This is exactly why people get stuck.
+
+---
+
+# Step 5 : Think Like a Normal Person
+
+Imagine you're hiking.
+
+Someone asks
+
+> "Use your ladder now?"
+
+Would you?
+
+Probably NOT.
+
+Because
+
+You don't know whether
+
+a much taller wall
+
+comes later.
+
+A normal person naturally thinks
+
+```
+I'll save my ladder.
+```
+
+That is already the correct direction.
+
+---
+
+# Step 6 : Biggest Observation
+
+Bricks depend on climb.
+
+```
+Need
+
+2 bricks
+
+5 bricks
+
+20 bricks
+```
+
+Ladder does NOT.
+
+```
+1 ladder
+
+works for
+
+2
+
+or
+
+20
+
+or
+
+1000
+```
+
+So
+
+What saves more resources?
+
+Using ladder on
+
+```
+20
+```
+
+instead of
+
+```
+2
+```
+
+Obviously.
+
+---
+
+# First Greedy Idea
+
+Always use ladders for
+
+```
+Largest climbs.
+```
+
+This is the most important intuition.
+
+---
+
+# Step 7 : New Problem
+
+How do we know
+
+which climbs are largest?
+
+Example
+
+```
+5
+
+3
+
+8
+
+2
+```
+
+When we see
+
+```
+5
+```
+
+We don't know
+
+```
+8
+```
+
+is coming later.
+
+So we cannot decide immediately.
+
+---
+
+# Step 8 : The Genius Trick
+
+Instead of deciding immediately,
+
+pretend
+
+```
+Every climb uses ladder.
+```
+
+Example
+
+```
+5
+
+3
+
+8
+```
+
+Heap
+
+```
+3
+
+5
+
+8
+```
+
+Suppose
+
+```
+Ladders = 2
+```
+
+Oops.
+
+Need
+
+```
+3 ladders.
+```
+
+Only have
+
+```
+2
+```
+
+Question
+
+Which climb should lose the ladder?
+
+Obviously
+
+```
+3
+```
+
+Because
+
+Using bricks on
+
+```
+3
+```
+
+is much cheaper than
+
+```
+8
+```
+
+So
+
+```
+3
+
+→ Bricks
+
+5
+
+→ Ladder
+
+8
+
+→ Ladder
+```
+
+This is the entire greedy solution.
+
+---
+
+# Step 9 : Why Min Heap?
+
+Heap stores
+
+```
+All climbs currently using ladders.
+```
+
+Example
+
+```
+Heap
+
+3
+
+5
+
+8
+```
+
+Need only
+
+```
+2 ladders
+```
+
+So remove
+
+```
+smallest climb
+```
+
+Min Heap removes
+
+```
+smallest
+```
+
+instantly.
+
+Exactly what we need.
+
+---
+
+# Step 10 : Mathematical Logic
+
+Suppose
+
+Largest climbs are
+
+```
+20
+
+12
+
+8
+
+3
+```
+
+Ladders = 2
+
+Wrong assignment
+
+```
+20 → Bricks
+
+3 → Ladder
+```
+
+Cost
+
+```
+20 bricks
+```
+
+Better assignment
+
+```
+20 → Ladder
+
+3 → Bricks
+```
+
+Cost
+
+```
+3 bricks
+```
+
+Huge improvement.
+
+Therefore
+
+Every optimal solution must satisfy
+
+```
+Largest climbs
+
+↓
+
+Ladders
+```
+
+This is called the
+
+**Greedy Exchange Argument**.
+
+---
+
+# Step 11 : Dry Run
+
+Example
+
+```
+heights
+
+4
+
+2
+
+7
+
+6
+
+9
+
+14
+
+12
+
+Bricks = 5
+
+Ladders = 1
+```
+
+---
+
+## Building 0 → 1
+
+```
+4 → 2
+```
+
+Going down.
+
+Need nothing.
+
+Heap
+
+```
+[]
+```
+
+Bricks
+
+```
+5
+```
+
+---
+
+## Building 1 → 2
+
+```
+2 → 7
+```
+
+Need climb
+
+```
+5
+```
+
+Pretend ladder.
+
+Heap
+
+```
+5
+```
+
+Heap size
+
+```
+1
+```
+
+Equal to ladders.
+
+Good.
+
+Bricks
+
+```
+5
+```
+
+---
+
+## Building 2 → 3
+
+```
+7 → 6
+```
+
+Down.
+
+Nothing.
+
+Heap
+
+```
+5
+```
+
+---
+
+## Building 3 → 4
+
+```
+6 → 9
+```
+
+Need
+
+```
+3
+```
+
+Heap
+
+```
+3
+
+5
+```
+
+Need
+
+```
+2 ladders
+```
+
+Have
+
+```
+1
+```
+
+Remove smallest
+
+```
+3
+```
+
+Use bricks instead.
+
+Bricks
+
+```
+5-3=2
+```
+
+Heap
+
+```
+5
+```
+
+Meaning
+
+Ladder is now reserved for
+
+```
+5
+```
+
+---
+
+## Building 4 → 5
+
+```
+9 → 14
+```
+
+Need
+
+```
+5
+```
+
+Heap
+
+```
+5
+
+5
+```
+
+Again
+
+Need
+
+```
+2 ladders
+```
+
+Only
+
+```
+1
+```
+
+Remove smallest
+
+```
+5
+```
+
+Use bricks.
+
+Bricks
+
+```
+2-5=-3
+```
+
+Negative.
+
+Cannot continue.
+
+Return
+
+```
+4
+```
+
+Correct.
+
+---
+
+# Step 12 : Why Does This Always Work?
+
+Suppose climbs are
+
+```
+2
+
+6
+
+10
+
+15
+```
+
+Ladders = 2
+
+Would any smart person use ladder on
+
+```
+2
+```
+
+instead of
+
+```
+15
+```
+
+Never.
+
+Because
+
+```
+Ladder on 15
+
+saves
+
+15 bricks
+```
+
+whereas
+
+```
+Ladder on 2
+
+saves only
+
+2 bricks.
+```
+
+Therefore
+
+Largest climbs
+
+↓
+
+Ladders
+
+Smallest climbs
+
+↓
+
+Bricks
+
+This is the greedy proof.
+
+---
+
+# Step 13 : Algorithm
+
+For every building
+
+Find
+
+```
+climb
+
+=
+
+heights[i+1]-heights[i]
+```
+
+If
+
+```
+climb <= 0
+```
+
+Continue.
+
+Otherwise
+
+Push climb into heap.
+
+Heap means
+
+```
+Currently using ladder.
+```
+
+If
+
+```
+Heap size > ladders
+```
+
+Remove smallest climb.
+
+Convert it into bricks.
+
+```
+bricks -= smallest climb
+```
+
+If
+
+```
+bricks < 0
+```
+
+Cannot continue.
+
+Return current building.
+
+Otherwise
+
+Reach end.
+
+---
+
+# Python Code
+
+```python
+import heapq
+
+class Solution:
+    def furthestBuilding(self, heights, bricks, ladders):
+
+        heap = []
+
+        for i in range(len(heights)-1):
+
+            climb = heights[i+1]-heights[i]
+
+            if climb <= 0:
+                continue
+
+            heapq.heappush(heap, climb)
+
+            if len(heap) > ladders:
+                bricks -= heapq.heappop(heap)
+
+            if bricks < 0:
+                return i
+
+        return len(heights)-1
+```
+
+---
+
+# Complexity
+
+Let
+
+```
+n
+
+=
+
+number of buildings
+```
+
+Every climb
+
+is inserted once.
+
+Removed once.
+
+Heap size
+
+never exceeds
+
+```
+ladders+1
+```
+
+Therefore
+
+```
+Time
+
+O(n log L)
+```
+
+where
+
+```
+L
+
+=
+
+number of ladders
+```
+
+Space
+
+```
+O(L)
+```
+
+---
+
+# How Should a Beginner Think?
+
+When solving any interview problem,
+
+don't immediately ask
+
+```
+Which data structure?
+```
+
+Instead ask these questions.
+
+---
+
+## Question 1
+
+Can I decide immediately?
+
+Here
+
+No.
+
+Future climbs are unknown.
+
+---
+
+## Question 2
+
+If I look back later,
+
+what would be the perfect decision?
+
+Answer
+
+```
+Largest climbs
+
+↓
+
+Ladders
+```
+
+---
+
+## Question 3
+
+What information must I remember?
+
+Answer
+
+```
+Every climb that currently has a ladder.
+```
+
+---
+
+## Question 4
+
+If I have more ladder-assigned climbs than ladders,
+
+which one should lose its ladder?
+
+Answer
+
+```
+Smallest climb.
+```
+
+---
+
+## Question 5
+
+Which data structure always gives me the smallest climb quickly?
+
+Answer
+
+```
+Min Heap.
+```
+
+---
+
+# Interview Thinking Pattern
+
+Whenever you see
+
+```
+Limited premium resource
+
++
+
+Unlimited variable-cost resource
+```
+
+Examples
+
+- Ladders vs Bricks
+- Coupons vs Money
+- Free passes vs Ticket cost
+
+Think
+
+```
+Use premium resource where it saves the MOST.
+```
+
+If the best assignment is only known after seeing more data,
+
+maintain the current best choices using a **heap**, and whenever you exceed the limit, replace the **least valuable** premium usage with the cheaper resource.
+
+This is the core intuition behind this problem and many advanced **Greedy + Heap** interview questions.
