@@ -6,6 +6,7 @@ Welcome to the heap problems section! Here you will find various data structure 
 
 - [373. Find K Pairs with Smallest Sums](#373-find-k-pairs-with-smallest-sums)
 - [1642. Furthest Building You Can Reach](#1642-furthest-building-you-can-reach)
+- [767. Reorganize String](#767-reorganize-string)
 
 <br><br><br><br><br>
 
@@ -2069,3 +2070,950 @@ If the best assignment is only known after seeing more data,
 maintain the current best choices using a **heap**, and whenever you exceed the limit, replace the **least valuable** premium usage with the cheaper resource.
 
 This is the core intuition behind this problem and many advanced **Greedy + Heap** interview questions.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 767. Reorganize String
+
+- **Difficulty:** Medium
+- **Pattern:** Greedy + Frequency Counting
+- **Data Structures:** Counter / Sorting (Heap is another possible solution)
+
+---
+
+# 🧠 Step 1: Understand the Problem Like a Common Man
+
+Suppose you are arranging students in a row.
+
+Each student is represented by a letter.
+
+```
+aab
+```
+
+means
+
+```
+Student A
+Student A
+Student B
+```
+
+Your task is
+
+> Arrange them so that **no two same students sit next to each other.**
+
+Valid arrangement
+
+```
+A B A
+```
+
+Invalid
+
+```
+A A B
+```
+
+because
+
+```
+AA
+```
+
+are adjacent.
+
+---
+
+Another example
+
+```
+aaab
+```
+
+Can we arrange?
+
+Try
+
+```
+A A A B
+```
+
+No.
+
+Try
+
+```
+A B A A
+```
+
+Still
+
+```
+AA
+```
+
+Try
+
+```
+A A B A
+```
+
+Again
+
+```
+AA
+```
+
+Impossible.
+
+Return
+
+```
+""
+```
+
+---
+
+# Step 2 : What is the Real Goal?
+
+The problem is NOT asking
+
+```
+Sort characters.
+```
+
+It is asking
+
+```
+Keep same characters apart.
+```
+
+That word
+
+```
+apart
+```
+
+is the biggest clue.
+
+---
+
+# Step 3 : First Brute Force Thinking
+
+Suppose
+
+```
+aab
+```
+
+Generate every arrangement.
+
+```
+aab
+
+aba
+
+baa
+```
+
+Check each one.
+
+```
+Does it contain
+
+AA ?
+```
+
+If yes
+
+Reject.
+
+---
+
+## Complexity
+
+If
+
+```
+n = 10
+```
+
+Total permutations
+
+```
+10!
+```
+
+Which is
+
+```
+3,628,800
+```
+
+Impossible.
+
+So brute force is not practical.
+
+---
+
+# Step 4 : Observe the Problem
+
+Example
+
+```
+aaabbc
+```
+
+Frequency
+
+```
+a → 3
+
+b → 2
+
+c → 1
+```
+
+Which character is most dangerous?
+
+Obviously
+
+```
+a
+```
+
+Because it appears most.
+
+The more times a character appears,
+
+the harder it is to separate.
+
+---
+
+# Step 5 : Think Like a Common Man
+
+Imagine you are arranging chairs.
+
+```
+_ _ _ _ _ _
+```
+
+Student
+
+```
+A
+```
+
+must sit
+
+```
+3
+```
+
+times.
+
+Where should you place them?
+
+Not like
+
+```
+AAA___
+```
+
+because
+
+```
+AA
+```
+
+becomes adjacent.
+
+Instead,
+
+spread them first.
+
+```
+A _ A _ A _
+```
+
+Now,
+
+fill the remaining empty seats.
+
+```
+A B A C A B
+```
+
+Done.
+
+No two
+
+```
+A
+```
+
+are adjacent.
+
+---
+
+This is the biggest intuition.
+
+---
+
+# Step 6 : Why Place the Most Frequent Character First?
+
+Suppose
+
+```
+A appears 5 times.
+```
+
+If you leave it for the end,
+
+there may not be enough gaps.
+
+Example
+
+```
+BBBBCCCCAAAAA
+```
+
+Now impossible to spread
+
+```
+AAAAA
+```
+
+Instead,
+
+place
+
+```
+AAAAA
+```
+
+first.
+
+```
+A _ A _ A _ A _ A
+```
+
+Now other characters naturally fill the gaps.
+
+This is a Greedy strategy.
+
+---
+
+# Step 7 : Biggest Mathematical Observation
+
+Suppose
+
+Length
+
+```
+7
+```
+
+Most frequent character
+
+```
+A appears 5 times.
+```
+
+Can we separate them?
+
+Need arrangement
+
+```
+A _ A _ A _ A _ A
+```
+
+Count positions
+
+Need
+
+```
+9 positions
+```
+
+But only
+
+```
+7
+```
+
+exist.
+
+Impossible.
+
+---
+
+General Rule
+
+If
+
+```
+Maximum Frequency
+
+>
+
+(n+1)//2
+```
+
+Then
+
+Impossible.
+
+Return
+
+```
+""
+```
+
+Example
+
+```
+aaab
+```
+
+Length
+
+```
+4
+```
+
+Maximum frequency
+
+```
+3
+```
+
+Maximum allowed
+
+```
+(4+1)//2 = 2
+```
+
+Since
+
+```
+3 > 2
+```
+
+Impossible.
+
+---
+
+# Step 8 : Why Alternate Positions?
+
+Suppose
+
+```
+Length = 8
+```
+
+Indices
+
+```
+0 1 2 3 4 5 6 7
+```
+
+First fill
+
+```
+0
+
+2
+
+4
+
+6
+```
+
+These positions are already separated.
+
+```
+A _ A _ A _ A _
+```
+
+Now continue
+
+```
+1
+
+3
+
+5
+
+7
+```
+
+```
+A B A C A D A E
+```
+
+Automatically,
+
+same letters never touch.
+
+---
+
+# Step 9 : Algorithm
+
+Count frequency.
+
+Sort characters by frequency.
+
+Start filling
+
+```
+0
+
+2
+
+4
+
+6
+```
+
+When even positions finish,
+
+continue
+
+```
+1
+
+3
+
+5
+
+7
+```
+
+Return the final string.
+
+---
+
+# Step 10 : Dry Run
+
+Input
+
+```
+s = "aab"
+```
+
+---
+
+## Frequency
+
+```
+a → 2
+
+b → 1
+```
+
+Sorted
+
+```
+a
+
+b
+```
+
+---
+
+## Initial Answer
+
+```
+_ _ _
+```
+
+Current Position
+
+```
+0
+```
+
+---
+
+### Place first a
+
+```
+A _ _
+```
+
+Next
+
+```
+2
+```
+
+---
+
+### Place second a
+
+```
+A _ A
+```
+
+Next
+
+```
+4
+```
+
+Out of range.
+
+Move to
+
+```
+1
+```
+
+---
+
+### Place b
+
+```
+A B A
+```
+
+Done.
+
+Answer
+
+```
+ABA
+```
+
+---
+
+# Another Dry Run
+
+```
+s = "aaabbc"
+```
+
+Frequency
+
+```
+a = 3
+
+b = 2
+
+c = 1
+```
+
+Answer
+
+```
+_ _ _ _ _ _
+```
+
+Fill
+
+```
+0
+
+2
+
+4
+```
+
+```
+A _ A _ A _
+```
+
+Now
+
+```
+b
+```
+
+Fill
+
+```
+1
+
+3
+```
+
+```
+A B A B A _
+```
+
+Now
+
+```
+c
+```
+
+Fill
+
+```
+5
+```
+
+```
+A B A B A C
+```
+
+Perfect.
+
+---
+
+# Why Does This Always Work?
+
+The most frequent character is the hardest to place.
+
+If even positions are enough to hold all copies,
+
+then
+
+every remaining character has fewer occurrences,
+
+so they can always fit into the remaining empty positions.
+
+Therefore
+
+placing the largest frequency first
+
+is always safe.
+
+This is the Greedy proof.
+
+---
+
+# Python Solution
+
+```python
+from collections import Counter
+
+class Solution:
+    def reorganizeString(self, s: str) -> str:
+
+        n = len(s)
+
+        freq = Counter(s)
+
+        # Impossible case
+        if max(freq.values()) > (n + 1) // 2:
+            return ""
+
+        ans = [""] * n
+
+        # Sort by decreasing frequency
+        chars = sorted(freq.items(), key=lambda x: -x[1])
+
+        index = 0
+
+        for ch, count in chars:
+
+            while count > 0:
+
+                ans[index] = ch
+
+                index += 2
+
+                if index >= n:
+                    index = 1
+
+                count -= 1
+
+        return "".join(ans)
+```
+
+---
+
+# Complexity
+
+Let
+
+```
+n
+
+=
+
+length of string
+```
+
+Counting frequency
+
+```
+O(n)
+```
+
+Sorting
+
+At most
+
+```
+26 letters
+```
+
+So
+
+```
+O(26 log 26)
+
+≈ O(1)
+```
+
+Placing characters
+
+```
+O(n)
+```
+
+Overall
+
+```
+Time
+
+O(n)
+```
+
+Space
+
+```
+O(n)
+```
+
+---
+
+# How Should a Beginner Think?
+
+Whenever you see a problem like this,
+
+don't immediately think
+
+```
+How do I arrange characters?
+```
+
+Instead ask
+
+### Question 1
+
+Which character is hardest to place?
+
+Answer
+
+```
+Most frequent character.
+```
+
+---
+
+### Question 2
+
+How can I keep identical characters apart?
+
+Answer
+
+```
+Leave one empty space between them.
+```
+
+---
+
+### Question 3
+
+What is the safest way to create gaps?
+
+Answer
+
+Fill
+
+```
+0
+
+2
+
+4
+
+6
+```
+
+first.
+
+---
+
+### Question 4
+
+Once the hardest character is placed,
+
+what happens?
+
+Answer
+
+All remaining characters have smaller frequencies,
+
+so they naturally fit into the remaining spaces.
+
+---
+
+# Pattern Recognition
+
+Whenever you see
+
+- Rearrange elements
+- Avoid adjacent duplicates
+- Most frequent element is the main obstacle
+
+Think
+
+```
+Frequency Counting
+
++
+
+Greedy
+
++
+
+Place the highest frequency element first.
+```
+
+---
+
+# Real-Life Analogy
+
+Imagine organizing guests at a wedding.
+
+One family has
+
+```
+5 members
+```
+
+and they keep arguing if they sit together.
+
+What would you do?
+
+You wouldn't seat them like
+
+```
+A A A A A
+```
+
+Instead,
+
+spread them across the hall.
+
+```
+A _ A _ A _ A _ A
+```
+
+Then fill the remaining seats with guests from other families.
+
+Exactly the same idea is used in this problem.
+
+---
+
+# Final Intuition to Remember Forever
+
+> The character with the highest frequency is the hardest to separate. Place it first with maximum spacing (every alternate position). Once the hardest character is handled, every remaining character has fewer occurrences and can safely fill the remaining gaps.
