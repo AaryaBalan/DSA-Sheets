@@ -9,6 +9,7 @@ The goal is not just to memorize solutions, but to **develop the intuition** to 
 # Questions
 
 - [#70. Climbing Stairs](#70-climbing-stairs)
+- [#198. House Robber](#198-house-robber)
 
 <br/><br/><br/><br/><br/>
 
@@ -1170,3 +1171,1141 @@ and every answer depends on a few **previous smaller answers**,
 For this problem, the key realization is:
 
 > **To reach stair `n`, you must have come from either stair `n-1` or stair `n-2`. Once you discover this, the recurrence `ways(n) = ways(n-1) + ways(n-2)` naturally follows.**
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 198. House Robber
+
+## Difficulty
+
+Medium
+
+## Pattern
+
+- Dynamic Programming
+- 1D DP
+- Pick / Not Pick Pattern
+
+---
+
+# Problem Statement
+
+You are a professional robber planning to rob houses along a street.
+
+Each house contains some amount of money.
+
+The only rule is:
+
+> If you rob two adjacent houses, the police will be alerted.
+
+Your task is to find the **maximum amount of money** you can rob without robbing two adjacent houses.
+
+---
+
+# Examples
+
+## Example 1
+
+```
+Input
+
+nums = [1,2,3,1]
+```
+
+Possible Choices
+
+```
+Rob House 1 + House 3
+
+1 + 3 = 4
+```
+
+Answer
+
+```
+4
+```
+
+---
+
+## Example 2
+
+```
+Input
+
+nums = [2,7,9,3,1]
+```
+
+Possible Choices
+
+```
+2 + 9 + 1 = 12
+```
+
+Answer
+
+```
+12
+```
+
+---
+
+# Understanding the Problem Like a Common Man
+
+Imagine there are houses in a straight line.
+
+```
+🏠   🏠   🏠   🏠   🏠
+
+ 2    7    9    3    1
+```
+
+You are a robber.
+
+If you rob one house,
+
+its neighboring houses immediately become unsafe.
+
+For example,
+
+if you rob
+
+```
+7
+```
+
+you cannot rob
+
+```
+2
+
+or
+
+9
+```
+
+So every time you stand at a house, you only have **two choices**.
+
+---
+
+# Two Choices
+
+## Choice 1
+
+Rob this house.
+
+If you rob it,
+
+you must skip the next house.
+
+---
+
+## Choice 2
+
+Skip this house.
+
+Move to the next one.
+
+That's all.
+
+Every house only gives these two choices.
+
+This is why this problem belongs to the **Pick / Not Pick** DP pattern.
+
+---
+
+# Thinking Like a Common Person
+
+Suppose
+
+```
+nums = [2,7,9,3,1]
+```
+
+Start from the last house.
+
+```
+1
+```
+
+Can I rob it?
+
+Yes.
+
+But if I rob it,
+
+I cannot rob
+
+```
+3
+```
+
+If I don't rob it,
+
+I can consider
+
+```
+3
+```
+
+So every decision depends on two future possibilities.
+
+This is exactly how recursion thinks.
+
+---
+
+# The Most Important Intuition
+
+Whenever you are standing at index `i`, ask yourself:
+
+## Option 1
+
+Rob this house.
+
+Money earned
+
+```
+nums[i]
+```
+
+Since the next house cannot be robbed,
+
+go to
+
+```
+i-2
+```
+
+Total
+
+```
+nums[i] + solve(i-2)
+```
+
+---
+
+## Option 2
+
+Skip this house.
+
+Move to
+
+```
+i-1
+```
+
+Total
+
+```
+solve(i-1)
+```
+
+Now choose whichever gives more money.
+
+---
+
+# Recurrence Relation
+
+```
+dp[i]
+
+=
+
+max(
+
+nums[i] + dp[i-2],
+
+dp[i-1]
+
+)
+```
+
+This is the heart of the problem.
+
+---
+
+# Finding the Base Cases
+
+Suppose
+
+```
+Only one house
+```
+
+Example
+
+```
+[5]
+```
+
+Obviously
+
+```
+Maximum Money = 5
+```
+
+So
+
+```
+dp[0]=nums[0]
+```
+
+---
+
+If
+
+```
+index < 0
+```
+
+There is no house.
+
+Return
+
+```
+0
+```
+
+---
+
+# Recursive Thinking
+
+Suppose
+
+```
+nums=[2,7,9,3]
+```
+
+Need answer for
+
+```
+House 3
+```
+
+Two options
+
+```
+Take House 3
+
+↓
+
+3 + solve(1)
+```
+
+or
+
+```
+Don't Take House 3
+
+↓
+
+solve(2)
+```
+
+Again
+
+```
+solve(2)
+```
+
+will make two choices.
+
+Again
+
+```
+solve(1)
+```
+
+will make two choices.
+
+Eventually every path reaches the base case.
+
+---
+
+# Recursion Tree
+
+```
+                    f(3)
+                 /        \
+           Take           Skip
+             |              |
+        3+f(1)           f(2)
+         /  \            /   \
+     Take Skip      Take   Skip
+```
+
+Notice
+
+```
+f(1)
+
+gets calculated again.
+
+f(0)
+
+gets calculated again.
+```
+
+These are
+
+```
+Overlapping Subproblems
+```
+
+Hence
+
+Dynamic Programming.
+
+---
+
+# Recursive Solution
+
+```python
+class Solution:
+
+    def solve(self,index,nums):
+
+        if index==0:
+            return nums[0]
+
+        if index<0:
+            return 0
+
+        take=nums[index]+self.solve(index-2,nums)
+
+        notTake=self.solve(index-1,nums)
+
+        return max(take,notTake)
+
+    def rob(self,nums):
+
+        return self.solve(len(nums)-1,nums)
+```
+
+---
+
+# Why Recursion is Slow
+
+Suppose
+
+```
+100 houses
+```
+
+The same states
+
+```
+solve(70)
+
+solve(50)
+
+solve(30)
+```
+
+are computed many times.
+
+Huge waste.
+
+Time Complexity
+
+```
+O(2^n)
+```
+
+---
+
+# Memoization
+
+Idea
+
+Whenever a state is solved,
+
+store its answer.
+
+If the same state appears again,
+
+return the stored answer.
+
+No need to solve again.
+
+---
+
+# DP Array
+
+Initially
+
+```
+-1 -1 -1 -1 -1
+```
+
+Suppose
+
+```
+dp[2]=11
+```
+
+Store it.
+
+Next time
+
+Need
+
+```
+dp[2]
+```
+
+Already computed.
+
+Return immediately.
+
+---
+
+# Memoization Code
+
+```python
+class Solution:
+
+    def solve(self,index,nums,dp):
+
+        if index==0:
+            return nums[0]
+
+        if index<0:
+            return 0
+
+        if dp[index]!=-1:
+            return dp[index]
+
+        take=nums[index]+self.solve(index-2,nums,dp)
+
+        notTake=self.solve(index-1,nums,dp)
+
+        dp[index]=max(take,notTake)
+
+        return dp[index]
+
+    def rob(self,nums):
+
+        n=len(nums)
+
+        dp=[-1]*n
+
+        return self.solve(n-1,nums,dp)
+```
+
+---
+
+# Dry Run (Memoization)
+
+Example
+
+```
+nums=[2,7,9,3,1]
+```
+
+```
+solve(4)
+
+↓
+
+Take
+
+1+solve(2)
+
+↓
+
+1+11=12
+```
+
+Skip
+
+```
+solve(3)=11
+```
+
+Choose
+
+```
+max(12,11)
+
+=
+
+12
+```
+
+Answer
+
+```
+12
+```
+
+---
+
+# Time Complexity
+
+```
+O(n)
+```
+
+Space
+
+```
+DP Array
+
++
+
+Recursion Stack
+
+=
+
+O(n)
+```
+
+---
+
+# Tabulation
+
+Instead of solving backwards,
+
+build the answer from the beginning.
+
+We already know
+
+```
+dp[0]=nums[0]
+```
+
+Now compute
+
+```
+dp[1]
+
+dp[2]
+
+dp[3]
+
+...
+
+dp[n-1]
+```
+
+---
+
+# Transition
+
+```
+take
+
+=
+
+nums[i]
+
++
+
+dp[i-2]
+```
+
+If
+
+```
+i<2
+```
+
+take only
+
+```
+nums[i]
+```
+
+Skip
+
+```
+dp[i-1]
+```
+
+Store
+
+```
+max(take,skip)
+```
+
+---
+
+# Tabulation Code
+
+```python
+class Solution:
+
+    def rob(self,nums):
+
+        n=len(nums)
+
+        if n==1:
+            return nums[0]
+
+        dp=[0]*n
+
+        dp[0]=nums[0]
+
+        for i in range(1,n):
+
+            take=nums[i]
+
+            if i>1:
+                take+=dp[i-2]
+
+            skip=dp[i-1]
+
+            dp[i]=max(take,skip)
+
+        return dp[n-1]
+```
+
+---
+
+# Dry Run (Tabulation)
+
+Example
+
+```
+nums=[2,7,9,3,1]
+```
+
+Initially
+
+```
+dp
+
+[2,0,0,0,0]
+```
+
+i=1
+
+```
+take=7
+
+skip=2
+
+dp[1]=7
+```
+
+```
+[2,7,0,0,0]
+```
+
+---
+
+i=2
+
+```
+take=9+2=11
+
+skip=7
+
+dp[2]=11
+```
+
+```
+[2,7,11,0,0]
+```
+
+---
+
+i=3
+
+```
+take=3+7=10
+
+skip=11
+
+dp[3]=11
+```
+
+```
+[2,7,11,11,0]
+```
+
+---
+
+i=4
+
+```
+take=1+11=12
+
+skip=11
+
+dp[4]=12
+```
+
+Final
+
+```
+[2,7,11,11,12]
+```
+
+Answer
+
+```
+12
+```
+
+---
+
+# Space Optimization
+
+Observe carefully.
+
+```
+dp[i]
+
+depends only on
+
+dp[i-1]
+
+and
+
+dp[i-2]
+```
+
+Nothing else.
+
+So storing the whole DP array is unnecessary.
+
+Only keep
+
+```
+prev2
+
+prev
+```
+
+---
+
+Initially
+
+```
+prev2=0
+
+prev=nums[0]
+```
+
+Every iteration
+
+```
+current
+
+=
+
+max(
+
+nums[i]+prev2,
+
+prev
+
+)
+```
+
+Move the variables
+
+```
+prev2=prev
+
+prev=current
+```
+
+Finally
+
+```
+prev
+
+contains the answer.
+```
+
+---
+
+# Space Optimized Code
+
+```python
+class Solution:
+
+    def rob(self,nums):
+
+        n=len(nums)
+
+        if n==1:
+            return nums[0]
+
+        prev=nums[0]
+
+        prev2=0
+
+        for i in range(1,n):
+
+            take=nums[i]
+
+            if i>1:
+                take+=prev2
+
+            skip=prev
+
+            current=max(take,skip)
+
+            prev2=prev
+
+            prev=current
+
+        return prev
+```
+
+---
+
+# Time Complexity
+
+```
+O(n)
+```
+
+---
+
+# Space Complexity
+
+```
+O(1)
+```
+
+---
+
+# Mathematical Logic
+
+At every house,
+
+there are only two possibilities.
+
+```
+Take
+
+or
+
+Don't Take
+```
+
+If you
+
+```
+Take
+```
+
+you must skip the adjacent house.
+
+If you
+
+```
+Don't Take
+```
+
+you remain free to consider the next house.
+
+Therefore
+
+```
+Answer
+
+=
+
+Maximum of
+
+Take
+
+and
+
+Don't Take
+```
+
+which gives
+
+```
+dp[i]
+
+=
+
+max(
+
+nums[i]+dp[i-2],
+
+dp[i-1]
+
+)
+```
+
+---
+
+# How to Build the Intuition
+
+Whenever you see a problem, ask:
+
+### Question 1
+
+Can I make a choice?
+
+```
+Take
+
+or
+
+Skip
+```
+
+---
+
+### Question 2
+
+If I take this,
+
+what becomes impossible?
+
+Here
+
+```
+Adjacent house
+```
+
+---
+
+### Question 3
+
+Can I solve the remaining smaller problem?
+
+Yes.
+
+```
+Take
+
+↓
+
+solve(i-2)
+
+Skip
+
+↓
+
+solve(i-1)
+```
+
+---
+
+### Question 4
+
+Am I solving the same smaller problems repeatedly?
+
+Yes.
+
+Hence
+
+```
+Dynamic Programming
+```
+
+---
+
+# Pattern Recognition
+
+Whenever you hear
+
+- Maximum Sum
+- Cannot Choose Adjacent
+- Pick or Skip
+- Independent Choices
+
+Immediately think
+
+```
+Pick / Not Pick DP
+```
+
+---
+
+# Common Mistakes
+
+❌ Robbing adjacent houses.
+
+❌ Forgetting the `index < 0` base case.
+
+❌ Forgetting to handle `n == 1`.
+
+❌ Using `dp[i-2]` when `i == 1`.
+
+---
+
+# Similar Problems
+
+- House Robber II
+- House Robber III
+- Maximum Sum of Non-Adjacent Elements
+- Delete and Earn
+- Paint House
+
+---
+
+# Quick Revision
+
+### Recurrence
+
+```
+dp[i]
+
+=
+
+max(
+
+nums[i]+dp[i-2],
+
+dp[i-1]
+
+)
+```
+
+---
+
+### Base Cases
+
+```
+index==0
+
+↓
+
+nums[0]
+
+index<0
+
+↓
+
+0
+```
+
+---
+
+### DP Progression
+
+```
+Recursion
+
+↓
+
+Memoization
+
+↓
+
+Tabulation
+
+↓
+
+Space Optimization
+```
+
+---
+
+# Golden Rule
+
+Whenever a problem asks you to maximize something and every choice affects the next available choices, think in terms of **"Take" or "Skip."** If taking the current element prevents taking a neighboring element, there's a strong chance the problem can be solved using the **Pick / Not Pick Dynamic Programming pattern**.
