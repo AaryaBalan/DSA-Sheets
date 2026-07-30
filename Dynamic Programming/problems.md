@@ -10,6 +10,7 @@ The goal is not just to memorize solutions, but to **develop the intuition** to 
 
 - [#70. Climbing Stairs](#70-climbing-stairs)
 - [#198. House Robber](#198-house-robber)
+- [#213. House Robber II](#213-house-robber-ii)
 
 <br/><br/><br/><br/><br/>
 
@@ -2309,3 +2310,1090 @@ Space Optimization
 # Golden Rule
 
 Whenever a problem asks you to maximize something and every choice affects the next available choices, think in terms of **"Take" or "Skip."** If taking the current element prevents taking a neighboring element, there's a strong chance the problem can be solved using the **Pick / Not Pick Dynamic Programming pattern**.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 213. House Robber II
+
+# Difficulty
+
+Medium
+
+# Pattern
+
+- Dynamic Programming
+- 1D DP
+- Pick / Not Pick
+
+---
+
+# Problem Statement
+
+You are a professional robber.
+
+There are **N houses** arranged in a **circle**.
+
+Each house contains some money.
+
+The rule is:
+
+- You **cannot rob two adjacent houses**.
+- Since the houses are arranged in a **circle**, the **first and last houses are also adjacent**.
+
+Find the **maximum money** that can be robbed.
+
+---
+
+# Difference from House Robber I
+
+House Robber I
+
+```
+1 ---- 2 ---- 3 ---- 4 ---- 5
+```
+
+Only neighbors are adjacent.
+
+---
+
+House Robber II
+
+```
+      1
+   /     \
+  5       2
+  |       |
+  4 ----- 3
+```
+
+Now
+
+```
+First house
+
+and
+
+Last house
+
+are also adjacent.
+```
+
+This is the only difference.
+
+---
+
+# The Biggest Observation
+
+Can the answer ever contain
+
+```
+First House
+
+and
+
+Last House
+```
+
+together?
+
+No.
+
+Because they are adjacent.
+
+Therefore
+
+```
+At least one of them
+
+must be excluded.
+```
+
+This single observation solves the entire problem.
+
+---
+
+# Think Like a Common Man
+
+Suppose
+
+```
+2  3  2
+```
+
+If you rob
+
+```
+First House (2)
+```
+
+you cannot rob
+
+```
+Last House (2)
+```
+
+If you rob
+
+```
+Last House (2)
+```
+
+you cannot rob
+
+```
+First House (2)
+```
+
+So both cannot exist together.
+
+---
+
+Suppose
+
+```
+1 2 3 1
+```
+
+Again,
+
+```
+First
+
+and
+
+Last
+
+cannot both be robbed.
+```
+
+So instead of solving a circular problem,
+
+convert it into two normal House Robber problems.
+
+---
+
+# The Main Intuition
+
+Since
+
+```
+First
+
+and
+
+Last
+
+cannot both be selected,
+```
+
+only two cases are possible.
+
+---
+
+## Case 1
+
+Ignore the last house.
+
+Solve
+
+```
+0 → n-2
+```
+
+Example
+
+```
+1 2 3 1
+
+↓
+
+1 2 3
+```
+
+Apply House Robber I.
+
+---
+
+## Case 2
+
+Ignore the first house.
+
+Solve
+
+```
+1 → n-1
+```
+
+Example
+
+```
+1 2 3 1
+
+↓
+
+2 3 1
+```
+
+Again,
+
+apply House Robber I.
+
+---
+
+Finally
+
+```
+Answer
+
+=
+
+max(
+
+Case1,
+
+Case2
+
+)
+```
+
+---
+
+# Why Does This Always Work?
+
+Suppose the optimal answer includes
+
+```
+First House.
+```
+
+Then
+
+```
+Last House
+
+cannot be included.
+```
+
+So it belongs to
+
+```
+0 → n-2
+```
+
+---
+
+Suppose the optimal answer includes
+
+```
+Last House.
+```
+
+Then
+
+```
+First House
+
+cannot be included.
+```
+
+So it belongs to
+
+```
+1 → n-1
+```
+
+---
+
+There is no third possibility.
+
+Hence
+
+```
+Answer
+
+=
+
+max(
+
+rob(nums[:-1]),
+
+rob(nums[1:])
+
+)
+```
+
+---
+
+# Step 1 : Solve House Robber I
+
+We already know
+
+```
+dp[i]
+
+=
+
+max(
+
+nums[i]+dp[i-2],
+
+dp[i-1]
+
+)
+```
+
+Now simply call it twice.
+
+---
+
+# Memoization
+
+## Idea
+
+Store the answer for every index.
+
+Whenever the same state appears,
+
+reuse it.
+
+---
+
+## State
+
+```
+solve(index)
+```
+
+means
+
+```
+Maximum money
+
+from
+
+0 → index
+```
+
+---
+
+## Base Cases
+
+```
+index==0
+
+↓
+
+nums[0]
+```
+
+```
+index<0
+
+↓
+
+0
+```
+
+---
+
+## Transition
+
+### Pick
+
+```
+nums[index]
+
++
+
+solve(index-2)
+```
+
+---
+
+### Not Pick
+
+```
+solve(index-1)
+```
+
+---
+
+Take maximum.
+
+```
+return max(
+
+pick,
+
+notPick
+
+)
+```
+
+---
+
+# Memoization Code
+
+```python
+from functools import cache
+
+class Solution:
+
+    def rob(self, nums):
+
+        if len(nums)==1:
+            return nums[0]
+
+        def helper(arr):
+
+            @cache
+            def solve(index):
+
+                if index==0:
+                    return arr[0]
+
+                if index<0:
+                    return 0
+
+                pick=arr[index]+solve(index-2)
+
+                notPick=solve(index-1)
+
+                return max(pick,notPick)
+
+            return solve(len(arr)-1)
+
+        return max(
+
+            helper(nums[:-1]),
+
+            helper(nums[1:])
+
+        )
+```
+
+---
+
+# Memoization Dry Run
+
+Example
+
+```
+nums=[2,3,2]
+```
+
+Case 1
+
+```
+[2,3]
+
+↓
+
+Answer=3
+```
+
+Case 2
+
+```
+[3,2]
+
+↓
+
+Answer=3
+```
+
+Final
+
+```
+max(3,3)
+
+=
+
+3
+```
+
+---
+
+# Memoization Complexity
+
+```
+Time
+
+O(N)
+```
+
+```
+Space
+
+O(N)
+```
+
+---
+
+# Tabulation
+
+Instead of recursion,
+
+build the answer from left to right.
+
+---
+
+## DP Definition
+
+```
+dp[i]
+
+=
+
+Maximum money
+
+up to house i
+```
+
+---
+
+## Base
+
+```
+dp[0]=nums[0]
+```
+
+---
+
+## Formula
+
+```
+pick
+
+=
+
+nums[i]
+
++
+
+dp[i-2]
+```
+
+```
+notPick
+
+=
+
+dp[i-1]
+```
+
+```
+dp[i]
+
+=
+
+max(
+
+pick,
+
+notPick
+
+)
+```
+
+---
+
+# Tabulation Code
+
+```python
+class Solution:
+
+    def rob(self, nums):
+
+        if len(nums)==1:
+            return nums[0]
+
+        def helper(arr):
+
+            n=len(arr)
+
+            dp=[0]*n
+
+            dp[0]=arr[0]
+
+            for i in range(1,n):
+
+                pick=arr[i]
+
+                if i>1:
+                    pick+=dp[i-2]
+
+                notPick=dp[i-1]
+
+                dp[i]=max(pick,notPick)
+
+            return dp[-1]
+
+        return max(
+
+            helper(nums[:-1]),
+
+            helper(nums[1:])
+
+        )
+```
+
+---
+
+# Tabulation Dry Run
+
+Example
+
+```
+nums=[1,2,3,1]
+```
+
+Case 1
+
+```
+[1,2,3]
+```
+
+DP
+
+```
+1
+
+2
+
+4
+```
+
+Answer
+
+```
+4
+```
+
+---
+
+Case 2
+
+```
+[2,3,1]
+```
+
+DP
+
+```
+2
+
+3
+
+3
+```
+
+Answer
+
+```
+3
+```
+
+Final
+
+```
+max(
+
+4,
+
+3
+
+)
+
+=
+
+4
+```
+
+---
+
+# Tabulation Complexity
+
+```
+Time
+
+O(N)
+```
+
+```
+Space
+
+O(N)
+```
+
+---
+
+# Space Optimization
+
+Observe
+
+```
+dp[i]
+
+depends only on
+
+dp[i-1]
+
+and
+
+dp[i-2]
+```
+
+Nothing else.
+
+So,
+
+instead of storing the whole DP array,
+
+store only two variables.
+
+---
+
+## Variables
+
+```
+prev
+
+↓
+
+dp[i-1]
+```
+
+```
+prev2
+
+↓
+
+dp[i-2]
+```
+
+---
+
+## Transition
+
+```
+pick
+
+=
+
+arr[i]
+
++
+
+prev2
+```
+
+```
+skip
+
+=
+
+prev
+```
+
+```
+current
+
+=
+
+max(
+
+pick,
+
+skip
+
+)
+```
+
+Move forward
+
+```
+prev2=prev
+
+prev=current
+```
+
+---
+
+# Space Optimized Code
+
+```python
+class Solution:
+
+    def rob(self, nums):
+
+        if len(nums)==1:
+            return nums[0]
+
+        def helper(arr):
+
+            prev=arr[0]
+
+            prev2=0
+
+            for i in range(1,len(arr)):
+
+                pick=arr[i]+prev2
+
+                skip=prev
+
+                current=max(pick,skip)
+
+                prev2=prev
+
+                prev=current
+
+            return prev
+
+        return max(
+
+            helper(nums[:-1]),
+
+            helper(nums[1:])
+
+        )
+```
+
+---
+
+# Space Optimization Dry Run
+
+Example
+
+```
+nums=[2,3,2]
+```
+
+Case 1
+
+```
+[2,3]
+```
+
+Initially
+
+```
+prev=2
+
+prev2=0
+```
+
+i=1
+
+```
+pick=3
+
+skip=2
+
+current=3
+```
+
+Update
+
+```
+prev2=2
+
+prev=3
+```
+
+Answer
+
+```
+3
+```
+
+---
+
+Case 2
+
+```
+[3,2]
+```
+
+Initially
+
+```
+prev=3
+
+prev2=0
+```
+
+i=1
+
+```
+pick=2
+
+skip=3
+
+current=3
+```
+
+Answer
+
+```
+3
+```
+
+Final
+
+```
+max(
+
+3,
+
+3
+
+)
+
+=
+
+3
+```
+
+---
+
+# Time Complexity
+
+```
+O(N)
+```
+
+because House Robber I runs twice.
+
+```
+O(N)+O(N)
+
+=
+
+O(N)
+```
+
+---
+
+# Space Complexity
+
+```
+O(1)
+```
+
+---
+
+# Interview Thinking
+
+Whenever a problem says
+
+```
+Linear Array
+```
+
+and suddenly changes to
+
+```
+Circular Array
+```
+
+ask yourself:
+
+> **Can I break the circle into two linear cases?**
+
+Here,
+
+breaking the circle into
+
+```
+Exclude First
+
+or
+
+Exclude Last
+```
+
+transforms the problem back into the already solved **House Robber I**.
+
+---
+
+# Common Mistakes
+
+❌ Trying to rob both first and last houses.
+
+❌ Forgetting the edge case when there is only one house.
+
+❌ Writing a completely new DP instead of reusing House Robber I.
+
+❌ Forgetting that `nums[:-1]` and `nums[1:]` create two separate linear problems.
+
+---
+
+# Similar Problems
+
+- House Robber I
+- House Robber III
+- Delete and Earn
+- Maximum Sum of Non-Adjacent Elements
+
+---
+
+# Quick Revision
+
+## Observation
+
+```
+First
+
+and
+
+Last
+
+cannot both be robbed.
+```
+
+---
+
+## Cases
+
+```
+Case 1
+
+↓
+
+Ignore Last
+```
+
+```
+Case 2
+
+↓
+
+Ignore First
+```
+
+---
+
+## Formula
+
+```
+Answer
+
+=
+
+max(
+
+HouseRobber(nums[:-1]),
+
+HouseRobber(nums[1:])
+
+)
+```
+
+---
+
+# Golden Rule
+
+Whenever a circular arrangement introduces a conflict between the first and last elements, try to **break the circle into multiple linear subproblems**. Reusing the solution to the simpler linear version is often the cleanest and most efficient dynamic programming approach.
