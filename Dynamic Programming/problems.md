@@ -11,6 +11,8 @@ The goal is not just to memorize solutions, but to **develop the intuition** to 
 - [#70. Climbing Stairs](#70-climbing-stairs)
 - [#198. House Robber](#198-house-robber)
 - [#213. House Robber II](#213-house-robber-ii)
+- [740. Delete and Earn](#740-delete-and-earn)
+- [3186. Maximum Total Damage With Spell Casting](#3186-maximum-total-damage-with-spell-casting)
 
 <br/><br/><br/><br/><br/>
 
@@ -3397,3 +3399,2722 @@ HouseRobber(nums[1:])
 # Golden Rule
 
 Whenever a circular arrangement introduces a conflict between the first and last elements, try to **break the circle into multiple linear subproblems**. Reusing the solution to the simpler linear version is often the cleanest and most efficient dynamic programming approach.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 740. Delete and Earn
+
+## Difficulty
+
+Medium
+
+## Pattern
+
+- Dynamic Programming
+- 1D DP
+- House Robber Transformation
+- Pick / Not Pick Pattern
+
+---
+
+# Problem Statement
+
+You are given an integer array `nums`.
+
+You can perform the following operation any number of times.
+
+Choose any number `x`.
+
+When you choose it,
+
+- You earn `x` points.
+- Every occurrence of `x - 1` is deleted.
+- Every occurrence of `x + 1` is deleted.
+
+Your goal is to maximize the total points earned.
+
+---
+
+# Examples
+
+## Example 1
+
+### Input
+
+```text
+nums = [3,4,2]
+```
+
+### Explanation
+
+Choose `4`
+
+```
+Earn = 4
+```
+
+Now `3` disappears.
+
+Remaining array
+
+```
+[2]
+```
+
+Choose `2`
+
+```
+Earn = 2
+```
+
+Total
+
+```
+4 + 2 = 6
+```
+
+Answer
+
+```
+6
+```
+
+---
+
+## Example 2
+
+### Input
+
+```text
+nums = [2,2,3,3,3,4]
+```
+
+Instead of taking `2`s,
+
+take every `3`.
+
+```
+3 + 3 + 3 = 9
+```
+
+All `2`s and `4` disappear.
+
+Answer
+
+```
+9
+```
+
+---
+
+# Understanding the Problem Like a Common Man
+
+At first, the problem looks confusing because it talks about deleting numbers.
+
+But ask yourself,
+
+**What actually matters?**
+
+Suppose
+
+```
+nums = [2,2,3,3,3,4]
+```
+
+You have
+
+```
+2 appears 2 times
+
+3 appears 3 times
+
+4 appears 1 time
+```
+
+Now think.
+
+If you decide to choose `3`,
+
+will choosing one `3` delete the other `3`s?
+
+**No.**
+
+It only deletes
+
+```
+2
+
+and
+
+4
+```
+
+That means
+
+if you decide to take value `3`,
+
+you should take **every** `3`.
+
+This is the first important observation.
+
+---
+
+# First Intuition
+
+Instead of thinking about every element,
+
+group equal numbers together.
+
+Example
+
+```
+nums
+
+=
+
+[2,2,3,3,3,4]
+```
+
+Frequency
+
+```
+2 → 2 times
+
+3 → 3 times
+
+4 → 1 time
+```
+
+Now calculate the total points each value can contribute.
+
+```
+2 → 2 × 2 = 4
+
+3 → 3 × 3 = 9
+
+4 → 4 × 1 = 4
+```
+
+Now forget the original array.
+
+Instead think
+
+```
+Value     Points
+
+2         4
+
+3         9
+
+4         4
+```
+
+---
+
+# Why Can We Group Equal Numbers?
+
+Suppose
+
+```
+nums=[5,5,5]
+```
+
+If you choose one `5`,
+
+does another `5` disappear?
+
+No.
+
+Only
+
+```
+4
+
+and
+
+6
+```
+
+disappear.
+
+So if you decide to choose `5`,
+
+there is absolutely no reason to leave another `5`.
+
+You should collect all of them.
+
+Therefore
+
+```
+points[value]
+
+=
+
+value × frequency
+```
+
+This is the mathematical reason behind grouping.
+
+---
+
+# Converting the Problem
+
+Create a new array called
+
+```
+points
+```
+
+where
+
+```
+points[x]
+
+=
+
+x × frequency(x)
+```
+
+Example
+
+```
+nums=[2,2,3,3,3,4]
+```
+
+becomes
+
+```
+Index
+
+0 1 2 3 4
+
+Value
+
+0 0 4 9 4
+```
+
+Now ask yourself.
+
+Can I take both
+
+```
+2
+
+and
+
+3
+```
+
+No.
+
+Can I take both
+
+```
+3
+
+and
+
+4
+```
+
+No.
+
+Suddenly this becomes
+
+# House Robber
+
+because adjacent values cannot both be chosen.
+
+---
+
+# Visual Transformation
+
+Original array
+
+```
+[2,2,3,3,3,4]
+```
+
+↓
+
+Count frequency
+
+```
+2 → 2
+
+3 → 3
+
+4 → 1
+```
+
+↓
+
+Convert into points
+
+```
+points
+
+0 1 2 3 4
+
+0 0 4 9 4
+```
+
+↓
+
+Now solve
+
+```
+Maximum sum of non-adjacent values
+```
+
+Exactly House Robber.
+
+---
+
+# Thinking Like a Common Person
+
+Imagine standing at value
+
+```
+3
+```
+
+You have only two choices.
+
+---
+
+## Choice 1
+
+Take it.
+
+Earn
+
+```
+9
+```
+
+But now you cannot take
+
+```
+2
+
+or
+
+4
+```
+
+---
+
+## Choice 2
+
+Skip it.
+
+Maybe
+
+```
+2
+
+or
+
+4
+```
+
+gives a better answer.
+
+These are exactly the same two choices as House Robber.
+
+---
+
+# The Most Important Intuition
+
+Whenever you stand at value `i`
+
+there are only two possibilities.
+
+## Option 1
+
+Take it.
+
+Earn
+
+```
+points[i]
+```
+
+Then skip
+
+```
+i-1
+```
+
+Continue from
+
+```
+i-2
+```
+
+Total
+
+```
+points[i] + solve(i-2)
+```
+
+---
+
+## Option 2
+
+Don't take it.
+
+Move to
+
+```
+i-1
+```
+
+Total
+
+```
+solve(i-1)
+```
+
+Take whichever is larger.
+
+---
+
+# Recurrence Relation
+
+```
+dp[i]
+
+=
+
+max(
+
+points[i] + dp[i-2],
+
+dp[i-1]
+
+)
+```
+
+Notice.
+
+This is **exactly** the House Robber recurrence.
+
+Only
+
+```
+nums
+
+↓
+
+points
+```
+
+changed.
+
+---
+
+# Base Cases
+
+If
+
+```
+i == 0
+```
+
+Return
+
+```
+points[0]
+```
+
+If
+
+```
+i < 0
+```
+
+Return
+
+```
+0
+```
+
+---
+
+# Recursive Thinking
+
+Suppose
+
+```
+points
+
+=
+
+[0,0,4,9,4]
+```
+
+Need answer for
+
+```
+4
+```
+
+Two choices
+
+Take
+
+```
+4 + solve(2)
+```
+
+Skip
+
+```
+solve(3)
+```
+
+Again
+
+```
+solve(3)
+```
+
+creates two more choices.
+
+Eventually recursion reaches
+
+```
+i<0
+```
+
+---
+
+# Recursion Tree
+
+```text
+                 solve(4)
+               /          \
+          Take            Skip
+            |               |
+      4 + solve(2)       solve(3)
+         /      \         /     \
+      Take    Skip     Take    Skip
+```
+
+Notice
+
+```
+solve(2)
+
+solve(1)
+```
+
+are solved multiple times.
+
+Hence
+
+Dynamic Programming.
+
+---
+
+# Recursive Solution
+
+```python
+class Solution:
+
+    def solve(self, i, points):
+
+        if i == 0:
+            return points[0]
+
+        if i < 0:
+            return 0
+
+        take = points[i] + self.solve(i - 2, points)
+
+        skip = self.solve(i - 1, points)
+
+        return max(take, skip)
+
+    def deleteAndEarn(self, nums):
+
+        max_num = max(nums)
+
+        points = [0] * (max_num + 1)
+
+        for num in nums:
+            points[num] += num
+
+        return self.solve(max_num, points)
+```
+
+---
+
+# Why Recursion is Slow
+
+The same states are solved repeatedly.
+
+Example
+
+```
+solve(5)
+
+solve(4)
+
+solve(3)
+```
+
+again and again.
+
+Time Complexity
+
+```
+O(2^n)
+```
+
+---
+
+# Memoization
+
+Whenever a state is solved,
+
+store it.
+
+If the same state appears again,
+
+return it immediately.
+
+---
+
+# Memoization Code
+
+```python
+class Solution:
+    def deleteAndEarn(self, nums: List[int]) -> int:
+        n = len(nums)
+        k = max(nums)
+        points = [0] * (k + 1)
+
+        for i in nums:
+            points[i] += i
+        
+        dp = [-1] * (k + 1)
+
+        def getMax(index):
+            if index == 0:
+                return points[index]
+            
+            if index < 0:
+                return 0
+            if dp[index] != -1:
+                return dp[index]
+                
+            pick = points[index] + getMax(index - 2)
+            skip = getMax(index - 1)
+            ans = max(pick, skip)
+
+            dp[index] = ans
+
+            return ans
+
+        return getMax(k)
+```
+
+---
+
+# Dry Run (Memoization)
+
+Input
+
+```
+nums=[2,2,3,3,3,4]
+```
+
+## Step 1
+
+Build points array
+
+```
+points
+
+Index
+
+0 1 2 3 4
+
+Value
+
+0 0 4 9 4
+```
+
+Need
+
+```
+solve(4)
+```
+
+Take
+
+```
+4 + solve(2)
+
+=
+
+4 + 4
+
+=
+
+8
+```
+
+Skip
+
+```
+solve(3)
+
+=
+
+9
+```
+
+Choose
+
+```
+max(8,9)
+
+=
+
+9
+```
+
+Answer
+
+```
+9
+```
+
+---
+
+# Time Complexity
+
+```
+O(MaxValue)
+```
+
+Space
+
+```
+O(MaxValue)
+```
+
+---
+
+# Tabulation
+
+Instead of recursion,
+
+build answers from left to right.
+
+---
+
+## Transition
+
+```
+take
+
+=
+
+points[i]
+
++
+
+dp[i-2]
+```
+
+Skip
+
+```
+dp[i-1]
+```
+
+Store
+
+```
+max(take,skip)
+```
+
+---
+
+# Tabulation Code
+
+```python
+class Solution:
+    def deleteAndEarn(self, nums: List[int]) -> int:
+
+        n = len(nums)
+        k = max(nums)
+        points = [0] * (k + 1)
+
+        for i in nums:
+            points[i] += i
+        
+        dp = [0] * (k + 1)
+        dp[0] = points[0]
+
+        for i in range(1, k+1):
+            pick = points[i]
+            if i > 1:
+                pick += dp[i - 2]
+            skip = dp[i-1]
+            dp[i] = max(pick, skip)
+
+        return dp[k]
+```
+
+---
+
+# Dry Run (Tabulation)
+
+Input
+
+```
+nums=[2,2,3,3,3,4]
+```
+
+Points
+
+```
+[0,0,4,9,4]
+```
+
+Initially
+
+```
+dp
+
+[0,0,0,0,0]
+```
+
+### i = 2
+
+```
+take = 4
+
+skip = 0
+
+dp[2]=4
+```
+
+```
+[0,0,4,0,0]
+```
+
+---
+
+### i = 3
+
+```
+take = 9
+
+skip = 4
+
+dp[3]=9
+```
+
+```
+[0,0,4,9,0]
+```
+
+---
+
+### i = 4
+
+```
+take = 4+4=8
+
+skip = 9
+
+dp[4]=9
+```
+
+Final
+
+```
+[0,0,4,9,9]
+```
+
+Answer
+
+```
+9
+```
+
+---
+
+# Space Optimization
+
+Observe carefully.
+
+```
+dp[i]
+```
+
+depends only on
+
+```
+dp[i-1]
+
+and
+
+dp[i-2]
+```
+
+So we don't need the entire DP array.
+
+Only two variables are enough.
+
+---
+
+# Space Optimized Code
+
+```python
+class Solution:
+    def deleteAndEarn(self, nums: List[int]) -> int:
+        n = len(nums)
+        k = max(nums)
+        points = [0] * (k + 1)
+
+        for i in nums:
+            points[i] += i
+
+        prev1 = points[0]
+        prev2 = 0
+
+        for i in range(1, k+1):
+            pick = points[i]
+            if i > 1:
+                pick += prev2
+            prev2 = prev1
+            prev1 = max(pick, prev2)
+
+        return prev1
+```
+
+---
+
+# Complete Dry Run
+
+Input
+
+```
+nums=[2,2,3,3,3,4]
+```
+
+### Step 1
+
+Count frequency
+
+```
+2 → 2
+
+3 → 3
+
+4 → 1
+```
+
+---
+
+### Step 2
+
+Calculate total points
+
+```
+2 → 4
+
+3 → 9
+
+4 → 4
+```
+
+---
+
+### Step 3
+
+Build points array
+
+```
+Index
+
+0 1 2 3 4
+
+Value
+
+0 0 4 9 4
+```
+
+---
+
+### Step 4
+
+Run House Robber
+
+At value
+
+```
+2
+```
+
+```
+Take = 4
+
+Skip = 0
+
+Choose = 4
+```
+
+---
+
+At value
+
+```
+3
+```
+
+```
+Take = 9
+
+Skip = 4
+
+Choose = 9
+```
+
+---
+
+At value
+
+```
+4
+```
+
+```
+Take = 4 + 4 = 8
+
+Skip = 9
+
+Choose = 9
+```
+
+Final Answer
+
+```
+9
+```
+
+---
+
+# Mathematical Logic
+
+Suppose
+
+```
+frequency[x] = f
+```
+
+Each occurrence contributes
+
+```
+x
+```
+
+points.
+
+Total contribution becomes
+
+```
+points[x]
+
+=
+
+x × f
+```
+
+Choosing one occurrence of `x` never deletes another occurrence of `x`.
+
+It only deletes
+
+```
+x-1
+
+and
+
+x+1
+```
+
+Therefore,
+
+it is always optimal to take **all** occurrences of `x`.
+
+After grouping,
+
+every unique value behaves like a house.
+
+The recurrence becomes
+
+```
+dp[i]
+
+=
+
+max(
+
+points[i] + dp[i-2],
+
+dp[i-1]
+
+)
+```
+
+---
+
+# How to Build the Intuition
+
+Whenever you solve a DP problem, ask yourself these questions.
+
+### Question 1
+
+Can equal values be grouped?
+
+Here
+
+```
+Yes
+```
+
+---
+
+### Question 2
+
+If I choose one occurrence,
+
+should I take all occurrences?
+
+```
+Yes
+```
+
+---
+
+### Question 3
+
+What becomes impossible after choosing?
+
+Choosing
+
+```
+x
+```
+
+blocks
+
+```
+x-1
+
+and
+
+x+1
+```
+
+---
+
+### Question 4
+
+Does this remind me of another problem?
+
+Yes.
+
+```
+House Robber
+```
+
+---
+
+### Question 5
+
+How many choices do I have?
+
+Only two.
+
+```
+Take
+
+or
+
+Skip
+```
+
+That is the classic Pick / Not Pick DP pattern.
+
+---
+
+# Pattern Recognition
+
+Whenever you see
+
+- Maximize score
+- Adjacent values cannot both be chosen
+- Equal values can be merged
+- Choosing one value blocks neighboring values
+
+Immediately think
+
+```
+Original Array
+
+↓
+
+Frequency Map
+
+↓
+
+Points Array
+
+↓
+
+House Robber
+
+↓
+
+Dynamic Programming
+```
+
+---
+
+# Common Mistakes
+
+❌ Solving directly on the original array.
+
+❌ Forgetting to group equal values.
+
+❌ Applying House Robber on `nums` instead of `points`.
+
+❌ Forgetting to size the points array as
+
+```
+max(nums)+1
+```
+
+---
+
+# Quick Revision
+
+### Step 1
+
+```
+Count frequency
+```
+
+↓
+
+### Step 2
+
+```
+points[value]
+
+=
+
+value × frequency
+```
+
+↓
+
+### Step 3
+
+```
+Treat points as House Robber array
+```
+
+↓
+
+### Step 4
+
+Use recurrence
+
+```
+dp[i]
+
+=
+
+max(
+
+points[i]+dp[i-2],
+
+dp[i-1]
+
+)
+```
+
+↓
+
+### Step 5
+
+Space optimize to **O(1)**.
+
+---
+
+# Golden Rule
+
+Whenever a problem says
+
+- Choosing one value prevents choosing neighboring values.
+- Duplicate values can be merged into one score.
+- Find the maximum possible score.
+
+Immediately think
+
+```
+Group Equal Values
+
+↓
+
+Build Points Array
+
+↓
+
+House Robber
+
+↓
+
+Pick / Skip DP
+```
+
+**The hardest part of this problem is not the Dynamic Programming.**
+
+The hardest part is recognizing that after grouping equal values into total points, the problem becomes **exactly the House Robber problem**, and the same recurrence can be used directly.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 3186. Maximum Total Damage With Spell Casting
+
+## Difficulty
+
+**Medium**
+
+---
+
+# Pattern
+
+- Dynamic Programming
+- Coordinate Compression
+- Pick / Not Pick DP
+- Hash Map + Sorting
+
+---
+
+# Problem Statement
+
+A magician has many spells.
+
+Each spell has a damage value.
+
+```
+power = [1,1,3,4]
+```
+
+means there are four spells.
+
+- Spell 1 → Damage = 1
+- Spell 2 → Damage = 1
+- Spell 3 → Damage = 3
+- Spell 4 → Damage = 4
+
+A spell can only be cast once.
+
+However, there is one important rule.
+
+If you cast a spell with damage **x**, then you **cannot cast any spell having damage**
+
+```
+x-2
+x-1
+x+1
+x+2
+```
+
+Notice something important.
+
+The restriction is based on the **damage value**, **NOT** on the spell index.
+
+Your goal is to obtain the **maximum total damage**.
+
+---
+
+# Example 1
+
+## Input
+
+```
+power = [1,1,3,4]
+```
+
+---
+
+### Possible Choices
+
+Take all 1's
+
+```
+1 + 1 = 2
+```
+
+Cannot take 3.
+
+Can take 4.
+
+Total
+
+```
+2 + 4 = 6
+```
+
+---
+
+Take
+
+```
+3
+```
+
+Cannot take
+
+```
+1
+4
+5
+2
+```
+
+Total
+
+```
+3
+```
+
+---
+
+Take
+
+```
+4
+```
+
+Only
+
+```
+4
+```
+
+Total
+
+```
+4
+```
+
+---
+
+Maximum
+
+```
+6
+```
+
+---
+
+# Example 2
+
+## Input
+
+```
+power = [7,1,6,6]
+```
+
+Choose
+
+```
+1 + 6 + 6
+```
+
+Total
+
+```
+13
+```
+
+If we choose
+
+```
+7
+```
+
+we cannot choose
+
+```
+6
+```
+
+Total
+
+```
+8
+```
+
+Maximum
+
+```
+13
+```
+
+---
+
+# Understanding the Problem Like a Common Man
+
+Imagine there are different magical stones.
+
+```
+1
+1
+3
+4
+```
+
+Whenever you activate a stone,
+
+all stones within distance **2** become useless.
+
+For example
+
+Choose
+
+```
+4
+```
+
+Then
+
+```
+2
+3
+5
+6
+```
+
+cannot be chosen.
+
+But
+
+```
+1
+```
+
+is still allowed.
+
+Notice something interesting.
+
+If there are multiple stones with the same value,
+
+they **never block each other.**
+
+So if we decide to use damage **4**,
+
+there is no reason to take only one.
+
+Take **all** of them.
+
+This is the biggest observation.
+
+---
+
+# The Biggest Observation
+
+Suppose
+
+```
+power =
+
+[5,5,5,5]
+```
+
+If we decide to use damage
+
+```
+5
+```
+
+Why leave any 5 behind?
+
+There is no penalty.
+
+So
+
+```
+5+5+5+5
+```
+
+is always better.
+
+Therefore,
+
+instead of thinking about every spell,
+
+we should think about **each unique damage value.**
+
+---
+
+# First Step
+
+Group equal numbers.
+
+Example
+
+```
+power =
+
+[1,1,3,4,4,4]
+```
+
+becomes
+
+| Damage | Total Damage |
+|---------|--------------|
+|1|2|
+|3|3|
+|4|12|
+
+Instead of six spells,
+
+we now have only
+
+```
+1
+3
+4
+```
+
+with profits
+
+```
+2
+3
+12
+```
+
+This greatly simplifies the problem.
+
+---
+
+# Why Sorting is Necessary
+
+The restriction depends on
+
+```
+difference <=2
+```
+
+To know which damages conflict,
+
+we must process them in order.
+
+Sort unique damages.
+
+Example
+
+```
+Damage
+
+1
+3
+4
+7
+10
+```
+
+Now conflicts become easy to identify.
+
+---
+
+# How Should We Think?
+
+Whenever we stand at one damage value,
+
+we have only **two choices.**
+
+---
+
+## Choice 1
+
+Take this damage.
+
+If we take it,
+
+we earn
+
+```
+totalDamage[current]
+```
+
+But then
+
+every damage within
+
+```
+current-2
+current-1
+```
+
+cannot exist in our answer.
+
+So we jump to the nearest previous damage that differs by at least 3.
+
+---
+
+## Choice 2
+
+Skip this damage.
+
+Then we simply move to the previous damage.
+
+---
+
+Every DP problem starts with these two questions.
+
+```
+Take
+
+or
+
+Skip
+```
+
+---
+
+# Building the Intuition
+
+Suppose
+
+```
+Damages
+
+1
+3
+4
+7
+```
+
+Totals
+
+```
+2
+3
+4
+7
+```
+
+Look at
+
+```
+4
+```
+
+Ask yourself
+
+```
+If I take 4,
+
+what becomes impossible?
+```
+
+Answer
+
+```
+2
+3
+5
+6
+```
+
+Among previous damages,
+
+only
+
+```
+3
+```
+
+is affected.
+
+```
+1
+```
+
+is perfectly safe.
+
+Therefore
+
+```
+Take 4
+
+=
+
+4
+
++
+
+Best answer ending before damage 2
+```
+
+This is exactly what Dynamic Programming stores.
+
+---
+
+# Converting Into a DP Problem
+
+Create
+
+```
+values = sorted(unique damages)
+```
+
+Example
+
+```
+values
+
+[1,3,4,7]
+```
+
+Create
+
+```
+gain
+
+[2,3,4,7]
+```
+
+Now define
+
+```
+dp[i]
+```
+
+Meaning
+
+```
+Maximum damage obtainable
+using first i unique damages.
+```
+
+---
+
+# Finding the Previous Compatible Damage
+
+Suppose
+
+```
+values
+
+[1,3,4,7]
+```
+
+At
+
+```
+7
+```
+
+We need previous value
+
+```
+<=4
+```
+
+because
+
+```
+7-4=3
+```
+
+Difference 3 is allowed.
+
+So
+
+```
+previous = 4
+```
+
+At
+
+```
+4
+```
+
+Need previous value
+
+```
+<=1
+```
+
+Difference
+
+```
+4-1=3
+```
+
+Allowed.
+
+This previous compatible index can be found efficiently using binary search.
+
+---
+
+# Mathematical Logic
+
+For every unique damage,
+
+there are only two possibilities.
+
+Take it.
+
+or
+
+Don't take it.
+
+If we take,
+
+our answer becomes
+
+```
+Current Gain
+
++
+
+Best Compatible Previous Answer
+```
+
+If we don't,
+
+our answer remains
+
+```
+Previous DP
+```
+
+Hence
+
+```
+dp[i]
+
+=
+
+max(
+
+Take,
+
+Skip
+
+)
+```
+
+---
+
+# Recurrence Relation
+
+Suppose
+
+```
+prev
+```
+
+is the last compatible damage.
+
+Then
+
+```
+Take
+
+=
+
+gain[i]
+
++
+
+dp[prev]
+```
+
+If no compatible damage exists,
+
+```
+Take = gain[i]
+```
+
+Skip
+
+```
+dp[i-1]
+```
+
+Finally
+
+```
+dp[i]
+
+=
+
+max(
+
+gain[i]+dp[prev],
+
+dp[i-1]
+
+)
+```
+
+This is the heart of the solution.
+
+---
+
+# Why Binary Search?
+
+Suppose there are
+
+```
+100000
+```
+
+unique damages.
+
+Searching backwards every time would cost
+
+```
+O(n²)
+```
+
+Instead,
+
+because damages are sorted,
+
+we binary search.
+
+Need first damage
+
+```
+< current-2
+```
+
+Binary search finds it in
+
+```
+O(log n)
+```
+
+---
+
+# Algorithm
+
+### Step 1
+
+Count frequency.
+
+```
+Counter(power)
+```
+
+---
+
+### Step 2
+
+Convert into total gains.
+
+```
+gain[x]
+
+=
+
+x * frequency[x]
+```
+
+---
+
+### Step 3
+
+Sort unique damages.
+
+---
+
+### Step 4
+
+DP over sorted damages.
+
+For every damage
+
+Binary search previous compatible value.
+
+Compute
+
+```
+Take
+
+Skip
+```
+
+Store maximum.
+
+---
+
+# Dry Run
+
+Example
+
+```
+power
+
+[1,1,3,4]
+```
+
+---
+
+Frequency
+
+```
+1 → 2
+
+3 → 1
+
+4 →1
+```
+
+Gain
+
+```
+1 →2
+
+3 →3
+
+4 →4
+```
+
+Sorted values
+
+```
+[1,3,4]
+```
+
+---
+
+## i = 0
+
+Damage
+
+```
+1
+```
+
+Take
+
+```
+2
+```
+
+Skip
+
+```
+0
+```
+
+DP
+
+```
+[2]
+```
+
+---
+
+## i = 1
+
+Damage
+
+```
+3
+```
+
+Need previous damage
+
+```
+<=0
+```
+
+None.
+
+Take
+
+```
+3
+```
+
+Skip
+
+```
+2
+```
+
+DP
+
+```
+[2,3]
+```
+
+---
+
+## i = 2
+
+Damage
+
+```
+4
+```
+
+Need previous damage
+
+```
+<=1
+```
+
+Compatible damage
+
+```
+1
+```
+
+Take
+
+```
+4+2
+
+=
+
+6
+```
+
+Skip
+
+```
+3
+```
+
+Choose
+
+```
+6
+```
+
+DP
+
+```
+[2,3,6]
+```
+
+Final Answer
+
+```
+6
+```
+
+---
+
+# Another Dry Run
+
+```
+power
+
+[7,1,6,6]
+```
+
+Frequency
+
+```
+1→1
+
+6→2
+
+7→1
+```
+
+Gain
+
+```
+1→1
+
+6→12
+
+7→7
+```
+
+Values
+
+```
+1
+
+6
+
+7
+```
+
+---
+
+### Damage 1
+
+```
+dp=1
+```
+
+---
+
+### Damage 6
+
+Need previous
+
+```
+<=3
+```
+
+Compatible
+
+```
+1
+```
+
+Take
+
+```
+12+1
+
+=13
+```
+
+Skip
+
+```
+1
+```
+
+DP
+
+```
+13
+```
+
+---
+
+### Damage 7
+
+Need previous
+
+```
+<=4
+```
+
+Compatible
+
+```
+1
+```
+
+Take
+
+```
+7+1=8
+```
+
+Skip
+
+```
+13
+```
+
+Choose
+
+```
+13
+```
+
+Answer
+
+```
+13
+```
+
+---
+
+# Python Solution
+
+## Memoization with Binary Search
+
+```python
+class Solution:
+    def maximumTotalDamage(self, power: List[int]) -> int:
+        freq = Counter(power)
+        values = sorted(freq.keys())
+        points = [v * freq[v] for v in values]
+
+        n = len(points)
+        
+        def take(index):
+            target = values[index] - 3
+            start = 0
+            end = index - 1
+            ans = -1
+            while start <= end:
+                mid = (start + end) // 2
+                if values[mid] <= target:
+                    ans = mid
+                    start = mid + 1
+                else:
+                    end = mid - 1
+            return ans
+
+        dp = [-1] * n
+
+        def maxDamage(index):
+            if index == 0:
+                return points[0]
+            
+            if index < 0:
+                return 0
+
+            if dp[index] != -1:
+                return dp[index]
+            
+            pick = points[index] + maxDamage(take(index))
+            skip = maxDamage(index-1)
+            ans = max(pick, skip)
+            dp[index] = ans
+
+            return ans
+
+        return maxDamage(n-1)
+```
+
+## Tabulation with Binary Search
+
+```python
+from collections import Counter
+from bisect import bisect_left
+
+class Solution:
+    def maximumTotalDamage(self, power):
+        freq = Counter(power)
+
+        values = sorted(freq.keys())
+        gain = [x * freq[x] for x in values]
+
+        n = len(values)
+        dp = [0] * n
+
+        for i in range(n):
+            # Last value <= values[i] - 3
+            j = bisect_left(values, values[i] - 2) - 1
+
+            take = gain[i]
+            if j >= 0:
+                take += dp[j]
+
+            skip = dp[i - 1] if i > 0 else 0
+
+            dp[i] = max(take, skip)
+
+        return dp[-1]
+```
+
+---
+
+# Time Complexity
+
+Sorting
+
+```
+O(n log n)
+```
+
+DP
+
+```
+O(m log m)
+```
+
+where
+
+```
+m = number of unique damages
+```
+
+Overall
+
+```
+O(n log n)
+```
+
+---
+
+# Space Complexity
+
+Counter
+
+```
+O(m)
+```
+
+DP
+
+```
+O(m)
+```
+
+Overall
+
+```
+O(m)
+```
+
+---
+
+# How to Build the Intuition
+
+Whenever you see a problem, ask these questions.
+
+### Question 1
+
+Can I group identical values?
+
+If taking one copy never prevents taking another copy of the same value, then grouping them into one total gain is almost always beneficial.
+
+---
+
+### Question 2
+
+What actually causes conflicts?
+
+Here, conflicts are based on **damage values**, not on array positions.
+
+This means the original order of the array is irrelevant. We should focus on the sorted unique damage values.
+
+---
+
+### Question 3
+
+At every value, what choices do I have?
+
+There are always two:
+
+- **Take** this damage (and combine it with the best compatible previous answer).
+- **Skip** this damage (keep the previous best answer).
+
+Whenever you naturally think "take or skip", you should suspect Dynamic Programming.
+
+---
+
+### Question 4
+
+What information from the past do I need?
+
+If I take the current damage, I only need the best answer from the last damage that is at least 3 smaller.
+
+This is why we use **binary search** on the sorted unique values.
+
+---
+
+### Question 5
+
+Can I define a smaller subproblem?
+
+Yes.
+
+```
+dp[i]
+```
+
+stores the maximum total damage considering only the first `i` unique damage values.
+
+Once you define this state, the recurrence becomes straightforward.
+
+---
+
+# Common Mistakes
+
+❌ Treating every spell individually instead of grouping identical damage values.
+
+❌ Forgetting that the restriction is based on **damage values**, not indices.
+
+❌ Scanning backwards linearly for every state, leading to `O(n²)`.
+
+❌ Using `current - 2` as a compatible value. The previous compatible damage must satisfy:
+
+```
+previous_damage <= current_damage - 3
+```
+
+---
+
+# Similar Problems
+
+- House Robber
+- Delete and Earn
+- Maximum Sum of Non-Adjacent Elements
+- House Robber II
+- House Robber III
+
+---
+
+# Quick Revision
+
+### State
+
+```
+dp[i]
+=
+Maximum total damage using the first i unique damage values.
+```
+
+### Transition
+
+```
+dp[i]
+=
+max(
+    gain[i] + dp[last_compatible],
+    dp[i-1]
+)
+```
+
+### Optimization
+
+- Group equal values.
+- Sort unique damages.
+- Use binary search to find the last compatible damage.
+- Apply Pick / Skip Dynamic Programming.
+
+---
+
+# Golden Rule
+
+Whenever a problem asks you to **maximize a total**, where **choosing one value makes a range of nearby values unavailable**, think:
+
+1. Can I **merge identical values** into one total gain?
+2. Can I **sort the unique values**?
+3. At each value, is the decision simply **Take or Skip**?
+4. If yes, it is very likely a **Pick / Not Pick Dynamic Programming** problem, often combined with **binary search** to find the last compatible choice.
+
+<br/><br/><br/><br/><br/>
+
+---
