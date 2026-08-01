@@ -13,6 +13,7 @@ The goal is not just to memorize solutions, but to **develop the intuition** to 
 - [#213. House Robber II](#213-house-robber-ii)
 - [740. Delete and Earn](#740-delete-and-earn)
 - [3186. Maximum Total Damage With Spell Casting](#3186-maximum-total-damage-with-spell-casting)
+- [55. Jump Game](#55-jump-game)
 
 <br/><br/><br/><br/><br/>
 
@@ -6118,3 +6119,1248 @@ Whenever a problem asks you to **maximize a total**, where **choosing one value 
 <br/><br/><br/><br/><br/>
 
 ---
+
+# 55. Jump Game
+
+## Difficulty
+
+Medium
+
+## Pattern
+
+- Greedy
+- Dynamic Programming (1D DP)
+- Reachability Problem
+
+---
+
+# Problem Statement
+
+You are given an integer array `nums`.
+
+Initially, you stand at the first index.
+
+Each element represents the **maximum jump length** you can make from that position.
+
+Return **true** if you can reach the last index.
+
+Otherwise return **false**.
+
+---
+
+# Examples
+
+## Example 1
+
+Input
+
+```
+nums = [2,3,1,1,4]
+```
+
+Explanation
+
+```
+Start at index 0
+
+Jump 1 step to index 1
+
+Jump 3 steps to index 4
+
+Reached the last index.
+```
+
+Output
+
+```
+True
+```
+
+---
+
+## Example 2
+
+Input
+
+```
+nums = [3,2,1,0,4]
+```
+
+Explanation
+
+```
+You always get stuck at index 3.
+
+nums[3] = 0
+
+No further jumps are possible.
+```
+
+Output
+
+```
+False
+```
+
+---
+
+# Understanding the Problem Like a Common Man
+
+Imagine there are stones placed in a straight line.
+
+```
+0   1   2   3   4
+
+2   3   1   1   4
+```
+
+You are standing on the first stone.
+
+The number written on a stone tells you
+
+```
+How far you can jump.
+```
+
+If a stone has
+
+```
+3
+```
+
+You can jump
+
+```
+1 step
+
+or
+
+2 steps
+
+or
+
+3 steps
+```
+
+Your goal is simply
+
+```
+Can I reach the last stone?
+```
+
+Not
+
+```
+Minimum jumps
+
+Maximum jumps
+
+Total jumps
+```
+
+Just
+
+```
+Can I reach?
+```
+
+---
+
+# Thinking Like a Beginner
+
+Suppose
+
+```
+nums = [2,3,1,1,4]
+```
+
+Initially
+
+```
+Index = 0
+
+Maximum Jump = 2
+```
+
+You have only two choices.
+
+Jump
+
+```
+1 step
+```
+
+or
+
+```
+2 steps
+```
+
+Again,
+
+wherever you land,
+
+you get new choices.
+
+Notice
+
+At every position,
+
+you are making decisions.
+
+This naturally suggests recursion.
+
+---
+
+# Step 1 : Define the State
+
+Ask yourself
+
+```
+What information completely describes the remaining problem?
+```
+
+Suppose you are currently standing at
+
+```
+Index i
+```
+
+Question
+
+Can you reach the last index from here?
+
+That is enough.
+
+So define
+
+```
+solve(i)
+
+=
+
+Can I reach the last index starting from index i?
+```
+
+This is a
+
+```
+1D DP
+```
+
+because only one variable changes.
+
+---
+
+# Step 2 : Choices
+
+At index
+
+```
+i
+```
+
+Maximum jump
+
+```
+nums[i]
+```
+
+You can jump
+
+```
+i+1
+
+i+2
+
+...
+
+i+nums[i]
+```
+
+If **any** of these reaches the end,
+
+then
+
+```
+solve(i)=True
+```
+
+Otherwise
+
+```
+False
+```
+
+---
+
+# Recurrence Relation
+
+```
+dp[i]
+
+=
+
+dp[i+1]
+
+OR
+
+dp[i+2]
+
+OR
+
+...
+
+OR
+
+dp[i+nums[i]]
+```
+
+In words
+
+```
+If any reachable position can reach the end,
+
+then the current position can also reach the end.
+```
+
+---
+
+# Base Case
+
+If
+
+```
+index >= last index
+```
+
+You have already reached the destination.
+
+Return
+
+```
+True
+```
+
+---
+
+# Recursive Solution
+
+```python
+from functools import cache
+
+class Solution:
+
+    def canJump(self, nums):
+
+        n = len(nums)
+
+        @cache
+        def solve(index):
+
+            if index >= n - 1:
+                return True
+
+            farthest = min(n - 1, index + nums[index])
+
+            for nextIndex in range(index + 1, farthest + 1):
+
+                if solve(nextIndex):
+                    return True
+
+            return False
+
+        return solve(0)
+```
+
+---
+
+# Why Recursion is Slow
+
+Suppose
+
+```
+nums = [5,5,5,5,5,5...]
+```
+
+From every index,
+
+you explore many future indices.
+
+Many states are computed repeatedly.
+
+Example
+
+```
+solve(8)
+
+solve(9)
+
+solve(10)
+```
+
+appear again and again.
+
+Hence
+
+Dynamic Programming.
+
+---
+
+# Memoization
+
+Store every solved state.
+
+Initially
+
+```
+dp
+
+-1
+
+-1
+
+-1
+
+-1
+```
+
+Whenever
+
+```
+solve(i)
+```
+
+is computed,
+
+store it.
+
+Next time,
+
+return immediately.
+
+---
+
+# Memoization Code
+
+```python
+from functools import cache
+
+class Solution:
+
+    def canJump(self, nums):
+
+        n = len(nums)
+
+        @cache
+        def solve(index):
+
+            if index >= n - 1:
+                return True
+
+            farthest = min(n - 1, index + nums[index])
+
+            for nextIndex in range(index + 1, farthest + 1):
+
+                if solve(nextIndex):
+                    return True
+
+            return False
+
+        return solve(0)
+```
+
+---
+
+# Dry Run
+
+Example
+
+```
+nums = [2,3,1,1,4]
+```
+
+```
+solve(0)
+```
+
+Possible jumps
+
+```
+1
+
+2
+```
+
+Try
+
+```
+solve(1)
+```
+
+Again
+
+Possible jumps
+
+```
+2
+
+3
+
+4
+```
+
+```
+solve(4)
+
+↓
+
+Reached last index
+
+↓
+
+True
+```
+
+Therefore
+
+```
+solve(1)=True
+
+↓
+
+solve(0)=True
+```
+
+---
+
+# Time Complexity
+
+Worst Case
+
+```
+O(n²)
+```
+
+Space
+
+```
+DP Array / Cache
+
++
+
+Recursion Stack
+
+=
+
+O(n)
+```
+
+---
+
+# Tabulation
+
+Instead of solving recursively,
+
+start from the last index.
+
+We know
+
+```
+Last index
+
+↓
+
+Always True
+```
+
+Now move backwards.
+
+If any reachable index is True,
+
+mark the current index as True.
+
+---
+
+# Transition
+
+```
+dp[i]
+
+=
+
+True
+
+if
+
+any
+
+dp[j]
+
+is True
+
+where
+
+i<j<=i+nums[i]
+```
+
+---
+
+# Tabulation Code
+
+```python
+class Solution:
+
+    def canJump(self, nums):
+
+        n = len(nums)
+
+        dp = [False] * n
+
+        dp[n - 1] = True
+
+        for i in range(n - 2, -1, -1):
+
+            farthest = min(n - 1, i + nums[i])
+
+            for j in range(i + 1, farthest + 1):
+
+                if dp[j]:
+
+                    dp[i] = True
+                    break
+
+        return dp[0]
+```
+
+---
+
+# Dry Run
+
+```
+nums = [2,3,1,1,4]
+```
+
+Initially
+
+```
+dp
+
+F F F F T
+```
+
+Index
+
+```
+3
+```
+
+Can reach
+
+```
+4
+
+↓
+
+True
+```
+
+```
+F F F T T
+```
+
+Index
+
+```
+2
+```
+
+Can reach
+
+```
+3
+
+↓
+
+True
+```
+
+```
+F F T T T
+```
+
+Index
+
+```
+1
+```
+
+Can reach
+
+```
+2
+
+↓
+
+True
+```
+
+```
+F T T T T
+```
+
+Index
+
+```
+0
+```
+
+Can reach
+
+```
+1
+
+↓
+
+True
+```
+
+Final
+
+```
+T T T T T
+```
+
+Answer
+
+```
+True
+```
+
+---
+
+# Can DP Be Optimized?
+
+Yes.
+
+Observe carefully.
+
+DP is repeatedly checking
+
+```
+Can I reach a True position?
+```
+
+Instead,
+
+can we simply remember
+
+```
+The farthest index reachable so far?
+```
+
+Yes.
+
+This leads to a Greedy solution.
+
+---
+
+# Greedy Intuition
+
+Suppose
+
+```
+nums = [2,3,1,1,4]
+```
+
+Initially
+
+```
+Maximum Reach
+
+=
+
+0
+```
+
+At index
+
+```
+0
+```
+
+Maximum reachable
+
+```
+0+2
+
+=
+
+2
+```
+
+Now
+
+```
+Maximum Reach
+
+=
+
+2
+```
+
+Move to
+
+```
+Index 1
+```
+
+Can you stand here?
+
+Yes.
+
+Because
+
+```
+1<=2
+```
+
+Update
+
+```
+1+3=4
+```
+
+Now
+
+```
+Maximum Reach
+
+=
+
+4
+```
+
+Since
+
+```
+4
+
+>=
+
+Last Index
+```
+
+We can reach the end.
+
+---
+
+# Greedy Algorithm
+
+Maintain
+
+```
+maxReach
+```
+
+For every index
+
+If
+
+```
+Current Index
+
+>
+
+maxReach
+```
+
+You cannot even stand there.
+
+Return
+
+```
+False
+```
+
+Otherwise
+
+update
+
+```
+maxReach
+
+=
+
+max(
+
+maxReach,
+
+i+nums[i]
+
+)
+```
+
+If
+
+```
+maxReach
+
+>=
+
+Last Index
+```
+
+Return
+
+```
+True
+```
+
+---
+
+# Greedy Code
+
+```python
+class Solution:
+
+    def canJump(self, nums):
+
+        maxReach = 0
+
+        for i in range(len(nums)):
+
+            if i > maxReach:
+                return False
+
+            maxReach = max(maxReach, i + nums[i])
+
+        return True
+```
+
+---
+
+# Dry Run (Greedy)
+
+Example
+
+```
+nums = [2,3,1,1,4]
+```
+
+Initially
+
+```
+maxReach = 0
+```
+
+Index
+
+```
+0
+```
+
+```
+Reach
+
+=
+
+0+2
+
+=
+
+2
+```
+
+```
+maxReach=2
+```
+
+---
+
+Index
+
+```
+1
+```
+
+```
+Reach
+
+=
+
+1+3
+
+=
+
+4
+```
+
+```
+maxReach=4
+```
+
+Already
+
+```
+Last Index
+
+=
+
+4
+```
+
+Reached.
+
+Answer
+
+```
+True
+```
+
+---
+
+# Why Greedy Works
+
+DP asks
+
+```
+Can I reach the end from every index?
+```
+
+Greedy asks
+
+```
+What is the farthest place I can currently reach?
+```
+
+If you can always move inside the reachable region,
+
+there is no need to remember every DP state.
+
+Only remember
+
+```
+Maximum Reach
+```
+
+---
+
+# Complexity Comparison
+
+## Dynamic Programming
+
+Time
+
+```
+O(n²)
+```
+
+Space
+
+```
+O(n)
+```
+
+---
+
+## Greedy
+
+Time
+
+```
+O(n)
+```
+
+Space
+
+```
+O(1)
+```
+
+---
+
+# Mathematical Logic
+
+DP checks
+
+```
+Every possible jump.
+```
+
+Greedy keeps
+
+```
+The farthest reachable index.
+```
+
+If you can reach index
+
+```
+i
+```
+
+then every jump from
+
+```
+i
+```
+
+extends your reachable region.
+
+Eventually,
+
+either
+
+```
+Reach
+
+>=
+
+Last Index
+```
+
+or
+
+you get stuck.
+
+---
+
+# Pattern Recognition
+
+If a problem asks
+
+- Can I reach somewhere?
+- Maximum reachable position
+- Reachability
+- Continuous movement
+
+Think
+
+```
+Greedy
+```
+
+If it asks
+
+- Count ways
+- Maximum score
+- Minimum cost
+
+Think
+
+```
+Dynamic Programming
+```
+
+---
+
+# Common Mistakes
+
+❌ Treating `nums[i]` as the destination index instead of the jump length.
+
+❌ Writing
+
+```python
+range(i + 1, nums[i] + 1)
+```
+
+instead of
+
+```python
+range(i + 1, i + nums[i] + 1)
+```
+
+❌ Forgetting to limit the jump using
+
+```python
+min(n - 1, i + nums[i])
+```
+
+❌ Assuming DP is the optimal solution.
+
+---
+
+# Similar Problems
+
+- Jump Game II
+- Frog Jump
+- Minimum Jumps to Reach End
+- Can Reach End
+- Reachability Problems
+
+---
+
+# Quick Revision
+
+## DP State
+
+```
+dp[i]
+
+=
+
+Can I reach the last index starting from i?
+```
+
+---
+
+## DP Recurrence
+
+```
+dp[i]
+
+=
+
+OR
+
+of
+
+dp[i+1]
+
+...
+
+dp[i+nums[i]]
+```
+
+---
+
+## Greedy Variable
+
+```
+maxReach
+```
+
+---
+
+## DP Complexity
+
+```
+Time
+
+O(n²)
+
+Space
+
+O(n)
+```
+
+---
+
+## Greedy Complexity
+
+```
+Time
+
+O(n)
+
+Space
+
+O(1)
+```
+
+---
+
+# Golden Rule
+
+Whenever a problem asks **whether a destination is reachable** and every move only expands the region you can already access, first think about **Greedy**. If you find yourself repeatedly checking the same future states from different positions, a DP solution exists—but always ask whether maintaining just the **farthest reachable position** is enough. In Jump Game, that single greedy observation reduces the solution from **O(n²)** DP to **O(n)** time.
