@@ -14,6 +14,7 @@ The goal is not just to memorize solutions, but to **develop the intuition** to 
 - [740. Delete and Earn](#740-delete-and-earn)
 - [3186. Maximum Total Damage With Spell Casting](#3186-maximum-total-damage-with-spell-casting)
 - [55. Jump Game](#55-jump-game)
+- [746. Min Cost Climbing Stairs](#746-min-cost-climbing-stairs)
 
 <br/><br/><br/><br/><br/>
 
@@ -7364,3 +7365,1253 @@ O(1)
 # Golden Rule
 
 Whenever a problem asks **whether a destination is reachable** and every move only expands the region you can already access, first think about **Greedy**. If you find yourself repeatedly checking the same future states from different positions, a DP solution exists—but always ask whether maintaining just the **farthest reachable position** is enough. In Jump Game, that single greedy observation reduces the solution from **O(n²)** DP to **O(n)** time.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 746. Min Cost Climbing Stairs
+
+# Difficulty
+
+Easy
+
+# Pattern
+
+* Dynamic Programming
+* 1D DP
+* Decision DP
+
+---
+
+# Problem Statement
+
+You are given an integer array **cost**, where
+
+```
+cost[i]
+```
+
+represents the cost of stepping on the **i-th stair**.
+
+Once you pay the cost of a stair, you can climb either
+
+* **1 step**
+* **2 steps**
+
+You are allowed to start from
+
+* Stair **0**
+* Stair **1**
+
+Find the **minimum total cost** required to reach the **top of the staircase**.
+
+The top is just beyond the last stair, so there is **no cost** for reaching the top.
+
+---
+
+# Examples
+
+## Example 1
+
+```
+Input
+
+cost = [10,15,20]
+```
+
+Possible choices
+
+Start from stair 0
+
+```
+10 → 20 → Top
+
+Cost = 30
+```
+
+Start from stair 1
+
+```
+15 → Top
+
+Cost = 15
+```
+
+Answer
+
+```
+15
+```
+
+---
+
+## Example 2
+
+```
+Input
+
+cost = [1,100,1,1,1,100,1,1,100,1]
+```
+
+One optimal path
+
+```
+1 → 1 → 1 → 1 → 1 → 1
+```
+
+Total Cost
+
+```
+6
+```
+
+Answer
+
+```
+6
+```
+
+---
+
+# Understanding the Problem Like a Common Man
+
+Imagine there is a staircase.
+
+Every stair has a price written on it.
+
+```
+        TOP
+         ↑
+      [20]
+      [15]
+      [10]
+      Ground
+```
+
+Whenever you stand on a stair,
+
+you **must pay** its cost.
+
+After paying,
+
+you can move
+
+```
+1 step
+```
+
+or
+
+```
+2 steps
+```
+
+The question is
+
+> **What is the minimum amount of money needed to reach the top?**
+
+Notice something important.
+
+We are **NOT counting the number of ways**.
+
+We are **NOT finding the shortest path**.
+
+We are trying to
+
+```
+Minimize the total cost.
+```
+
+---
+
+# Let's Think Like a Human
+
+Suppose
+
+```
+cost = [10,15,20,5]
+```
+
+If you're standing on stair 1,
+
+what choices do you have?
+
+```
+Choice 1
+
+Go to stair 2
+```
+
+or
+
+```
+Choice 2
+
+Go to stair 3
+```
+
+Nothing else.
+
+At every stair,
+
+there are only **two possible moves**.
+
+This tells us
+
+```
+The problem can be broken into smaller problems.
+```
+
+---
+
+# Thinking from the End (Most Important Intuition)
+
+Instead of thinking
+
+> "How do I start from stair 0?"
+
+Think
+
+> "If I'm standing on stair i, what is the minimum cost to reach the top?"
+
+Suppose
+
+```
+Current stair = 3
+```
+
+To reach the top,
+
+you can
+
+```
+Go to stair 4
+```
+
+or
+
+```
+Go to stair 5
+```
+
+You will naturally choose
+
+```
+the cheaper path.
+```
+
+Therefore,
+
+```
+Minimum Cost(i)
+
+=
+
+cost[i]
+
++
+
+minimum of
+
+Cost(i+1)
+
+and
+
+Cost(i+2)
+```
+
+This is the entire intuition.
+
+---
+
+# Generalizing
+
+For every stair
+
+```
+Cost(i)
+
+=
+
+cost[i]
+
++
+
+min(
+
+Cost(i+1),
+
+Cost(i+2)
+
+)
+```
+
+Why?
+
+Because after paying the current stair,
+
+you have only two choices
+
+```
+Move 1 step
+
+or
+
+Move 2 steps
+```
+
+Since we want the minimum cost,
+
+we choose the cheaper option.
+
+---
+
+# This Looks Familiar...
+
+Look carefully.
+
+```
+Cost(i)
+
+=
+
+cost[i]
+
++
+
+min(
+
+Cost(i+1),
+
+Cost(i+2)
+
+)
+```
+
+This is a classic Dynamic Programming recurrence.
+
+Unlike **Climbing Stairs**, where we added the number of ways,
+
+here we take the **minimum** because the problem asks us to minimize the total cost.
+
+---
+
+# Finding Base Cases
+
+Every DP problem starts with
+
+```
+"What are the smallest problems whose answers I already know?"
+```
+
+---
+
+## Base Case 1
+
+If we reach the top
+
+```
+i >= n
+```
+
+No more cost is required.
+
+Answer
+
+```
+0
+```
+
+---
+
+## Base Case 2
+
+If we are standing on the last stair
+
+```
+n-1
+```
+
+We only need to pay its cost.
+
+Answer
+
+```
+cost[n-1]
+```
+
+---
+
+# Recurrence Relation
+
+```
+Cost(i)
+
+=
+
+cost[i]
+
++
+
+min(
+
+Cost(i+1),
+
+Cost(i+2)
+
+)
+```
+
+---
+
+# Recursive Thinking
+
+Suppose we want
+
+```
+Cost(0)
+```
+
+Immediately,
+
+our brain should think
+
+```
+Need
+
+Cost(1)
+
+and
+
+Cost(2)
+```
+
+Then
+
+```
+Cost(1)
+
+needs
+
+Cost(2)
+
+Cost(3)
+```
+
+Again
+
+```
+Cost(2)
+
+needs
+
+Cost(3)
+
+Cost(4)
+```
+
+---
+
+# Recursion Tree
+
+```
+                    Cost(0)
+                  /         \
+            Cost(1)       Cost(2)
+            /     \        /     \
+      Cost(2)  Cost(3) Cost(3) Cost(4)
+```
+
+Notice
+
+```
+Cost(2)
+
+is computed twice.
+
+Cost(3)
+
+is computed multiple times.
+```
+
+This is called
+
+```
+Overlapping Subproblems.
+```
+
+Perfect place for Dynamic Programming.
+
+---
+
+# Recursive Solution
+
+```python
+class Solution:
+
+    def solve(self, i, cost):
+
+        n = len(cost)
+
+        if i >= n:
+            return 0
+
+        if i == n - 1:
+            return cost[n - 1]
+
+        step1 = cost[i] + self.solve(i + 1, cost)
+        step2 = cost[i] + self.solve(i + 2, cost)
+
+        return min(step1, step2)
+
+    def minCostClimbingStairs(self, cost):
+
+        return min(self.solve(0, cost),
+                   self.solve(1, cost))
+```
+
+---
+
+# Why Recursion is Slow
+
+Suppose
+
+```
+n = 30
+```
+
+The recursion repeatedly computes
+
+```
+Cost(20)
+
+Cost(18)
+
+Cost(15)
+
+Cost(10)
+```
+
+again and again.
+
+Huge waste of computation.
+
+Time Complexity
+
+```
+O(2^n)
+```
+
+---
+
+# Memoization
+
+## Idea
+
+Store every answer after computing it.
+
+Next time,
+
+if we need the same state,
+
+don't compute it again.
+
+Simply return the stored answer.
+
+---
+
+# DP Array
+
+Initially
+
+```
+-1 -1 -1 -1 -1
+```
+
+Suppose
+
+```
+Cost(4)=5
+```
+
+Store
+
+```
+dp[4]=5
+```
+
+Next time,
+
+if we again need
+
+```
+Cost(4)
+```
+
+return
+
+```
+dp[4]
+```
+
+instead of solving it again.
+
+---
+
+# Memoization Code
+
+```python
+class Solution:
+
+    def solve(self, pos, cost, dp):
+
+        n = len(cost)
+
+        if pos >= n:
+            return 0
+
+        if pos == n - 1:
+            return cost[n - 1]
+
+        if dp[pos] != -1:
+            return dp[pos]
+
+        step1 = cost[pos] + self.solve(pos + 1, cost, dp)
+        step2 = cost[pos] + self.solve(pos + 2, cost, dp)
+
+        dp[pos] = min(step1, step2)
+
+        return dp[pos]
+
+    def minCostClimbingStairs(self, cost):
+
+        n = len(cost)
+
+        dp = [-1] * n
+
+        return min(self.solve(0, cost, dp),
+                   self.solve(1, cost, dp))
+```
+
+---
+
+# Time Complexity
+
+Every state is computed only once.
+
+```
+Time
+
+O(n)
+```
+
+Space
+
+```
+DP Array
+
++
+
+Recursion Stack
+
+=
+
+O(n)
+```
+
+---
+
+# Tabulation
+
+Instead of solving recursively,
+
+start from the end and build the answer backwards.
+
+---
+
+# DP Meaning
+
+```
+dp[i]
+
+=
+
+Minimum cost to reach the top
+
+starting from stair i.
+```
+
+---
+
+# DP Initialization
+
+The top requires no cost.
+
+```
+dp[n]=0
+```
+
+The last stair requires paying only its own cost.
+
+```
+dp[n-1]=cost[n-1]
+```
+
+---
+
+# DP Transition
+
+Move backwards.
+
+```
+dp[i]
+
+=
+
+cost[i]
+
++
+
+min(
+
+dp[i+1],
+
+dp[i+2]
+
+)
+```
+
+---
+
+# DP Table Example
+
+Suppose
+
+```
+cost = [10,15,20]
+```
+
+Initially
+
+```
+Index
+
+0 1 2 3
+
+DP
+
+0 0 20 0
+```
+
+Now
+
+```
+dp[1]
+
+=
+
+15
+
++
+
+min(20,0)
+
+=
+
+15
+```
+
+Table
+
+```
+0 15 20 0
+```
+
+Next
+
+```
+dp[0]
+
+=
+
+10
+
++
+
+min(15,20)
+
+=
+
+25
+```
+
+Final
+
+```
+25 15 20 0
+```
+
+Answer
+
+```
+min(dp[0],dp[1])
+
+=
+
+15
+```
+
+---
+
+# Tabulation Code
+
+```python
+class Solution:
+
+    def minCostClimbingStairs(self, cost):
+
+        n = len(cost)
+
+        dp = [0] * (n + 1)
+
+        dp[n] = 0
+        dp[n - 1] = cost[n - 1]
+
+        for i in range(n - 2, -1, -1):
+
+            dp[i] = cost[i] + min(dp[i + 1], dp[i + 2])
+
+        return min(dp[0], dp[1])
+```
+
+---
+
+# Time Complexity
+
+```
+O(n)
+```
+
+Space
+
+```
+O(n)
+```
+
+---
+
+# Space Optimization
+
+Observe carefully.
+
+```
+dp[i]
+
+depends only on
+
+dp[i+1]
+
+and
+
+dp[i+2]
+```
+
+Nothing else.
+
+So why store the entire DP array?
+
+No need.
+
+Just remember the next two answers.
+
+---
+
+Initially
+
+```
+next1 = cost[n-1]
+
+next2 = 0
+```
+
+Here,
+
+```
+next1
+
+represents
+
+dp[i+1]
+```
+
+and
+
+```
+next2
+
+represents
+
+dp[i+2]
+```
+
+For every stair,
+
+```
+current
+
+=
+
+cost[i]
+
++
+
+min(next1,next2)
+```
+
+Then move the variables backward.
+
+```
+next2 = next1
+
+next1 = current
+```
+
+---
+
+# Dry Run
+
+Suppose
+
+```
+cost = [10,15,20]
+```
+
+Initially
+
+```
+next1 = 20
+
+next2 = 0
+```
+
+---
+
+### i = 1
+
+```
+current
+
+=
+
+15
+
++
+
+min(20,0)
+
+=
+
+15
+
+next2 = 20
+
+next1 = 15
+```
+
+---
+
+### i = 0
+
+```
+current
+
+=
+
+10
+
++
+
+min(15,20)
+
+=
+
+25
+
+next2 = 15
+
+next1 = 25
+```
+
+Finally
+
+```
+next1 = dp[0]
+
+next2 = dp[1]
+```
+
+Answer
+
+```
+min(25,15)
+
+=
+
+15
+```
+
+---
+
+# Space Optimized Code
+
+```python
+class Solution:
+
+    def minCostClimbingStairs(self, cost):
+
+        n = len(cost)
+
+        next1 = cost[n - 1]
+        next2 = 0
+
+        for i in range(n - 2, -1, -1):
+
+            current = cost[i] + min(next1, next2)
+
+            next2 = next1
+            next1 = current
+
+        return min(next1, next2)
+```
+
+---
+
+# Complexity
+
+Time
+
+```
+O(n)
+```
+
+Space
+
+```
+O(1)
+```
+
+---
+
+# How to Build the Intuition for DP Problems
+
+Whenever you see a problem, ask yourself these questions.
+
+### Question 1
+
+```
+Can I express the answer using smaller answers?
+```
+
+Here
+
+```
+Yes.
+
+Cost(i)
+
+depends on
+
+Cost(i+1)
+
+and
+
+Cost(i+2)
+```
+
+---
+
+### Question 2
+
+```
+What choices do I have?
+```
+
+Here
+
+```
+Move
+
+1 step
+
+or
+
+2 steps
+```
+
+Choose the cheaper one.
+
+---
+
+### Question 3
+
+```
+Am I solving the same smaller problem repeatedly?
+```
+
+Yes.
+
+```
+Cost(2)
+
+Cost(3)
+
+Cost(2)
+
+Cost(3)
+```
+
+Hence,
+
+Dynamic Programming is the correct approach.
+
+---
+
+# Pattern Recognition
+
+Whenever a problem asks
+
+* Minimum Cost
+* Minimum Energy
+* Minimum Steps
+* Reach Destination
+* 1 Step / 2 Step Choices
+* Optimize Cost
+
+Immediately think
+
+```
+Dynamic Programming
+```
+
+---
+
+# Common Mistakes
+
+❌ Forgetting that you can start from **both** stair `0` and stair `1`.
+
+❌ Returning `dp[0]` instead of
+
+```
+min(dp[0], dp[1])
+```
+
+❌ Forgetting the base case
+
+```
+i >= n
+
+return 0
+```
+
+❌ Using recursion without memoization for large inputs.
+
+---
+
+# Similar Problems
+
+* Climbing Stairs
+* Fibonacci Number
+* House Robber
+* Frog Jump
+* Coin Change
+* Decode Ways
+* Jump Game
+
+---
+
+# Quick Revision
+
+### Recurrence
+
+```
+Cost(i)
+
+=
+
+cost[i]
+
++
+
+min(
+
+Cost(i+1),
+
+Cost(i+2)
+
+)
+```
+
+---
+
+### Base Cases
+
+```
+Cost(n)=0
+
+Cost(n-1)=cost[n-1]
+```
+
+---
+
+### DP Progression
+
+```
+Recursion
+
+↓
+
+Memoization
+
+↓
+
+Tabulation
+
+↓
+
+Space Optimization
+```
+
+---
+
+# Golden Rule
+
+Whenever a problem asks:
+
+> **"Find the minimum cost to reach a destination,"**
+
+and each answer depends on a few **future or previous smaller states**, think **Dynamic Programming**.
+
+For this problem, the key realization is:
+
+> **From every stair, you have only two choices—climb 1 step or 2 steps. Pay the current stair's cost, then choose the cheaper of the two remaining paths. This naturally leads to the recurrence:**
+
+```
+Cost(i)
+
+=
+
+cost[i]
+
++
+
+min(
+
+Cost(i+1),
+
+Cost(i+2)
+
+)
+```
+
+Once this recurrence is identified, the solution can be implemented using **Memoization**, **Tabulation**, or **Space Optimization**.
