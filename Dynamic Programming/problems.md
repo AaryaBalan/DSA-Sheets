@@ -15,6 +15,8 @@ The goal is not just to memorize solutions, but to **develop the intuition** to 
 - [3186. Maximum Total Damage With Spell Casting](#3186-maximum-total-damage-with-spell-casting)
 - [55. Jump Game](#55-jump-game)
 - [746. Min Cost Climbing Stairs](#746-min-cost-climbing-stairs)
+- [#486. Predict the Winner](#486-predict-the-winner)
+- [91. Decode Ways](#91-decode-ways)
 
 <br/><br/><br/><br/><br/>
 
@@ -8615,3 +8617,3179 @@ Cost(i+2)
 ```
 
 Once this recurrence is identified, the solution can be implemented using **Memoization**, **Tabulation**, or **Space Optimization**.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 486. Predict the Winner
+
+# Difficulty
+
+Medium
+
+# Pattern
+
+- Dynamic Programming
+- Game Theory DP
+- Interval DP (2D DP)
+- Min-Max Strategy
+
+---
+
+# Problem Statement
+
+You are given an integer array `nums`.
+
+Two players are playing a game.
+
+- Player 1 starts first.
+- Both players play optimally.
+- On every turn, a player can choose either:
+  - The leftmost number
+  - The rightmost number
+- The chosen number is added to that player's score.
+- The chosen number is removed from the array.
+
+Return
+
+```
+True
+```
+
+if Player 1 can win.
+
+If both players get the same score,
+
+Player 1 is still considered the winner.
+
+---
+
+# Examples
+
+## Example 1
+
+Input
+
+```
+nums = [1,5,2]
+```
+
+Player 1 chooses
+
+```
+1
+```
+
+Remaining
+
+```
+5 2
+```
+
+Player 2 chooses
+
+```
+5
+```
+
+Remaining
+
+```
+2
+```
+
+Scores
+
+```
+Player1 = 3
+
+Player2 = 5
+```
+
+Answer
+
+```
+False
+```
+
+---
+
+## Example 2
+
+Input
+
+```
+nums = [1,5,233,7]
+```
+
+Player 1 chooses
+
+```
+1
+```
+
+Player 2 chooses
+
+```
+5
+```
+
+Player 1 chooses
+
+```
+233
+```
+
+Scores
+
+```
+Player1 = 234
+
+Player2 = 12
+```
+
+Answer
+
+```
+True
+```
+
+---
+
+# Understanding the Problem Like a Common Man
+
+Imagine there is a row of chocolates.
+
+```
+1   5   233   7
+```
+
+Two children are playing.
+
+Rules
+
+- One child picks only from the left end.
+- Or from the right end.
+
+Nobody can pick from the middle.
+
+Both children are very smart.
+
+Both want to maximize their own score.
+
+Question
+
+```
+Can Player 1 win?
+```
+
+---
+
+# The Biggest Mistake Beginners Make
+
+Many beginners think
+
+```
+I should calculate Player 1's score.
+```
+
+This becomes complicated because
+
+Player 2 is also playing optimally.
+
+Instead,
+
+think about
+
+```
+Difference
+```
+
+between the scores.
+
+---
+
+# The Most Important Intuition
+
+Suppose
+
+```
+Player1 = 15
+
+Player2 = 10
+```
+
+Difference
+
+```
++5
+```
+
+Player 1 wins.
+
+---
+
+Suppose
+
+```
+Player1 = 9
+
+Player2 = 13
+```
+
+Difference
+
+```
+-4
+```
+
+Player 2 wins.
+
+Instead of storing
+
+```
+Player1 Score
+
+Player2 Score
+```
+
+store
+
+```
+Player1 Score
+
+-
+
+Player2 Score
+```
+
+This makes the recurrence much simpler.
+
+---
+
+# Thinking Like a Human
+
+Suppose
+
+```
+nums = [1,5,2]
+```
+
+Current player has only two choices.
+
+Choice 1
+
+Take
+
+```
+1
+```
+
+Choice 2
+
+Take
+
+```
+2
+```
+
+Nothing else.
+
+Every state has exactly
+
+```
+Two Choices
+```
+
+---
+
+# Step 1 : Define the State
+
+Ask yourself
+
+```
+What information completely describes the remaining problem?
+```
+
+Suppose the remaining array is
+
+```
+left
+
+↓
+
+1 5 2 7
+
+      ↑
+
+    right
+```
+
+Only
+
+```
+Left Index
+
+Right Index
+```
+
+matter.
+
+Therefore
+
+```
+solve(left,right)
+```
+
+is enough.
+
+Since two variables define the state,
+
+this is
+
+```
+2D DP
+```
+
+---
+
+# What does solve(left,right) mean?
+
+Very important.
+
+```
+solve(left,right)
+
+=
+
+Maximum score difference
+
+(Current Player
+
+-
+
+Other Player)
+
+from
+
+nums[left...right]
+```
+
+Notice
+
+NOT
+
+maximum score.
+
+Maximum
+
+```
+Difference
+```
+
+---
+
+# Why Difference?
+
+Suppose
+
+```
+Current Player
+
+takes
+
+10
+```
+
+Remaining game
+
+belongs to
+
+Opponent.
+
+The recursion will now calculate
+
+```
+Opponent
+
+-
+
+Me
+```
+
+But I want
+
+```
+Me
+
+-
+
+Opponent
+```
+
+Therefore
+
+I subtract.
+
+This is the key intuition.
+
+---
+
+# Deriving the Recurrence
+
+Suppose
+
+```
+nums = [1,5,2]
+```
+
+Current player chooses
+
+Left
+
+```
+1
+```
+
+Remaining
+
+```
+5 2
+```
+
+Opponent now plays optimally.
+
+Opponent's advantage
+
+```
+solve(left+1,right)
+```
+
+My final advantage
+
+```
+1
+
+-
+
+solve(left+1,right)
+```
+
+---
+
+Similarly
+
+Choose Right
+
+```
+2
+
+-
+
+solve(left,right-1)
+```
+
+Take whichever gives a better result.
+
+---
+
+# Recurrence Relation
+
+```
+dp[left][right]
+
+=
+
+max(
+
+nums[left]
+
+-
+
+dp[left+1][right],
+
+nums[right]
+
+-
+
+dp[left][right-1]
+
+)
+```
+
+This is the heart of the problem.
+
+---
+
+# Finding the Base Case
+
+Suppose
+
+Only one element remains.
+
+```
+7
+```
+
+Current player takes it.
+
+Opponent gets
+
+```
+0
+```
+
+Difference
+
+```
+7
+```
+
+Therefore
+
+```
+left==right
+
+↓
+
+nums[left]
+```
+
+---
+
+# Recursive Thinking
+
+Suppose
+
+```
+solve(0,2)
+```
+
+Choices
+
+Take Left
+
+```
+nums[0]
+
+-
+
+solve(1,2)
+```
+
+Take Right
+
+```
+nums[2]
+
+-
+
+solve(0,1)
+```
+
+Again
+
+```
+solve(1,2)
+```
+
+creates two more choices.
+
+Eventually,
+
+all recursive paths reach
+
+```
+left==right
+```
+
+---
+
+# Recursion Tree
+
+```
+                  (0,2)
+                 /     \
+             Left      Right
+             /           \
+         (1,2)         (0,1)
+        /    \         /    \
+    (2,2) (1,1)   (1,1) (0,0)
+```
+
+Notice
+
+```
+solve(1,1)
+```
+
+is computed twice.
+
+This is
+
+```
+Overlapping Subproblems
+```
+
+Hence
+
+Dynamic Programming.
+
+---
+
+# Recursive Solution
+
+```python
+class Solution:
+
+    def solve(self,left,right,nums):
+
+        if left==right:
+            return nums[left]
+
+        takeLeft=nums[left]-self.solve(left+1,right,nums)
+
+        takeRight=nums[right]-self.solve(left,right-1,nums)
+
+        return max(takeLeft,takeRight)
+
+    def PredictTheWinner(self,nums):
+
+        return self.solve(0,len(nums)-1,nums)>=0
+```
+
+---
+
+# Why Recursion is Slow
+
+Suppose
+
+```
+20 elements
+```
+
+The same intervals
+
+```
+solve(5,10)
+
+solve(7,14)
+
+solve(2,8)
+```
+
+are solved repeatedly.
+
+Huge waste.
+
+Time Complexity
+
+```
+O(2^n)
+```
+
+---
+
+# Memoization
+
+Idea
+
+Store every solved interval.
+
+State
+
+```
+dp[left][right]
+```
+
+Initially
+
+```
+-1
+```
+
+means
+
+```
+Not computed
+```
+
+Once computed,
+
+store it.
+
+---
+
+# Memoization Code
+
+```python
+class Solution:
+
+    def solve(self,left,right,nums,dp):
+
+        if left==right:
+            return nums[left]
+
+        if dp[left][right]!=None:
+            return dp[left][right]
+
+        takeLeft=nums[left]-self.solve(left+1,right,nums,dp)
+
+        takeRight=nums[right]-self.solve(left,right-1,nums,dp)
+
+        dp[left][right]=max(takeLeft,takeRight)
+
+        return dp[left][right]
+
+    def PredictTheWinner(self,nums):
+
+        n=len(nums)
+
+        dp=[[None]*n for _ in range(n)]
+
+        return self.solve(0,n-1,nums,dp)>=0
+```
+
+---
+
+# Time Complexity
+
+Every interval
+
+```
+(left,right)
+```
+
+is computed once.
+
+Number of intervals
+
+```
+O(n²)
+```
+
+Time
+
+```
+O(n²)
+```
+
+Space
+
+```
+DP Table
+
++
+
+Recursion Stack
+
+=
+
+O(n²)
+```
+
+---
+
+# Tabulation
+
+Instead of recursion,
+
+build answers for smaller intervals first.
+
+Base case
+
+```
+dp[i][i]
+
+=
+
+nums[i]
+```
+
+Now compute
+
+Length
+
+```
+2
+
+↓
+
+3
+
+↓
+
+4
+
+↓
+
+...
+
+↓
+
+n
+```
+
+---
+
+# Transition
+
+```
+dp[left][right]
+
+=
+
+max(
+
+nums[left]-dp[left+1][right],
+
+nums[right]-dp[left][right-1]
+
+)
+```
+
+---
+
+# Tabulation Code
+
+```python
+class Solution:
+
+    def PredictTheWinner(self, nums):
+
+        n = len(nums)
+
+        dp = [[0] * n for _ in range(n)]
+
+        for i in range(n):
+            dp[i][i] = nums[i]
+
+        for length in range(2, n + 1):
+
+            for left in range(n - length + 1):
+
+                right = left + length - 1
+
+                takeLeft = nums[left] - dp[left + 1][right]
+
+                takeRight = nums[right] - dp[left][right - 1]
+
+                dp[left][right] = max(takeLeft, takeRight)
+
+        return dp[0][n - 1] >= 0
+```
+
+---
+
+# Dry Run
+
+Suppose
+
+```
+nums = [1,5,2]
+```
+
+Initially
+
+```
+dp
+
+1 0 0
+0 5 0
+0 0 2
+```
+
+Length = 2
+
+```
+dp[0][1]
+
+=
+
+max(
+
+1-5,
+
+5-1
+
+)
+
+=
+
+4
+```
+
+```
+dp[1][2]
+
+=
+
+max(
+
+5-2,
+
+2-5
+
+)
+
+=
+
+3
+```
+
+Table
+
+```
+1 4 0
+0 5 3
+0 0 2
+```
+
+Length = 3
+
+```
+dp[0][2]
+
+=
+
+max(
+
+1-3,
+
+2-4
+
+)
+
+=
+
+-2
+```
+
+Final
+
+```
+1 4 -2
+0 5 3
+0 0 2
+```
+
+Since
+
+```
+-2
+
+<
+
+0
+```
+
+Player 1 loses.
+
+Answer
+
+```
+False
+```
+
+---
+
+# Why >= 0?
+
+Suppose
+
+```
+Difference
+
+=
+
+5
+```
+
+Player 1 wins.
+
+---
+
+Suppose
+
+```
+Difference
+
+=
+
+0
+```
+
+Tie.
+
+Problem says
+
+Player 1 still wins.
+
+---
+
+Suppose
+
+```
+Difference
+
+=
+
+-3
+```
+
+Player 2 wins.
+
+Therefore
+
+```
+dp[0][n-1]>=0
+```
+
+---
+
+# How to Build the Intuition
+
+Whenever you see
+
+```
+Two Players
+```
+
+ask
+
+```
+Can I store
+
+Difference
+
+instead of
+
+Both Scores?
+```
+
+Most game DP problems become much simpler.
+
+---
+
+# Pattern Recognition
+
+Whenever you hear
+
+- Two Players
+- Optimal Play
+- Pick Left or Right
+- Subarray
+- Interval
+
+Think
+
+```
+Game Theory DP
+
++
+
+Interval DP
+```
+
+---
+
+# Common Mistakes
+
+❌ Trying to calculate both players' scores separately.
+
+❌ Forgetting that after your move, the opponent becomes the current player.
+
+❌ Using `+` instead of `-` in the recurrence.
+
+❌ Defining the wrong DP state.
+
+---
+
+# Similar Problems
+
+- Stone Game
+- Stone Game II
+- Stone Game III
+- Stone Game VII
+- Optimal Strategy for a Game
+- Burst Balloons (Interval DP)
+
+---
+
+# Quick Revision
+
+### DP State
+
+```
+dp[left][right]
+
+=
+
+Maximum Difference
+
+(Current Player
+
+-
+
+Other Player)
+```
+
+---
+
+### Recurrence
+
+```
+max(
+
+nums[left]-dp[left+1][right],
+
+nums[right]-dp[left][right-1]
+
+)
+```
+
+---
+
+### Base Case
+
+```
+left==right
+
+↓
+
+nums[left]
+```
+
+---
+
+### DP Progression
+
+```
+Recursion
+
+↓
+
+Memoization
+
+↓
+
+Tabulation
+```
+
+---
+
+# Golden Rule
+
+Whenever a game involves **two optimal players** taking turns, don't try to calculate each player's score separately. Instead, think in terms of the **score difference** between the current player and the opponent. After every move, the roles swap, which naturally leads to subtracting the opponent's best future advantage. This simple idea is the key to solving many Game Theory DP problems.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 91. Decode Ways
+
+# Difficulty
+
+Medium
+
+# Pattern
+
+- Dynamic Programming
+- 1D DP
+- String DP
+- Prefix DP
+
+---
+
+# Problem Statement
+
+You are given a string `s` containing only digits.
+
+Each number can be mapped to a letter as follows:
+
+```
+1  -> A
+
+2  -> B
+
+3  -> C
+
+...
+
+26 -> Z
+```
+
+Your task is to find **how many different ways** the given string can be decoded.
+
+If the string cannot be decoded,
+
+return
+
+```
+0
+```
+
+---
+
+# Examples
+
+## Example 1
+
+Input
+
+```
+s = "12"
+```
+
+Possible Decodings
+
+```
+1 2
+
+↓
+
+AB
+```
+
+and
+
+```
+12
+
+↓
+
+L
+```
+
+Answer
+
+```
+2
+```
+
+---
+
+## Example 2
+
+Input
+
+```
+s = "226"
+```
+
+Possible Decodings
+
+```
+2 2 6
+
+↓
+
+BBF
+```
+
+```
+22 6
+
+↓
+
+VF
+```
+
+```
+2 26
+
+↓
+
+BZ
+```
+
+Answer
+
+```
+3
+```
+
+---
+
+## Example 3
+
+Input
+
+```
+s = "06"
+```
+
+Notice
+
+```
+06
+```
+
+is NOT valid.
+
+Only
+
+```
+6
+```
+
+is valid.
+
+A number cannot start with
+
+```
+0
+```
+
+Answer
+
+```
+0
+```
+
+---
+
+# Understanding the Problem Like a Common Man
+
+Imagine someone sends you a secret code.
+
+```
+226
+```
+
+You have a dictionary.
+
+```
+1 -> A
+
+2 -> B
+
+3 -> C
+
+...
+
+26 -> Z
+```
+
+Now you have to read the digits.
+
+Every time you stand at a digit,
+
+you have only two possible ways to read it.
+
+---
+
+## Choice 1
+
+Read
+
+```
+One digit
+```
+
+Example
+
+```
+2
+
+↓
+
+B
+```
+
+---
+
+## Choice 2
+
+Read
+
+```
+Two digits
+```
+
+Example
+
+```
+22
+
+↓
+
+V
+```
+
+But remember
+
+The two digits must form a number
+
+between
+
+```
+10
+
+and
+
+26
+```
+
+Otherwise,
+
+it is not a valid letter.
+
+---
+
+# Thinking Like a Human
+
+Suppose
+
+```
+226
+```
+
+Stand at the first digit.
+
+```
+2 2 6
+↑
+```
+
+What can you do?
+
+---
+
+## Option 1
+
+Take
+
+```
+2
+```
+
+Remaining string
+
+```
+26
+↑
+```
+
+Now solve
+
+```
+26
+```
+
+---
+
+## Option 2
+
+Take
+
+```
+22
+```
+
+Remaining string
+
+```
+6
+↑
+```
+
+Now solve
+
+```
+6
+```
+
+Notice something.
+
+After making one decision,
+
+the remaining problem is exactly the same type of problem.
+
+This is a strong hint that
+
+```
+Dynamic Programming
+```
+
+can be used.
+
+---
+
+# The Biggest Intuition
+
+Whenever you are standing at index
+
+```
+i
+```
+
+ask yourself
+
+> **"How many ways can I decode the remaining string starting from this index?"**
+
+Notice
+
+You are NOT asking
+
+```
+How many ways have I already decoded?
+```
+
+Instead,
+
+you are asking
+
+```
+How many ways are left?
+```
+
+This becomes our DP state.
+
+---
+
+# Defining the DP State
+
+Let
+
+```
+solve(i)
+```
+
+represent
+
+```
+Number of ways
+
+to decode
+
+the substring
+
+starting from index i.
+```
+
+Example
+
+Suppose
+
+```
+s = "226"
+```
+
+```
+Index
+
+0 1 2
+
+2 2 6
+```
+
+Then
+
+```
+solve(0)
+
+↓
+
+Ways to decode
+
+"226"
+```
+
+```
+solve(1)
+
+↓
+
+Ways to decode
+
+"26"
+```
+
+```
+solve(2)
+
+↓
+
+Ways to decode
+
+"6"
+```
+
+```
+solve(3)
+
+↓
+
+Ways to decode
+
+""
+```
+
+This is our DP state.
+
+Notice
+
+Only one variable
+
+```
+i
+```
+
+changes.
+
+Therefore,
+
+this is
+
+```
+1D DP
+```
+
+---
+
+# Why Only One Index?
+
+Many beginners try something like
+
+```
+solve(start,end)
+```
+
+This is unnecessary.
+
+Ask yourself
+
+```
+After decoding one or two digits,
+
+what information is needed?
+```
+
+Only
+
+```
+Current Position
+```
+
+Everything before it has already been decoded.
+
+Therefore
+
+```
+solve(i)
+```
+
+is enough.
+
+---
+
+# Finding the Choices
+
+Suppose
+
+```
+226
+↑
+```
+
+Current digit
+
+```
+2
+```
+
+You have exactly two choices.
+
+---
+
+## Choice 1
+
+Decode one digit.
+
+```
+2
+
+↓
+
+B
+```
+
+Remaining problem
+
+```
+26
+↑
+```
+
+Recursion becomes
+
+```
+solve(i+1)
+```
+
+---
+
+## Choice 2
+
+Decode two digits.
+
+```
+22
+
+↓
+
+V
+```
+
+Remaining problem
+
+```
+6
+↑
+```
+
+Recursion becomes
+
+```
+solve(i+2)
+```
+
+That's all.
+
+Every state has exactly
+
+```
+Two Choices
+```
+
+---
+
+# When is a Choice Valid?
+
+This is the most important observation.
+
+---
+
+## One Digit
+
+Valid only if
+
+```
+1
+
+to
+
+9
+```
+
+If
+
+```
+0
+```
+
+appears,
+
+it cannot be decoded alone.
+
+Example
+
+```
+0
+
+❌ Invalid
+```
+
+---
+
+## Two Digits
+
+Valid only if
+
+```
+10
+
+to
+
+26
+```
+
+Examples
+
+```
+10
+
+✓
+```
+
+```
+26
+
+✓
+```
+
+```
+27
+
+✗
+```
+
+```
+35
+
+✗
+```
+
+```
+06
+
+✗
+```
+
+Always remember
+
+```
+Leading Zero
+
+=
+
+Invalid
+```
+
+---
+
+# Deriving the Recurrence Relation
+
+Suppose
+
+```
+226
+↑
+```
+
+Current character
+
+```
+2
+```
+
+---
+
+## Case 1
+
+Take one digit.
+
+Remaining
+
+```
+26
+```
+
+Ways
+
+```
+solve(i+1)
+```
+
+---
+
+## Case 2
+
+Take two digits.
+
+Remaining
+
+```
+6
+```
+
+Ways
+
+```
+solve(i+2)
+```
+
+---
+
+Total Ways
+
+```
+solve(i)
+
+=
+
+solve(i+1)
+
++
+
+solve(i+2)
+```
+
+But
+
+only if
+
+the two-digit number lies between
+
+```
+10
+
+and
+
+26
+```
+
+---
+
+If
+
+```
+s[i]=='0'
+```
+
+Then
+
+```
+0
+```
+
+ways exist,
+
+because decoding cannot start from
+
+```
+0
+```
+
+---
+
+# Final Recurrence Relation
+
+If
+
+```
+s[i]=='0'
+```
+
+```
+solve(i)=0
+```
+
+Otherwise
+
+```
+solve(i)
+
+=
+
+solve(i+1)
+```
+
+Plus
+
+```
+solve(i+2)
+```
+
+only if
+
+```
+10 <= int(s[i:i+2]) <= 26
+```
+
+This is the heart of the problem.
+
+---
+
+# Finding the Base Case
+
+Suppose
+
+```
+i == n
+```
+
+This means
+
+You have successfully decoded
+
+the entire string.
+
+For example
+
+```
+226
+      ↑
+```
+
+Nothing is left.
+
+How many ways are there to decode
+
+an empty string?
+
+Exactly
+
+```
+1
+```
+
+Why?
+
+Because
+
+you have already completed one valid decoding.
+
+Therefore
+
+```
+if i==n
+
+↓
+
+return 1
+```
+
+---
+
+# Recursive Thinking
+
+Suppose
+
+```
+s="226"
+```
+
+Initially
+
+```
+solve(0)
+```
+
+Current digit
+
+```
+2
+```
+
+Choices
+
+Take one digit
+
+```
+↓
+
+solve(1)
+```
+
+Take two digits
+
+```
+↓
+
+solve(2)
+```
+
+Again
+
+```
+solve(1)
+```
+
+creates two more choices.
+
+Again
+
+```
+solve(2)
+```
+
+creates another choice.
+
+Eventually,
+
+every recursive path reaches
+
+```
+i==n
+```
+
+which returns
+
+```
+1
+```
+
+---
+
+# Recursion Tree
+
+For
+
+```
+226
+```
+
+```
+                 solve(0)
+                /        \
+         take1           take2
+          |                |
+      solve(1)         solve(2)
+      /      \             |
+ take1      take2        take1
+   |          |            |
+solve(2)   solve(3)    solve(3)
+```
+
+Notice
+
+```
+solve(2)
+```
+
+is computed
+
+multiple times.
+
+This is called
+
+```
+Overlapping Subproblems
+```
+
+Hence,
+
+Dynamic Programming is needed.
+
+---
+
+# Why Recursion is Slow
+
+Suppose
+
+```
+111111111111111111
+```
+
+Every index can generate
+
+two recursive calls.
+
+The recursion tree grows
+
+very quickly.
+
+Many states
+
+like
+
+```
+solve(10)
+
+solve(15)
+
+solve(20)
+```
+
+are computed
+
+again and again.
+
+This creates
+
+a huge amount of
+
+repeated work.
+
+Time Complexity
+
+```
+O(2^n)
+```
+
+This is too slow.
+
+---
+
+# Recursive Solution
+
+```python
+class Solution:
+
+    def solve(self, i, s):
+
+        n = len(s)
+
+        if i == n:
+            return 1
+
+        if s[i] == '0':
+            return 0
+
+        ways = self.solve(i + 1, s)
+
+        if i + 1 < n and 10 <= int(s[i:i+2]) <= 26:
+            ways += self.solve(i + 2, s)
+
+        return ways
+
+    def numDecodings(self, s):
+
+        return self.solve(0, s)
+```
+
+---
+
+# Complexity
+
+Time
+
+```
+O(2^n)
+```
+
+Space
+
+```
+O(n)
+```
+
+because of the recursion stack.
+
+---
+
+# What's Next?
+
+The recursion above solves the same state
+
+```
+solve(i)
+```
+
+multiple times.
+
+In the next part,
+
+we will optimize it using
+
+```
+Memoization
+```
+
+which reduces the time complexity from
+
+```
+O(2^n)
+
+↓
+
+O(n)
+```
+# Memoization (Top-Down DP)
+
+The recursive solution solves the same state many times.
+
+For example,
+
+```
+solve(2)
+```
+
+can be reached from multiple recursive paths.
+
+Instead of solving it repeatedly,
+
+we store the answer the first time it is computed.
+
+This technique is called
+
+```
+Memoization
+```
+
+---
+
+# DP State
+
+```
+dp[i]
+
+=
+
+Number of ways to decode
+
+starting from index i.
+```
+
+Initially
+
+```
+dp
+
+-1 -1 -1 -1 ...
+```
+
+where
+
+```
+-1
+
+means
+
+Not Computed Yet.
+```
+
+---
+
+# Memoization Steps
+
+## Step 1
+
+Before solving,
+
+check whether the answer already exists.
+
+```python
+if dp[i] != -1:
+    return dp[i]
+```
+
+---
+
+## Step 2
+
+Handle the base cases.
+
+If we have decoded the whole string,
+
+```
+return 1
+```
+
+If the current character is
+
+```
+'0'
+```
+
+then
+
+```
+return 0
+```
+
+because no decoding can start with zero.
+
+---
+
+## Step 3
+
+Compute the answer.
+
+Take one digit.
+
+```python
+ways = solve(i + 1)
+```
+
+If two digits form a valid number,
+
+```
+10
+
+to
+
+26
+```
+
+take two digits also.
+
+```python
+ways += solve(i + 2)
+```
+
+---
+
+## Step 4
+
+Store the answer.
+
+```python
+dp[i] = ways
+```
+
+Return it.
+
+---
+
+# Memoization Code
+
+```python
+class Solution:
+
+    def numDecodings(self, s: str) -> int:
+
+        n = len(s)
+
+        dp = [-1] * n
+
+        def solve(i):
+
+            if i == n:
+                return 1
+
+            if s[i] == '0':
+                return 0
+
+            if dp[i] != -1:
+                return dp[i]
+
+            ways = solve(i + 1)
+
+            if i + 1 < n and 10 <= int(s[i:i+2]) <= 26:
+                ways += solve(i + 2)
+
+            dp[i] = ways
+
+            return dp[i]
+
+        return solve(0)
+```
+
+---
+
+# Dry Run (Memoization)
+
+Suppose
+
+```
+s = "226"
+```
+
+Initially
+
+```
+solve(0)
+```
+
+↓
+
+```
+solve(1)
+
++
+
+solve(2)
+```
+
+Later,
+
+```
+solve(1)
+```
+
+again calls
+
+```
+solve(2)
+```
+
+Instead of solving it again,
+
+we directly return
+
+```
+dp[2]
+```
+
+Thus every state is computed only once.
+
+---
+
+# Time Complexity
+
+```
+O(n)
+```
+
+---
+
+# Space Complexity
+
+```
+DP Array
+
++
+
+Recursion Stack
+
+=
+
+O(n)
+```
+
+---
+
+# Tabulation (Bottom-Up DP)
+
+Instead of starting from the first character,
+
+start from the smallest solved problem.
+
+Remember the base case.
+
+```
+solve(n)
+
+=
+
+1
+```
+
+Therefore,
+
+```
+dp[n] = 1
+```
+
+Now build the answer backwards.
+
+---
+
+# DP State
+
+```
+dp[i]
+
+=
+
+Number of ways to decode
+
+starting from index i.
+```
+
+---
+
+# Transition
+
+If
+
+```
+s[i]=='0'
+```
+
+then
+
+```
+dp[i]=0
+```
+
+Otherwise,
+
+take one digit.
+
+```
+dp[i]=dp[i+1]
+```
+
+If two digits form
+
+```
+10
+
+to
+
+26
+```
+
+then
+
+```
+dp[i]+=dp[i+2]
+```
+
+---
+
+# Why Do We Traverse Right to Left?
+
+Look at the recurrence.
+
+```
+dp[i]
+
+depends on
+
+dp[i+1]
+
+and
+
+dp[i+2]
+```
+
+Before computing
+
+```
+dp[i]
+```
+
+we already need
+
+```
+dp[i+1]
+
+dp[i+2]
+```
+
+Therefore,
+
+we must fill the DP table
+
+from
+
+```
+Right
+
+↓
+
+Left
+```
+
+---
+
+# Dry Run (Tabulation)
+
+Suppose
+
+```
+s = "226"
+```
+
+Length
+
+```
+3
+```
+
+Create
+
+```
+dp = [0,0,0,0]
+```
+
+Base case
+
+```
+dp[3]=1
+```
+
+Current table
+
+```
+Index
+
+0 1 2 3
+
+DP
+
+0 0 0 1
+```
+
+---
+
+## i = 2
+
+Character
+
+```
+6
+```
+
+Single digit is valid.
+
+```
+dp[2]=dp[3]
+
+=
+
+1
+```
+
+Table
+
+```
+0 0 1 1
+```
+
+---
+
+## i = 1
+
+Character
+
+```
+2
+```
+
+Single digit
+
+```
+dp[2]=1
+```
+
+Two digits
+
+```
+26
+```
+
+Valid.
+
+```
+dp[1]
+
+=
+
+dp[2]
+
++
+
+dp[3]
+
+=
+
+1+1
+
+=
+
+2
+```
+
+Table
+
+```
+0 2 1 1
+```
+
+---
+
+## i = 0
+
+Character
+
+```
+2
+```
+
+Single digit
+
+```
+dp[1]=2
+```
+
+Two digits
+
+```
+22
+```
+
+Valid.
+
+```
+dp[0]
+
+=
+
+dp[1]
+
++
+
+dp[2]
+
+=
+
+2+1
+
+=
+
+3
+```
+
+Final DP
+
+```
+3 2 1 1
+```
+
+Answer
+
+```
+dp[0]
+
+=
+
+3
+```
+
+---
+
+# Tabulation Code
+
+```python
+class Solution:
+
+    def numDecodings(self, s: str) -> int:
+
+        n = len(s)
+
+        dp = [0] * (n + 1)
+
+        dp[n] = 1
+
+        for i in range(n - 1, -1, -1):
+
+            if s[i] == '0':
+                dp[i] = 0
+                continue
+
+            dp[i] = dp[i + 1]
+
+            if i + 1 < n and 10 <= int(s[i:i+2]) <= 26:
+                dp[i] += dp[i + 2]
+
+        return dp[0]
+```
+
+---
+
+# Time Complexity
+
+```
+O(n)
+```
+
+---
+
+# Space Complexity
+
+```
+O(n)
+```
+
+---
+
+# Space Optimization
+
+Observe carefully.
+
+```
+dp[i]
+
+depends only on
+
+dp[i+1]
+
+and
+
+dp[i+2]
+```
+
+Nothing else.
+
+Therefore,
+
+storing the entire DP array is unnecessary.
+
+We only need two future states.
+
+Let
+
+```
+next
+
+=
+
+dp[i+1]
+```
+
+and
+
+```
+next2
+
+=
+
+dp[i+2]
+```
+
+For every iteration,
+
+compute the current answer,
+
+then shift the variables.
+
+---
+
+# Variable Meaning
+
+```
+next
+
+↓
+
+dp[i+1]
+```
+
+```
+next2
+
+↓
+
+dp[i+2]
+```
+
+```
+current
+
+↓
+
+dp[i]
+```
+
+---
+
+# Dry Run
+
+Suppose
+
+```
+s="226"
+```
+
+Initially
+
+```
+next = dp[3] = 1
+
+next2 = 0
+```
+
+---
+
+### i = 2
+
+```
+current
+
+=
+
+next
+
+=
+
+1
+```
+
+Update
+
+```
+next2 = next = 1
+
+next = current = 1
+```
+
+---
+
+### i = 1
+
+```
+current
+
+=
+
+next
+
+=
+
+1
+```
+
+Two digits
+
+```
+26
+```
+
+Valid.
+
+```
+current
+
+=
+
+1+1
+
+=
+
+2
+```
+
+Update
+
+```
+next2 = 1
+
+next = 2
+```
+
+---
+
+### i = 0
+
+```
+current
+
+=
+
+next
+
+=
+
+2
+```
+
+Two digits
+
+```
+22
+```
+
+Valid.
+
+```
+current
+
+=
+
+2+1
+
+=
+
+3
+```
+
+Update
+
+```
+next2 = 2
+
+next = 3
+```
+
+Answer
+
+```
+3
+```
+
+---
+
+# Space Optimized Code
+
+```python
+class Solution:
+
+    def numDecodings(self, s: str) -> int:
+
+        n = len(s)
+
+        next = 1      # dp[n]
+        next2 = 0     # dp[n+1] (imaginary)
+
+        for i in range(n - 1, -1, -1):
+
+            if s[i] == '0':
+                current = 0
+
+            else:
+
+                current = next
+
+                if i + 1 < n and 10 <= int(s[i:i+2]) <= 26:
+                    current += next2
+
+            next2 = next
+            next = current
+
+        return next
+```
+
+---
+
+# Time Complexity
+
+```
+O(n)
+```
+
+---
+
+# Space Complexity
+
+```
+O(1)
+```
+
+---
+
+# DP Progression
+
+```
+Recursion
+
+↓
+
+Memoization
+
+↓
+
+Tabulation
+
+↓
+
+Space Optimization
+```
+
+---
+
+# Key Observation
+
+The entire problem is built on one simple idea.
+
+At every index,
+
+you have only two choices.
+
+```
+Take One Digit
+
+or
+
+Take Two Digits
+```
+
+If a choice is valid,
+
+solve the remaining smaller string.
+
+If you solve the same remaining string repeatedly,
+
+store its answer.
+
+That is exactly
+
+```
+Dynamic Programming.
+```
