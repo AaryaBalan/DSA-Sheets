@@ -17,6 +17,8 @@ The goal is not just to memorize solutions, but to **develop the intuition** to 
 - [746. Min Cost Climbing Stairs](#746-min-cost-climbing-stairs)
 - [#486. Predict the Winner](#486-predict-the-winner)
 - [91. Decode Ways](#91-decode-ways)
+- [1406. Stone Game III](#1406-stone-game-iii)
+
 
 <br/><br/><br/><br/><br/>
 
@@ -11793,3 +11795,2362 @@ That is exactly
 ```
 Dynamic Programming.
 ```
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 1406. Stone Game III
+
+# Difficulty
+
+Hard
+
+# Pattern
+
+- Dynamic Programming
+- Game Theory
+- Minimax DP
+- Score Difference DP
+
+---
+
+# Problem Statement
+
+Alice and Bob are playing another stone game.
+
+There are several stones arranged in a straight line.
+
+Each stone has a value stored in the array
+
+```
+stoneValue
+```
+
+Some values may even be negative.
+
+Initially,
+
+both players have
+
+```
+Score = 0
+```
+
+Alice starts first.
+
+On every turn,
+
+the current player can take
+
+- 1 stone
+- 2 stones
+- 3 stones
+
+but only from the **front** of the remaining stones.
+
+After taking the stones,
+
+their values are added to that player's score.
+
+The game continues until no stones remain.
+
+Both Alice and Bob play **optimally**, meaning they always choose the move that gives them the best possible final outcome.
+
+Return
+
+```
+"Alice"
+```
+
+if Alice finishes with a higher score.
+
+Return
+
+```
+"Bob"
+```
+
+if Bob finishes with a higher score.
+
+Return
+
+```
+"Tie"
+```
+
+if both finish with the same score.
+
+---
+
+# Examples
+
+## Example 1
+
+Input
+
+```
+stoneValue = [1,2,3,7]
+```
+
+Alice has three choices.
+
+Take
+
+```
+1
+```
+
+or
+
+```
+1+2
+```
+
+or
+
+```
+1+2+3
+```
+
+No matter what Alice does,
+
+Bob can eventually finish with a higher score.
+
+Answer
+
+```
+Bob
+```
+
+---
+
+## Example 2
+
+Input
+
+```
+stoneValue = [1,2,3,-9]
+```
+
+If Alice immediately takes
+
+```
+1+2+3
+```
+
+then Bob is forced to take
+
+```
+-9
+```
+
+Alice wins.
+
+Answer
+
+```
+Alice
+```
+
+---
+
+## Example 3
+
+Input
+
+```
+stoneValue = [1,2,3,6]
+```
+
+Both players can finish with exactly the same score.
+
+Answer
+
+```
+Tie
+```
+
+---
+
+# Understanding the Problem Like a Common Man
+
+Imagine the stones are lying in a line.
+
+```
++----+----+----+----+
+| 1  | 2  | 3  | 7  |
++----+----+----+----+
+```
+
+Alice begins.
+
+She may take
+
+```
+1 stone
+```
+
+or
+
+```
+2 stones
+```
+
+or
+
+```
+3 stones
+```
+
+Suppose she takes
+
+```
+1
+```
+
+Now the remaining stones become
+
+```
++----+----+----+
+| 2  | 3  | 7  |
++----+----+----+
+```
+
+Now Bob gets exactly the same choices.
+
+Again,
+
+he can take
+
+```
+1
+
+or
+
+2
+
+or
+
+3
+```
+
+stones.
+
+This continues until all stones disappear.
+
+The winner is simply the person whose total score is larger.
+
+---
+
+# Important Observation
+
+This is **not** a greedy problem.
+
+It is a
+
+```
+Thinking Ahead
+```
+
+problem.
+
+Whenever Alice makes a move,
+
+she must also think
+
+```
+"What will Bob do after this?"
+```
+
+Bob also thinks the same way.
+
+Therefore,
+
+every decision depends on
+
+future decisions.
+
+That is exactly where
+
+```
+Dynamic Programming
+```
+
+comes into the picture.
+
+---
+
+# Thinking Like a Beginner
+
+Suppose
+
+```
+stoneValue = [1,2,3,7]
+```
+
+Initially
+
+```
+1 2 3 7
+↑
+```
+
+Alice has three choices.
+
+---
+
+## Choice 1
+
+Take one stone.
+
+```
+1
+```
+
+Remaining
+
+```
+2 3 7
+↑
+```
+
+Now Bob starts.
+
+---
+
+## Choice 2
+
+Take two stones.
+
+```
+1+2=3
+```
+
+Remaining
+
+```
+3 7
+↑
+```
+
+Bob starts.
+
+---
+
+## Choice 3
+
+Take three stones.
+
+```
+1+2+3=6
+```
+
+Remaining
+
+```
+7
+↑
+```
+
+Bob starts.
+
+Alice wants to know
+
+Which of these three choices finally makes her win?
+
+Notice,
+
+she cannot decide immediately.
+
+She must know
+
+```
+How Bob will play.
+```
+
+---
+
+# Why Greedy Fails
+
+A very common first idea is
+
+```
+Always take the maximum sum available.
+```
+
+For example,
+
+```
+1 2 3 7
+```
+
+The immediate sums are
+
+Take one
+
+```
+1
+```
+
+Take two
+
+```
+3
+```
+
+Take three
+
+```
+6
+```
+
+Greedy says
+
+```
+Take 6
+```
+
+Sounds correct.
+
+But then Bob gets
+
+```
+7
+```
+
+Final scores
+
+```
+Alice = 6
+
+Bob = 7
+```
+
+Bob wins.
+
+Greedy only thinks about
+
+```
+Current Turn
+```
+
+The problem asks about
+
+```
+Entire Game
+```
+
+These are completely different.
+
+---
+
+# The Biggest Intuition
+
+Instead of asking
+
+```
+Which move gives me
+
+the maximum score now?
+```
+
+Ask
+
+```
+If I choose this move,
+
+what is the BEST score
+
+my opponent can get later?
+```
+
+Now the problem becomes
+
+```
+Current Gain
+
+minus
+
+Opponent's Future Gain
+```
+
+This single observation completely changes the problem.
+
+---
+
+# Why Storing Alice's Score and Bob's Score Separately is Difficult
+
+Suppose
+
+Alice currently has
+
+```
+10
+```
+
+Bob currently has
+
+```
+7
+```
+
+Can we say Alice will win?
+
+No.
+
+Many stones are still left.
+
+Bob may later collect
+
+```
+20
+```
+
+points.
+
+Therefore,
+
+storing
+
+```
+Alice Score
+
+Bob Score
+```
+
+is not a good DP state.
+
+There are too many possibilities.
+
+---
+
+# The Smart Trick
+
+Instead of storing
+
+```
+Alice Score
+
+Bob Score
+```
+
+store only
+
+```
+Current Player's Advantage
+```
+
+Suppose
+
+Current player finally scores
+
+```
+15
+```
+
+Opponent finally scores
+
+```
+10
+```
+
+Advantage
+
+```
+15 - 10 = 5
+```
+
+Suppose
+
+Opponent scores more.
+
+Example
+
+```
+10 - 18 = -8
+```
+
+Negative means
+
+the current player loses.
+
+This single number is enough.
+
+---
+
+# Defining the DP State
+
+Let
+
+```
+dp(i)
+```
+
+represent
+
+```
+Maximum Score Difference
+
+(Current Player − Opponent)
+
+starting from index i.
+```
+
+Notice
+
+We are not storing
+
+```
+Alice
+
+or
+
+Bob
+```
+
+The DP always represents
+
+```
+Whoever's turn it is.
+```
+
+That is why the same recurrence works for both players.
+
+---
+
+# Understanding the Score Difference
+
+Suppose
+
+Current player takes
+
+```
+5
+```
+
+points.
+
+Now,
+
+the opponent starts playing.
+
+Suppose
+
+the opponent can achieve an advantage of
+
+```
+3
+```
+
+That means
+
+Opponent will finally beat the current player by
+
+```
+3
+```
+
+Therefore,
+
+Current Player's final advantage becomes
+
+```
+5 - 3 = 2
+```
+
+Notice the subtraction.
+
+That is why every game DP recurrence contains
+
+```
+Minus DP
+```
+
+instead of
+
+```
+Plus DP
+```
+
+This is the biggest idea in this problem.
+
+---
+
+# Building the Recurrence
+
+Suppose we are standing at
+
+```
+i
+```
+
+Current player has three choices.
+
+---
+
+## Choice 1
+
+Take one stone.
+
+Immediate gain
+
+```
+stoneValue[i]
+```
+
+Now opponent starts from
+
+```
+i+1
+```
+
+Opponent's advantage
+
+```
+dp(i+1)
+```
+
+Current player's final advantage
+
+```
+stoneValue[i]
+
+-
+
+dp(i+1)
+```
+
+---
+
+## Choice 2
+
+Take two stones.
+
+Immediate gain
+
+```
+stoneValue[i]
+
++
+
+stoneValue[i+1]
+```
+
+Opponent starts from
+
+```
+i+2
+```
+
+Final advantage
+
+```
+stoneValue[i]
+
++
+
+stoneValue[i+1]
+
+-
+
+dp(i+2)
+```
+
+---
+
+## Choice 3
+
+Take three stones.
+
+Immediate gain
+
+```
+stoneValue[i]
+
++
+
+stoneValue[i+1]
+
++
+
+stoneValue[i+2]
+```
+
+Opponent starts from
+
+```
+i+3
+```
+
+Final advantage
+
+```
+stoneValue[i]
+
++
+
+stoneValue[i+1]
+
++
+
+stoneValue[i+2]
+
+-
+
+dp(i+3)
+```
+
+---
+
+# Recurrence Relation
+
+Therefore,
+
+```
+dp(i)
+
+=
+
+max(
+
+Take One,
+
+Take Two,
+
+Take Three
+
+)
+```
+
+or mathematically,
+
+```
+dp(i)
+
+=
+
+max(
+
+stone[i]
+
+-
+
+dp(i+1),
+
+stone[i]+stone[i+1]
+
+-
+
+dp(i+2),
+
+stone[i]+stone[i+1]+stone[i+2]
+
+-
+
+dp(i+3)
+
+)
+```
+
+This is the heart of the entire problem.
+
+---
+
+# Finding the Base Case
+
+Suppose
+
+```
+i == n
+```
+
+No stones remain.
+
+Current player cannot gain anything.
+
+Difference becomes
+
+```
+0
+```
+
+Therefore,
+
+```
+if i >= n
+
+↓
+
+return 0
+```
+
+---
+
+# Recursive Thinking
+
+Suppose
+
+```
+stoneValue = [1,2,3,7]
+```
+
+Initially,
+
+Alice is at
+
+```
+1 2 3 7
+↑
+```
+
+She explores
+
+Take
+
+```
+1
+```
+
+↓
+
+Bob starts from
+
+```
+2 3 7
+```
+
+Take
+
+```
+1+2
+```
+
+↓
+
+Bob starts from
+
+```
+3 7
+```
+
+Take
+
+```
+1+2+3
+```
+
+↓
+
+Bob starts from
+
+```
+7
+```
+
+Bob again explores
+
+three choices.
+
+Again,
+
+Alice explores three choices.
+
+Eventually,
+
+all recursive paths reach
+
+```
+No Stones Left
+```
+
+which returns
+
+```
+0
+```
+
+---
+
+# Recursion Tree
+
+For
+
+```
+stoneValue = [1,2,3]
+```
+
+```
+                     dp(0)
+              /         |         \
+          Take1      Take2      Take3
+            |           |           |
+         dp(1)       dp(2)       dp(3)
+        / | \        / | \         |
+      ... ...      ... ...        0
+```
+
+Notice
+
+```
+dp(2)
+```
+
+can be reached
+
+from multiple paths.
+
+The same state gets solved
+
+again and again.
+
+These are
+
+```
+Overlapping Subproblems.
+```
+
+Hence,
+
+```
+Dynamic Programming
+```
+
+is required.
+
+---
+
+# Recursive Solution
+
+```python
+from functools import cache
+
+class Solution:
+
+    def stoneGameIII(self, stoneValue):
+
+        n = len(stoneValue)
+
+        @cache
+        def solve(i):
+
+            if i >= n:
+                return 0
+
+            best = float("-inf")
+            curr = 0
+
+            for k in range(3):
+
+                if i + k >= n:
+                    break
+
+                curr += stoneValue[i + k]
+
+                best = max(best, curr - solve(i + k + 1))
+
+            return best
+
+        diff = solve(0)
+
+        if diff > 0:
+            return "Alice"
+
+        elif diff < 0:
+            return "Bob"
+
+        return "Tie"
+```
+
+---
+
+# Complexity of Pure Recursion
+
+Without memoization,
+
+the recursion explores many repeated states.
+
+Time Complexity
+
+```
+Exponential
+```
+
+With memoization,
+
+every index is solved only once.
+
+Time Complexity becomes
+
+```
+O(n)
+```
+
+---
+
+# What's Next?
+
+In the next part,
+
+we will optimize this recursive solution using
+
+```
+Memoization
+
+↓
+
+Tabulation
+
+↓
+
+Space Optimization
+```
+
+and perform a complete dry run to understand exactly how the DP array is built.
+
+# Memoization (Top-Down DP)
+
+The recursive solution repeatedly solves the same state.
+
+For example,
+
+```
+dp(3)
+```
+
+can be reached from multiple recursive paths.
+
+Instead of solving it every time,
+
+we store the answer the first time it is computed.
+
+This technique is called
+
+```
+Memoization
+```
+
+---
+
+# DP State
+
+```
+dp(i)
+
+=
+
+Maximum Score Difference
+
+(Current Player − Opponent)
+
+starting from index i.
+```
+
+Initially,
+
+every state is
+
+```
+Not Computed
+```
+
+---
+
+# Memoization Steps
+
+## Step 1
+
+If no stones remain,
+
+```
+return 0
+```
+
+because neither player can gain any more points.
+
+---
+
+## Step 2
+
+If this state has already been solved,
+
+return the stored answer.
+
+```python
+if dp[i] != INF:
+    return dp[i]
+```
+
+---
+
+## Step 3
+
+Try taking
+
+```
+1 stone
+```
+
+Compute the current score.
+
+Subtract the opponent's best possible advantage.
+
+---
+
+## Step 4
+
+Try taking
+
+```
+2 stones
+```
+
+Again subtract the opponent's future advantage.
+
+---
+
+## Step 5
+
+Try taking
+
+```
+3 stones
+```
+
+Again subtract the opponent's future advantage.
+
+---
+
+## Step 6
+
+Store the maximum among all three choices.
+
+---
+
+# Memoization Code
+
+```python
+from functools import cache
+
+class Solution:
+
+    def stoneGameIII(self, stoneValue):
+
+        n = len(stoneValue)
+
+        @cache
+        def solve(i):
+
+            if i >= n:
+                return 0
+
+            best = float("-inf")
+            current = 0
+
+            for k in range(3):
+
+                if i + k >= n:
+                    break
+
+                current += stoneValue[i + k]
+
+                best = max(best, current - solve(i + k + 1))
+
+            return best
+
+        difference = solve(0)
+
+        if difference > 0:
+            return "Alice"
+
+        elif difference < 0:
+            return "Bob"
+
+        return "Tie"
+```
+
+---
+
+# Dry Run (Memoization)
+
+Suppose
+
+```
+stoneValue = [-1,-2,-3]
+```
+
+Initially
+
+```
+solve(0)
+```
+
+---
+
+## Choice 1
+
+Take
+
+```
+-1
+```
+
+Immediate gain
+
+```
+-1
+```
+
+Remaining
+
+```
+[-2,-3]
+```
+
+Opponent advantage
+
+```
+solve(1)
+```
+
+Difference
+
+```
+-1 - solve(1)
+```
+
+---
+
+## Choice 2
+
+Take
+
+```
+-1 + (-2)
+
+=
+
+-3
+```
+
+Remaining
+
+```
+[-3]
+```
+
+Difference
+
+```
+-3 - solve(2)
+```
+
+---
+
+## Choice 3
+
+Take
+
+```
+-1 + (-2) + (-3)
+
+=
+
+-6
+```
+
+Remaining
+
+```
+[]
+```
+
+Difference
+
+```
+-6 - solve(3)
+
+=
+
+-6
+```
+
+---
+
+Now solve
+
+```
+solve(2)
+```
+
+Remaining
+
+```
+[-3]
+```
+
+Only one move.
+
+Take
+
+```
+-3
+```
+
+Opponent gets
+
+```
+0
+```
+
+Difference
+
+```
+-3
+```
+
+Therefore
+
+```
+solve(2) = -3
+```
+
+---
+
+Now solve
+
+```
+solve(1)
+```
+
+Remaining
+
+```
+[-2,-3]
+```
+
+Take one
+
+```
+-2
+
+-
+
+(-3)
+
+=
+
+1
+```
+
+Take two
+
+```
+-5
+
+-
+
+0
+
+=
+
+-5
+```
+
+Choose maximum
+
+```
+1
+```
+
+Therefore
+
+```
+solve(1)=1
+```
+
+---
+
+Now return to
+
+```
+solve(0)
+```
+
+Choice 1
+
+```
+-1
+
+-
+
+1
+
+=
+
+-2
+```
+
+Choice 2
+
+```
+-3
+
+-
+
+(-3)
+
+=
+
+0
+```
+
+Choice 3
+
+```
+-6
+
+-
+
+0
+
+=
+
+-6
+```
+
+Maximum
+
+```
+0
+```
+
+Therefore
+
+```
+solve(0)=0
+```
+
+Difference
+
+```
+0
+```
+
+Answer
+
+```
+Tie
+```
+
+---
+
+# Time Complexity
+
+Every index is computed only once.
+
+```
+O(n)
+```
+
+---
+
+# Space Complexity
+
+```
+DP Cache
+
++
+
+Recursion Stack
+
+=
+
+O(n)
+```
+
+---
+
+# Tabulation (Bottom-Up DP)
+
+Instead of solving recursively,
+
+start from the smallest problem.
+
+We already know
+
+```
+dp[n]=0
+```
+
+because
+
+there are no stones left.
+
+Now build the answer backwards.
+
+---
+
+# DP State
+
+```
+dp[i]
+
+=
+
+Maximum Score Difference
+
+(Current Player − Opponent)
+
+starting from index i.
+```
+
+---
+
+# Transition
+
+At every position,
+
+try taking
+
+```
+1
+
+2
+
+3
+```
+
+stones.
+
+Compute
+
+```
+Current Score
+
+-
+
+Future Difference
+```
+
+Store the maximum.
+
+---
+
+# Why Do We Traverse Right to Left?
+
+Observe the recurrence.
+
+```
+dp[i]
+
+depends on
+
+dp[i+1]
+
+dp[i+2]
+
+dp[i+3]
+```
+
+Therefore,
+
+before computing
+
+```
+dp[i]
+```
+
+we must already know
+
+```
+dp[i+1]
+
+dp[i+2]
+
+dp[i+3]
+```
+
+Hence,
+
+fill the table
+
+from
+
+```
+Right
+
+↓
+
+Left
+```
+
+---
+
+# Tabulation Dry Run
+
+Suppose
+
+```
+stoneValue = [-1,-2,-3]
+```
+
+Length
+
+```
+n=3
+```
+
+Create
+
+```
+dp=[0,0,0,0]
+```
+
+Initially
+
+```
+Index
+
+0 1 2 3
+
+DP
+
+0 0 0 0
+```
+
+---
+
+## i = 2
+
+Current
+
+```
+-3
+```
+
+Take one
+
+```
+-3
+
+-
+
+dp[3]
+
+=
+
+-3
+```
+
+Best
+
+```
+-3
+```
+
+Table
+
+```
+0 0 -3 0
+```
+
+---
+
+## i = 1
+
+Current
+
+```
+-2
+```
+
+Take one
+
+```
+-2
+
+-
+
+(-3)
+
+=
+
+1
+```
+
+Take two
+
+```
+-5
+
+-
+
+0
+
+=
+
+-5
+```
+
+Best
+
+```
+1
+```
+
+Table
+
+```
+0 1 -3 0
+```
+
+---
+
+## i = 0
+
+Current
+
+```
+-1
+```
+
+Take one
+
+```
+-1
+
+-
+
+1
+
+=
+
+-2
+```
+
+Take two
+
+```
+-3
+
+-
+
+(-3)
+
+=
+
+0
+```
+
+Take three
+
+```
+-6
+
+-
+
+0
+
+=
+
+-6
+```
+
+Best
+
+```
+0
+```
+
+Final DP
+
+```
+0 1 -3 0
+```
+
+Answer
+
+```
+dp[0]=0
+```
+
+Result
+
+```
+Tie
+```
+
+---
+
+# Tabulation Code
+
+```python
+class Solution:
+
+    def stoneGameIII(self, stoneValue):
+
+        n = len(stoneValue)
+
+        dp = [0] * (n + 1)
+
+        for i in range(n - 1, -1, -1):
+
+            best = float("-inf")
+            current = 0
+
+            for k in range(3):
+
+                if i + k >= n:
+                    break
+
+                current += stoneValue[i + k]
+
+                best = max(best, current - dp[i + k + 1])
+
+            dp[i] = best
+
+        if dp[0] > 0:
+            return "Alice"
+
+        elif dp[0] < 0:
+            return "Bob"
+
+        return "Tie"
+```
+
+---
+
+# Time Complexity
+
+```
+O(n)
+```
+
+---
+
+# Space Complexity
+
+```
+O(n)
+```
+
+---
+
+# Space Optimization
+
+Observe carefully.
+
+```
+dp[i]
+
+depends only on
+
+dp[i+1]
+
+dp[i+2]
+
+dp[i+3]
+```
+
+Nothing else.
+
+Therefore,
+
+storing the entire DP array is unnecessary.
+
+We only need
+
+```
+Three Future States
+```
+
+---
+
+# Variable Meaning
+
+```
+next1
+
+↓
+
+dp[i+1]
+```
+
+```
+next2
+
+↓
+
+dp[i+2]
+```
+
+```
+next3
+
+↓
+
+dp[i+3]
+```
+
+---
+
+# Space Optimized Code
+
+```python
+class Solution:
+
+    def stoneGameIII(self, stoneValue):
+
+        n = len(stoneValue)
+
+        next1 = 0
+        next2 = 0
+        next3 = 0
+
+        for i in range(n - 1, -1, -1):
+
+            best = float("-inf")
+            current = 0
+
+            for k in range(3):
+
+                if i + k >= n:
+                    break
+
+                current += stoneValue[i + k]
+
+                if k == 0:
+                    future = next1
+                elif k == 1:
+                    future = next2
+                else:
+                    future = next3
+
+                best = max(best, current - future)
+
+            next3 = next2
+            next2 = next1
+            next1 = best
+
+        if next1 > 0:
+            return "Alice"
+
+        elif next1 < 0:
+            return "Bob"
+
+        return "Tie"
+```
+
+---
+
+# Space Optimization Dry Run
+
+Initially
+
+```
+next1 = 0
+
+next2 = 0
+
+next3 = 0
+```
+
+Process
+
+```
+-3
+```
+
+Current Difference
+
+```
+-3
+```
+
+Update
+
+```
+next1=-3
+```
+
+---
+
+Process
+
+```
+-2
+```
+
+Difference
+
+```
+max(
+
+-2-(-3),
+
+-5
+
+)
+
+=
+
+1
+```
+
+Update
+
+```
+next1=1
+
+next2=-3
+```
+
+---
+
+Process
+
+```
+-1
+```
+
+Difference
+
+```
+max(
+
+-1-1,
+
+-3-(-3),
+
+-6
+
+)
+
+=
+
+0
+```
+
+Update
+
+```
+next1=0
+```
+
+Answer
+
+```
+Tie
+```
+
+---
+
+# Complexity
+
+## Memoization
+
+```
+Time
+
+O(n)
+
+Space
+
+O(n)
+```
+
+---
+
+## Tabulation
+
+```
+Time
+
+O(n)
+
+Space
+
+O(n)
+```
+
+---
+
+## Space Optimization
+
+```
+Time
+
+O(n)
+
+Space
+
+O(1)
+```
+
+---
+
+# Pattern Recognition
+
+Whenever you see
+
+- Two Players
+- Alternate Turns
+- Both Play Optimally
+- Take 1 / 2 / 3 Moves
+- Maximum Final Score
+
+Immediately think
+
+```
+Game DP
+```
+
+Never think greedily.
+
+Instead,
+
+store
+
+```
+Current Player's Advantage
+```
+
+instead of
+
+```
+Alice Score
+
+Bob Score
+```
+
+---
+
+# Common Mistakes
+
+❌ Maximizing the immediate score.
+
+❌ Storing Alice's score and Bob's score separately.
+
+❌ Forgetting to subtract the opponent's future advantage.
+
+❌ Returning the maximum collected score instead of the score difference.
+
+❌ Traversing the DP table from left to right.
+
+---
+
+# Similar Problems
+
+- Predict the Winner
+- Stone Game
+- Stone Game II
+- Stone Game VII
+- Stone Game VIII
+- Stone Game IX
+
+---
+
+# Quick Revision
+
+### DP State
+
+```
+dp(i)
+
+=
+
+Maximum Score Difference
+
+(Current Player − Opponent)
+```
+
+---
+
+### Recurrence
+
+```
+Take 1
+
+↓
+
+current
+
+-
+
+dp(i+1)
+```
+
+```
+Take 2
+
+↓
+
+current
+
+-
+
+dp(i+2)
+```
+
+```
+Take 3
+
+↓
+
+current
+
+-
+
+dp(i+3)
+```
+
+Choose
+
+```
+Maximum
+```
+
+---
+
+### Base Case
+
+```
+i>=n
+
+↓
+
+0
+```
+
+---
+
+### DP Progression
+
+```
+Recursion
+
+↓
+
+Memoization
+
+↓
+
+Tabulation
+
+↓
+
+Space Optimization
+```
+
+---
+
+# Golden Rule
+
+Whenever a problem involves **two players taking turns optimally**, don't try to maximize only the current move.
+
+Instead, think:
+
+> **"After I make this move, my opponent will also play optimally. My true gain is my immediate score minus my opponent's best future advantage."**
+
+This idea naturally leads to the **Score Difference DP** pattern, which is the key to solving many two-player game problems efficiently.
