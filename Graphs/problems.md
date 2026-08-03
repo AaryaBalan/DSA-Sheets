@@ -35,6 +35,7 @@ Welcome to the graph problems section! Here you will find various data structure
 - [3286. Find a Safe Walk Through a Grid](#3286-find-a-safe-walk-through-a-grid)
 - [127. Word Ladder](#127-word-ladder)
 - [2285. Maximum Total Importance of Roads](#2285-maximum-total-importance-of-roads)
+- [329. Longest Increasing Path in a Matrix](#329-longest-increasing-path-in-a-matrix)
 
 <br><br><br><br><br>
 
@@ -31059,3 +31060,2112 @@ Compute answer
 - The optimization reduces to maximizing `Σ degree[i] × value[i]`.
 - A greedy strategy is optimal: assign the largest values to the cities with the largest degrees.
 - This is a classic example of the **Contribution Technique + Greedy Algorithm**, a pattern that appears frequently in interview problems.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 329. Longest Increasing Path in a Matrix
+
+**Difficulty:** Hard
+
+**Topics:** DFS, Memoization, Dynamic Programming, Graph, Matrix
+
+---
+
+# 1. Problem Summary
+
+You are given an `m × n` matrix.
+
+Each cell contains an integer.
+
+From any cell, you may move only
+
+- Up
+- Down
+- Left
+- Right
+
+You **cannot**
+
+- Move diagonally
+- Move outside the matrix
+
+You are only allowed to move to a neighboring cell whose value is **strictly greater** than the current cell.
+
+Your task is to find the **length of the longest increasing path** in the entire matrix.
+
+---
+
+## Example
+
+```
+9 9 4
+6 6 8
+2 1 1
+```
+
+One valid path is
+
+```
+1 → 2 → 6 → 9
+```
+
+Length
+
+```
+4
+```
+
+Output
+
+```
+4
+```
+
+---
+
+# 2. Understanding the Problem Like a Common Man
+
+Imagine you are climbing a mountain.
+
+Each cell represents the height of the land.
+
+```
+1 2 3
+```
+
+You can only climb upward.
+
+You **cannot**
+
+```
+3 → 2
+```
+
+because you're moving down.
+
+You also cannot
+
+```
+3 → 3
+```
+
+because it is not increasing.
+
+The only valid movement is
+
+```
+Current Height
+
+↓
+
+Greater Height
+```
+
+The question is asking
+
+> "If I can start from **any cell**, what is the longest climb possible?"
+
+---
+
+# 3. Visualizing the Matrix
+
+Suppose
+
+```
+3 4 5
+3 2 6
+2 2 1
+```
+
+Think of every cell as a node.
+
+Draw arrows only toward larger numbers.
+
+```
+1 → 2
+
+2 → 3
+
+3 → 4
+
+4 → 5
+
+5 → 6
+```
+
+Notice something interesting.
+
+All arrows go
+
+```
+Small
+
+↓
+
+Large
+```
+
+They never come back.
+
+That means
+
+there is **no cycle**.
+
+This is actually a
+
+```
+Directed Acyclic Graph (DAG)
+```
+
+hidden inside the matrix.
+
+This observation is the biggest intuition behind this problem.
+
+---
+
+# 4. First Intuition (Brute Force)
+
+The first thing most people think is
+
+```
+Let's start DFS from every cell.
+```
+
+For every cell
+
+```
+DFS(cell)
+```
+
+Take the maximum answer.
+
+Example
+
+```
+for every cell
+
+↓
+
+DFS
+
+↓
+
+Longest Path
+
+↓
+
+Take Maximum
+```
+
+This idea is actually correct.
+
+---
+
+# 5. Why Brute Force Becomes Slow
+
+Consider
+
+```
+1 2 3
+2 3 4
+```
+
+Suppose we start from
+
+```
+1
+```
+
+We compute
+
+```
+1
+
+↓
+
+2
+
+↓
+
+3
+
+↓
+
+4
+```
+
+Now suppose we start from
+
+```
+2
+```
+
+Again we compute
+
+```
+2
+
+↓
+
+3
+
+↓
+
+4
+```
+
+Again
+
+starting from another cell
+
+```
+3
+
+↓
+
+4
+```
+
+Notice
+
+```
+3 → 4
+```
+
+is solved
+
+again
+
+again
+
+again.
+
+Lots of repeated work.
+
+This is called
+
+```
+Overlapping Subproblems
+```
+
+Whenever you see
+
+```
+Repeated DFS
+
+↓
+
+Same answer
+
+↓
+
+Computed many times
+```
+
+You should immediately think
+
+```
+Memoization
+```
+
+---
+
+# 6. Your Thought Process
+
+Your solution was
+
+```
+DFS
+
++
+
+Memoization
+```
+
+This is exactly the correct direction.
+
+You correctly realized
+
+```
+Repeated DFS
+
+↓
+
+Cache
+```
+
+Excellent intuition.
+
+Unfortunately,
+
+the DP state was wrong.
+
+---
+
+# 7. Your DFS State
+
+## My Solution
+
+```python
+class Solution:
+    def longestIncreasingPath(self, matrix: List[List[int]]) -> int:
+        m = len(matrix)
+        n = len(matrix[0])
+        directions = [
+            (-1, 0),
+            (1, 0),
+            (0, -1),
+            (0, 1)
+        ]
+
+        maxi = 1
+
+        @cache
+        def dfs(prev, x, y, move):
+            nonlocal maxi
+            curr = matrix[x][y]
+            if curr <= prev:
+                maxi = max(maxi, move)
+                return
+            final = 0
+            for dx, dy in directions:
+                nx = x + dx
+                ny = y + dy
+                if (
+                    0 <= nx < m and 
+                    0 <= ny < n
+                ):
+                    final = dfs(matrix[x][y], nx, ny, move + 1)
+        
+        ans = 0
+        for x in range(m):
+            for y in range(n):
+                ans, dfs(-1,x,y,0)
+
+        return maxi
+```
+
+You wrote
+
+```python
+@cache
+def dfs(prev, x, y, move):
+```
+
+Your cache key becomes
+
+```
+(prev,
+ x,
+ y,
+ move)
+```
+
+Let's understand why this is a problem.
+
+---
+
+# 8. What Were You Trying To Store?
+
+You wanted DFS to know
+
+- previous value
+- current position
+- current path length
+
+so you included
+
+```
+prev
+
+move
+```
+
+This feels natural.
+
+Many beginners write exactly this.
+
+Unfortunately,
+
+this makes the cache enormous.
+
+---
+
+# 9. Why Memory Limit Exceeded Happens
+
+Suppose
+
+```
+200 × 200 matrix
+```
+
+Total cells
+
+```
+40000
+```
+
+Now think about every parameter.
+
+---
+
+## x,y
+
+```
+40000 possibilities
+```
+
+---
+
+## prev
+
+Could be
+
+```
+0
+
+↓
+
+2^31−1
+```
+
+Even in one matrix,
+
+there may be
+
+```
+40000 different values
+```
+
+---
+
+## move
+
+Can become
+
+```
+1
+
+↓
+
+40000
+```
+
+Now Python tries to cache
+
+```
+(prev)
+
+×
+
+(cell)
+
+×
+
+(move)
+```
+
+millions of combinations.
+
+Most of these combinations represent exactly the same future problem.
+
+Hence
+
+```
+Memory Limit Exceeded
+```
+
+---
+
+# 10. The Biggest DP Mistake
+
+Your DP state contains
+
+```
+History
+```
+
+Examples
+
+```
+Previous value
+
+Move count
+
+Running sum
+
+Running score
+```
+
+History usually **should NOT** be part of memoization.
+
+DP stores
+
+```
+Future
+
+not
+
+Past
+```
+
+This is one of the most important DP concepts.
+
+---
+
+# 11. Why "move" is Unnecessary
+
+Suppose you reached
+
+```
+5
+```
+
+after
+
+```
+10 moves
+```
+
+Later
+
+you reach
+
+```
+5
+```
+
+after
+
+```
+100 moves
+```
+
+Question
+
+Will the longest increasing path
+
+starting from
+
+```
+5
+```
+
+change?
+
+No.
+
+It is always the same.
+
+So
+
+```
+move
+```
+
+does not affect the answer.
+
+Therefore
+
+```
+Remove move.
+```
+
+---
+
+# 12. Why "prev" is Unnecessary
+
+Suppose you are standing at
+
+```
+7
+```
+
+Does the answer depend on
+
+```
+Who came before me?
+```
+
+No.
+
+It only depends on
+
+```
+Where can I go next?
+```
+
+Whether you came from
+
+```
+3
+
+or
+
+5
+
+or
+
+6
+```
+
+doesn't matter.
+
+The future is identical.
+
+Therefore
+
+```
+Remove prev.
+```
+
+---
+
+# 13. The Most Important Question
+
+Whenever writing DP,
+
+ask yourself
+
+> **What is the smallest information needed to define the remaining problem?**
+
+Not
+
+```
+How did I come here?
+```
+
+Instead
+
+```
+Where am I now?
+```
+
+The future depends only on
+
+```
+Current Cell
+```
+
+Nothing else.
+
+---
+
+# 14. The Correct DP State
+
+Instead of
+
+```python
+dfs(prev,x,y,move)
+```
+
+we simply write
+
+```python
+dfs(x,y)
+```
+
+Meaning
+
+> **Longest Increasing Path starting from (x,y).**
+
+That's it.
+
+No history.
+
+No previous value.
+
+No move count.
+
+---
+
+# 15. Why dfs(x,y) Is Enough
+
+Suppose
+
+```
+      6
+
+     /
+
+5
+
+     \
+
+      7
+```
+
+Once we stand on
+
+```
+5
+```
+
+there are only two possible futures.
+
+```
+5 → 6
+
+or
+
+5 → 7
+```
+
+It doesn't matter
+
+whether we came from
+
+```
+1
+
+or
+
+2
+
+or
+
+100
+```
+
+The future is always
+
+```
+Start at 5
+
+↓
+
+Find Best Path
+```
+
+Therefore
+
+```
+dfs(5)
+```
+
+has only one answer.
+
+Perfect for memoization.
+
+---
+
+# 16. Building the Recurrence
+
+Suppose current cell is
+
+```
+5
+```
+
+Neighbours
+
+```
+4
+
+6
+
+8
+```
+
+We cannot go
+
+```
+5 → 4
+```
+
+because it decreases.
+
+We can go
+
+```
+5 → 6
+
+5 → 8
+```
+
+If
+
+```
+dfs(6)=3
+
+dfs(8)=5
+```
+
+Then
+
+```
+dfs(5)
+
+=
+
+1
+
++
+
+max(3,5)
+
+=
+
+6
+```
+
+This becomes our recurrence.
+
+---
+
+# 17. Mathematical Formula
+
+Let
+
+```
+dp(i,j)
+```
+
+represent
+
+```
+Longest Increasing Path
+
+starting from
+
+(i,j)
+```
+
+Then
+
+```
+dp(i,j)
+
+=
+
+1
+
++
+
+max(dp(neighbour))
+```
+
+where
+
+```
+neighbour
+
+>
+
+current value
+```
+
+If no neighbour is larger,
+
+```
+dp(i,j)=1
+```
+
+because only the current cell exists.
+
+---
+
+# 18. Why Memoization Works
+
+Suppose
+
+```
+1 → 2 → 6 → 9
+
+3 → 2 → 6 → 9
+```
+
+Without memoization
+
+```
+2 → 6 → 9
+```
+
+is solved twice.
+
+With memoization
+
+```
+dfs(2)
+
+↓
+
+Store Answer
+
+↓
+
+Reuse Later
+```
+
+Every cell is solved
+
+```
+Exactly Once.
+```
+
+That reduces exponential recursion to linear complexity.
+
+---
+
+# 19. Key Intuition to Remember
+
+Whenever you see
+
+- Matrix
+- Four directions
+- Longest path
+- Increasing condition
+- Same cells explored repeatedly
+
+Think
+
+```
+Matrix
+
+↓
+
+Graph
+
+↓
+
+DFS
+
+↓
+
+Overlapping Subproblems
+
+↓
+
+Memoization
+
+↓
+
+DP on Graph
+```
+
+This is the mental journey interviewers expect.
+
+---
+
+# Optimized Python Solution
+
+```python
+from functools import cache
+from typing import List
+
+class Solution:
+    def longestIncreasingPath(self, matrix: List[List[int]]) -> int:
+
+        m = len(matrix)
+        n = len(matrix[0])
+
+        directions = [
+            (-1, 0),
+            (1, 0),
+            (0, -1),
+            (0, 1)
+        ]
+
+        @cache
+        def dfs(x, y):
+
+            # Every cell itself contributes a path of length 1
+            best = 1
+
+            # Explore all four directions
+            for dx, dy in directions:
+
+                nx = x + dx
+                ny = y + dy
+
+                # Check boundaries and increasing condition
+                if (
+                    0 <= nx < m and
+                    0 <= ny < n and
+                    matrix[nx][ny] > matrix[x][y]
+                ):
+
+                    best = max(best, 1 + dfs(nx, ny))
+
+            return best
+
+        ans = 0
+
+        for i in range(m):
+            for j in range(n):
+                ans = max(ans, dfs(i, j))
+
+        return ans
+```
+
+---
+
+# Code Explanation (Line by Line)
+
+---
+
+## Step 1: Matrix Dimensions
+
+```python
+m = len(matrix)
+n = len(matrix[0])
+```
+
+Store the number of rows and columns.
+
+Example
+
+```
+1 2 3
+4 5 6
+```
+
+```
+m = 2
+n = 3
+```
+
+---
+
+## Step 2: Directions
+
+```python
+directions = [
+(-1,0),
+(1,0),
+(0,-1),
+(0,1)
+]
+```
+
+Instead of writing
+
+```
+Up
+
+Down
+
+Left
+
+Right
+```
+
+separately,
+
+we store them in an array.
+
+Current cell
+
+```
+(x,y)
+```
+
+Neighbour
+
+```
+nx = x+dx
+
+ny = y+dy
+```
+
+Example
+
+Current
+
+```
+(2,3)
+```
+
+Move Up
+
+```
+(-1,0)
+```
+
+becomes
+
+```
+(1,3)
+```
+
+---
+
+## Step 3: Memoized DFS
+
+```python
+@cache
+def dfs(x,y):
+```
+
+Meaning
+
+```
+Longest Increasing Path
+
+starting from
+
+(x,y)
+```
+
+This answer never changes.
+
+Therefore,
+
+Python stores it.
+
+If another DFS reaches
+
+```
+(x,y)
+```
+
+the stored answer is returned immediately.
+
+---
+
+## Step 4: Initialize Answer
+
+```python
+best = 1
+```
+
+Why 1?
+
+Because
+
+even if there is nowhere to go,
+
+the current cell itself forms a path.
+
+Example
+
+```
+9
+```
+
+Longest path
+
+```
+9
+```
+
+Length
+
+```
+1
+```
+
+---
+
+## Step 5: Explore Neighbours
+
+```python
+for dx,dy in directions:
+```
+
+Try all four directions.
+
+Example
+
+```
+5
+```
+
+Neighbours
+
+```
+6
+
+3
+
+7
+
+8
+```
+
+---
+
+## Step 6: Check Valid Move
+
+```python
+if (
+0<=nx<m
+and
+0<=ny<n
+and
+matrix[nx][ny]>matrix[x][y]
+)
+```
+
+Three conditions
+
+### 1
+
+Inside matrix
+
+### 2
+
+Inside matrix
+
+### 3
+
+Must be increasing
+
+Example
+
+Current
+
+```
+5
+```
+
+Neighbour
+
+```
+4
+```
+
+Cannot go.
+
+Neighbour
+
+```
+6
+```
+
+Can go.
+
+---
+
+## Step 7: Recursive Formula
+
+```python
+best=max(best,1+dfs(nx,ny))
+```
+
+This is the heart of the algorithm.
+
+Suppose
+
+```
+Current = 5
+```
+
+Neighbours
+
+```
+6
+
+8
+```
+
+Already computed
+
+```
+dfs(6)=3
+
+dfs(8)=5
+```
+
+Then
+
+```
+best
+
+=
+
+1
+
++
+
+max(3,5)
+
+=
+
+6
+```
+
+Store
+
+```
+dfs(5)=6
+```
+
+---
+
+## Step 8: Return Answer
+
+```python
+return best
+```
+
+Meaning
+
+Longest increasing path starting from
+
+```
+(x,y)
+```
+
+---
+
+## Step 9: Start DFS From Every Cell
+
+```python
+for i in range(m):
+    for j in range(n):
+```
+
+Because
+
+the longest path may start
+
+anywhere.
+
+Not necessarily
+
+```
+(0,0)
+```
+
+---
+
+## Step 10: Find Global Maximum
+
+```python
+ans=max(ans,dfs(i,j))
+```
+
+Every DFS returns
+
+```
+Longest Path
+
+from that cell
+```
+
+Take the largest.
+
+---
+
+# Complete Dry Run
+
+Matrix
+
+```
+3 4 5
+3 2 6
+2 2 1
+```
+
+Expected
+
+```
+4
+```
+
+---
+
+## Step 1
+
+Start
+
+```
+dfs(0,0)
+
+Value=3
+```
+
+Neighbours
+
+```
+4
+```
+
+Call
+
+```
+dfs(4)
+```
+
+---
+
+## Step 2
+
+Current
+
+```
+4
+```
+
+Neighbour
+
+```
+5
+```
+
+Call
+
+```
+dfs(5)
+```
+
+---
+
+## Step 3
+
+Current
+
+```
+5
+```
+
+Neighbour
+
+```
+6
+```
+
+Call
+
+```
+dfs(6)
+```
+
+---
+
+## Step 4
+
+Current
+
+```
+6
+```
+
+No larger neighbour.
+
+Return
+
+```
+1
+```
+
+Cache
+
+```
+6 →1
+```
+
+---
+
+## Step 5
+
+Back to
+
+```
+5
+```
+
+```
+best
+
+=
+
+1+1
+
+=
+
+2
+```
+
+Return
+
+```
+2
+```
+
+Cache
+
+```
+6→1
+
+5→2
+```
+
+---
+
+## Step 6
+
+Back to
+
+```
+4
+```
+
+```
+best
+
+=
+
+1+2
+
+=
+
+3
+```
+
+Cache
+
+```
+4→3
+```
+
+---
+
+## Step 7
+
+Back to
+
+```
+3
+```
+
+```
+best
+
+=
+
+1+3
+
+=
+
+4
+```
+
+Cache
+
+```
+3→4
+```
+
+---
+
+## Final Cache
+
+```
+Cell
+
+↓
+
+Longest Path
+```
+
+```
+6 →1
+
+5 →2
+
+4 →3
+
+3 →4
+```
+
+Whenever another DFS reaches
+
+```
+4
+```
+
+Python simply returns
+
+```
+3
+```
+
+instead of exploring again.
+
+---
+
+# Visualization of Memoization
+
+Without memoization
+
+```
+1
+
+↓
+
+2
+
+↓
+
+6
+
+↓
+
+9
+```
+
+Another DFS
+
+```
+3
+
+↓
+
+2
+
+↓
+
+6
+
+↓
+
+9
+```
+
+Again
+
+```
+2→6→9
+```
+
+is recomputed.
+
+---
+
+With memoization
+
+```
+First DFS
+
+↓
+
+Store
+
+↓
+
+Reuse
+```
+
+```
+2
+
+↓
+
+Cache
+
+↓
+
+Return
+```
+
+Each cell solved
+
+```
+Exactly Once
+```
+
+---
+
+# Why This Is Dynamic Programming
+
+Many people think
+
+```
+DP
+
+=
+
+Arrays
+```
+
+Not true.
+
+This is DP because
+
+```
+Same Subproblem
+
+↓
+
+Solved Once
+
+↓
+
+Stored
+
+↓
+
+Reused
+```
+
+Exactly the definition of DP.
+
+---
+
+# Complexity Analysis
+
+Let
+
+```
+Rows=m
+
+Columns=n
+```
+
+Total cells
+
+```
+m×n
+```
+
+---
+
+Every cell
+
+visited
+
+```
+Exactly Once
+```
+
+Every DFS
+
+checks
+
+```
+4 neighbours
+```
+
+Therefore
+
+## Time
+
+```
+O(m×n)
+```
+
+---
+
+## Space
+
+Memoization
+
+```
+O(m×n)
+```
+
+Recursion stack
+
+Worst case
+
+```
+O(m×n)
+```
+
+---
+
+# Why Your Solution Failed
+
+Your state
+
+```python
+dfs(prev,x,y,move)
+```
+
+Stored
+
+```
+History
+
++
+
+Position
+```
+
+Instead
+
+we should store only
+
+```
+Future
+
+↓
+
+Current Cell
+```
+
+Correct state
+
+```python
+dfs(x,y)
+```
+
+---
+
+# Common Mistakes
+
+## Mistake 1
+
+```python
+dfs(prev,x,y)
+```
+
+Wrong
+
+Previous value is history.
+
+---
+
+## Mistake 2
+
+```python
+dfs(move,x,y)
+```
+
+Wrong
+
+Move count is history.
+
+---
+
+## Mistake 3
+
+Using
+
+```python
+maxi
+```
+
+globally.
+
+Every DFS should simply return
+
+its own answer.
+
+---
+
+## Mistake 4
+
+Writing
+
+```python
+final=dfs(...)
+```
+
+inside loop.
+
+You overwrite previous answers.
+
+Instead
+
+```python
+best=max(best,...)
+```
+
+---
+
+# DP State Selection Trick
+
+Whenever writing memoization,
+
+ask
+
+## Question 1
+
+What is my current position?
+
+---
+
+## Question 2
+
+Can two different paths reach here?
+
+If yes,
+
+the future is probably identical.
+
+---
+
+## Question 3
+
+Does the answer depend on history?
+
+If no,
+
+remove history.
+
+---
+
+## Question 4
+
+What is the smallest state describing the future?
+
+That becomes your DP state.
+
+---
+
+# Pattern Recognition
+
+Whenever you see
+
+- Matrix
+- Four directions
+- Longest path
+- Increasing condition
+- Same cells visited repeatedly
+
+Think
+
+```
+Matrix
+
+↓
+
+Graph
+
+↓
+
+DFS
+
+↓
+
+Memoization
+
+↓
+
+DP on Graph
+```
+
+---
+
+# Interview Tips
+
+If the interviewer asks
+
+> Why only cache `(x, y)`?
+
+Answer
+
+> Because the longest increasing path starting from a cell depends only on the current cell. It does not depend on how we reached that cell, so `(x, y)` uniquely defines the subproblem.
+
+---
+
+If the interviewer asks
+
+> Why is this Dynamic Programming?
+
+Answer
+
+> The DFS repeatedly solves the same subproblems. Memoization stores the answer for each cell so that every subproblem is solved only once.
+
+---
+
+If the interviewer asks
+
+> Why doesn't this create cycles?
+
+Answer
+
+> We only move to strictly larger values, so it is impossible to return to a previous value. Therefore the graph formed by the matrix is a Directed Acyclic Graph (DAG).
+
+---
+
+# Revision Cheat Sheet
+
+```
+Problem Type
+
+↓
+
+DFS + Memoization
+```
+
+```
+Node
+
+↓
+
+Each Matrix Cell
+```
+
+```
+Edge
+
+↓
+
+Current Cell
+
+→
+
+Larger Neighbour
+```
+
+```
+State
+
+↓
+
+dfs(x,y)
+```
+
+```
+Meaning
+
+↓
+
+Longest Increasing Path
+
+starting from
+
+(x,y)
+```
+
+```
+Recurrence
+
+↓
+
+1+max(dfs(next))
+```
+
+```
+Base Case
+
+↓
+
+No larger neighbour
+
+↓
+
+Return 1
+```
+
+```
+Time
+
+↓
+
+O(m×n)
+```
+
+```
+Space
+
+↓
+
+O(m×n)
+```
+
+---
+
+# Final Takeaway
+
+The biggest lesson from this problem is **not the code**, but the **DP mindset**:
+
+> **Cache the smallest state that completely defines the remaining problem.**
+
+In this problem, the future depends only on **where you are**, not on **how you got there**. Once you internalize this idea, many graph + DP problems become much easier to solve.
