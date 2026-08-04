@@ -36,6 +36,7 @@ Welcome to the graph problems section! Here you will find various data structure
 - [127. Word Ladder](#127-word-ladder)
 - [2285. Maximum Total Importance of Roads](#2285-maximum-total-importance-of-roads)
 - [329. Longest Increasing Path in a Matrix](#329-longest-increasing-path-in-a-matrix)
+- [1466. Reorder Routes to Make All Paths Lead to the City Zero](#1466-reorder-routes-to-make-all-paths-lead-to-the-city-zero)
 
 <br><br><br><br><br>
 
@@ -33169,3 +33170,916 @@ The biggest lesson from this problem is **not the code**, but the **DP mindset**
 > **Cache the smallest state that completely defines the remaining problem.**
 
 In this problem, the future depends only on **where you are**, not on **how you got there**. Once you internalize this idea, many graph + DP problems become much easier to solve.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 1466. Reorder Routes to Make All Paths Lead to the City Zero
+
+**Difficulty:** Medium  
+**Topics:** Graph, DFS, BFS, Tree
+
+---
+
+# Problem Statement
+
+You are given **n cities** connected by **n-1 directed roads**.
+
+The roads originally form a **tree**, meaning:
+
+- Every city is connected.
+- There is exactly one path between any two cities.
+
+Currently, every road has a direction.
+
+Your goal is to **reverse the minimum number of roads** so that **every city can reach City 0**.
+
+Return the minimum number of roads that need to be reversed.
+
+---
+
+# Understanding the Problem
+
+Imagine every city wants to travel to the capital city **0**.
+
+Some roads already point towards city 0.
+
+Some roads point away from city 0.
+
+Only the roads pointing away from city 0 need to be reversed.
+
+The challenge is finding exactly which roads need to be changed.
+
+---
+
+# Example 1
+
+```
+n = 6
+
+connections =
+
+0 → 1
+1 → 3
+2 → 3
+4 → 0
+4 → 5
+```
+
+Graph
+
+```
+      0
+     / \
+    1   4
+    |    \
+    3     5
+   /
+  2
+```
+
+Current directions
+
+```
+0 → 1
+1 → 3
+2 → 3
+4 → 0
+4 → 5
+```
+
+Can everyone reach 0?
+
+No.
+
+```
+0 → 1
+```
+
+is wrong because people must travel
+
+```
+1 → 0
+```
+
+Similarly,
+
+```
+1 → 3
+```
+
+must become
+
+```
+3 → 1
+```
+
+and
+
+```
+4 → 5
+```
+
+must become
+
+```
+5 → 4
+```
+
+Answer
+
+```
+3
+```
+
+---
+
+# Common Man's Intuition
+
+Imagine a city map.
+
+Every road has a one-way arrow.
+
+Everyone wants to drive towards the capital.
+
+Whenever you walk from the capital outward during DFS,
+
+ask yourself
+
+> "Is this road pointing in the same direction I'm walking?"
+
+If yes,
+
+then later, when people travel back towards city 0,
+
+this road will block them.
+
+So we must reverse it.
+
+---
+
+# Important Observation
+
+The graph is a **Tree**.
+
+A tree has
+
+- No cycles
+- Exactly one path between any two nodes
+
+This means
+
+If we start DFS from city **0**,
+
+we will visit every city exactly once.
+
+There is no alternative route.
+
+So every road is examined only once.
+
+---
+
+# Key Idea
+
+Ignore the directions for traversal.
+
+Build an **undirected graph**.
+
+Store the original directions separately.
+
+Example
+
+Original edge
+
+```
+0 → 1
+```
+
+Store
+
+```
+graph
+
+0 ↔ 1
+```
+
+and also store
+
+```
+direction = {(0,1)}
+```
+
+Now DFS can visit every city.
+
+Whenever DFS moves
+
+```
+node → neighbor
+```
+
+check
+
+```
+(node, neighbor)
+```
+
+If this pair exists inside
+
+```
+direction
+```
+
+then the edge originally points **away** from city 0.
+
+It must be reversed.
+
+Increase the answer.
+
+---
+
+# Approach
+
+### Step 1
+
+Create an undirected graph.
+
+```
+0 ↔ 1
+```
+
+instead of
+
+```
+0 → 1
+```
+
+---
+
+### Step 2
+
+Store every original directed edge inside a set.
+
+Example
+
+```
+direction = {
+
+(0,1),
+
+(1,3),
+
+(2,3),
+
+(4,0),
+
+(4,5)
+
+}
+```
+
+---
+
+### Step 3
+
+Start DFS from city
+
+```
+0
+```
+
+---
+
+### Step 4
+
+For every neighbour,
+
+if
+
+```
+(node, neighbour)
+```
+
+exists in
+
+```
+direction
+```
+
+then
+
+```
+answer += 1
+```
+
+because this edge points away from city 0.
+
+---
+
+### Step 5
+
+Continue DFS until all nodes are visited.
+
+---
+
+# Why Does This Work?
+
+Suppose
+
+```
+0 → 1
+```
+
+DFS moves
+
+```
+0
+
+↓
+
+1
+```
+
+The edge is pointing in the same direction as DFS.
+
+But eventually people need
+
+```
+1
+
+↓
+
+0
+```
+
+Therefore,
+
+this road must be reversed.
+
+---
+
+Suppose instead
+
+```
+1 → 0
+```
+
+DFS still moves
+
+```
+0
+
+↓
+
+1
+```
+
+but
+
+```
+(0,1)
+```
+
+doesn't exist in the direction set.
+
+That means the road already points towards city 0.
+
+No change required.
+
+---
+
+# Algorithm
+
+```
+Build undirected graph
+
+Store original directions
+
+Start DFS from node 0
+
+For every neighbour
+
+    If edge points away from 0
+
+        answer++
+
+Continue DFS
+
+Return answer
+```
+
+---
+
+# Dry Run
+
+Input
+
+```
+n = 6
+
+connections =
+
+[[0,1],[1,3],[2,3],[4,0],[4,5]]
+```
+
+---
+
+## Build Graph
+
+```
+0
+
+↓
+
+1
+
+↓
+
+3
+
+↑
+
+2
+
+
+0
+
+↑
+
+4
+
+↓
+
+5
+```
+
+Undirected graph
+
+```
+0 : [1,4]
+
+1 : [0,3]
+
+2 : [3]
+
+3 : [1,2]
+
+4 : [0,5]
+
+5 : [4]
+```
+
+Direction Set
+
+```
+{
+
+(0,1),
+
+(1,3),
+
+(2,3),
+
+(4,0),
+
+(4,5)
+
+}
+```
+
+---
+
+## DFS Starts
+
+Visited
+
+```
+{0}
+```
+
+Answer
+
+```
+0
+```
+
+---
+
+### Visit Neighbour 1
+
+Current edge
+
+```
+0 → 1
+```
+
+Exists inside direction set.
+
+Wrong direction.
+
+Reverse needed.
+
+```
+answer = 1
+```
+
+Visited
+
+```
+{0,1}
+```
+
+---
+
+### Visit Neighbour 3
+
+Current edge
+
+```
+1 → 3
+```
+
+Exists.
+
+Reverse needed.
+
+```
+answer = 2
+```
+
+Visited
+
+```
+{0,1,3}
+```
+
+---
+
+### Visit Neighbour 2
+
+Current edge
+
+```
+3 → 2
+```
+
+Does
+
+```
+(3,2)
+```
+
+exist?
+
+No.
+
+Original edge was
+
+```
+2 → 3
+```
+
+Already correct.
+
+```
+answer = 2
+```
+
+---
+
+Backtrack.
+
+Return to
+
+```
+0
+```
+
+---
+
+### Visit Neighbour 4
+
+Current edge
+
+```
+0 → 4
+```
+
+Does
+
+```
+(0,4)
+```
+
+exist?
+
+No.
+
+Original edge
+
+```
+4 → 0
+```
+
+Already correct.
+
+```
+answer = 2
+```
+
+---
+
+### Visit Neighbour 5
+
+Current edge
+
+```
+4 → 5
+```
+
+Exists.
+
+Reverse needed.
+
+```
+answer = 3
+```
+
+DFS Complete.
+
+---
+
+Final Answer
+
+```
+3
+```
+
+---
+
+# Python Solution
+
+```python
+from collections import defaultdict
+
+class Solution:
+    def minReorder(self, n: int, connections: List[List[int]]) -> int:
+
+        graph = defaultdict(list)
+        direction = set()
+
+        for u, v in connections:
+            graph[u].append(v)
+            graph[v].append(u)
+            direction.add((u, v))
+
+        visited = {0}
+
+        def dfs(node):
+
+            changes = 0
+
+            for nei in graph[node]:
+
+                if nei not in visited:
+
+                    visited.add(nei)
+
+                    if (node, nei) in direction:
+                        changes += 1
+
+                    changes += dfs(nei)
+
+            return changes
+
+        return dfs(0)
+```
+
+---
+
+# Code Explanation
+
+### Build Graph
+
+```python
+graph = defaultdict(list)
+direction = set()
+```
+
+- `graph` is used for DFS traversal.
+- `direction` remembers the original road directions.
+
+---
+
+### Store Edges
+
+```python
+for u, v in connections:
+    graph[u].append(v)
+    graph[v].append(u)
+    direction.add((u, v))
+```
+
+Example
+
+```
+0 → 1
+```
+
+becomes
+
+```
+graph
+
+0 ↔ 1
+
+direction
+
+(0,1)
+```
+
+---
+
+### Visited Set
+
+```python
+visited = {0}
+```
+
+Avoid revisiting parent nodes.
+
+---
+
+### DFS
+
+```python
+def dfs(node):
+```
+
+Explore all cities reachable from the current city.
+
+---
+
+### Visit Neighbours
+
+```python
+for nei in graph[node]:
+```
+
+Traverse every adjacent city.
+
+---
+
+### Skip Already Visited
+
+```python
+if nei not in visited:
+```
+
+Trees contain no cycles, but this prevents revisiting the parent.
+
+---
+
+### Mark Visited
+
+```python
+visited.add(nei)
+```
+
+---
+
+### Check Direction
+
+```python
+if (node, nei) in direction:
+    changes += 1
+```
+
+If the road originally points
+
+```
+node → neighbour
+```
+
+then it points away from city 0.
+
+Reverse required.
+
+Increase answer.
+
+---
+
+### Continue DFS
+
+```python
+changes += dfs(nei)
+```
+
+Collect reversals from the subtree.
+
+---
+
+### Return Total
+
+```python
+return changes
+```
+
+---
+
+# Time Complexity
+
+Building Graph
+
+```
+O(N)
+```
+
+DFS
+
+```
+O(N)
+```
+
+Overall
+
+```
+O(N)
+```
+
+---
+
+# Space Complexity
+
+Graph
+
+```
+O(N)
+```
+
+Direction Set
+
+```
+O(N)
+```
+
+Visited Set
+
+```
+O(N)
+```
+
+Recursion Stack
+
+```
+O(N)
+```
+
+Overall
+
+```
+O(N)
+```
+
+---
+
+# Pattern Recognition
+
+Whenever you see
+
+- Tree
+- Reverse edges
+- Make every node reach a root
+- Reorient roads
+
+Think
+
+```
+Ignore directions
+
+↓
+
+Traverse Tree
+
+↓
+
+Check Original Direction
+
+↓
+
+Count Wrong Edges
+```
+
+This is a common interview pattern where the graph is traversed as an **undirected tree**, while a separate data structure remembers the **original direction** of each edge.
+
+---
+
+# Key Takeaways
+
+- The graph is a **tree**, so there is exactly one path between any two cities.
+- Ignore edge directions for traversal by building an **undirected graph**.
+- Store original directions separately in a **set**.
+- During DFS, if the traversed edge matches the original direction, it points **away from city 0** and must be reversed.
+- Count every such edge.
+- Time Complexity: **O(N)**
+- Space Complexity: **O(N)**
