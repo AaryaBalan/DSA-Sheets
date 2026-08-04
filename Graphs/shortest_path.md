@@ -7,6 +7,7 @@ This is a beginner-friendly guide to shortest path problems in graphs. It explai
 - [Shortest Path in Undirected Graph with Unit Weights](#shortest-path-in-undirected-graph-with-unit-weights)
 - [Dijkstra's Algorithm (Priority Queue)](#dijkstras-algorithm-priority-queue)
 - [Dijkstra's Algorithm Using (Set)](#dijkstras-algorithm-set)
+- [Bellman-Ford Algorithm](#bellman-ford-algorithm)
 
 ## Problems
 - [1091. Shortest Path in Binary Matrix](#1091-shortest-path-in-binary-matrix)
@@ -2794,6 +2795,791 @@ O((V + E) log V)
 - The biggest advantage of a `set` over a priority queue is that **you can erase an outdated `(distance, node)` pair** before inserting the updated one.
 - This avoids processing stale entries later, although both implementations have the same asymptotic time complexity: **O((V + E) log V)**.
 - In Python, the built-in `set` is **not sorted**, so the usual implementation uses `heapq`. To mimic C++ `std::set`, you need a sorted data structure such as `sortedcontainers.SortedSet`.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# Bellman-Ford Algorithm
+
+### Single Source Shortest Path Algorithm
+
+---
+
+# What is Bellman-Ford?
+
+Bellman-Ford is a **Single Source Shortest Path (SSSP)** algorithm used to find the shortest distance from one source vertex to every other vertex in a **weighted graph**.
+
+Unlike Dijkstra's Algorithm, Bellman-Ford **works even when the graph contains negative edge weights**.
+
+It can also **detect whether a negative weight cycle exists**, which is its biggest advantage. :contentReference[oaicite:0]{index=0}
+
+---
+
+# Why Do We Need Bellman-Ford?
+
+We already have Dijkstra's Algorithm.
+
+So why learn another shortest path algorithm?
+
+Because **Dijkstra fails whenever negative edges are present.**
+
+Example
+
+```
+A ----5----> B
+ \
+  \
+  -4
+    \
+     C
+```
+
+Negative edges can make Dijkstra choose the wrong path.
+
+Bellman-Ford correctly handles these situations.
+
+---
+
+# Dijkstra vs Bellman-Ford
+
+| Feature | Dijkstra | Bellman-Ford |
+|----------|----------|--------------|
+| Positive Edges | ✅ | ✅ |
+| Negative Edges | ❌ | ✅ |
+| Detect Negative Cycle | ❌ | ✅ |
+| Faster | ✅ | ❌ |
+
+Bellman-Ford is slower than Dijkstra but much more powerful because it supports negative edge weights and detects negative cycles. :contentReference[oaicite:1]{index=1}
+
+---
+
+# Directed Graph Requirement
+
+Bellman-Ford works on **Directed Graphs**.
+
+If the graph is undirected,
+
+```
+1 ----5---- 2
+```
+
+convert it into
+
+```
+1 ----5----> 2
+
+2 ----5----> 1
+```
+
+That means every undirected edge becomes two directed edges with the same weight before applying Bellman-Ford. :contentReference[oaicite:2]{index=2}
+
+---
+
+# What is a Negative Cycle?
+
+A negative cycle is a cycle whose total edge weight is less than zero.
+
+Example
+
+```
+1 ----(-2)---> 2
+^              |
+|              |
+(+2)        (-1)
+|              |
++--------------+
+```
+
+Total weight
+
+```
+-2 + (-1) + 2
+
+=
+
+-1
+```
+
+Since
+
+```
+-1 < 0
+```
+
+this is a **Negative Cycle**.
+
+---
+
+# Why is a Negative Cycle Dangerous?
+
+Suppose the total cycle weight is
+
+```
+-5
+```
+
+First round
+
+```
+Distance = 20
+```
+
+Second round
+
+```
+20 - 5 = 15
+```
+
+Third round
+
+```
+15 - 5 = 10
+```
+
+Fourth round
+
+```
+10 - 5 = 5
+```
+
+The distance keeps decreasing forever.
+
+Therefore,
+
+**there is no shortest path.**
+
+---
+
+# Core Idea of Bellman-Ford
+
+Instead of choosing the nearest node like Dijkstra,
+
+Bellman-Ford repeatedly improves every distance.
+
+It repeatedly asks:
+
+> "Can I reach this node with a shorter distance?"
+
+If yes,
+
+update the distance.
+
+This process is called **Edge Relaxation**.
+
+---
+
+# What is Edge Relaxation?
+
+Suppose we have
+
+```
+U ----wt----> V
+```
+
+Current known distances
+
+```
+dist[U] = 5
+
+dist[V] = 20
+
+Weight = 3
+```
+
+If we travel
+
+```
+5 + 3 = 8
+```
+
+Since
+
+```
+8 < 20
+```
+
+we found a better path.
+
+Update
+
+```
+dist[V] = 8
+```
+
+This is called **Relaxation**.
+
+---
+
+## Relaxation Formula
+
+```
+if dist[u] + weight < dist[v]:
+
+    dist[v] = dist[u] + weight
+```
+
+This single formula is the heart of Bellman-Ford.
+
+---
+
+# Initialization
+
+Initially,
+
+every node is unreachable.
+
+```
+dist = [∞, ∞, ∞, ∞, ∞]
+```
+
+Only the source is reachable.
+
+```
+Source = 0
+
+dist = [0, ∞, ∞, ∞, ∞]
+```
+
+---
+
+# Bellman-Ford Algorithm
+
+The algorithm is surprisingly simple.
+
+### Step 1
+
+Initialize distances.
+
+### Step 2
+
+Relax every edge.
+
+### Step 3
+
+Repeat Step 2 exactly
+
+```
+(V - 1)
+```
+
+times.
+
+### Step 4
+
+Relax every edge **one more time**.
+
+If any distance changes,
+
+there is a **Negative Cycle**. :contentReference[oaicite:3]{index=3}
+
+---
+
+# Why Exactly (V - 1) Iterations?
+
+This is the most important intuition.
+
+---
+
+Imagine this graph
+
+```
+0 → 1 → 2 → 3 → 4
+```
+
+Edges
+
+```
+0→1
+
+1→2
+
+2→3
+
+3→4
+```
+
+Suppose the edges are processed in reverse order.
+
+```
+3→4
+
+2→3
+
+1→2
+
+0→1
+```
+
+Initially
+
+```
+dist =
+
+0 ∞ ∞ ∞ ∞
+```
+
+---
+
+## Iteration 1
+
+Only
+
+```
+0→1
+```
+
+can relax.
+
+```
+0 1 ∞ ∞ ∞
+```
+
+---
+
+## Iteration 2
+
+Now
+
+```
+1→2
+```
+
+can relax.
+
+```
+0 1 2 ∞ ∞
+```
+
+---
+
+## Iteration 3
+
+```
+0 1 2 3 ∞
+```
+
+---
+
+## Iteration 4
+
+```
+0 1 2 3 4
+```
+
+There are
+
+```
+5 vertices
+```
+
+and we required
+
+```
+4 iterations
+
+=
+
+V-1
+```
+
+---
+
+# Intuition
+
+Every iteration can push the shortest distance **one edge farther**.
+
+Maximum edges in any simple path are
+
+```
+V-1
+```
+
+Therefore,
+
+after
+
+```
+V-1
+```
+
+iterations,
+
+every shortest path must already be found. :contentReference[oaicite:4]{index=4}
+
+---
+
+# Dry Run
+
+Graph
+
+```
+0 →1 (5)
+
+1 →5 (-3)
+
+1 →2 (-2)
+
+5 →3 (1)
+
+3 →4 (-2)
+
+2 →4 (3)
+```
+
+Source
+
+```
+0
+```
+
+Initially
+
+```
+0 ∞ ∞ ∞ ∞ ∞
+```
+
+---
+
+## Iteration 1
+
+Relax
+
+```
+0→1
+
+dist[1]=5
+```
+
+Relax
+
+```
+1→5
+
+5-3=2
+
+dist[5]=2
+```
+
+Relax
+
+```
+1→2
+
+5-2=3
+
+dist[2]=3
+```
+
+Relax
+
+```
+2→4
+
+3+3=6
+
+dist[4]=6
+```
+
+End
+
+```
+0 5 3 ∞ 6 2
+```
+
+---
+
+## Iteration 2
+
+Relax
+
+```
+5→3
+
+2+1=3
+
+dist[3]=3
+```
+
+Relax
+
+```
+3→4
+
+3-2=1
+
+Better than 6
+
+Update
+```
+
+End
+
+```
+0 5 3 3 1 2
+```
+
+Remaining iterations
+
+No further improvements.
+
+Final answer
+
+```
+0 5 3 3 1 2
+```
+
+---
+
+# Detecting Negative Cycle
+
+After completing
+
+```
+V-1
+```
+
+iterations,
+
+perform **one extra iteration**.
+
+If any edge still relaxes,
+
+```
+Negative Cycle Exists
+```
+
+Otherwise,
+
+```
+No Negative Cycle
+```
+
+Why?
+
+Because all shortest paths should already be finalized after
+
+```
+V-1
+```
+
+iterations.
+
+If distances are still decreasing,
+
+the graph must contain a cycle with negative total weight. :contentReference[oaicite:5]{index=5}
+
+---
+
+# Bellman-Ford Algorithm
+
+```python
+from typing import List
+
+def bellman_ford(V: int, edges: List[List[int]], src: int):
+
+    INF = float('inf')
+
+    dist = [INF] * V
+    dist[src] = 0
+
+    # Relax all edges V-1 times
+    for _ in range(V - 1):
+
+        for u, v, wt in edges:
+
+            if dist[u] != INF and dist[u] + wt < dist[v]:
+                dist[v] = dist[u] + wt
+
+    # Detect negative cycle
+    for u, v, wt in edges:
+
+        if dist[u] != INF and dist[u] + wt < dist[v]:
+            return [-1]
+
+    return dist
+```
+
+---
+
+# Time Complexity
+
+Outer loop
+
+```
+V-1
+```
+
+Inner loop
+
+```
+E
+```
+
+Therefore
+
+```
+Time Complexity
+
+O(V × E)
+```
+
+---
+
+# Space Complexity
+
+Distance array
+
+```
+O(V)
+```
+
+---
+
+# Comparison
+
+| Algorithm | Time Complexity |
+|------------|-----------------|
+| BFS | O(V+E) |
+| Dijkstra (Priority Queue) | O(E log V) |
+| Bellman-Ford | O(V × E) |
+
+Bellman-Ford is slower than Dijkstra, but it works with negative edge weights and can detect negative cycles. :contentReference[oaicite:6]{index=6}
+
+---
+
+# When Should You Use Bellman-Ford?
+
+Use Bellman-Ford when:
+
+- The graph contains **negative edge weights**.
+- You need to **detect negative cycles**.
+- The graph is directed (or an undirected graph has been converted into directed edges).
+
+---
+
+# Pattern Recognition
+
+Whenever a problem mentions
+
+- Negative edge weights
+- Detect negative cycle
+- Single source shortest path with negative edges
+
+Immediately think
+
+```
+Bellman-Ford
+```
+
+If the graph has only positive weights,
+
+think
+
+```
+Dijkstra
+```
+
+If every edge has unit weight,
+
+think
+
+```
+BFS
+```
+
+---
+
+# Revision Cheat Sheet
+
+```
+Problem
+
+↓
+
+Single Source Shortest Path
+```
+
+```
+Supports
+
+↓
+
+Negative Edges
+```
+
+```
+Detects
+
+↓
+
+Negative Cycles
+```
+
+```
+Main Idea
+
+↓
+
+Relax Every Edge
+```
+
+```
+Relaxation
+
+↓
+
+if dist[u] + wt < dist[v]
+
+dist[v] = dist[u] + wt
+```
+
+```
+Iterations
+
+↓
+
+V - 1
+```
+
+```
+One Extra Iteration
+
+↓
+
+If distance changes
+
+↓
+
+Negative Cycle Exists
+```
+
+```
+Time
+
+↓
+
+O(V × E)
+```
+
+```
+Space
+
+↓
+
+O(V)
+```
+
+---
+
+# Key Takeaways
+
+- Bellman-Ford is a **Single Source Shortest Path** algorithm.
+- It works correctly even when **negative edge weights** are present.
+- It repeatedly **relaxes all edges** to improve distances.
+- Every edge is relaxed exactly **V − 1** times because the longest simple path contains at most **V − 1 edges**.
+- A final relaxation detects **negative cycles**.
+- Bellman-Ford is slower than Dijkstra but more general because it supports negative weights and negative cycle detection.
 
 <br/><br/><br/><br/><br/>
 
