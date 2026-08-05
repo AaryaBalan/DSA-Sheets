@@ -34083,3 +34083,1054 @@ This is a common interview pattern where the graph is traversed as an **undirect
 - Count every such edge.
 - Time Complexity: **O(N)**
 - Space Complexity: **O(N)**
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 3310. Remove Methods From Project
+
+**Difficulty:** Medium  
+**Topics:** Graph, DFS
+
+---
+
+# Problem Statement
+
+You are maintaining a software project containing **n methods**, numbered from **0 to n-1**.
+
+Some methods invoke other methods.
+
+You are given:
+
+- `n` → Number of methods.
+- `k` → A method known to contain a bug.
+- `invocations` → A list of directed edges where
+
+```
+[a, b]
+```
+
+means
+
+```
+Method a calls Method b.
+```
+
+---
+
+Because method **k** is buggy,
+
+every method that can be reached from **k**
+
+- directly
+- indirectly
+
+is also considered **suspicious**.
+
+Your goal is to remove **all suspicious methods**.
+
+However,
+
+there is one important condition.
+
+You can remove the suspicious group **only if no remaining method calls any suspicious method.**
+
+If even one non-suspicious method invokes a suspicious method,
+
+the suspicious methods cannot be removed.
+
+In that case,
+
+return **all methods**.
+
+---
+
+# Understanding the Problem
+
+Imagine the project like this.
+
+```
+0 → 1 → 2
+```
+
+Suppose
+
+```
+k = 1
+```
+
+Bug starts at
+
+```
+1
+```
+
+Since
+
+```
+1 → 2
+```
+
+Method
+
+```
+2
+```
+
+also becomes suspicious.
+
+So suspicious methods are
+
+```
+{1,2}
+```
+
+Can we delete them?
+
+That depends.
+
+---
+
+# The Important Rule
+
+Suppose another method exists.
+
+```
+3 → 2
+```
+
+Graph
+
+```
+0 → 1 → 2
+      ↑
+      |
+      3
+```
+
+Method
+
+```
+3
+```
+
+is **not suspicious**.
+
+But
+
+```
+3
+```
+
+still calls
+
+```
+2
+```
+
+If we remove
+
+```
+2
+```
+
+Method
+
+```
+3
+```
+
+will now call a method that no longer exists.
+
+That is illegal.
+
+Therefore
+
+**nothing can be removed.**
+
+Return
+
+```
+[0,1,2,3]
+```
+
+---
+
+# Example 1
+
+Input
+
+```
+n = 4
+
+k = 1
+
+invocations =
+
+[
+ [1,2],
+ [0,1],
+ [3,2]
+]
+```
+
+Graph
+
+```
+0 → 1 → 2
+      ↑
+      |
+      3
+```
+
+Suspicious
+
+```
+1
+
+↓
+
+2
+```
+
+Suspicious set
+
+```
+{1,2}
+```
+
+Notice
+
+```
+0 → 1
+```
+
+and
+
+```
+3 → 2
+```
+
+Both are outside methods calling suspicious methods.
+
+Cannot remove.
+
+Answer
+
+```
+[0,1,2,3]
+```
+
+---
+
+# Example 2
+
+Input
+
+```
+n = 5
+
+k = 0
+```
+
+Graph
+
+```
+0 → 1
+
+↓
+
+2
+
+
+3 → 4
+```
+
+Suspicious
+
+```
+0
+
+↓
+
+1
+
+↓
+
+2
+```
+
+Nobody outside calls them.
+
+Safe to remove.
+
+Remaining
+
+```
+3
+
+4
+```
+
+Answer
+
+```
+[3,4]
+```
+
+---
+
+# Example 3
+
+```
+0 →1
+
+↑   |
+
+|   |
+
+2 ←-
+```
+
+Bug
+
+```
+k=2
+```
+
+Everyone becomes suspicious.
+
+No outside methods exist.
+
+Everything can be removed.
+
+Answer
+
+```
+[]
+```
+
+---
+
+# Common Man's Intuition
+
+Imagine a company.
+
+One employee starts spreading a virus.
+
+Everyone he contacts also gets infected.
+
+Everyone those people contact also gets infected.
+
+Eventually,
+
+you know the entire infected group.
+
+Now ask
+
+> "Is there any healthy employee who still talks to an infected employee?"
+
+If yes,
+
+you cannot isolate only the infected group.
+
+If no,
+
+the infected group can be removed.
+
+This is exactly the same problem.
+
+---
+
+# Key Observation
+
+The problem has **two completely separate tasks.**
+
+### Task 1
+
+Find all suspicious methods.
+
+This is simply
+
+```
+Reachability
+```
+
+which means
+
+```
+DFS
+```
+
+---
+
+### Task 2
+
+Check whether a normal method calls a suspicious method.
+
+This is
+
+```
+Edge Checking
+```
+
+Notice
+
+We don't need DFS here.
+
+We simply inspect every invocation once.
+
+---
+
+# Approach
+
+## Step 1
+
+Build the graph.
+
+```
+a → b
+```
+
+means
+
+```
+graph[a].append(b)
+```
+
+---
+
+## Step 2
+
+Start DFS from
+
+```
+k
+```
+
+Visit every reachable node.
+
+These are suspicious.
+
+Example
+
+```
+0
+
+↓
+
+2
+
+↓
+
+5
+
+↓
+
+7
+```
+
+Suspicious
+
+```
+{0,2,5,7}
+```
+
+---
+
+## Step 3
+
+Go through every invocation.
+
+For every edge
+
+```
+u → v
+```
+
+Check
+
+```
+u NOT suspicious
+
+AND
+
+v suspicious
+```
+
+If true
+
+Removal impossible.
+
+Return
+
+```
+0...n-1
+```
+
+---
+
+## Step 4
+
+Otherwise,
+
+return every method
+
+that is
+
+NOT suspicious.
+
+---
+
+# Why Does This Work?
+
+Suppose
+
+```
+A → B
+```
+
+Case 1
+
+```
+A suspicious
+
+↓
+
+B suspicious
+```
+
+Safe.
+
+Both removed.
+
+---
+
+Case 2
+
+```
+A normal
+
+↓
+
+B suspicious
+```
+
+Impossible.
+
+Removing
+
+```
+B
+```
+
+breaks
+
+```
+A
+```
+
+Return everything.
+
+---
+
+Case 3
+
+```
+A normal
+
+↓
+
+B normal
+```
+
+No issue.
+
+---
+
+# Algorithm
+
+```
+Build graph
+
+↓
+
+Run DFS from k
+
+↓
+
+Find suspicious methods
+
+↓
+
+Check every invocation
+
+↓
+
+If any normal method
+
+calls suspicious method
+
+↓
+
+Return all methods
+
+Otherwise
+
+↓
+
+Return all non-suspicious methods
+```
+
+---
+
+# Dry Run
+
+Input
+
+```
+n = 5
+
+k = 0
+
+invocations =
+
+[
+ [1,2],
+ [0,2],
+ [0,1],
+ [3,4]
+]
+```
+
+---
+
+## Step 1
+
+Graph
+
+```
+0
+
+├──2
+
+└──1
+
+1
+
+└──2
+
+3
+
+└──4
+```
+
+---
+
+## Step 2
+
+DFS
+
+Start
+
+```
+0
+```
+
+Visit
+
+```
+0
+
+↓
+
+1
+
+↓
+
+2
+```
+
+Suspicious
+
+```
+{0,1,2}
+```
+
+---
+
+## Step 3
+
+Check every edge.
+
+Edge
+
+```
+1→2
+```
+
+Both suspicious.
+
+OK.
+
+---
+
+Edge
+
+```
+0→2
+```
+
+Both suspicious.
+
+OK.
+
+---
+
+Edge
+
+```
+0→1
+```
+
+Both suspicious.
+
+OK.
+
+---
+
+Edge
+
+```
+3→4
+```
+
+Neither suspicious.
+
+OK.
+
+No illegal edges found.
+
+---
+
+## Step 4
+
+Remaining
+
+```
+3
+
+4
+```
+
+Answer
+
+```
+[3,4]
+```
+
+---
+
+# Python Solution
+
+```python
+from collections import defaultdict
+from typing import List
+
+class Solution:
+    def remainingMethods(self, n: int, k: int, invocations: List[List[int]]) -> List[int]:
+
+        graph = defaultdict(list)
+
+        for u, v in invocations:
+            graph[u].append(v)
+
+        suspicious = set()
+
+        def dfs(node):
+            if node in suspicious:
+                return
+
+            suspicious.add(node)
+
+            for nei in graph[node]:
+                dfs(nei)
+
+        dfs(k)
+
+        # Check whether any normal method calls a suspicious method
+        for u, v in invocations:
+            if u not in suspicious and v in suspicious:
+                return list(range(n))
+
+        return [i for i in range(n) if i not in suspicious]
+```
+
+---
+
+# Code Explanation
+
+## Build Graph
+
+```python
+graph = defaultdict(list)
+```
+
+Stores every method invocation.
+
+Example
+
+```
+0 → 1
+```
+
+becomes
+
+```
+graph[0]=[1]
+```
+
+---
+
+## DFS
+
+```python
+dfs(k)
+```
+
+Visits every method reachable from
+
+```
+k
+```
+
+Those methods become suspicious.
+
+---
+
+## Mark Suspicious
+
+```python
+suspicious.add(node)
+```
+
+Store every infected method.
+
+---
+
+## Visit Children
+
+```python
+for nei in graph[node]:
+    dfs(nei)
+```
+
+Visit every invoked method.
+
+---
+
+## Check Every Invocation
+
+```python
+for u,v in invocations:
+```
+
+Suppose
+
+```
+u → v
+```
+
+If
+
+```
+u
+
+NOT suspicious
+```
+
+and
+
+```
+v
+
+IS suspicious
+```
+
+then
+
+```
+Cannot remove.
+```
+
+Return
+
+```python
+list(range(n))
+```
+
+---
+
+## Build Answer
+
+```python
+return [i for i in range(n) if i not in suspicious]
+```
+
+Return every remaining method.
+
+---
+
+# Time Complexity
+
+Building graph
+
+```
+O(E)
+```
+
+DFS
+
+```
+O(V+E)
+```
+
+Checking invocations
+
+```
+O(E)
+```
+
+Building answer
+
+```
+O(V)
+```
+
+Overall
+
+```
+O(V + E)
+```
+
+---
+
+# Space Complexity
+
+Graph
+
+```
+O(E)
+```
+
+Suspicious Set
+
+```
+O(V)
+```
+
+DFS Stack
+
+```
+O(V)
+```
+
+Overall
+
+```
+O(V + E)
+```
+
+---
+
+# Pattern Recognition
+
+Whenever a problem says
+
+- Start from one node
+- Find every reachable node
+
+Immediately think
+
+```
+DFS
+
+or
+
+BFS
+```
+
+Whenever a problem says
+
+- No outside node should point inside a group
+
+Think
+
+```
+Check Every Edge
+```
+
+Not
+
+```
+Check Every Pair of Nodes
+```
+
+That is the biggest optimization in this problem.
+
+---
+
+# Common Mistake
+
+A common mistake is to compare
+
+```
+Every normal node
+
+×
+
+Every suspicious node
+```
+
+This leads to
+
+```
+O(N²)
+```
+
+and causes **Time Limit Exceeded (TLE)**.
+
+Instead,
+
+iterate over every **edge** only once.
+
+```
+For every invocation
+
+↓
+
+Check endpoints
+
+↓
+
+Done
+```
+
+This reduces the complexity to
+
+```
+O(V + E)
+```
+
+---
+
+# Key Takeaways
+
+- Use **DFS** to find all suspicious methods.
+- Suspicious methods are simply the nodes reachable from **k**.
+- The removal condition depends on **edges**, not pairs of nodes.
+- If any **non-suspicious method invokes a suspicious method**, removal is impossible.
+- Otherwise, remove all suspicious methods.
+- Time Complexity: **O(V + E)**
+- Space Complexity: **O(V + E)**
