@@ -643,20 +643,6 @@ Minimum Spanning Tree (MST)
 > Prim's Algorithm is a greedy algorithm used to find the **Minimum Spanning Tree (MST)** of a connected, weighted, undirected graph. 
 ---
 
-# 📑 Table of Contents
-
-- [Introduction](#-introduction)
-- [Prerequisites](#-prerequisites)
-- [Idea](#-idea)
-- [Algorithm](#-algorithm)
-- [Dry Run](#-dry-run)
-- [Python Code](#-python-code)
-- [Complexity](#-complexity)
-- [Pattern Recognition](#-pattern-recognition)
-- [Key Takeaways](#-key-takeaways)
-
----
-
 # 📖 Introduction
 
 Prim's Algorithm builds the **Minimum Spanning Tree (MST)** by starting from any node and repeatedly adding the **smallest edge** that connects a new vertex to the current tree. It follows a **Greedy** approach. :contentReference[oaicite:1]{index=1}
@@ -854,6 +840,651 @@ Use **Prim's Algorithm** when the problem says:
 - Uses a **Priority Queue (Min Heap)**.
 - Skip nodes that are already visited.
 - Time Complexity: **O(E log E)** (as presented in the source). :contentReference[oaicite:5]{index=5}
+
+<br/><br/><br/>
+
+# 🌳 Kruskal's Algorithm
+
+> **Graph Algorithms → Minimum Spanning Tree (MST)**
+
+Kruskal's Algorithm is a **Greedy Algorithm** used to find the **Minimum Spanning Tree (MST)** of a **connected, weighted, undirected graph**. It works by always selecting the **smallest available edge** while ensuring that **no cycle is formed**. To efficiently detect cycles, it uses the **Disjoint Set Union (DSU)** data structure. :contentReference[oaicite:0]{index=0}
+
+---
+
+# 📖 Introduction
+
+Suppose you are given a connected weighted graph.
+
+Your task is to connect **all the vertices** such that
+
+- Every node is reachable.
+- No cycles are formed.
+- The total weight is minimum.
+
+This is exactly the **Minimum Spanning Tree (MST)** problem.
+
+Previously, we solved this using **Prim's Algorithm**.
+
+Now we will solve the same problem using **Kruskal's Algorithm**.
+
+Unlike Prim's Algorithm, which grows one tree from a starting node, **Kruskal's Algorithm starts with no edges and keeps adding the smallest edge one by one until the MST is complete.** :contentReference[oaicite:1]{index=1}
+
+---
+
+# 📚 Prerequisites
+
+Before learning Kruskal's Algorithm, you should know:
+
+- Graph Representation
+- Minimum Spanning Tree (MST)
+- Disjoint Set Union (DSU)
+
+---
+
+# 💡 Intuition
+
+Imagine every vertex is standing alone.
+
+Initially
+
+```
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+```
+
+No node is connected.
+
+Now start picking the **smallest edge**.
+
+Every time you choose an edge,
+
+ask only one question:
+
+> "Will adding this edge create a cycle?"
+
+If
+
+```
+NO
+```
+
+Take the edge.
+
+If
+
+```
+YES
+```
+
+Ignore the edge.
+
+Continue until
+
+```
+Number of Edges = N - 1
+```
+
+That becomes the Minimum Spanning Tree.
+
+---
+
+# ❓ Why Do We Need DSU?
+
+Suppose we already selected
+
+```
+1 -----2
+
+|
+
+|
+
+3
+```
+
+Now suppose another edge arrives
+
+```
+2 -----3
+```
+
+Should we take it?
+
+No.
+
+Because
+
+```
+1
+
+↓
+
+2
+
+↓
+
+3
+```
+
+already connects them.
+
+Adding
+
+```
+2-----3
+```
+
+creates a cycle.
+
+How do we quickly detect this?
+
+We use **Disjoint Set Union (DSU)**.
+
+DSU tells us
+
+```
+Do these two vertices already belong to the same connected component?
+```
+
+If yes,
+
+skip the edge.
+
+Otherwise,
+
+take it.
+
+---
+
+# 🌳 Main Idea
+
+Kruskal's Algorithm is based on two simple steps.
+
+## Step 1
+
+Sort all edges according to their weight.
+
+Smallest edge comes first.
+
+Example
+
+```
+(1,4,1)
+
+(1,2,2)
+
+(2,3,3)
+
+(2,4,4)
+
+(1,5,5)
+
+...
+```
+
+---
+
+## Step 2
+
+Process edges one by one.
+
+For every edge
+
+```
+(u,v,w)
+```
+
+Check
+
+```
+find(u)
+
+==
+
+find(v)
+```
+
+If both have the same ultimate parent,
+
+Ignore the edge.
+
+Otherwise
+
+- Add the edge to MST.
+- Add its weight.
+- Union both components.
+
+Repeat until all edges are processed.
+
+---
+
+# 📝 Dry Run
+
+Suppose we have the graph
+
+```
+1 ---2
+
+|\
+
+| \
+
+4  3
+
+|
+
+5
+
+|
+
+6
+```
+
+Sorted edges
+
+```
+(1,4,1)
+
+(1,2,2)
+
+(2,3,3)
+
+(2,4,4)
+
+(1,5,5)
+
+(3,4,6)
+
+(2,6,7)
+```
+
+Initially
+
+Every node is its own component.
+
+```
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+```
+
+---
+
+## Edge (1,4)
+
+Different components.
+
+Take it.
+
+```
+Weight = 1
+```
+
+---
+
+## Edge (1,2)
+
+Different components.
+
+Take it.
+
+```
+Weight = 1+2=3
+```
+
+---
+
+## Edge (2,3)
+
+Different components.
+
+Take it.
+
+```
+Weight = 6
+```
+
+---
+
+## Edge (2,4)
+
+Now
+
+```
+2
+```
+
+and
+
+```
+4
+```
+
+already belong to the same component.
+
+Adding this edge forms a cycle.
+
+Skip it.
+
+---
+
+## Edge (1,5)
+
+Different components.
+
+Take it.
+
+```
+Weight = 11
+```
+
+---
+
+## Edge (3,4)
+
+Already connected.
+
+Skip.
+
+---
+
+## Edge (2,6)
+
+Different components.
+
+Take it.
+
+Final Weight
+
+```
+18
+```
+
+MST completed.
+
+---
+
+# ⚙️ Algorithm
+
+1. Store all edges.
+2. Sort edges by weight.
+3. Create a Disjoint Set.
+4. Traverse every edge.
+5. If endpoints belong to different components:
+   - Add weight.
+   - Union both vertices.
+6. Return the total MST weight.
+
+---
+
+# 🐍 Python Implementation
+
+```python
+class DisjointSet:
+
+    def __init__(self, n):
+        self.parent = [i for i in range(n)]
+        self.size = [1] * n
+
+    def find(self, node):
+
+        if self.parent[node] != node:
+            self.parent[node] = self.find(self.parent[node])
+
+        return self.parent[node]
+
+    def union(self, u, v):
+
+        pu = self.find(u)
+        pv = self.find(v)
+
+        if pu == pv:
+            return
+
+        if self.size[pu] < self.size[pv]:
+
+            self.parent[pu] = pv
+            self.size[pv] += self.size[pu]
+
+        else:
+
+            self.parent[pv] = pu
+            self.size[pu] += self.size[pv]
+
+
+def kruskal(n, edges):
+
+    edges.sort(key=lambda x: x[2])
+
+    ds = DisjointSet(n)
+
+    mst_weight = 0
+
+    mst_edges = []
+
+    for u, v, w in edges:
+
+        if ds.find(u) != ds.find(v):
+
+            ds.union(u, v)
+
+            mst_weight += w
+
+            mst_edges.append((u, v))
+
+    return mst_weight, mst_edges
+```
+
+---
+
+# 🔍 Code Explanation
+
+## Step 1
+
+Sort all edges.
+
+```python
+edges.sort(key=lambda x: x[2])
+```
+
+Edges are processed from the smallest weight to the largest.
+
+---
+
+## Step 2
+
+Create DSU.
+
+```python
+ds = DisjointSet(n)
+```
+
+Initially,
+
+every node is its own component.
+
+---
+
+## Step 3
+
+Traverse every edge.
+
+```python
+for u,v,w in edges:
+```
+
+---
+
+## Step 4
+
+Check whether
+
+```
+u
+
+and
+
+v
+```
+
+already belong to the same component.
+
+```python
+if ds.find(u) != ds.find(v):
+```
+
+---
+
+## Step 5
+
+If not,
+
+take the edge.
+
+```python
+mst_weight += w
+```
+
+---
+
+## Step 6
+
+Merge both components.
+
+```python
+ds.union(u,v)
+```
+
+Continue until every edge is processed.
+
+---
+
+# ⏱ Time Complexity
+
+Sorting edges
+
+```
+O(E log E)
+```
+
+DSU operations
+
+```
+O(E × α(V))
+```
+
+where
+
+```
+α(V)
+```
+
+is the **Inverse Ackermann Function**, which is almost constant.
+
+Overall Time Complexity
+
+```
+O(E log E)
+```
+
+Space Complexity
+
+```
+O(V + E)
+```
+
+---
+
+# ⚖️ Prim's vs Kruskal's
+
+| Prim's Algorithm | Kruskal's Algorithm |
+|------------------|---------------------|
+| Starts from one node | Starts from smallest edge |
+| Uses Priority Queue | Uses Sorting |
+| Grows one tree | Builds forest and merges components |
+| Detects visited nodes | Detects cycles using DSU |
+| Time: O(E log V) | Time: O(E log E) |
+
+---
+
+# 🎯 Pattern Recognition
+
+Think of **Kruskal's Algorithm** whenever a problem says:
+
+- Minimum Spanning Tree
+- Weighted Undirected Graph
+- Minimum Cost Network
+- Avoid Cycles
+- Connect all vertices
+- Use Disjoint Set
+
+---
+
+# 📌 Revision Cheat Sheet
+
+```
+Weighted Graph
+
+↓
+
+Sort All Edges
+
+↓
+
+Take Smallest Edge
+
+↓
+
+Same Component?
+
+↓
+
+YES → Ignore
+
+NO → Take Edge
+
+↓
+
+Union Components
+
+↓
+
+Repeat
+
+↓
+
+Minimum Spanning Tree
+```
+
+---
+
+# ✅ Key Takeaways
+
+- Kruskal's Algorithm is a **Greedy Algorithm**.
+- Always process edges in **ascending order of weight**.
+- Use **Disjoint Set (DSU)** to detect cycles efficiently.
+- Add an edge only if it connects two different components.
+- Ignore edges that create cycles.
+- Continue until the MST contains **N − 1 edges**.
+- Time Complexity: **O(E log E)**.
+- Kruskal's Algorithm is one of the most common interview algorithms for Minimum Spanning Tree problems.
 
 <br/><br/><br/><br/><br/>
 
