@@ -4,23 +4,6 @@
 
 ---
 
-# 📑 Table of Contents
-
-- Introduction
-- Why Do We Need DSU?
-- Dynamic Graph Intuition
-- Brute Force Approach
-- Connected Components
-- What is a Disjoint Set?
-- Basic Operations
-- Ultimate Parent
-- Parent Array
-- Rank Array
-- Example
-- Summary
-
----
-
 # 📖 Introduction
 
 Disjoint Set (DSU), also called **Union-Find**, is a special data structure used to maintain **multiple connected components** efficiently.
@@ -537,19 +520,6 @@ Now every node has the same ultimate parent.
 
 ---
 
-# 📑 Table of Contents
-
-- Why Normal Union is Bad
-- What is Rank?
-- Union by Rank Rules
-- Dry Run
-- Python Code
-- Code Explanation
-- Complexity
-- Summary
-
----
-
 # ❓ Why Normal Union is Bad?
 
 Suppose we always connect nodes randomly.
@@ -1024,22 +994,6 @@ using the inverse Ackermann function.
 # 🚀 Path Compression
 
 > **Graph Algorithms → Disjoint Set (DSU)**
-
----
-
-# 📑 Table of Contents
-
-- Introduction
-- Why Do We Need Path Compression?
-- The Problem Without Path Compression
-- What is Path Compression?
-- Intuition
-- Dry Run
-- Recursive Working
-- Python Implementation
-- Code Explanation
-- Time Complexity
-- Summary
 
 ---
 
@@ -2041,20 +1995,6 @@ is the **Inverse Ackermann Function**, which behaves almost like **O(1)** for al
 # 🏗️ Complete Disjoint Set (DSU) Template
 
 > **Graph Algorithms → Disjoint Set (Union-Find)**
-
----
-
-# 📑 Table of Contents
-
-- Complete DSU Template
-- How DSU Works
-- Step-by-Step Example
-- Using DSU in Problems
-- Common Interview Problems
-- Common Mistakes
-- Time Complexity
-- Cheat Sheet
-- Key Takeaways
 
 ---
 
