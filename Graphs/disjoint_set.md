@@ -22,6 +22,14 @@ Some of its major applications include:
 - Accounts Merge
 - Friend Circle Problems
 
+<br/><br/>
+
+# Expample Problems
+
+- [721. Accounts Merge](#721-accounts-merge)
+
+<br/><br/>
+
 ---
 
 # ❓ Why Do We Need DSU?
@@ -2564,3 +2572,941 @@ Used in Graph Connectivity Problems
 - **Path Compression** flattens the tree and makes future Find operations extremely fast.
 - Always combine **Path Compression** with **Union by Rank** or **Union by Size**.
 - DSU is one of the most frequently used data structures in graph interview problems.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 721. Accounts Merge
+
+**Difficulty:** Medium  
+**Topic:** Graph, Disjoint Set Union (DSU), HashMap
+
+---
+
+# 📖 Problem Understanding
+
+You are given several user accounts.
+
+Each account contains
+
+```
+[Name, Email1, Email2, Email3...]
+```
+
+Example
+
+```python
+[
+["John","a@mail","b@mail"],
+["John","b@mail","c@mail"],
+["Mary","d@mail"],
+["John","e@mail"]
+]
+```
+
+Notice something important.
+
+The name
+
+```
+John
+```
+
+appears multiple times.
+
+Does that automatically mean all John's belong to the same person?
+
+**No.**
+
+The problem clearly says
+
+> Two accounts belong to the same person **only if they share at least one email.**
+
+That means
+
+Names are **not enough**.
+
+Emails determine the identity.
+
+---
+
+# 🌎 Real-Life Analogy
+
+Imagine Gmail accounts.
+
+Person A owns
+
+```
+a@gmail
+b@gmail
+```
+
+Later they create another account
+
+```
+b@gmail
+c@gmail
+```
+
+Since both accounts contain
+
+```
+b@gmail
+```
+
+they obviously belong to the same person.
+
+So they should be merged.
+
+---
+
+# 📥 Understanding the Input
+
+Example
+
+```python
+[
+["John","johnsmith@mail.com","john_newyork@mail.com"],
+["John","johnsmith@mail.com","john00@mail.com"],
+["Mary","mary@mail.com"],
+["John","johnnybravo@mail.com"]
+]
+```
+
+Visualize it.
+
+Account 0
+
+```
+John
+
+johnsmith
+
+john_newyork
+```
+
+Account 1
+
+```
+John
+
+johnsmith
+
+john00
+```
+
+Common email
+
+```
+johnsmith
+```
+
+Therefore
+
+```
+Account0
+
+↓
+
+Same Person
+
+↓
+
+Account1
+```
+
+---
+
+Mary
+
+```
+mary@mail
+```
+
+No common email.
+
+Different person.
+
+---
+
+Third John
+
+```
+johnnybravo
+```
+
+No common email.
+
+Different person.
+
+---
+
+# 💭 First Thought (Brute Force)
+
+A beginner might think
+
+Compare every account with every other account.
+
+```
+Account0 vs Account1
+
+Account0 vs Account2
+
+Account0 vs Account3
+
+Account1 vs Account2
+
+...
+```
+
+If they share an email,
+
+merge them.
+
+---
+
+# ❌ Why Brute Force is Bad?
+
+Suppose
+
+```
+1000 accounts
+```
+
+Comparing every pair
+
+```
+1000 × 1000
+```
+
+Too slow.
+
+Time complexity becomes roughly
+
+```
+O(N² × Emails)
+```
+
+Not acceptable.
+
+We need something smarter.
+
+---
+
+# 💡 Building the Intuition
+
+Instead of comparing accounts,
+
+think about **connections**.
+
+Suppose
+
+Account 0
+
+```
+a
+
+b
+```
+
+Account 1
+
+```
+b
+
+c
+```
+
+Common email
+
+```
+b
+```
+
+That means
+
+```
+0 -------- 1
+```
+
+They are connected.
+
+Now think
+
+What data structure is used to maintain connected groups?
+
+**Disjoint Set Union (DSU).**
+
+---
+
+# 🧠 Recognizing This as a DSU Problem
+
+Whenever you see words like
+
+- Merge
+- Connected
+- Same Group
+- Common Element
+- Belong Together
+
+Think
+
+```
+Connected Components
+
+↓
+
+DSU
+```
+
+---
+
+# 🔑 Key Observation
+
+We DO NOT merge emails.
+
+We merge
+
+```
+Account Indexes
+```
+
+Suppose
+
+```
+Account0
+
+↓
+
+John
+
+a
+
+b
+```
+
+```
+Account1
+
+↓
+
+John
+
+b
+
+c
+```
+
+Email
+
+```
+b
+```
+
+appears in both.
+
+Therefore
+
+```
+Union(0,1)
+```
+
+Done.
+
+---
+
+# 📌 Main Idea
+
+We need a way to know
+
+"Have I seen this email before?"
+
+Use a HashMap.
+
+```
+email
+
+↓
+
+first account index
+```
+
+Example
+
+Initially
+
+```
+{}
+```
+
+Read
+
+```
+a
+```
+
+Store
+
+```
+a → Account0
+```
+
+Read
+
+```
+b
+```
+
+Store
+
+```
+b → Account0
+```
+
+Now move to Account1.
+
+Read
+
+```
+b
+```
+
+Already exists.
+
+```
+b → Account0
+```
+
+Current account
+
+```
+Account1
+```
+
+Therefore
+
+```
+Union(Account0, Account1)
+```
+
+Easy!
+
+---
+
+# 📝 Algorithm
+
+## Step 1
+
+Create DSU.
+
+Each account is initially its own parent.
+
+```
+0
+
+1
+
+2
+
+3
+```
+
+---
+
+## Step 2
+
+Traverse every account.
+
+For every email
+
+If email is new
+
+Store
+
+```
+email → account
+```
+
+Otherwise
+
+```
+Union(previous account,current account)
+```
+
+---
+
+## Step 3
+
+After all unions,
+
+every connected account has the same parent.
+
+Now traverse every email again.
+
+Find its parent.
+
+Store
+
+```
+Parent
+
+↓
+
+Emails
+```
+
+---
+
+## Step 4
+
+Sort emails.
+
+Insert owner's name.
+
+Return answer.
+
+---
+
+# 🌳 Dry Run
+
+Input
+
+```python
+[
+["John","johnsmith@mail.com","john_newyork@mail.com"],
+["John","johnsmith@mail.com","john00@mail.com"],
+["Mary","mary@mail.com"],
+["John","johnnybravo@mail.com"]
+]
+```
+
+---
+
+### Step 1
+
+DSU
+
+```
+0
+
+1
+
+2
+
+3
+```
+
+---
+
+### Step 2
+
+Process Account0
+
+```
+johnsmith
+
+↓
+
+0
+```
+
+```
+john_newyork
+
+↓
+
+0
+```
+
+HashMap
+
+```
+johnsmith → 0
+
+john_newyork → 0
+```
+
+---
+
+Process Account1
+
+Email
+
+```
+johnsmith
+```
+
+Already exists.
+
+```
+Union(0,1)
+```
+
+Store
+
+```
+john00 → 1
+```
+
+Now
+
+DSU
+
+```
+0 -----1
+
+2
+
+3
+```
+
+---
+
+Process Account2
+
+```
+mary
+
+↓
+
+2
+```
+
+---
+
+Process Account3
+
+```
+johnnybravo
+
+↓
+
+3
+```
+
+---
+
+### Step 3
+
+Group emails
+
+Parent
+
+```
+0
+
+↓
+
+johnsmith
+
+john_newyork
+
+john00
+```
+
+Parent
+
+```
+2
+
+↓
+
+mary
+```
+
+Parent
+
+```
+3
+
+↓
+
+johnnybravo
+```
+
+---
+
+### Step 4
+
+Sort
+
+```
+john00
+
+john_newyork
+
+johnsmith
+```
+
+Final Answer
+
+```python
+[
+["John",
+"john00@mail.com",
+"john_newyork@mail.com",
+"johnsmith@mail.com"],
+
+["Mary",
+"mary@mail.com"],
+
+["John",
+"johnnybravo@mail.com"]
+]
+```
+
+---
+
+# 🐍 Python Solution
+
+```python
+from collections import defaultdict
+
+class DisjointSet:
+
+    def __init__(self, n):
+        self.parent = [i for i in range(n)]
+        self.size = [1] * n
+
+    def find(self, node):
+
+        if self.parent[node] != node:
+            self.parent[node] = self.find(self.parent[node])
+
+        return self.parent[node]
+
+    def union(self, u, v):
+
+        pu = self.find(u)
+        pv = self.find(v)
+
+        if pu == pv:
+            return
+
+        if self.size[pu] < self.size[pv]:
+            self.parent[pu] = pv
+            self.size[pv] += self.size[pu]
+        else:
+            self.parent[pv] = pu
+            self.size[pu] += self.size[pv]
+
+
+class Solution:
+    def accountsMerge(self, accounts):
+
+        n = len(accounts)
+
+        ds = DisjointSet(n)
+
+        emailToAccount = {}
+
+        # Step 1: Merge accounts
+        for i in range(n):
+
+            for email in accounts[i][1:]:
+
+                if email not in emailToAccount:
+                    emailToAccount[email] = i
+
+                else:
+                    ds.union(i, emailToAccount[email])
+
+        # Step 2: Group emails by parent
+        mergedEmails = defaultdict(list)
+
+        for email, account in emailToAccount.items():
+
+            parent = ds.find(account)
+
+            mergedEmails[parent].append(email)
+
+        # Step 3: Build answer
+        ans = []
+
+        for parent, emails in mergedEmails.items():
+
+            ans.append(
+                [accounts[parent][0]] + sorted(emails)
+            )
+
+        return ans
+```
+
+---
+
+# 🔍 Code Explanation
+
+### Create DSU
+
+Every account is initially separate.
+
+---
+
+### emailToAccount
+
+Stores
+
+```
+Email
+
+↓
+
+First Account Index
+```
+
+---
+
+### Union
+
+Whenever an email repeats
+
+```
+Union(previous,current)
+```
+
+Now both accounts belong to the same person.
+
+---
+
+### Find Parent
+
+Later,
+
+every email is grouped using
+
+```
+Ultimate Parent
+```
+
+---
+
+### Sort
+
+Emails must be returned in
+
+```
+Lexicographical Order
+```
+
+So we use
+
+```python
+sorted(emails)
+```
+
+---
+
+# ⏱ Complexity
+
+Let
+
+```
+N = Number of Accounts
+
+E = Total Emails
+```
+
+Building HashMap
+
+```
+O(E)
+```
+
+DSU
+
+```
+O(E × α(N))
+```
+
+Sorting
+
+```
+O(E log E)
+```
+
+Overall
+
+```
+O(E log E)
+```
+
+Space
+
+```
+O(E)
+```
+
+---
+
+# ❌ Common Mistakes
+
+### Mistake 1
+
+Merging based on names.
+
+Wrong.
+
+Always merge using
+
+```
+Emails
+```
+
+---
+
+### Mistake 2
+
+Unioning emails instead of accounts.
+
+Wrong.
+
+DSU nodes are
+
+```
+Account Indexes
+```
+
+---
+
+### Mistake 3
+
+Forgetting to call
+
+```python
+find()
+```
+
+before grouping.
+
+Always use the ultimate parent.
+
+---
+
+# 🎯 Pattern Recognition
+
+Whenever you see
+
+- Merge Groups
+- Common Element
+- Same Person
+- Connected Components
+- Belong Together
+
+Immediately think
+
+```
+Disjoint Set Union
+```
+
+---
+
+# 📌 Key Takeaways
+
+- Treat each **account as a node**.
+- Emails act as **connections** between accounts.
+- A repeated email means two accounts belong to the same connected component.
+- Use a **HashMap** to quickly detect repeated emails.
+- Use **DSU** to merge connected accounts efficiently.
+- After all merges, group emails by the **ultimate parent**, sort them, and build the final answer.
+- This is a classic example of converting a real-world merging problem into a **connected components** problem solved with DSU.
