@@ -28,6 +28,7 @@ Some of its major applications include:
 
 - [721. Accounts Merge](#721-accounts-merge)
 - [Number Of Islands](#number-of-islands-ii-online-queries)
+- [827. Making A Large Island](#827-making-a-large-island)
 
 <br/><br/>
 
@@ -4372,3 +4373,1144 @@ O(rows × cols)
 - Only the four neighbouring cells can change connectivity.
 - Every successful `union()` merges two islands, so decrement the island count.
 - DSU avoids recomputing all islands after every operation, making it the optimal solution for online queries.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 827. Making A Large Island
+
+**Difficulty:** Hard  
+**Topics:** Graph, Matrix, DFS, Disjoint Set Union (DSU)
+
+---
+
+# 📖 Problem Understanding
+
+You are given a grid containing only
+
+```
+0 → Water
+
+1 → Land
+```
+
+You are allowed to change **at most one** water cell into land.
+
+Your goal is to obtain the **largest possible island**.
+
+An island means all connected 1's using
+
+- Up
+- Down
+- Left
+- Right
+
+connections only.
+
+---
+
+# Example
+
+Input
+
+```text
+1 0
+
+0 1
+```
+
+If we convert
+
+```
+(0,1)
+```
+
+Grid becomes
+
+```text
+1 1
+
+0 1
+```
+
+Now
+
+```
+(0,0)
+
+↓
+
+(0,1)
+
+↓
+
+(1,1)
+```
+
+Everything becomes connected.
+
+Largest island
+
+```
+3
+```
+
+Answer
+
+```
+3
+```
+
+---
+
+# 🌎 Real-Life Analogy
+
+Imagine several small islands in the ocean.
+
+```
+🏝️      🏝️
+```
+
+You are allowed to build **one bridge**.
+
+Where should you build it?
+
+Obviously,
+
+connect the islands that produce the largest land mass.
+
+That is exactly this problem.
+
+The bridge is
+
+```
+Changing one 0 into 1
+```
+
+---
+
+# First Thought (Brute Force)
+
+A beginner usually thinks
+
+For every zero
+
+```
+Convert it into 1
+
+↓
+
+Run DFS
+
+↓
+
+Find island size
+
+↓
+
+Restore 0
+```
+
+Repeat for every zero.
+
+---
+
+# Example
+
+Grid
+
+```text
+1 1
+
+0 1
+```
+
+Convert
+
+```
+0 → 1
+```
+
+Run DFS
+
+Island size
+
+```
+4
+```
+
+Restore
+
+Repeat for every zero.
+
+---
+
+# Why is Brute Force Slow?
+
+Suppose
+
+```
+500 × 500 Grid
+```
+
+Total cells
+
+```
+250000
+```
+
+Suppose
+
+```
+125000 zeros
+```
+
+For every zero
+
+Run DFS
+
+```
+250000
+
+×
+
+125000
+```
+
+Way too slow.
+
+Time complexity becomes
+
+```
+O((N²)²)
+
+=
+
+O(N⁴)
+```
+
+Impossible.
+
+---
+
+# Building the Intuition
+
+Instead of asking
+
+```
+If I flip this zero,
+
+how big is the island?
+```
+
+Ask
+
+```
+What islands already exist?
+```
+
+Suppose
+
+```text
+1 1 0
+
+1 0 1
+
+0 1 1
+```
+
+Current islands
+
+```
+Island A
+
+size = 3
+```
+
+```
+Island B
+
+size = 3
+```
+
+Now flip
+
+```
+Center 0
+```
+
+It connects
+
+```
+Island A
+
++
+
+Island B
+```
+
+Final size
+
+```
+1
+
++
+
+3
+
++
+
+3
+
+=
+
+7
+```
+
+Notice something.
+
+We never needed to rebuild islands.
+
+We only needed to know
+
+```
+Existing island sizes.
+```
+
+This is the key insight.
+
+---
+
+# Why DSU?
+
+DSU can answer
+
+```
+Which island does this cell belong to?
+
+↓
+
+find()
+```
+
+and
+
+```
+How big is that island?
+
+↓
+
+size[parent]
+```
+
+So instead of rebuilding islands,
+
+we build them once.
+
+---
+
+# The Biggest Idea
+
+DSU is **NOT**
+
+```
+Temporary Calculator
+```
+
+It is
+
+```
+A Database
+
+of
+
+Connected Components
+```
+
+Build it once.
+
+Never destroy it.
+
+Later,
+
+just query it.
+
+---
+
+# Step 1
+
+Union every existing land.
+
+Example
+
+```text
+1 1
+
+1 0
+```
+
+DSU builds
+
+```
+Parent
+
+↓
+
+One Component
+
+Size = 3
+```
+
+Done.
+
+---
+
+# Step 2
+
+Now visit every zero.
+
+Suppose
+
+```
+(1,1)
+```
+
+Neighbours
+
+```
+Up
+
+↓
+
+Island A
+```
+
+Left
+
+```
+↓
+
+Island A
+```
+
+Both are actually the SAME island.
+
+Important.
+
+---
+
+# Why Set is Needed?
+
+Suppose
+
+```text
+1 1
+
+0 1
+```
+
+Neighbours
+
+```
+Up
+
+↓
+
+Parent = 0
+```
+
+Right
+
+```
+↓
+
+Parent = 0
+```
+
+If we simply add
+
+```
+3
+
++
+
+3
+```
+
+Answer becomes
+
+```
+7
+```
+
+Wrong.
+
+Actual answer
+
+```
+4
+```
+
+So we store
+
+```python
+parents = set()
+```
+
+Now
+
+```
+Parent 0
+
+already counted.
+```
+
+Only one copy is used.
+
+---
+
+# Key Observation
+
+When we flip a zero,
+
+we DO NOT perform unions.
+
+Instead
+
+```
+Look around.
+
+↓
+
+Find neighbouring islands.
+
+↓
+
+Add their sizes.
+```
+
+That is all.
+
+---
+
+# Complete Algorithm
+
+## Phase 1
+
+Build all islands.
+
+Traverse grid.
+
+Whenever
+
+```
+Current = 1
+
+Neighbour = 1
+```
+
+Perform
+
+```
+Union(Current,Neighbour)
+```
+
+After this,
+
+every island knows
+
+```
+Parent
+
+Size
+```
+
+---
+
+## Phase 2
+
+Traverse grid again.
+
+For every zero
+
+```
+Area = 1
+```
+
+because we are flipping it.
+
+Now
+
+collect unique parents.
+
+For every neighbour
+
+```
+Find Parent
+
+↓
+
+Not counted before?
+
+↓
+
+Area += size[parent]
+```
+
+Maximum answer.
+
+---
+
+## Phase 3
+
+Special Case
+
+Suppose
+
+```text
+1 1
+
+1 1
+```
+
+No zero exists.
+
+Answer
+
+```
+N × N
+```
+
+---
+
+# Dry Run
+
+Input
+
+```text
+1 1
+
+0 1
+```
+
+---
+
+## Step 1
+
+Build DSU
+
+All existing ones
+
+```
+(0,0)
+
+↓
+
+(0,1)
+
+↓
+
+(1,1)
+```
+
+One component
+
+```
+Size = 3
+```
+
+---
+
+## Step 2
+
+Visit
+
+```
+(1,0)
+```
+
+Area
+
+```
+1
+```
+
+Neighbours
+
+```
+Up
+
+↓
+
+Parent = A
+
+Size = 3
+```
+
+Right
+
+```
+↓
+
+Parent = A
+```
+
+Already counted.
+
+Ignore.
+
+Area
+
+```
+1
+
++
+
+3
+
+=
+
+4
+```
+
+Answer
+
+```
+4
+```
+
+---
+
+# Another Example
+
+Input
+
+```text
+1 0
+
+0 1
+```
+
+Initially
+
+Two islands
+
+```
+Size 1
+
+Size 1
+```
+
+Flip
+
+```
+(0,1)
+```
+
+Neighbours
+
+Left
+
+```
+Size 1
+```
+
+Down
+
+```
+Size 1
+```
+
+Area
+
+```
+1
+
++
+
+1
+
++
+
+1
+
+=
+
+3
+```
+
+Answer
+
+```
+3
+```
+
+---
+
+# Python Solution
+
+```python
+from typing import List
+
+class DisjointSet:
+
+    def __init__(self, n):
+        self.parent = [i for i in range(n)]
+        self.size = [1] * n
+
+    def find(self, node):
+        if self.parent[node] != node:
+            self.parent[node] = self.find(self.parent[node])
+        return self.parent[node]
+
+    def union(self, u, v):
+
+        pu = self.find(u)
+        pv = self.find(v)
+
+        if pu == pv:
+            return
+
+        if self.size[pu] < self.size[pv]:
+            self.parent[pu] = pv
+            self.size[pv] += self.size[pu]
+        else:
+            self.parent[pv] = pu
+            self.size[pu] += self.size[pv]
+
+
+class Solution:
+
+    def largestIsland(self, grid: List[List[int]]) -> int:
+
+        n = len(grid)
+
+        ds = DisjointSet(n * n)
+
+        directions = [
+            (-1,0),
+            (1,0),
+            (0,-1),
+            (0,1)
+        ]
+
+        # Step 1: Build all islands
+        for r in range(n):
+            for c in range(n):
+
+                if grid[r][c] == 0:
+                    continue
+
+                curr = r * n + c
+
+                for dx, dy in directions:
+
+                    nr = r + dx
+                    nc = c + dy
+
+                    if (
+                        0 <= nr < n and
+                        0 <= nc < n and
+                        grid[nr][nc] == 1
+                    ):
+
+                        ds.union(curr, nr * n + nc)
+
+        ans = 0
+        hasZero = False
+
+        # Step 2: Try flipping every zero
+        for r in range(n):
+            for c in range(n):
+
+                if grid[r][c] == 1:
+                    continue
+
+                hasZero = True
+
+                area = 1
+
+                parents = set()
+
+                for dx, dy in directions:
+
+                    nr = r + dx
+                    nc = c + dy
+
+                    if (
+                        0 <= nr < n and
+                        0 <= nc < n and
+                        grid[nr][nc] == 1
+                    ):
+
+                        parent = ds.find(nr * n + nc)
+
+                        if parent not in parents:
+
+                            parents.add(parent)
+
+                            area += ds.size[parent]
+
+                ans = max(ans, area)
+
+        if not hasZero:
+            return n * n
+
+        return ans
+```
+
+---
+
+# Code Explanation
+
+## Build Islands
+
+```python
+ds.union(curr, neighbour)
+```
+
+Merges every connected land.
+
+Finally
+
+```
+Each island
+
+↓
+
+One Parent
+
+↓
+
+One Size
+```
+
+---
+
+## Visiting Every Zero
+
+Start
+
+```python
+area = 1
+```
+
+because we convert
+
+```
+0
+
+↓
+
+1
+```
+
+Then
+
+collect neighbouring islands.
+
+---
+
+## Why Set?
+
+Suppose
+
+```text
+1 1
+
+0 1
+```
+
+Neighbours
+
+```
+Up
+
+↓
+
+Parent 5
+```
+
+Right
+
+```
+↓
+
+Parent 5
+```
+
+Without set
+
+```
+1
+
++
+
+3
+
++
+
+3
+
+=
+
+7
+```
+
+Wrong.
+
+Set stores
+
+```
+{5}
+```
+
+Only once.
+
+Answer
+
+```
+4
+```
+
+---
+
+# Complexity Analysis
+
+Let
+
+```
+N = Grid Size
+```
+
+Building DSU
+
+```
+O(N² × α(N²))
+```
+
+Checking every zero
+
+```
+O(N² × 4 × α(N²))
+```
+
+Overall
+
+```
+O(N²)
+```
+
+because
+
+```
+α(N)
+
+≈ Constant
+```
+
+Space
+
+```
+Parent Array
+
++
+
+Size Array
+
+↓
+
+O(N²)
+```
+
+---
+
+# Common Mistakes
+
+## ❌ Mistake 1
+
+Building DSU separately for every zero.
+
+Wrong.
+
+Build it only once.
+
+---
+
+## ❌ Mistake 2
+
+Calling
+
+```python
+clearUnion()
+```
+
+Never do this.
+
+You lose all island information.
+
+---
+
+## ❌ Mistake 3
+
+Performing union after flipping zero.
+
+Not needed.
+
+Only query neighbouring island sizes.
+
+---
+
+## ❌ Mistake 4
+
+Not using a set.
+
+Same island may touch the zero from multiple directions.
+
+Without a set,
+
+you count it multiple times.
+
+---
+
+# Pattern Recognition
+
+Whenever you see
+
+- Largest Connected Component
+- Merge Components
+- Flip One Cell
+- Add One Edge
+- Query Existing Components
+
+Think
+
+```
+Build Components Once
+
+↓
+
+Store Their Sizes
+
+↓
+
+Answer Queries
+```
+
+This is one of the most common DSU interview patterns.
+
+---
+
+# Key Takeaways
+
+- Treat every land cell as a DSU node.
+- Build all connected islands **once**.
+- Store the size of every connected component.
+- For every `0`, inspect its four neighbours.
+- Collect **unique island parents** using a set.
+- The possible island size is:
+  ```
+  1 + sum(size of unique neighbouring islands)
+  ```
+- Never rebuild or reset the DSU for each `0`; use it as a permanent representation of the current connected components.
