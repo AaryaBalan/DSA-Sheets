@@ -27,6 +27,7 @@ Some of its major applications include:
 # Expample Problems
 
 - [721. Accounts Merge](#721-accounts-merge)
+- [Number Of Islands](#number-of-islands-ii-online-queries)
 
 <br/><br/>
 
@@ -3510,3 +3511,864 @@ Disjoint Set Union
 - Use **DSU** to merge connected accounts efficiently.
 - After all merges, group emails by the **ultimate parent**, sort them, and build the final answer.
 - This is a classic example of converting a real-world merging problem into a **connected components** problem solved with DSU.
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# Number of Islands II (Online Queries)
+
+> **Prerequisites**
+>
+> - Graph Basics
+> - Connected Components
+> - Disjoint Set Union (DSU)
+>
+> This problem is one of the most important applications of **Disjoint Set Union (DSU)** in graphs. Unlike the classic Number of Islands problem where the entire grid is given at once, here the grid changes dynamically after each operation.
+
+# Introduction
+
+This problem belongs to the category of **Dynamic Connectivity Problems**.
+
+Initially,
+
+- Every cell is **water (0)**.
+- One by one, some cells become **land (1)**.
+- After **each operation**, we must immediately report the current number of islands.
+
+Since the answer is required **after every update**, this is called an **Online Query Problem**. :contentReference[oaicite:1]{index=1}
+
+---
+
+# What are Online Queries?
+
+An **online query** means:
+
+```
+Receive a query
+
+↓
+
+Update the data
+
+↓
+
+Immediately return the answer
+
+↓
+
+Receive next query
+
+↓
+
+Update
+
+↓
+
+Return answer
+```
+
+Unlike offline problems, we **cannot wait until all operations finish**.
+
+We must answer after every operation.
+
+---
+
+# Problem Statement
+
+Initially the grid is
+
+```text
+0 0 0
+0 0 0
+0 0 0
+```
+
+Every operation converts
+
+```
+0 → 1
+```
+
+For example
+
+```
+Operation 1
+
+(1,1)
+```
+
+Grid
+
+```text
+0 0 0
+0 1 0
+0 0 0
+```
+
+Answer
+
+```
+1 Island
+```
+
+---
+
+Next
+
+```
+Operation
+
+(0,1)
+```
+
+Grid
+
+```text
+0 1 0
+0 1 0
+0 0 0
+```
+
+Now
+
+```
+Both cells share a side.
+
+↓
+
+One Island
+```
+
+Answer
+
+```
+1
+```
+
+---
+
+# Important Rule
+
+Cells are connected only through
+
+- Up
+- Down
+- Left
+- Right
+
+Not diagonally.
+
+Example
+
+```text
+1 0
+0 1
+```
+
+These are
+
+```
+NOT Connected
+```
+
+because they touch only diagonally.
+
+---
+
+# Key Observation
+
+Whenever a new land appears,
+
+only **four neighbouring cells** can affect the answer.
+
+```
+      Up
+
+Left Current Right
+
+    Down
+```
+
+No other cell can directly change the connectivity.
+
+---
+
+# First Intuition
+
+Suppose
+
+```
+(1,1)
+```
+
+becomes land.
+
+Obviously
+
+```
+Island Count++
+
+↓
+
+1
+```
+
+Now
+
+```
+(1,3)
+```
+
+becomes land.
+
+```
+Island Count++
+
+↓
+
+2
+```
+
+Now
+
+```
+(1,2)
+```
+
+becomes land.
+
+Initially,
+
+```
+Island Count++
+
+↓
+
+3
+```
+
+But
+
+```
+(1,2)
+
+connects
+
+↓
+
+(1,1)
+
+↓
+
+count--
+
+↓
+
+2
+```
+
+Again
+
+```
+(1,2)
+
+connects
+
+↓
+
+(1,3)
+
+↓
+
+count--
+
+↓
+
+1
+```
+
+Final answer
+
+```
+One Island
+```
+
+This is exactly what DSU helps us maintain efficiently.
+
+---
+
+# Why Not DFS/BFS?
+
+Suppose
+
+```
+100 × 100 Grid
+```
+
+After every operation,
+
+run DFS again.
+
+```
+1000 Operations
+
+×
+
+10000 Cells
+
+=
+
+10 Million Visits
+```
+
+Most of this work is repeated.
+
+We only changed **one cell**, but DFS explores the entire grid again.
+
+This is inefficient.
+
+---
+
+# Why DSU?
+
+DSU is built for
+
+```
+Dynamic Connectivity
+```
+
+Whenever two neighbouring lands meet,
+
+we simply
+
+```
+Union(Current,Neighbour)
+```
+
+No need to recompute everything.
+
+This makes the solution much faster.
+
+---
+
+# Thinking in Terms of Graph
+
+Instead of viewing the matrix as a grid,
+
+think of it as a graph.
+
+Every land cell
+
+↓
+
+becomes a graph node.
+
+If two land cells are adjacent,
+
+↓
+
+create an edge between them.
+
+Example
+
+```text
+1 1 1
+```
+
+becomes
+
+```
+● —— ● —— ●
+```
+
+Now DSU merges these connected nodes into one connected component.
+
+---
+
+# Representing Grid Cells as DSU Nodes
+
+DSU works with
+
+```
+0
+
+1
+
+2
+
+3
+
+...
+```
+
+It does **not understand**
+
+```
+(row,col)
+```
+
+So every grid cell must be converted into a unique node number.
+
+---
+
+# Formula
+
+Suppose
+
+```
+rows = 4
+
+cols = 5
+```
+
+Grid
+
+```text
+(0,0) (0,1) (0,2) (0,3) (0,4)
+
+(1,0) (1,1) (1,2) (1,3) (1,4)
+
+(2,0) (2,1) (2,2) (2,3) (2,4)
+
+(3,0) (3,1) (3,2) (3,3) (3,4)
+```
+
+Node numbering
+
+```text
+0  1  2  3  4
+
+5  6  7  8  9
+
+10 11 12 13 14
+
+15 16 17 18 19
+```
+
+Formula
+
+```python
+node = row * cols + col
+```
+
+Examples
+
+```
+(0,0)
+
+↓
+
+0
+```
+
+```
+(1,2)
+
+↓
+
+1 × 5 + 2
+
+↓
+
+7
+```
+
+```
+(3,4)
+
+↓
+
+3 × 5 + 4
+
+↓
+
+19
+```
+
+This gives every cell a unique DSU node.
+
+---
+
+# Complete Algorithm
+
+For every operation
+
+## Step 1
+
+If already land,
+
+```
+Append current answer.
+
+Continue.
+```
+
+---
+
+## Step 2
+
+Convert water into land.
+
+```
+Visited = True
+
+Island Count++
+```
+
+Initially every new land is treated as a new island.
+
+---
+
+## Step 3
+
+Check all four neighbours.
+
+```
+Up
+
+Down
+
+Left
+
+Right
+```
+
+---
+
+## Step 4
+
+If neighbour
+
+- is inside the grid
+- is already land
+
+then
+
+```
+Union(Current,Neighbour)
+```
+
+---
+
+## Step 5
+
+If Union succeeds,
+
+that means
+
+```
+Two Different Islands
+
+↓
+
+Merged
+
+↓
+
+Island Count--
+```
+
+If they already belonged to the same component,
+
+do nothing.
+
+---
+
+## Step 6
+
+Store the current island count.
+
+Repeat for the next operation.
+
+---
+
+# Dry Run
+
+Operations
+
+```
+(1,1)
+
+(1,3)
+
+(1,2)
+```
+
+---
+
+## Operation 1
+
+Grid
+
+```text
+0 0 0 0
+
+0 1 0 0
+
+0 0 0 0
+```
+
+```
+Count = 1
+```
+
+Answer
+
+```
+[1]
+```
+
+---
+
+## Operation 2
+
+Grid
+
+```text
+0 0 0 0
+
+0 1 0 1
+
+0 0 0 0
+```
+
+```
+Count = 2
+```
+
+Answer
+
+```
+[1,2]
+```
+
+---
+
+## Operation 3
+
+Initially
+
+```
+Count++
+
+↓
+
+3
+```
+
+Neighbours
+
+```
+Left
+
+↓
+
+Land
+
+↓
+
+Union
+
+↓
+
+Count--
+
+↓
+
+2
+```
+
+Neighbour
+
+```
+Right
+
+↓
+
+Land
+
+↓
+
+Union
+
+↓
+
+Count--
+
+↓
+
+1
+```
+
+Final Grid
+
+```text
+0 0 0 0
+
+0 1 1 1
+
+0 0 0 0
+```
+
+Answer
+
+```
+[1,2,1]
+```
+
+---
+
+# Python Solution
+
+```python
+from typing import List
+
+class DisjointSet:
+
+    def __init__(self, n):
+        self.parent = [i for i in range(n)]
+        self.size = [1] * n
+
+    def find(self, node):
+        if self.parent[node] != node:
+            self.parent[node] = self.find(self.parent[node])
+        return self.parent[node]
+
+    def union(self, u, v):
+        pu = self.find(u)
+        pv = self.find(v)
+
+        if pu == pv:
+            return False
+
+        if self.size[pu] < self.size[pv]:
+            self.parent[pu] = pv
+            self.size[pv] += self.size[pu]
+        else:
+            self.parent[pv] = pu
+            self.size[pu] += self.size[pv]
+
+        return True
+
+
+class Solution:
+
+    def numOfIslands(self, rows, cols, operators):
+
+        ds = DisjointSet(rows * cols)
+
+        visited = [[0] * cols for _ in range(rows)]
+
+        directions = [
+            (-1,0),
+            (1,0),
+            (0,-1),
+            (0,1)
+        ]
+
+        count = 0
+        ans = []
+
+        for row, col in operators:
+
+            if visited[row][col]:
+                ans.append(count)
+                continue
+
+            visited[row][col] = 1
+            count += 1
+
+            curr = row * cols + col
+
+            for dx, dy in directions:
+
+                nr = row + dx
+                nc = col + dy
+
+                if (
+                    0 <= nr < rows and
+                    0 <= nc < cols and
+                    visited[nr][nc]
+                ):
+
+                    adj = nr * cols + nc
+
+                    if ds.union(curr, adj):
+                        count -= 1
+
+            ans.append(count)
+
+        return ans
+```
+
+---
+
+# Time Complexity
+
+For every operation
+
+- Check 4 neighbours → **O(1)**
+- DSU Find/Union → **O(α(N))**
+
+Overall
+
+```
+O(K × α(rows × cols))
+```
+
+where
+
+- **K** = number of operations
+- **α** = Inverse Ackermann Function (almost constant)
+
+Practically,
+
+```
+O(K)
+```
+
+---
+
+# Space Complexity
+
+```
+Visited Matrix
+
+↓
+
+O(rows × cols)
+```
+
+DSU Arrays
+
+```
+Parent
+
+Size
+
+↓
+
+O(rows × cols)
+```
+
+Total
+
+```
+O(rows × cols)
+```
+
+---
+
+# Key Takeaways
+
+- This is a **dynamic connectivity** problem.
+- Each grid cell is treated as a DSU node.
+- Convert `(row, col)` into a unique node using:
+  ```python
+  node = row * cols + col
+  ```
+- Every new land initially creates a new island.
+- Only the four neighbouring cells can change connectivity.
+- Every successful `union()` merges two islands, so decrement the island count.
+- DSU avoids recomputing all islands after every operation, making it the optimal solution for online queries.
