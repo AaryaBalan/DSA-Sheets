@@ -37,6 +37,7 @@ Welcome to the graph problems section! Here you will find various data structure
 - [2285. Maximum Total Importance of Roads](#2285-maximum-total-importance-of-roads)
 - [329. Longest Increasing Path in a Matrix](#329-longest-increasing-path-in-a-matrix)
 - [1466. Reorder Routes to Make All Paths Lead to the City Zero](#1466-reorder-routes-to-make-all-paths-lead-to-the-city-zero)
+- [778. Swim in Rising Water](#778-swim-in-rising-water)
 
 <br><br><br><br><br>
 
@@ -35134,3 +35135,923 @@ O(V + E)
 - Otherwise, remove all suspicious methods.
 - Time Complexity: **O(V + E)**
 - Space Complexity: **O(V + E)**
+
+<br/><br/><br/><br/><br/>
+
+---
+
+# 778. Swim in Rising Water
+
+**Difficulty:** Hard
+**Pattern:** Graph + Modified Dijkstra + Priority Queue
+**Core idea:** **Minimize the maximum value along a path**
+
+---
+
+## 1. Understand the Problem
+
+We have an `n × n` grid.
+
+Each cell contains an elevation:
+
+```text
+grid[i][j] = elevation
+```
+
+Water starts at level `0` and continuously rises.
+
+At time `t`:
+
+> You can enter a cell if its elevation is `<= t`.
+
+You start at:
+
+```text
+(0, 0)
+```
+
+and want to reach:
+
+```text
+(n-1, n-1)
+```
+
+You can move:
+
+```text
+↑
+↓
+←
+→
+```
+
+The question is:
+
+> **What is the minimum water level at which you can reach the bottom-right cell?**
+
+---
+
+# 2. Think Like a Common Person
+
+Imagine you are walking through mountains.
+
+Each cell is a mountain with a certain height.
+
+For example:
+
+```text
+0  2
+1  3
+```
+
+You want to go from `0` to `3`.
+
+There are two possible paths.
+
+### Path 1
+
+```text
+0 → 2 → 3
+```
+
+The highest elevation you encounter is:
+
+```text
+3
+```
+
+So you need water level `3`.
+
+### Path 2
+
+```text
+0 → 1 → 3
+```
+
+Highest elevation is also:
+
+```text
+3
+```
+
+So answer is:
+
+```text
+3
+```
+
+Notice that we are **not adding elevations**.
+
+We only care about the **highest cell we must cross**.
+
+---
+
+# 3. The Important Mathematical Idea
+
+For a path
+
+```text
+v0 → v1 → v2 → ... → vk
+```
+
+define its cost as:
+
+```text
+cost(path) = max(
+    grid[v0],
+    grid[v1],
+    ...,
+    grid[vk]
+)
+```
+
+We want:
+
+```text
+answer = minimum over all paths of cost(path)
+```
+
+In mathematical notation:
+
+```text
+answer = min(path) max(elevation on path)
+```
+
+This is called:
+
+> **Minimize the Maximum**
+
+This pattern is extremely important.
+
+---
+
+# 4. Why Normal DFS Is Not the Right Algorithm
+
+Your first instinct was DFS:
+
+```text
+Start
+ ↓
+Try every path
+ ↓
+Calculate maximum elevation
+ ↓
+Choose the minimum
+```
+
+Conceptually, that works.
+
+But the number of possible paths can become enormous.
+
+For `n = 50`:
+
+```text
+50 × 50 = 2500 cells
+```
+
+There can be a huge number of different paths.
+
+So DFS becomes essentially:
+
+```text
+Try path 1
+Try path 2
+Try path 3
+...
+Try an enormous number of paths
+```
+
+We need a way to avoid exploring obviously worse paths.
+
+---
+
+# 5. Recognize Dijkstra
+
+You already know the basic idea of Dijkstra:
+
+> Always process the node having the smallest known cost first.
+
+Normally, Dijkstra calculates:
+
+```text
+newCost = currentCost + edgeWeight
+```
+
+For example:
+
+```text
+A --5--> B
+```
+
+If reaching `A` costs `3`:
+
+```text
+cost(B) = 3 + 5 = 8
+```
+
+But this problem is different.
+
+We don't care about the sum.
+
+We care about the **maximum elevation encountered**.
+
+Therefore:
+
+```python
+newCost = max(currentCost, grid[nx][ny])
+```
+
+That's the key modification.
+
+---
+
+# 6. What Does `cost` Mean?
+
+This is the most important thing to understand before writing the code.
+
+When we have:
+
+```python
+cost, x, y
+```
+
+`cost` means:
+
+> **The minimum possible highest elevation required to reach `(x, y)` found so far.**
+
+For example, suppose we reach a cell through:
+
+```text
+0 → 2 → 7 → 4
+```
+
+The maximum is:
+
+```text
+7
+```
+
+Therefore:
+
+```text
+cost = 7
+```
+
+If the next cell has elevation `3`:
+
+```text
+max(7, 3) = 7
+```
+
+We don't need more water.
+
+If the next cell has elevation `10`:
+
+```text
+max(7, 10) = 10
+```
+
+Now we need water level `10`.
+
+---
+
+# 7. Why `max()` and Not `min()`?
+
+This is the mistake you made earlier.
+
+Suppose:
+
+```text
+Current cost = 8
+Next cell = 2
+```
+
+You might think:
+
+```python
+min(8, 2)
+```
+
+which gives:
+
+```text
+2
+```
+
+But that's impossible.
+
+You've already had to cross elevation `8`.
+
+So the water level must still be at least:
+
+```text
+8
+```
+
+Therefore:
+
+```python
+newCost = max(8, 2)
+```
+
+gives:
+
+```text
+8
+```
+
+Correct.
+
+---
+
+# 8. Priority Queue
+
+We use a min-heap:
+
+```python
+pq = [(cost, row, col)]
+```
+
+The smallest `cost` is processed first.
+
+Initially:
+
+```python
+pq = [(grid[0][0], 0, 0)]
+```
+
+Suppose:
+
+```text
+grid[0][0] = 0
+```
+
+then:
+
+```text
+pq = [(0, 0, 0)]
+```
+
+---
+
+# 9. Distance Array
+
+We need to remember the best cost found for every cell.
+
+```python
+dist = [[float('inf')] * n for _ in range(n)]
+```
+
+Initially:
+
+```text
+∞ ∞ ∞
+∞ ∞ ∞
+∞ ∞ ∞
+```
+
+Starting cell:
+
+```python
+dist[0][0] = grid[0][0]
+```
+
+For example:
+
+```text
+0 ∞ ∞
+∞ ∞ ∞
+∞ ∞ ∞
+```
+
+Meaning:
+
+> The cheapest maximum elevation needed to reach `(0,0)` is `0`.
+
+---
+
+# 10. Relaxation
+
+Suppose we are currently at:
+
+```text
+(x, y)
+```
+
+with:
+
+```text
+cost
+```
+
+and want to move to:
+
+```text
+(nx, ny)
+```
+
+The next elevation is:
+
+```python
+grid[nx][ny]
+```
+
+The new path cost is:
+
+```python
+newCost = max(cost, grid[nx][ny])
+```
+
+Then ask:
+
+> Is this better than the best way we've previously found to this cell?
+
+```python
+if newCost < dist[nx][ny]:
+```
+
+If yes:
+
+```python
+dist[nx][ny] = newCost
+heapq.heappush(pq, (newCost, nx, ny))
+```
+
+---
+
+# 11. Dry Run
+
+Consider:
+
+```text
+grid = [
+    [0, 2],
+    [1, 3]
+]
+```
+
+Start:
+
+```text
+(0,0)
+```
+
+and:
+
+```text
+cost = 0
+```
+
+Priority queue:
+
+```text
+(0, 0, 0)
+```
+
+---
+
+## Step 1: Pop `(0,0)`
+
+Neighbours:
+
+```text
+(1,0) = 1
+(0,1) = 2
+```
+
+For `(1,0)`:
+
+```text
+newCost = max(0, 1)
+        = 1
+```
+
+For `(0,1)`:
+
+```text
+newCost = max(0, 2)
+        = 2
+```
+
+Queue:
+
+```text
+(1,1,0)
+(2,0,1)
+```
+
+---
+
+## Step 2: Pop `(1,0)`
+
+Its cost is:
+
+```text
+1
+```
+
+Neighbour:
+
+```text
+(1,1) = 3
+```
+
+Calculate:
+
+```text
+newCost = max(1,3)
+        = 3
+```
+
+So:
+
+```text
+dist[1][1] = 3
+```
+
+Queue:
+
+```text
+(2,0,1)
+(3,1,1)
+```
+
+---
+
+## Step 3: Pop `(0,1)`
+
+Cost:
+
+```text
+2
+```
+
+Neighbour:
+
+```text
+(1,1) = 3
+```
+
+Again:
+
+```text
+newCost = max(2,3)
+        = 3
+```
+
+We already know:
+
+```text
+dist[1][1] = 3
+```
+
+So there is no improvement.
+
+---
+
+## Step 4: Pop `(1,1)`
+
+Cost:
+
+```text
+3
+```
+
+This is our destination.
+
+Therefore:
+
+```text
+answer = 3
+```
+
+---
+
+# 12. Why Can We Return Immediately?
+
+This is exactly the Dijkstra property.
+
+The priority queue always gives us the smallest currently known cost.
+
+When the destination is popped:
+
+```python
+if x == n - 1 and y == n - 1:
+    return cost
+```
+
+there cannot be another path with a smaller cost waiting later in the heap.
+
+So this is optimal.
+
+---
+
+# 13. Complete Python Code
+
+```python
+import heapq
+from typing import List
+
+
+class Solution:
+    def swimInWater(self, grid: List[List[int]]) -> int:
+
+        n = len(grid)
+
+        directions = [
+            (-1, 0),
+            (1, 0),
+            (0, -1),
+            (0, 1)
+        ]
+
+        # dist[r][c] =
+        # minimum possible maximum elevation
+        # required to reach (r, c)
+        dist = [[float('inf')] * n for _ in range(n)]
+
+        dist[0][0] = grid[0][0]
+
+        # (cost, row, column)
+        pq = [(grid[0][0], 0, 0)]
+
+        while pq:
+
+            cost, x, y = heapq.heappop(pq)
+
+            # Ignore an outdated heap entry
+            if cost > dist[x][y]:
+                continue
+
+            # Destination reached optimally
+            if x == n - 1 and y == n - 1:
+                return cost
+
+            for dx, dy in directions:
+
+                nx = x + dx
+                ny = y + dy
+
+                if (
+                    0 <= nx < n and
+                    0 <= ny < n
+                ):
+
+                    # The path cost is the maximum
+                    # elevation encountered so far.
+                    newCost = max(
+                        cost,
+                        grid[nx][ny]
+                    )
+
+                    if newCost < dist[nx][ny]:
+
+                        dist[nx][ny] = newCost
+
+                        heapq.heappush(
+                            pq,
+                            (newCost, nx, ny)
+                        )
+
+        return -1
+```
+
+---
+
+# 14. Understanding the Code in One Picture
+
+The entire algorithm is basically:
+
+```text
+                 Priority Queue
+                       │
+                       ▼
+             smallest cost first
+                       │
+                       ▼
+                  Current cell
+                       │
+             ┌─────────┼─────────┐
+             ▼         ▼         ▼
+           Up        Down      Left/Right
+             │         │         │
+             └─────────┼─────────┘
+                       ▼
+            newCost = max(
+                currentCost,
+                neighbourHeight
+            )
+                       │
+                       ▼
+              Is it better?
+                 /       \
+               YES        NO
+                │          │
+             update       ignore
+                │
+                ▼
+             min-heap
+```
+
+---
+
+# 15. Compare This With Normal Dijkstra
+
+This comparison is important for your DSA pattern recognition.
+
+### Standard Dijkstra
+
+```python
+newCost = cost + weight
+```
+
+Meaning:
+
+> Total cost accumulated along the path.
+
+### Swim in Rising Water
+
+```python
+newCost = max(cost, grid[nx][ny])
+```
+
+Meaning:
+
+> Highest elevation encountered along the path.
+
+### Path With Minimum Effort — LeetCode 1631
+
+```python
+newCost = max(
+    cost,
+    abs(heights[x][y] - heights[nx][ny])
+)
+```
+
+Meaning:
+
+> Largest single height difference along the path.
+
+### Maximum Probability — LeetCode 1514
+
+```python
+newCost = cost * probability
+```
+
+Meaning:
+
+> Product of probabilities along the path.
+
+The **Dijkstra framework stays the same**. The meaning of `cost` and the relaxation formula change.
+
+---
+
+# 16. Your Main Learning Gap
+
+Looking at your earlier attempts, your biggest problem isn't understanding DFS, BFS, or Dijkstra individually.
+
+Your main gap is:
+
+> **Choosing the algorithm from the objective of the problem.**
+
+When you see a grid, you tend to immediately think:
+
+```text
+Grid
+ ↓
+DFS/BFS
+```
+
+Instead, train yourself to think:
+
+```text
+Grid
+ ↓
+What exactly is being asked?
+ ↓
+Is it just connectivity?
+ ↓
+Or an optimization problem?
+ ↓
+What is being optimized?
+```
+
+Here:
+
+```text
+Grid
+ ↓
+Find a path
+ ↓
+Minimum time
+ ↓
+Time depends on highest elevation
+ ↓
+Minimize maximum
+ ↓
+Modified Dijkstra
+```
+
+That's the thought process you want in an interview.
+
+---
+
+# 17. A Useful Pattern Table
+
+| Problem Type                       | Think             |
+| ---------------------------------- | ----------------- |
+| Just visit/reach nodes             | DFS/BFS           |
+| Unweighted shortest path           | BFS               |
+| Weighted shortest path             | Dijkstra          |
+| Weighted graph with negative edges | Bellman-Ford      |
+| Minimum spanning tree              | Prim/Kruskal      |
+| Dynamic connectivity               | DSU               |
+| Minimum **sum** path               | Dijkstra          |
+| Minimum **maximum** path value     | Modified Dijkstra |
+| Maximum probability path           | Modified Dijkstra |
+
+---
+
+# 18. Interview Checklist
+
+Before coding a graph problem, force yourself to answer:
+
+### 1. What is my node?
+
+Here:
+
+```text
+Each grid cell
+```
+
+### 2. What are my edges?
+
+Here:
+
+```text
+4-directional neighbours
+```
+
+### 3. What is my cost?
+
+Here:
+
+```text
+Highest elevation encountered
+```
+
+### 4. What am I optimizing?
+
+Here:
+
+```text
+Minimize that maximum
+```
+
+### 5. Which algorithm matches?
+
+```text
+Modified Dijkstra
+```
+
+### 6. What is my relaxation formula?
+
+```python
+newCost = max(cost, grid[nx][ny])
+```
+
+If you can answer these six questions **before writing code**, you are developing the exact problem-solving habit product-company interviews look for.
+
+---
+
+# 19. Final Mental Model
+
+Don't memorize:
+
+> "778 uses Dijkstra."
+
+Instead remember:
+
+```text
+I need a path.
+
+Each path has a cost.
+
+The cost is the maximum value encountered.
+
+I want the minimum such cost.
+
+Therefore:
+
+MINIMUM of MAXIMUM
+
+↓
+
+Priority Queue / Modified Dijkstra
+
+↓
+
+newCost = max(currentCost, nextValue)
+```
+
+That intuition is much more valuable because it immediately helps you recognize the same pattern in new problems.
